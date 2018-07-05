@@ -1,0 +1,13 @@
+.gradle/
+.*
+!.gitignore
+!.travis.yml
+!.circleci
+.settings/
+build/
+out/
+bin/
+gradle.properties
+*.iml
+*.ipr
+*.iws
