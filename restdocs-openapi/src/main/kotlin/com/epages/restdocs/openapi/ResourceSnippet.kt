@@ -1,5 +1,6 @@
 package com.epages.restdocs.openapi
 
+import com.epages.restdocs.openapi.jsonschema.JsonSchemaFromFieldDescriptorsGenerator
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.springframework.http.HttpHeaders
@@ -19,6 +20,8 @@ import java.util.Optional
 class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetParameters): Snippet {
 
     private val objectMapper = jacksonObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
+
+    private val jsonSchemaGenerator = JsonSchemaFromFieldDescriptorsGenerator()
 
     override fun document(operation: Operation) {
         val context = operation
@@ -42,8 +45,8 @@ class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetPara
 
         return ResourceModel(
             operationId = operation.name,
-            summary = resourceSnippetParameters.summary,
-            description = resourceSnippetParameters.description,
+            summary = resourceSnippetParameters.summary ?: resourceSnippetParameters.description,
+            description = resourceSnippetParameters.description ?: resourceSnippetParameters.summary,
             privateResource = resourceSnippetParameters.privateResource,
             deprecated = resourceSnippetParameters.deprecated,
             request = RequestModel(
@@ -54,7 +57,8 @@ class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetPara
                 pathParameters = resourceSnippetParameters.pathParameters,
                 requestParameters = resourceSnippetParameters.requestParameters,
                 requestFields = if (hasRequestBody) resourceSnippetParameters.requestFields else emptyList(),
-                example = operation.request.contentAsString?.let { if (it.isEmpty()) null else it },
+                example = if (hasRequestBody) operation.request.contentAsString else null,
+                schema = jsonSchemaFromFieldDescriptors(resourceSnippetParameters.requestFields),
                 securityRequirements = securityRequirements
             ),
             response = ResponseModel(
@@ -62,10 +66,17 @@ class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetPara
                 contentType = if (hasResponseBody) getContentTypeOrDefault(operation.response.headers) else null,
                 headers = resourceSnippetParameters.responseHeaders,
                 responseFields = if (hasResponseBody) resourceSnippetParameters.responseFields else emptyList(),
-                example = operation.response.contentAsString?.let { if (it.isEmpty()) null else it }
+                example = if (hasResponseBody) operation.response.contentAsString else null,
+                schema = jsonSchemaFromFieldDescriptors(resourceSnippetParameters.responseFields)
             )
         )
     }
+
+    private fun jsonSchemaFromFieldDescriptors(fieldDescriptors: List<FieldDescriptor>): String? =
+        if (fieldDescriptors.isNotEmpty())
+            jsonSchemaGenerator.generateSchema(fieldDescriptors)
+        else
+            null
 
     private fun getUriPath(operation: Operation) =
         Optional.ofNullable(operation.attributes[ATTRIBUTE_NAME_URL_TEMPLATE] as? String)
@@ -102,6 +113,7 @@ class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetPara
         val requestParameters: List<ParameterDescriptorWithType>,
         val requestFields: List<FieldDescriptor>,
         val example: String?,
+        val schema: String?,
         val securityRequirements: SecurityRequirements?
     )
 
@@ -110,7 +122,8 @@ class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetPara
         val contentType: String?,
         val headers: List<HeaderDescriptorWithType>,
         val responseFields: List<FieldDescriptor>,
-        val example: String?
+        val example: String?,
+        val schema: String?
     )
 
     private interface SecurityRequirements {

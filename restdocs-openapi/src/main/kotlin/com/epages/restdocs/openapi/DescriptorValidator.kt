@@ -4,6 +4,9 @@ import org.springframework.restdocs.headers.HeaderDescriptor
 import org.springframework.restdocs.headers.HeaderDocumentation.headerWithName
 import org.springframework.restdocs.headers.RequestHeadersSnippet
 import org.springframework.restdocs.headers.ResponseHeadersSnippet
+import org.springframework.restdocs.hypermedia.HypermediaDocumentation
+import org.springframework.restdocs.hypermedia.LinkDescriptor
+import org.springframework.restdocs.hypermedia.LinksSnippet
 import org.springframework.restdocs.operation.Operation
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.RequestFieldsSnippet
@@ -13,11 +16,12 @@ import org.springframework.restdocs.request.PathParametersSnippet
 import org.springframework.restdocs.request.RequestDocumentation.parameterWithName
 import org.springframework.restdocs.request.RequestParametersSnippet
 
-object DescriptorValidator {
+internal object DescriptorValidator {
 
     fun validatePresentParameters(snippetParameters: ResourceSnippetParameters, operation: Operation) {
         with (snippetParameters) {
             validateIfDescriptorsPresent(requestFields, operation) { RequestFieldsSnippetWrapper(requestFields) }
+            validateIfDescriptorsPresent(links, operation) { LinksSnippetWrapper(links) }
             validateIfDescriptorsPresent(responseFields, operation) { ResponseFieldsSnippetWrapper(responseFields) }
             validateIfDescriptorsPresent(pathParameters, operation) { PathParametersSnippetWrapper(toParameterDescriptors(pathParameters)) }
             validateIfDescriptorsPresent(requestParameters, operation) { RequestParameterSnippetWrapper(toParameterDescriptors(requestParameters)) }
@@ -76,6 +80,12 @@ object DescriptorValidator {
     }
 
     private class ResponseHeadersSnippetWrapper(descriptors: List<HeaderDescriptor>) : ResponseHeadersSnippet(descriptors), ValidateableSnippet {
+        override fun validate(operation: Operation) {
+            this.createModel(operation)
+        }
+    }
+
+    private class LinksSnippetWrapper(descriptors: List<LinkDescriptor>) : LinksSnippet(HypermediaDocumentation.halLinks(), descriptors), ValidateableSnippet {
         override fun validate(operation: Operation) {
             this.createModel(operation)
         }

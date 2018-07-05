@@ -8,6 +8,9 @@ import java.io.IOException
 import java.util.Base64
 import java.util.Collections.emptyList
 
+/**
+ * Extract a list of scopes from a JWT token
+ */
 class JwtScopeHandler {
 
     fun extractScopes(operation: Operation): List<String> {

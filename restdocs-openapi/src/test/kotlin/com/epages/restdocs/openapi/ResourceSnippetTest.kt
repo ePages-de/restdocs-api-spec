@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.http.HttpHeaders.CONTENT_TYPE
+import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.OK
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.restdocs.generate.RestDocumentationGenerator.ATTRIBUTE_NAME_URL_TEMPLATE
@@ -89,6 +90,13 @@ class ResourceSnippetTest(private val temporaryFolder: TemporaryFolder) {
 
         then(resourceSnippetJson.read<List<String>>("request.securityRequirements.requiredScopes")).containsExactly("scope1", "scope2")
         then(resourceSnippetJson.read<String>("request.securityRequirements.type")).isEqualTo("OAUTH2")
+
+        then(resourceSnippetJson.read<String>("request.example")).isNotEmpty()
+        then(resourceSnippetJson.read<String>("request.schema")).isNotEmpty()
+
+        then(resourceSnippetJson.read<Int>("response.status")).isEqualTo(HttpStatus.CREATED.value())
+        then(resourceSnippetJson.read<String>("response.example")).isNotEmpty()
+        then(resourceSnippetJson.read<String>("response.schema")).isNotEmpty()
 
         then(resourceSnippetJson.read<List<*>>("response.headers")).hasSize(1)
         then(resourceSnippetJson.read<String>("response.headers[0].name")).isNotEmpty()

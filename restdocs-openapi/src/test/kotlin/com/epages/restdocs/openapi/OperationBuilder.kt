@@ -28,6 +28,9 @@ import java.net.URI
 import java.util.ArrayList
 import java.util.HashMap
 
+/**
+ * Helper class to support testing snippets by providing a builder for the central Operation class
+ */
 class OperationBuilder {
 
     private val attributes = HashMap<String, Any>()
