@@ -168,7 +168,7 @@ internal class JsonSchemaFromFieldDescriptorsGenerator {
             }
             when {
                 fieldDescriptor.type == JsonFieldType.NULL || fieldDescriptor.type == JsonFieldType.VARIES -> builder.addPropertySchema(
-                    propertyName, NullSchema.builder()
+                    propertyName, NullSchema.builder() //TODO this is bad - most likely a union type would be what we need here - see org.everit.json.schema.CombinedSchema.anyOf
                         .description(fieldDescriptor.description as String)
                         .build()
                 )

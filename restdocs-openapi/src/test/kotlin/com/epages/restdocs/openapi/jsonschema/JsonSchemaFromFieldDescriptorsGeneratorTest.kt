@@ -64,6 +64,7 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
         then(billingAddressSchema.requiredProperties.contains("firstName")).isTrue()
         val firstNameSchema = billingAddressSchema.propertySchemas["firstName"] as StringSchema
         then(firstNameSchema.minLength).isEqualTo(1)
+        @Suppress("USELESS_CAST") //needed because Int becomes a primitive and cannot be checked isNull then
         then(firstNameSchema.maxLength as Int?).isNull()
 
         then(billingAddressSchema.definesProperty("valid")).isTrue()

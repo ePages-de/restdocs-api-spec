@@ -177,7 +177,7 @@ class ResourceSnippetTest(private val temporaryFolder: TemporaryFolder) {
     }
 
     private fun givenOperationWithoutUrlTemplate() {
-        val operationBuilder = OperationBuilder("test", temporaryFolder!!.root)
+        val operationBuilder = OperationBuilder("test", temporaryFolder.root)
         operationBuilder
             .request("http://localhost:8080/some/123")
             .method("POST")
@@ -188,7 +188,7 @@ class ResourceSnippetTest(private val temporaryFolder: TemporaryFolder) {
     }
 
     private fun givenOperationWithRequestBody() {
-        operation = OperationBuilder("test", temporaryFolder!!.root)
+        operation = OperationBuilder("test", temporaryFolder.root)
             .attribute(ATTRIBUTE_NAME_URL_TEMPLATE, "http://localhost:8080/some/{id}")
             .request("http://localhost:8080/some/123")
             .method("POST")
@@ -237,7 +237,6 @@ class ResourceSnippetTest(private val temporaryFolder: TemporaryFolder) {
     }
 
     companion object {
-
-        private val OPERATION_NAME = "test"
+        private const val OPERATION_NAME = "test"
     }
 }

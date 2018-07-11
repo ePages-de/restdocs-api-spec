@@ -134,7 +134,7 @@ class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetPara
         override val type = SecurityType.OAUTH2
     }
 
-    enum class SecurityType {
+    private enum class SecurityType {
         OAUTH2,
         BASIC,
         API_KEY

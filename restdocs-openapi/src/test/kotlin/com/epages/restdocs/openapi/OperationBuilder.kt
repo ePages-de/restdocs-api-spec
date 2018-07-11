@@ -107,7 +107,7 @@ class OperationBuilder {
 
     private fun createContext(): RestDocumentationContext {
         val manualRestDocumentation = ManualRestDocumentation(
-            this.outputDirectory!!.absolutePath
+            this.outputDirectory.absolutePath
         )
         manualRestDocumentation.beforeTest(null, null)
         return manualRestDocumentation.beforeOperation()

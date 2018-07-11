@@ -22,6 +22,7 @@ class JwtScopeHandler {
             .flatMap { jwt2scopes(it) }
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun jwt2scopes(jwt: String): List<String> {
         val jwtParts = jwt.split("\\.".toRegex()).dropLastWhile { it.isEmpty() }
         if (jwtParts.size >= 2) { // JWT = header, payload, signature; at least the first two should be there
