@@ -22,11 +22,11 @@ internal object DescriptorValidator {
         with (snippetParameters) {
             validateIfDescriptorsPresent(requestFields, operation) { RequestFieldsSnippetWrapper(requestFields) }
             validateIfDescriptorsPresent(links, operation) { LinksSnippetWrapper(links) }
-            validateIfDescriptorsPresent(responseFields, operation) { ResponseFieldsSnippetWrapper(responseFields) }
+            validateIfDescriptorsPresent(responseFieldsWithLinks, operation) { ResponseFieldsSnippetWrapper(responseFieldsWithLinks) }
             validateIfDescriptorsPresent(pathParameters, operation) { PathParametersSnippetWrapper(toParameterDescriptors(pathParameters)) }
             validateIfDescriptorsPresent(requestParameters, operation) { RequestParameterSnippetWrapper(toParameterDescriptors(requestParameters)) }
             validateIfDescriptorsPresent(requestHeaders, operation) { RequestHeadersSnippetWrapper(toHeaderDescriptors(requestHeaders)) }
-            validateIfDescriptorsPresent(responseHeaders, operation) { ResponseHeadersSnippetWrapper(toHeaderDescriptors(requestHeaders)) }
+            validateIfDescriptorsPresent(responseHeaders, operation) { ResponseHeadersSnippetWrapper(toHeaderDescriptors(responseHeaders)) }
         }
     }
 

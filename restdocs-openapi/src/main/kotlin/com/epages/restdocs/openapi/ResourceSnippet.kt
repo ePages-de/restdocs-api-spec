@@ -67,7 +67,7 @@ class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetPara
                 headers = resourceSnippetParameters.responseHeaders,
                 responseFields = if (hasResponseBody) resourceSnippetParameters.responseFields else emptyList(),
                 example = if (hasResponseBody) operation.response.contentAsString else null,
-                schema = jsonSchemaFromFieldDescriptors(resourceSnippetParameters.responseFields)
+                schema = jsonSchemaFromFieldDescriptors(resourceSnippetParameters.responseFieldsWithLinks)
             )
         )
     }

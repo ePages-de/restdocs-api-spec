@@ -106,7 +106,7 @@ internal class JsonSchemaFromFieldDescriptorsGenerator {
                             propertyName,
                             newTraversedSegments,
                             newFields,
-                            directMatch.fieldDescriptor.description as String
+                            directMatch.fieldDescriptor.description as? String
                         )
                     }
                     true

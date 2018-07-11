@@ -19,6 +19,8 @@ sourceCompatibility = 1.8
 
 repositories {
 	mavenCentral()
+	maven { url = "https://jitpack.io" }
+
 }
 
 
@@ -27,7 +29,10 @@ dependencies {
 	compile('org.springframework.boot:spring-boot-starter-web')
 	runtime('com.h2database:h2')
 	compileOnly('org.projectlombok:lombok')
-	testCompile('org.springframework.boot:spring-boot-starter-test')
+	testCompile("org.springframework.boot:spring-boot-starter-test") {
+		exclude group: "junit"
+	}
+	testCompile("org.junit.jupiter:junit-jupiter-engine:5.2.0")
 	testCompile('org.springframework.restdocs:spring-restdocs-mockmvc')
 	testCompile project(':restdocs-openapi')
 }

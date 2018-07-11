@@ -1,21 +1,24 @@
 package com.epages.restdocsopenapisample;
 
 import com.epages.restdocs.openapi.HeaderDescriptorWithType;
+import com.epages.restdocs.openapi.MockMvcRestDocumentationWrapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.restdocs.payload.PayloadDocumentation;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 public class RestdocsOpenapiSampleApplicationTests {
 
 	@Test
 	public void contextLoads() throws JsonProcessingException {
-		System.out.println(new ObjectMapper().writeValueAsString(
-				new HeaderDescriptorWithType("some").optional().description("some")));
+        MockMvcRestDocumentationWrapper.document("some", PayloadDocumentation.requestFields());
+        System.out.println(new ObjectMapper().writeValueAsString(
+                new HeaderDescriptorWithType("some").optional().description("some")));
 	}
 
 }

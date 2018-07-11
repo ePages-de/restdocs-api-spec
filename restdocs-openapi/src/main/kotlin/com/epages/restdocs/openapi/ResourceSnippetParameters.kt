@@ -4,9 +4,15 @@ import com.epages.restdocs.openapi.SimpleType.STRING
 import org.springframework.restdocs.headers.HeaderDescriptor
 import org.springframework.restdocs.hypermedia.LinkDescriptor
 import org.springframework.restdocs.payload.FieldDescriptor
+import org.springframework.restdocs.payload.JsonFieldType
+import org.springframework.restdocs.payload.PayloadDocumentation
+import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.restdocs.request.ParameterDescriptor
 import org.springframework.restdocs.snippet.AbstractDescriptor
+import org.springframework.restdocs.snippet.Attributes
 import org.springframework.restdocs.snippet.IgnorableDescriptor
+import org.springframework.util.ReflectionUtils
+import java.util.Optional
 
 data class ResourceSnippetParameters @JvmOverloads constructor(
         val summary: String? = null,
@@ -21,8 +27,48 @@ data class ResourceSnippetParameters @JvmOverloads constructor(
         val requestHeaders: List<HeaderDescriptorWithType> = emptyList(),
         val responseHeaders: List<HeaderDescriptorWithType> = emptyList()
 ) {
+    val responseFieldsWithLinks by lazy { responseFields + links.map(::toFieldDescriptor) }
+
     companion object {
         fun builder() = ResourceSnippetParametersBuilder()
+
+        private fun toFieldDescriptor(linkDescriptor: LinkDescriptor): FieldDescriptor {
+
+            var descriptor = createLinkFieldDescriptor(linkDescriptor.rel)
+                .description(linkDescriptor.description)
+                .type(JsonFieldType.VARIES)
+                .attributes(*linkDescriptor.attributes.entries
+                    .map { e -> Attributes.Attribute(e.key, e.value) }
+                    .toTypedArray())
+
+            if (linkDescriptor.isOptional) {
+                descriptor = descriptor.optional()
+            }
+            if (linkDescriptor.isIgnored) {
+                descriptor = descriptor.ignored()
+            }
+
+            return descriptor
+        }
+
+        /**
+         * Behaviour changed from restdocs 1.1 to restdocs 1.2
+         * In 1.2 you need to document attributes inside the object when documenting the object with fieldWithPath - which was not the case with 1.1
+         * So we need to use subsectionWithPath if we are working with 1.2 and fieldWithPath otherwise
+         * @param rel
+         * @return
+         */
+        private fun createLinkFieldDescriptor(rel: String): FieldDescriptor {
+            val path = "_links.$rel"
+            return Optional.ofNullable(
+                ReflectionUtils.findMethod(
+                    PayloadDocumentation::class.java,
+                    "subsectionWithPath",
+                    String::class.java
+                ))
+                .map { m -> ReflectionUtils.invokeMethod(m, null, path) }
+                .orElseGet { fieldWithPath(path) } as FieldDescriptor
+        }
     }
 }
 
@@ -110,8 +156,8 @@ class ResourceSnippetParametersBuilder {
     var responseHeaders: List<HeaderDescriptorWithType> = emptyList()
         private set
 
-    fun summary(summary: String) = apply { this.summary = summary }
-    fun description(description: String) = apply { this.description = description }
+    fun summary(summary: String?) = apply { this.summary = summary }
+    fun description(description: String?) = apply { this.description = description }
     fun privateResource(privateResource: Boolean) = apply { this.privateResource = privateResource }
     fun deprecated(deprecated: Boolean) = apply { this.deprecated = deprecated }
 
@@ -122,6 +168,9 @@ class ResourceSnippetParametersBuilder {
     fun responseFields(vararg responseFields: FieldDescriptor) = responseFields(responseFields.toList())
     fun responseFields(responseFields: List<FieldDescriptor>) = apply { this.responseFields = responseFields }
     fun responseFields(fieldDescriptors: FieldDescriptors) = responseFields(fieldDescriptors.fieldDescriptors)
+
+    fun links(vararg links: LinkDescriptor) = apply { links(links.toList()) }
+    fun links(links: List<LinkDescriptor>) = apply { this.links = links }
 
     fun pathParameters(vararg pathParameters: ParameterDescriptorWithType) = pathParameters(pathParameters.toList())
     fun pathParameters(pathParameters: List<ParameterDescriptorWithType>) = apply { this.pathParameters = pathParameters }
