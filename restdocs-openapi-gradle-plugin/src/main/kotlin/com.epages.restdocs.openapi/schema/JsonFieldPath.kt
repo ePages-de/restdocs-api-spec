@@ -1,6 +1,6 @@
-package com.epages.restdocs.openapi.jsonschema
+package com.epages.restdocs.openapi.schema
 
-import org.springframework.restdocs.payload.FieldDescriptor
+import com.epages.restdocs.openapi.FieldDescriptor
 import java.util.ArrayList
 import java.util.regex.Pattern
 

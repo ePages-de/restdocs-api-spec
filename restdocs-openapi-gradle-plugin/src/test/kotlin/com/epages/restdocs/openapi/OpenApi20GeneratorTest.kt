@@ -1,4 +1,4 @@
-package com.epages.restdocs.openapi.schema
+package com.epages.restdocs.openapi
 
 import com.epages.restdocs.openapi.OpenApi20Generator
 import io.swagger.util.Json

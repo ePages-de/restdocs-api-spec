@@ -1,4 +1,4 @@
-package com.epages.restdocs.openapi.resource
+package com.epages.restdocs.openapi
 
 
 internal data class ResourceModel(
@@ -33,7 +33,7 @@ internal data class ResponseModel(
     val schema: String?
 )
 
-enum class SimpleType {
+internal enum class SimpleType {
     STRING,
     INTEGER,
     NUMBER,
@@ -51,8 +51,18 @@ internal data class FieldDescriptor(
     val path: String,
     val description: String,
     val type: String,
-    val optional: Boolean,
-    val ignored: Boolean
+    val optional: Boolean = false,
+    val ignored: Boolean = false,
+    val attributes: Attributes = Attributes()
+)
+
+internal data class Attributes(
+    val validationConstraints: List<Constraint> = emptyList()
+)
+
+internal data class Constraint(
+    val name: String,
+    val configuration: Map<String, Any>
 )
 
 internal data class ParameterDescriptor(

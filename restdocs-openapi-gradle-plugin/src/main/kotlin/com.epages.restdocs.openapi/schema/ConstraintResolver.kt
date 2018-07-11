@@ -1,7 +1,7 @@
-package com.epages.restdocs.openapi.jsonschema
+package com.epages.restdocs.openapi.schema
 
-import org.springframework.restdocs.constraints.Constraint
-import org.springframework.restdocs.payload.FieldDescriptor
+import com.epages.restdocs.openapi.Constraint
+import com.epages.restdocs.openapi.FieldDescriptor
 
 internal object ConstraintResolver {
 
@@ -16,7 +16,7 @@ internal object ConstraintResolver {
         "org.hibernate.validator.constraints.NotBlank"
     )
 
-    private val REQUIRED_CONSTRAINTS = setOf<String>("javax.validation.constraints.NotNull")
+    private val REQUIRED_CONSTRAINTS = setOf("javax.validation.constraints.NotNull")
         .plus(NOT_EMPTY_CONSTRAINTS)
         .plus(NOT_BLANK_CONSTRAINTS)
 
@@ -42,12 +42,6 @@ internal object ConstraintResolver {
             .any { constraint -> REQUIRED_CONSTRAINTS.contains(constraint.name) }
     }
 
-    private fun findConstraints(fieldDescriptor: FieldDescriptor): List<Constraint> {
-        return fieldDescriptor.attributes.values
-            .filter { value -> value is List<*> }
-            .map { value -> value as List<*> }
-            .filter { list -> !list.isEmpty() && list[0] is Constraint }
-            .flatMap { it }
-            .map { it as Constraint }
-    }
+    private fun findConstraints(fieldDescriptor: FieldDescriptor): List<Constraint> =
+        fieldDescriptor.attributes.validationConstraints
 }

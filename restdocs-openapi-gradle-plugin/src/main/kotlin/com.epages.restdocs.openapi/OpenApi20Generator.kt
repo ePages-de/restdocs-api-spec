@@ -1,6 +1,5 @@
 package com.epages.restdocs.openapi
 
-import com.epages.restdocs.openapi.resource.ResourceModel
 import io.swagger.models.Info
 import io.swagger.models.Operation
 import io.swagger.models.Path

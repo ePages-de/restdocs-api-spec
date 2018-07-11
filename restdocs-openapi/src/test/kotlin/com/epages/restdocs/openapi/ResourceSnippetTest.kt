@@ -92,11 +92,9 @@ class ResourceSnippetTest(private val temporaryFolder: TemporaryFolder) {
         then(resourceSnippetJson.read<String>("request.securityRequirements.type")).isEqualTo("OAUTH2")
 
         then(resourceSnippetJson.read<String>("request.example")).isNotEmpty()
-        then(resourceSnippetJson.read<String>("request.schema")).isNotEmpty()
 
         then(resourceSnippetJson.read<Int>("response.status")).isEqualTo(HttpStatus.CREATED.value())
         then(resourceSnippetJson.read<String>("response.example")).isNotEmpty()
-        then(resourceSnippetJson.read<String>("response.schema")).isNotEmpty()
 
         then(resourceSnippetJson.read<List<*>>("response.headers")).hasSize(1)
         then(resourceSnippetJson.read<String>("response.headers[0].name")).isNotEmpty()

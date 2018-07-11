@@ -1,5 +1,8 @@
-package com.epages.restdocs.openapi.jsonschema
+package com.epages.restdocs.openapi.schema
 
+import com.epages.restdocs.openapi.Attributes
+import com.epages.restdocs.openapi.Constraint
+import com.epages.restdocs.openapi.FieldDescriptor
 import com.github.fge.jackson.JsonLoader
 import com.github.fge.jsonschema.main.JsonSchemaFactory
 import org.assertj.core.api.BDDAssertions.then
@@ -9,23 +12,11 @@ import org.everit.json.schema.ObjectSchema
 import org.everit.json.schema.Schema
 import org.everit.json.schema.StringSchema
 import org.everit.json.schema.loader.SchemaLoader
-import org.hibernate.validator.constraints.Length
-import org.intellij.lang.annotations.Language
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.jupiter.api.Test
-import org.springframework.restdocs.constraints.Constraint
-import org.springframework.restdocs.payload.FieldDescriptor
-import org.springframework.restdocs.payload.JsonFieldType.ARRAY
-import org.springframework.restdocs.payload.JsonFieldType.BOOLEAN
-import org.springframework.restdocs.payload.JsonFieldType.NUMBER
-import org.springframework.restdocs.payload.JsonFieldType.OBJECT
-import org.springframework.restdocs.payload.JsonFieldType.STRING
-import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
-import org.springframework.restdocs.snippet.Attributes
 import java.io.IOException
 import java.util.Collections.emptyMap
-import javax.validation.constraints.NotEmpty
 import javax.validation.constraints.NotNull
 
 class JsonSchemaFromFieldDescriptorsGeneratorTest {
@@ -177,67 +168,60 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
     }
 
     private fun givenFieldDescriptorWithPrimitiveArray() {
-        fieldDescriptors = listOf(fieldWithPath("a[]").description("some").type(ARRAY))
+        fieldDescriptors = listOf(FieldDescriptor("a[]", "some", "ARRAY"))
     }
 
     private fun givenFieldDescriptorWithTopLevelArray() {
-        fieldDescriptors = listOf(fieldWithPath("[]['id']").description("some").type(STRING))
+        fieldDescriptors = listOf(FieldDescriptor("[]['id']", "some", "STRING"))
     }
 
     private fun givenFieldDescriptorWithInvalidType() {
-        fieldDescriptors = listOf(fieldWithPath("id").description("some").type("invalid-type"))
+        fieldDescriptors = listOf(FieldDescriptor("id", "some", "invalid-type"))
     }
 
     private fun givenEqualFieldDescriptorsWithSamePath() {
         fieldDescriptors = listOf(
-            fieldWithPath("id").description("some").type(STRING),
-            fieldWithPath("id").description("some").type(STRING)
+            FieldDescriptor("id", "some", "STRING"),
+            FieldDescriptor("id", "some", "STRING")
         )
     }
 
     private fun givenDifferentFieldDescriptorsWithSamePath() {
         fieldDescriptors = listOf(
-            fieldWithPath("id").description("some").type(STRING),
-            fieldWithPath("id").description("some").type(STRING),
-            fieldWithPath("id").description("some").type(STRING).optional()
+            FieldDescriptor("id", "some", "STRING"),
+            FieldDescriptor("id", "some", "STRING"),
+            FieldDescriptor("id", "some", "STRING", true)
         )
     }
 
     private fun givenFieldDescriptorsWithConstraints() {
         val constraintAttributeWithNotNull =
-            Attributes.key("notImportant").value(listOf(Constraint(NotNull::class.java.name, emptyMap())))
+            Attributes(listOf(Constraint(NotNull::class.java.name, emptyMap())))
 
         val constraintAttributeWithLength =
-            Attributes.key("notImportant").value(listOf(
-                Constraint(Length::class.java.name, mapOf(
+            Attributes(listOf(
+                Constraint("org.hibernate.validator.constraints.Length", mapOf(
                     "min" to 2,
                     "max" to 255
                 ))
             ))
 
         fieldDescriptors = listOf(
-            fieldWithPath("id").description("some").type(STRING).attributes(constraintAttributeWithNotNull),
-            fieldWithPath("lineItems[*].name").description("some").type(STRING).type(STRING).attributes(
-                constraintAttributeWithLength
-            ),
-            fieldWithPath("lineItems[*]._id").description("some").type(STRING).attributes(constraintAttributeWithNotNull),
-            fieldWithPath("lineItems[*].quantity.value").description("some").type(NUMBER).attributes(
-                constraintAttributeWithNotNull
-            ),
-            fieldWithPath("lineItems[*].quantity.unit").description("some").type(STRING),
-            fieldWithPath("shippingAddress").description("some").type(OBJECT),
-            fieldWithPath("billingAddress").description("some").type(OBJECT).attributes(constraintAttributeWithNotNull),
-            fieldWithPath("billingAddress.firstName").description("some").type(STRING).attributes(
-                Attributes
-                    .key("notImportant")
-                    .value(listOf(Constraint(NotEmpty::class.java.name, emptyMap())))
-            ),
-            fieldWithPath("billingAddress.valid").description("some").type(BOOLEAN),
-            fieldWithPath("paymentLineItem.lineItemTaxes").description("some").type(ARRAY)
+            FieldDescriptor("id", "some", "STRING", attributes = constraintAttributeWithNotNull),
+            FieldDescriptor("lineItems[*].name", "some", "STRING", attributes = constraintAttributeWithLength),
+            FieldDescriptor("lineItems[*]._id", "some", "STRING", attributes = constraintAttributeWithNotNull),
+            FieldDescriptor("lineItems[*].quantity.value", "some", "NUMBER", attributes = constraintAttributeWithNotNull),
+            FieldDescriptor("lineItems[*].quantity.unit", "some", "STRING"),
+            FieldDescriptor("shippingAddress", "some", "OBJECT"),
+            FieldDescriptor("billingAddress", "some", "OBJECT"),
+            FieldDescriptor("billingAddress.firstName", "some", "STRING",
+                attributes = Attributes(listOf(Constraint("javax.validation.constraints.NotEmpty", emptyMap())))),
+            FieldDescriptor("billingAddress.valid", "some", "BOOLEAN"),
+            FieldDescriptor("paymentLineItem.lineItemTaxes", "some", "ARRAY")
         )
     }
 
-    private fun thenSchemaValidatesJson(@Language("JSON") json: String) {
+    private fun thenSchemaValidatesJson(json: String) {
         schema!!.validate(if (json.startsWith("[")) JSONArray(json) else JSONObject(json))
     }
 }

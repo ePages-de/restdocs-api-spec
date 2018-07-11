@@ -1,8 +1,9 @@
-package com.epages.restdocs.openapi.jsonschema
+package com.epages.restdocs.openapi.schema
 
-import com.epages.restdocs.openapi.jsonschema.ConstraintResolver.isRequired
-import com.epages.restdocs.openapi.jsonschema.ConstraintResolver.maxLengthString
-import com.epages.restdocs.openapi.jsonschema.ConstraintResolver.minLengthString
+import com.epages.restdocs.openapi.FieldDescriptor
+import com.epages.restdocs.openapi.schema.ConstraintResolver.isRequired
+import com.epages.restdocs.openapi.schema.ConstraintResolver.maxLengthString
+import com.epages.restdocs.openapi.schema.ConstraintResolver.minLengthString
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.everit.json.schema.ArraySchema
@@ -13,8 +14,6 @@ import org.everit.json.schema.ObjectSchema
 import org.everit.json.schema.Schema
 import org.everit.json.schema.StringSchema
 import org.everit.json.schema.internal.JSONPrinter
-import org.springframework.restdocs.payload.FieldDescriptor
-import org.springframework.restdocs.payload.JsonFieldType
 import java.io.StringWriter
 import java.util.ArrayList
 import java.util.Collections.emptyList
@@ -59,8 +58,8 @@ internal class JsonSchemaFromFieldDescriptorsGenerator {
     private fun equalsOnFields(f1: FieldDescriptor, f2: FieldDescriptor): Boolean {
         return (f1.path == f2.path
             && f1.type == f2.type
-            && f1.isOptional == f2.isOptional
-            && f1.isIgnored == f2.isIgnored
+            && f1.optional == f2.optional
+            && f1.ignored == f2.ignored
             && f1.attributes == f2.attributes
             )
     }
@@ -162,43 +161,43 @@ internal class JsonSchemaFromFieldDescriptorsGenerator {
 
     private fun handleEndOfPath(builder: ObjectSchema.Builder, propertyName: String, fieldDescriptor: FieldDescriptor) {
 
-        if (fieldDescriptor.isIgnored) {
+        if (fieldDescriptor.ignored) {
             // We don't need to render anything
         } else {
             if (isRequired(fieldDescriptor)) {
                 builder.addRequiredProperty(propertyName)
             }
             when {
-                fieldDescriptor.type == JsonFieldType.NULL || fieldDescriptor.type == JsonFieldType.VARIES -> builder.addPropertySchema(
+                fieldDescriptor.type == "NULL" || fieldDescriptor.type == "VARIES" -> builder.addPropertySchema(
                     propertyName, NullSchema.builder() //TODO this is bad - most likely a union type would be what we need here - see org.everit.json.schema.CombinedSchema.anyOf
-                        .description(fieldDescriptor.description as String)
+                        .description(fieldDescriptor.description)
                         .build()
                 )
-                fieldDescriptor.type == JsonFieldType.OBJECT -> builder.addPropertySchema(
+                fieldDescriptor.type == "OBJECT" -> builder.addPropertySchema(
                     propertyName, ObjectSchema.builder()
-                        .description(fieldDescriptor.description as String)
+                        .description(fieldDescriptor.description)
                         .build()
                 )
-                fieldDescriptor.type == JsonFieldType.ARRAY -> builder.addPropertySchema(
+                fieldDescriptor.type == "ARRAY" -> builder.addPropertySchema(
                     propertyName, ArraySchema.builder()
-                        .description(fieldDescriptor.description as String)
+                        .description(fieldDescriptor.description)
                         .build()
                 )
-                fieldDescriptor.type == JsonFieldType.BOOLEAN -> builder.addPropertySchema(
+                fieldDescriptor.type == "BOOLEAN" -> builder.addPropertySchema(
                     propertyName, BooleanSchema.builder()
-                        .description(fieldDescriptor.description as String)
+                        .description(fieldDescriptor.description)
                         .build()
                 )
-                fieldDescriptor.type == JsonFieldType.NUMBER -> builder.addPropertySchema(
+                fieldDescriptor.type == "NUMBER" -> builder.addPropertySchema(
                     propertyName, NumberSchema.builder()
-                        .description(fieldDescriptor.description as String)
+                        .description(fieldDescriptor.description)
                         .build()
                 )
-                fieldDescriptor.type == JsonFieldType.STRING -> builder.addPropertySchema(
+                fieldDescriptor.type == "STRING" -> builder.addPropertySchema(
                     propertyName, StringSchema.builder()
                         .minLength(minLengthString(fieldDescriptor))
                         .maxLength(maxLengthString(fieldDescriptor))
-                        .description(fieldDescriptor.description as String)
+                        .description(fieldDescriptor.description)
                         .build()
                 )
                 else -> throw IllegalArgumentException("unknown field type " + fieldDescriptor.type)
