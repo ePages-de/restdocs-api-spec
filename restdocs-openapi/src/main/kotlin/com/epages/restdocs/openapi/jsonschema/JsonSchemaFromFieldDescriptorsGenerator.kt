@@ -44,12 +44,12 @@ internal class JsonSchemaFromFieldDescriptorsGenerator {
 
     private fun reduceToSingleIfAllEqual(fieldDescriptors: List<FieldDescriptor>): FieldDescriptor {
         if (fieldDescriptors.size == 1) {
-            return fieldDescriptors[0]
+            return fieldDescriptors.first()
         }
-        val first = fieldDescriptors[0]
-        val hasDifferentDiscriptors = fieldDescriptors.subList(1, fieldDescriptors.size).stream()
-            .anyMatch { fieldDescriptor -> !equalsOnFields(first, fieldDescriptor) }
-        return if (hasDifferentDiscriptors) {
+        val first = fieldDescriptors.first()
+        val hasDifferentDescriptors = fieldDescriptors.drop(1)
+            .any { fieldDescriptor -> !equalsOnFields(first, fieldDescriptor) }
+        return if (hasDifferentDescriptors) {
             throw MultipleNonEqualFieldDescriptors(first.path)
         } else {
             first
@@ -60,7 +60,9 @@ internal class JsonSchemaFromFieldDescriptorsGenerator {
         return (f1.path == f2.path
             && f1.type == f2.type
             && f1.isOptional == f2.isOptional
-            && f1.isIgnored == f2.isIgnored)
+            && f1.isIgnored == f2.isIgnored
+            && f1.attributes == f2.attributes
+            )
     }
 
     private fun unWrapRootArray(jsonFieldPaths: List<JsonFieldPath>, schema: Schema): Schema {

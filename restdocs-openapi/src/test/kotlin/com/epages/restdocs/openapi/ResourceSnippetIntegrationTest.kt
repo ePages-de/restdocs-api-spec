@@ -4,6 +4,7 @@ import com.epages.restdocs.openapi.ResourceDocumentation.parameterWithName
 import com.epages.restdocs.openapi.ResourceDocumentation.resource
 import org.assertj.core.api.Assertions.assertThatCode
 import org.assertj.core.api.BDDAssertions.then
+import org.hibernate.validator.constraints.Length
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -35,6 +36,7 @@ import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RestController
 import java.io.File
 import java.util.UUID
+import javax.validation.constraints.NotEmpty
 
 @ExtendWith(SpringExtension::class)
 @WebMvcTest
@@ -189,9 +191,11 @@ open class ResourceSnippetIntegrationTest(@Autowired private val mockMvc: MockMv
     }
 
     internal data class TestDataHolder(
+        @field:Length(min = 1, max = 255)
         val comment: String? = null,
         val flag: Boolean = false,
         val count: Int = 0,
+        @field:NotEmpty
         val id: String? = null
     )
 }

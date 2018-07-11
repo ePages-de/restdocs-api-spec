@@ -19,6 +19,12 @@ open class RestdocsOpenapiTask : DefaultTask() {
     @Input @Optional
     lateinit var title: String
 
+    @Input @Optional
+    lateinit var apiVersion: String
+
+    @Input @Optional
+    lateinit var format: String
+
     @Input
     var separatePublicApi: Boolean = false
 

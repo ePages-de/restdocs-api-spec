@@ -16,8 +16,9 @@ open class RestdocsOpenapiPlugin : Plugin<Project> {
                     basePath = openapi.basePath
                     host = openapi.host
                     schemes = openapi.schemes
-                    title = openapi.title
 
+                    title = openapi.title
+                    apiVersion = openapi.version
                     separatePublicApi = openapi.separatePublicApi
 
                     outputDirectory = openapi.outputDirectory

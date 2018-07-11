@@ -34,6 +34,11 @@ internal object OpenApi20Generator {
             }).toMap()
         }
     }
+
+    fun generate(resources: List<ResourceModel>) : Swagger {
+        TODO()
+    }
+
     fun generatePaths(resources: List<ResourceModel>): List<Path> {
         return resources
             .groupBy { it.request.path }

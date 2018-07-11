@@ -17,12 +17,8 @@ class ConstrainedFields(private val classHoldingConstraints: Class<*>) {
      * Create a field description with constraints for bean property with the same name
      * @param path json path of the field
      */
-    fun withPath(path: String): FieldDescriptor {
-        return fieldWithPath(path).attributes(
-            key("validationConstraints")
-                .value(this.validatorConstraintResolver.resolveForProperty(path, classHoldingConstraints))
-        )
-    }
+    fun withPath(path: String): FieldDescriptor =
+        withMappedPath(path, path)
 
     /**
      *
@@ -30,10 +26,21 @@ class ConstrainedFields(private val classHoldingConstraints: Class<*>) {
      * @param jsonPath json path of the field
      * @param beanPropertyName name of the property of the bean that is used to get the field constraints
      */
-    fun withMappedPath(jsonPath: String, beanPropertyName: String): FieldDescriptor {
-        return fieldWithPath(jsonPath).attributes(
-            key("validationConstraints")
+    fun withMappedPath(jsonPath: String, beanPropertyName: String): FieldDescriptor =
+        addConstraints(fieldWithPath(jsonPath), beanPropertyName)
+
+
+    /**
+     * Add bean validation constraints for the field beanPropertyName to the descriptor
+     */
+    fun addConstraints(fieldDescriptor: FieldDescriptor, beanPropertyName: String): FieldDescriptor =
+        fieldDescriptor.attributes(
+            key(CONSTRAINTS_KEY)
                 .value(this.validatorConstraintResolver.resolveForProperty(beanPropertyName, classHoldingConstraints))
         )
+
+
+    companion object {
+        private const val CONSTRAINTS_KEY = "validationConstraints"
     }
 }
