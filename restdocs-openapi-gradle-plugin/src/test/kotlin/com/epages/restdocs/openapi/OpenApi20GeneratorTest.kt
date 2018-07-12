@@ -1,6 +1,5 @@
 package com.epages.restdocs.openapi
 
-import com.epages.restdocs.openapi.OpenApi20Generator
 import io.swagger.util.Json
 import io.swagger.util.Yaml
 import org.junit.jupiter.api.Test
