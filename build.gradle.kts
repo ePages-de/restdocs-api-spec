@@ -4,7 +4,7 @@ import pl.allegro.tech.build.axion.release.domain.VersionConfig
 import pl.allegro.tech.build.axion.release.domain.hooks.HooksConfig
 
 plugins {
-    kotlin("jvm") version "1.2.50" apply false
+    kotlin("jvm") version "1.2.51" apply false
     id("pl.allegro.tech.build.axion-release") version "1.9.2"
     `maven-publish`
 }

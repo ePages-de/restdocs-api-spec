@@ -2,6 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 repositories {
     mavenCentral()
+    maven { url = uri("https://jitpack.io") }
 }
 
 plugins {
@@ -24,6 +25,9 @@ dependencies {
     testCompile("org.hibernate.validator:hibernate-validator:6.0.10.Final")
     testCompile("org.assertj:assertj-core:3.10.0")
     testCompile("com.jayway.jsonpath:json-path:2.3.0")
+
+    testImplementation("com.github.java-json-tools:json-schema-validator:2.2.10")
+    testImplementation("com.github.everit-org.json-schema:org.everit.json.schema:1.9.1")
 }
 
 
