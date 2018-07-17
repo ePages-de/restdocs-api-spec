@@ -1,5 +1,7 @@
 package com.epages.restdocs.openapi
 
+import java.util.Objects
+
 
 internal data class ResourceModel(
     val operationId: String,
@@ -15,14 +17,25 @@ internal data class RequestModel(
     val path: String,
     val method: String,
     val contentType: String?,
+    val securityRequirements: SecurityRequirements?,
     val headers: List<HeaderDescriptor>,
     val pathParameters: List<ParameterDescriptor>,
     val requestParameters: List<ParameterDescriptor>,
     val requestFields: List<FieldDescriptor>,
     val example: String?,
-    val schema: String?,
-    val securityRequirements: SecurityRequirements?
-)
+    val schema: String?
+) {
+    override fun equals(other: Any?): Boolean {
+        val that = other as RequestModel
+        return path == that.path &&
+                method == that.path &&
+                contentType == that.contentType &&
+                securityRequirements == that.securityRequirements
+    }
+    override fun hashCode(): Int {
+        return Objects.hash(path, method, contentType, securityRequirements)
+    }
+}
 
 internal data class ResponseModel(
     val status: Int,
