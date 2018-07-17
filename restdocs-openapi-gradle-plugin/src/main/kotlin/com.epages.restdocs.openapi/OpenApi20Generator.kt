@@ -35,16 +35,30 @@ internal object OpenApi20Generator {
     }
 
     fun generate(resources: List<ResourceModel>) : Swagger {
-        TODO()
+        return Swagger().apply {
+            basePath = "/api"
+            host = "localhost"
+            info = Info().apply {
+                title = "API"
+                version = "1.0.0"
+            }
+            paths = generatePaths(resources).toMap()
+        }
     }
 
-    fun generatePaths(resources: List<ResourceModel>): List<Path> {
+    fun generatePaths(resources: List<ResourceModel>): List<Pair<String, Path>> {
         return resources
             .groupBy { it.request.path }
-            .map { aggregateWithSamePath(it.value) }
+            .map { it.key to aggregateWithSamePath(it.value) }
     }
 
     private fun aggregateWithSamePath(resources: List<ResourceModel>) : Path {
         TODO()
+    }
+
+    private fun resourceModel2Path(resource: ResourceModel): Path {
+        return Path().apply {
+
+        }
     }
 }
