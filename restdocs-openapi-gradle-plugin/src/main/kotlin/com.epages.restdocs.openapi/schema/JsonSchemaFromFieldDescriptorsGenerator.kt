@@ -1,5 +1,6 @@
 package com.epages.restdocs.openapi.schema
 
+import com.epages.restdocs.openapi.Attributes
 import com.epages.restdocs.openapi.FieldDescriptor
 import com.epages.restdocs.openapi.schema.ConstraintResolver.isRequired
 import com.epages.restdocs.openapi.schema.ConstraintResolver.maxLengthString
@@ -8,6 +9,8 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.everit.json.schema.ArraySchema
 import org.everit.json.schema.BooleanSchema
+import org.everit.json.schema.CombinedSchema
+import org.everit.json.schema.EmptySchema
 import org.everit.json.schema.NullSchema
 import org.everit.json.schema.NumberSchema
 import org.everit.json.schema.ObjectSchema
@@ -22,7 +25,7 @@ import java.util.function.Predicate
 internal class JsonSchemaFromFieldDescriptorsGenerator {
 
     internal fun generateSchema(fieldDescriptors: List<FieldDescriptor>, title: String? = null): String {
-        val jsonFieldPaths = distinct(fieldDescriptors)
+        val jsonFieldPaths = reduceFieldDescriptors(fieldDescriptors)
             .map { JsonFieldPath.compile(it) }
 
         val schema = traverse(emptyList(), jsonFieldPaths, ObjectSchema.builder().title(title) as ObjectSchema.Builder)
@@ -31,37 +34,21 @@ internal class JsonSchemaFromFieldDescriptorsGenerator {
     }
 
     /**
-     * Make sure that the paths of the FieldDescriptors are distinct
-     * If we find multiple descriptors for the same path that are completely equal we take the first one.
-     * @throws MultipleNonEqualFieldDescriptors in case we find multiple descriptors for the same path that are not equal
+     * Reduce the list of field descriptors so that the path of each list item is unique.
+     *
+     * The implementation will
      */
-    private fun distinct(fieldDescriptors: List<FieldDescriptor>): List<FieldDescriptor> {
-        return fieldDescriptors.groupBy { it.path }
-            .values
-            .map { this.reduceToSingleIfAllEqual(it) }
-    }
-
-    private fun reduceToSingleIfAllEqual(fieldDescriptors: List<FieldDescriptor>): FieldDescriptor {
-        if (fieldDescriptors.size == 1) {
-            return fieldDescriptors.first()
-        }
-        val first = fieldDescriptors.first()
-        val hasDifferentDescriptors = fieldDescriptors.drop(1)
-            .any { fieldDescriptor -> !equalsOnFields(first, fieldDescriptor) }
-        return if (hasDifferentDescriptors) {
-            throw MultipleNonEqualFieldDescriptors(first.path)
-        } else {
-            first
-        }
-    }
-
-    private fun equalsOnFields(f1: FieldDescriptor, f2: FieldDescriptor): Boolean {
-        return (f1.path == f2.path
-            && f1.type == f2.type
-            && f1.optional == f2.optional
-            && f1.ignored == f2.ignored
-            && f1.attributes == f2.attributes
-            )
+    private fun reduceFieldDescriptors(fieldDescriptors: List<FieldDescriptor>): List<FieldDescriptorWithSchemaType> {
+        return fieldDescriptors
+            .map { FieldDescriptorWithSchemaType.fromFieldDescriptor(it) }
+            .foldRight(listOf())
+            { fieldDescriptor,groups -> groups
+                .firstOrNull { it.equalsOnPathAndType(fieldDescriptor) }
+                ?.let { groups } //omit the descriptor it is considered equal and can be omitted
+                ?: groups.firstOrNull { it.path == fieldDescriptor.path }
+                    ?.let { groups - it + it.merge(fieldDescriptor) } // merge the type with the descriptor with the same name
+                    ?: groups + fieldDescriptor //it is new just add it
+            }
     }
 
     private fun unWrapRootArray(jsonFieldPaths: List<JsonFieldPath>, schema: Schema): Schema {
@@ -91,8 +78,7 @@ internal class JsonSchemaFromFieldDescriptorsGenerator {
         val groupedFields = groupFieldsByFirstRemainingPathSegment(traversedSegments, jsonFieldPaths)
         groupedFields.forEach { propertyName, fieldList ->
 
-            val newTraversedSegments = ArrayList(traversedSegments)
-            newTraversedSegments.add(propertyName)
+            val newTraversedSegments = (traversedSegments + propertyName).toMutableList()
             fieldList.stream()
                 .filter(isDirectMatch(newTraversedSegments))
                 .findFirst()
@@ -159,7 +145,7 @@ internal class JsonSchemaFromFieldDescriptorsGenerator {
         }
     }
 
-    private fun handleEndOfPath(builder: ObjectSchema.Builder, propertyName: String, fieldDescriptor: FieldDescriptor) {
+    private fun handleEndOfPath(builder: ObjectSchema.Builder, propertyName: String, fieldDescriptor: FieldDescriptorWithSchemaType) {
 
         if (fieldDescriptor.ignored) {
             // We don't need to render anything
@@ -167,44 +153,74 @@ internal class JsonSchemaFromFieldDescriptorsGenerator {
             if (isRequired(fieldDescriptor)) {
                 builder.addRequiredProperty(propertyName)
             }
-            when {
-                fieldDescriptor.type == "NULL" || fieldDescriptor.type == "VARIES" -> builder.addPropertySchema(
-                    propertyName, NullSchema.builder() //TODO this is bad - most likely a union type would be what we need here - see org.everit.json.schema.CombinedSchema.anyOf
-                        .description(fieldDescriptor.description)
-                        .build()
-                )
-                fieldDescriptor.type == "OBJECT" -> builder.addPropertySchema(
-                    propertyName, ObjectSchema.builder()
-                        .description(fieldDescriptor.description)
-                        .build()
-                )
-                fieldDescriptor.type == "ARRAY" -> builder.addPropertySchema(
-                    propertyName, ArraySchema.builder()
-                        .description(fieldDescriptor.description)
-                        .build()
-                )
-                fieldDescriptor.type == "BOOLEAN" -> builder.addPropertySchema(
-                    propertyName, BooleanSchema.builder()
-                        .description(fieldDescriptor.description)
-                        .build()
-                )
-                fieldDescriptor.type == "NUMBER" -> builder.addPropertySchema(
-                    propertyName, NumberSchema.builder()
-                        .description(fieldDescriptor.description)
-                        .build()
-                )
-                fieldDescriptor.type == "STRING" -> builder.addPropertySchema(
-                    propertyName, StringSchema.builder()
-                        .minLength(minLengthString(fieldDescriptor))
-                        .maxLength(maxLengthString(fieldDescriptor))
-                        .description(fieldDescriptor.description)
-                        .build()
-                )
-                else -> throw IllegalArgumentException("unknown field type " + fieldDescriptor.type)
-            }
+            builder.addPropertySchema(propertyName, fieldDescriptor.jsonSchemaType())
         }
     }
 
-    internal class MultipleNonEqualFieldDescriptors(path: String) :
-        RuntimeException(String.format("Found multiple FieldDescriptors for '%s' with different values", path))
+    internal class FieldDescriptorWithSchemaType(
+        path: String,
+        description: String,
+        type: String,
+        optional: Boolean,
+        ignored: Boolean,
+        attributes: Attributes,
+        private val jsonSchemaPrimitiveTypes: Set<String> = setOf(jsonSchemaPrimitiveTypeFromDescriptorType(type))
+    ) : FieldDescriptor(path, description, type, optional, ignored, attributes) {
+
+        fun jsonSchemaType(): Schema {
+            val schemaBuilders = jsonSchemaPrimitiveTypes.map { typeToSchema(it) }
+            return if (schemaBuilders.size == 1) schemaBuilders.first().description(description).build()
+            else CombinedSchema.oneOf(schemaBuilders.map { it.build() }).description(description).build()
+        }
+
+        fun merge(fieldDescriptor: FieldDescriptor): FieldDescriptorWithSchemaType {
+            if (this.path != fieldDescriptor.path)
+                throw IllegalArgumentException("path of fieldDescriptor is not equal to ${this.path}")
+
+            return FieldDescriptorWithSchemaType(
+                path = path,
+                description = description,
+                type = type,
+                optional = this.optional || fieldDescriptor.optional, //optional if one it optional
+                ignored = this.ignored && fieldDescriptor.optional, //ignored if both are optional
+                attributes = attributes,
+                jsonSchemaPrimitiveTypes = jsonSchemaPrimitiveTypes + jsonSchemaPrimitiveTypeFromDescriptorType(fieldDescriptor.type)
+            )
+        }
+
+        private fun typeToSchema(type: String): Schema.Builder<*> =
+            when (type) {
+                "null" -> NullSchema.builder()
+                "empty" -> EmptySchema.builder()
+                "object" -> ObjectSchema.builder()
+                "array" -> ArraySchema.builder()
+                "boolean" -> BooleanSchema.builder()
+                "number" -> NumberSchema.builder()
+                "string" -> StringSchema.builder()
+                    .minLength(minLengthString(this))
+                    .maxLength(maxLengthString(this))
+                else -> throw IllegalArgumentException("unknown field type $type")
+            }
+
+        fun equalsOnPathAndType(f: JsonSchemaFromFieldDescriptorsGenerator.FieldDescriptorWithSchemaType): Boolean =
+            (this.path == f.path
+                && this.type == f.type)
+
+        companion object {
+            fun fromFieldDescriptor(fieldDescriptor: FieldDescriptor) =
+                FieldDescriptorWithSchemaType(
+                    path = fieldDescriptor.path,
+                    description = fieldDescriptor.description,
+                    type = fieldDescriptor.type,
+                    optional = fieldDescriptor.optional,
+                    ignored = fieldDescriptor.ignored,
+                    attributes = fieldDescriptor.attributes
+                )
+
+            private fun jsonSchemaPrimitiveTypeFromDescriptorType(fieldDescriptorType: String) =
+                fieldDescriptorType.toLowerCase()
+                    .let { if (it == "varies") "empty" else it } //varies is used by spring rest docs if the type is ambiguous - in json schema we want to represent as empty
+
+        }
+    }
 }

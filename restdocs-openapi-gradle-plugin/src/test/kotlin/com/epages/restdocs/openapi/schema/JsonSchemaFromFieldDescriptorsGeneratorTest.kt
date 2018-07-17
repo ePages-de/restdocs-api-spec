@@ -5,6 +5,7 @@ import com.epages.restdocs.openapi.Constraint
 import com.epages.restdocs.openapi.FieldDescriptor
 import com.github.fge.jackson.JsonLoader
 import com.github.fge.jsonschema.main.JsonSchemaFactory
+import com.jayway.jsonpath.JsonPath
 import org.assertj.core.api.BDDAssertions.then
 import org.assertj.core.api.BDDAssertions.thenThrownBy
 import org.everit.json.schema.ArraySchema
@@ -115,7 +116,7 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
         then(schema).isInstanceOf(ArraySchema::class.java)
         then((schema as ArraySchema).allItemSchema.definesProperty("id")).isTrue()
         thenSchemaIsValid()
-        thenSchemaValidatesJson("[{\"id\": \"some\"}]")
+        thenSchemaValidatesJson("""[{"id": "some"}]""")
     }
 
     @Test
@@ -146,12 +147,15 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
     }
 
     @Test
-    fun should_fail_on_duplicate_fields_with_different_properties() {
-        givenDifferentFieldDescriptorsWithSamePath()
+    fun should_handle_field_with_different_types() {
+        givenDifferentFieldDescriptorsWithSamePathAndDifferentTypes()
 
-        thenThrownBy { this.whenSchemaGenerated() }.isInstanceOf(
-            JsonSchemaFromFieldDescriptorsGenerator.MultipleNonEqualFieldDescriptors::class.java
-        )
+        whenSchemaGenerated()
+
+        thenSchemaIsValid()
+        thenSchemaValidatesJson("""{"id": "some"}""")
+        thenSchemaValidatesJson("""{"id": null}""")
+        then(JsonPath.read<String>(schemaString, "properties.id.description")).isNotEmpty()
     }
 
     private fun thenSchemaIsValid() {
@@ -164,7 +168,9 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
 
     private fun whenSchemaGenerated() {
         schemaString = generator.generateSchema(fieldDescriptors!!)
+        println(schemaString)
         schema = SchemaLoader.load(JSONObject(schemaString))
+
     }
 
     private fun givenFieldDescriptorWithPrimitiveArray() {
@@ -186,11 +192,10 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
         )
     }
 
-    private fun givenDifferentFieldDescriptorsWithSamePath() {
+    private fun givenDifferentFieldDescriptorsWithSamePathAndDifferentTypes() {
         fieldDescriptors = listOf(
             FieldDescriptor("id", "some", "STRING"),
-            FieldDescriptor("id", "some", "STRING"),
-            FieldDescriptor("id", "some", "STRING", true)
+            FieldDescriptor("id", "some", "NULL")
         )
     }
 

@@ -60,7 +60,7 @@ internal data class HeaderDescriptor(
     val optional: Boolean
 )
 
-internal data class FieldDescriptor(
+internal open class FieldDescriptor(
     val path: String,
     val description: String,
     val type: String,

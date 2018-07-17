@@ -28,7 +28,7 @@ object DescriptorExtractor {
         }
     }
 
-    fun extractFields(snippet: AbstractFieldsSnippet): List<FieldDescriptor> {
+    private fun extractFields(snippet: AbstractFieldsSnippet): List<FieldDescriptor> {
         try {
             val getFieldDescriptors = AbstractFieldsSnippet::class.java.getDeclaredMethod("getFieldDescriptors")
             getFieldDescriptors.isAccessible = true
@@ -44,7 +44,7 @@ object DescriptorExtractor {
         return emptyList()
     }
 
-    fun extractLinks(snippet: LinksSnippet): List<LinkDescriptor> {
+    private fun extractLinks(snippet: LinksSnippet): List<LinkDescriptor> {
         try {
             val getDescriptorsByRel = LinksSnippet::class.java.getDeclaredMethod("getDescriptorsByRel")
             getDescriptorsByRel.isAccessible = true
@@ -60,7 +60,7 @@ object DescriptorExtractor {
         return emptyList()
     }
 
-    fun extractHeaders(snippet: AbstractHeadersSnippet): List<HeaderDescriptor> {
+    private fun extractHeaders(snippet: AbstractHeadersSnippet): List<HeaderDescriptor> {
         try {
             val getHeaderDescriptors = AbstractHeadersSnippet::class.java.getDeclaredMethod("getHeaderDescriptors")
             getHeaderDescriptors.isAccessible = true
@@ -76,7 +76,7 @@ object DescriptorExtractor {
         return emptyList()
     }
 
-    fun extractParameters(snippet: AbstractParametersSnippet): List<ParameterDescriptor> {
+    private fun extractParameters(snippet: AbstractParametersSnippet): List<ParameterDescriptor> {
         try {
             val getParameterDescriptors =
                 AbstractParametersSnippet::class.java.getDeclaredMethod("getParameterDescriptors")

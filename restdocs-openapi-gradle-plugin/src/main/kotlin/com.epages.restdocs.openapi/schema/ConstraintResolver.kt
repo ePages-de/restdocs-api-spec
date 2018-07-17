@@ -38,9 +38,9 @@ internal object ConstraintResolver {
             ?.let { it.configuration["max"] as Int }
     }
 
-    internal fun isRequired(fieldDescriptor: FieldDescriptor): Boolean { return findConstraints(fieldDescriptor)
+    internal fun isRequired(fieldDescriptor: FieldDescriptor): Boolean =
+        findConstraints(fieldDescriptor)
             .any { constraint -> REQUIRED_CONSTRAINTS.contains(constraint.name) }
-    }
 
     private fun findConstraints(fieldDescriptor: FieldDescriptor): List<Constraint> =
         fieldDescriptor.attributes.validationConstraints

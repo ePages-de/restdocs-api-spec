@@ -1,12 +1,12 @@
 package com.epages.restdocs.openapi.schema
 
-import com.epages.restdocs.openapi.FieldDescriptor
+import com.epages.restdocs.openapi.schema.JsonSchemaFromFieldDescriptorsGenerator.FieldDescriptorWithSchemaType
 import java.util.ArrayList
 import java.util.regex.Pattern
 
 internal class JsonFieldPath private constructor(
     private val segments: List<String>,
-    val fieldDescriptor: FieldDescriptor
+    val fieldDescriptor: FieldDescriptorWithSchemaType
 ) {
 
     fun remainingSegments(traversedSegments: List<String>): List<String> {
@@ -31,7 +31,7 @@ internal class JsonFieldPath private constructor(
         private val ARRAY_INDEX_PATTERN = Pattern
             .compile("\\[([0-9]+|\\*){0,1}\\]")
 
-        fun compile(descriptor: FieldDescriptor): JsonFieldPath {
+        fun compile(descriptor: FieldDescriptorWithSchemaType): JsonFieldPath {
             val segments = extractSegments(descriptor.path)
             return JsonFieldPath(segments, descriptor)
         }
