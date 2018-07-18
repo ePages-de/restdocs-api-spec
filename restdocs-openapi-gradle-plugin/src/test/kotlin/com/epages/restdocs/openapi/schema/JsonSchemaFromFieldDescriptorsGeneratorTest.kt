@@ -12,6 +12,7 @@ import org.everit.json.schema.ArraySchema
 import org.everit.json.schema.ObjectSchema
 import org.everit.json.schema.Schema
 import org.everit.json.schema.StringSchema
+import org.everit.json.schema.ValidationException
 import org.everit.json.schema.loader.SchemaLoader
 import org.json.JSONArray
 import org.json.JSONObject
@@ -155,6 +156,8 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
         thenSchemaIsValid()
         thenSchemaValidatesJson("""{"id": "some"}""")
         thenSchemaValidatesJson("""{"id": null}""")
+        thenSchemaValidatesJson("""{"id": true}""")
+        thenSchemaDoesNotValidateJson("""{"id": 12}""")
         then(JsonPath.read<String>(schemaString, "properties.id.description")).isNotEmpty()
     }
 
@@ -195,7 +198,8 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
     private fun givenDifferentFieldDescriptorsWithSamePathAndDifferentTypes() {
         fieldDescriptors = listOf(
             FieldDescriptor("id", "some", "STRING"),
-            FieldDescriptor("id", "some", "NULL")
+            FieldDescriptor("id", "some", "NULL"),
+            FieldDescriptor("id", "some", "BOOLEAN")
         )
     }
 
@@ -229,4 +233,9 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
     private fun thenSchemaValidatesJson(json: String) {
         schema!!.validate(if (json.startsWith("[")) JSONArray(json) else JSONObject(json))
     }
+
+    private fun thenSchemaDoesNotValidateJson(json: String) {
+        thenThrownBy { thenSchemaValidatesJson(json) }.isInstanceOf(ValidationException::class.java)
+    }
+
 }
