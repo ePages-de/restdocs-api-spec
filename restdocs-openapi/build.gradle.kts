@@ -5,10 +5,6 @@ repositories {
     maven { url = uri("https://jitpack.io") }
 }
 
-plugins {
-    `maven-publish`
-}
-
 dependencies {
     compile(kotlin("stdlib-jdk8"))
 

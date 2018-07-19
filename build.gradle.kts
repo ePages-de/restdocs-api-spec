@@ -20,8 +20,8 @@ plugins {
     java
     kotlin("jvm") version "1.2.51" apply false
     id("pl.allegro.tech.build.axion-release") version "1.9.2"
-    `maven-publish`
     jacoco
+    `maven-publish`
 }
 
 repositories {
@@ -54,10 +54,11 @@ allprojects {
     version = scmVer
 
     if (!isSampleProject()) {
-        apply(plugin = "com.github.kt3k.coveralls")
-        apply(plugin = "jacoco")
         apply(plugin = "java")
         apply(plugin = "kotlin")
+        apply(plugin = "maven-publish")
+        apply(plugin = "jacoco")
+        apply(plugin = "com.github.kt3k.coveralls")
     }
 }
 

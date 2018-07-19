@@ -11,7 +11,6 @@ repositories {
 plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
-    `maven-publish`
 }
 
 gradlePlugin {
