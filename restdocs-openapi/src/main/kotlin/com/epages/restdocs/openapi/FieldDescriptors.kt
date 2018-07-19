@@ -19,5 +19,10 @@ class FieldDescriptors {
         andWithPrefix("", *additionalDescriptors)
 
     fun andWithPrefix(pathPrefix: String, vararg additionalDescriptors: FieldDescriptor): FieldDescriptors =
-        FieldDescriptors(fieldDescriptors + applyPathPrefix(pathPrefix, additionalDescriptors.toList()))
+        FieldDescriptors(
+            fieldDescriptors + applyPathPrefix(
+                pathPrefix,
+                additionalDescriptors.toList()
+            )
+        )
 }

@@ -1,0 +1,13 @@
+language: java
+jdk:
+- oraclejdk8
+sudo: false
+cache:
+  directories:
+  - "$HOME/.gradle"
+install: true
+script: "./gradlew clean build jacocoRootReport coveralls"
+env:
+  global:
+    - CI_NAME=travis-ci
+    secure: msDw7Y/qmIfSMMdFS+0dRW0rIudzHKpIPbuemR9etdSffUQAPORjHOUP3lbegu58hnM87VK0XZ8idvtATCN08GpO3DWHjs3CapA4vWxlI61Zuwmb+ftI008lGoToGHtXSU1Wuc+IVQh70MqyLc/It050FIhP23UdoYPE8bXAlMbYr6dc/rEt9ZdZEzGaG+TSm0j8c1E1N1v1wBNSN42GNOC92Qzjw24Ga/THkVLeEcKnNBcJkcMlQQRJhfSnQxjkRbAVGZW81pC00/5SDhA+hY28hLQQdsM0Dxhz+n+YnUnunItG7xigltyLrvqwWF8qCau2iAgASbpB7UYKGl22d97V76GOrEYu3As9z3r5wPXi8NM4IVdEN6S2SB/rbnq5UHWwPjs4fGuBM9jqMvki5ZVgLvLmuvWPRAhf5gP+6u8llOoL8KP1DUOgVV0PwPGe9eLjohpMEAzyklA8vBjo2J7WuNFokvjFMDdHW/iw9rYLfG94ebcBPAAexYa6tD80BMAPlqp1Rx6EXPwCXp+X3sixSe54Hrl1sDrD4Y5QLMOdIR6FkkBcFuWPi1qSTIauQylIxGE7lBfWOMe1QrWDUTWsHLS8IAOPjPE1Y9RBxUq9s3ung1jsVZgD4xhtiLb3ZJJhvW1rhrnassTcGLA4IaO11XPlfAR2jaktIHPSZ6w=

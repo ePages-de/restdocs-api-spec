@@ -38,14 +38,15 @@ object MockMvcRestDocumentationWrapper {
         vararg snippets: Snippet
     ): RestDocumentationResultHandler {
 
-        val enhancedSnippets = enhanceSnippetsWithResourceSnippet(
-            description = description,
-            summary = summary,
-            privateResource = privateResource,
-            deprecated = deprecated,
-            snippetFilter = snippetFilter,
-            snippets = *snippets
-        )
+        val enhancedSnippets =
+            enhanceSnippetsWithResourceSnippet(
+                description = description,
+                summary = summary,
+                privateResource = privateResource,
+                deprecated = deprecated,
+                snippetFilter = snippetFilter,
+                snippets = *snippets
+            )
 
         if (requestPreprocessor != null && responsePreprocessor != null) {
             return MockMvcRestDocumentation.document(
@@ -81,34 +82,62 @@ object MockMvcRestDocumentationWrapper {
                 .deprecated(deprecated)
                 .requestFields(
                     snippets.filter { it is RequestFieldsSnippet }
-                        .flatMap { DescriptorExtractor.extractDescriptorsFor<FieldDescriptor>(it) }
+                        .flatMap {
+                            DescriptorExtractor.extractDescriptorsFor<FieldDescriptor>(
+                                it
+                            )
+                        }
                 )
                 .responseFields(
                     snippets.filter { it is ResponseFieldsSnippet }
-                        .flatMap { DescriptorExtractor.extractDescriptorsFor<FieldDescriptor>(it) }
+                        .flatMap {
+                            DescriptorExtractor.extractDescriptorsFor<FieldDescriptor>(
+                                it
+                            )
+                        }
                 )
                 .links(
                     snippets.filter { it is LinksSnippet }
-                        .flatMap { DescriptorExtractor.extractDescriptorsFor<LinkDescriptor>(it) }
+                        .flatMap {
+                            DescriptorExtractor.extractDescriptorsFor<LinkDescriptor>(
+                                it
+                            )
+                        }
                 )
                 .requestParameters(
                     *snippets.filter { it is RequestParametersSnippet }
-                        .flatMap { DescriptorExtractor.extractDescriptorsFor<ParameterDescriptor>(it) }
+                        .flatMap {
+                            DescriptorExtractor.extractDescriptorsFor<ParameterDescriptor>(
+                                it
+                            )
+                        }
                         .toTypedArray()
                 )
                 .pathParameters(
                     *snippets.filter { it is PathParametersSnippet }
-                        .flatMap { DescriptorExtractor.extractDescriptorsFor<ParameterDescriptor>(it) }
+                        .flatMap {
+                            DescriptorExtractor.extractDescriptorsFor<ParameterDescriptor>(
+                                it
+                            )
+                        }
                         .toTypedArray()
                 )
                 .requestHeaders(
                     *snippets.filter { it is RequestHeadersSnippet }
-                        .flatMap { DescriptorExtractor.extractDescriptorsFor<HeaderDescriptor>(it) }
+                        .flatMap {
+                            DescriptorExtractor.extractDescriptorsFor<HeaderDescriptor>(
+                                it
+                            )
+                        }
                         .toTypedArray()
                 )
                 .responseHeaders(
                     *snippets.filter { it is ResponseHeadersSnippet }
-                        .flatMap { DescriptorExtractor.extractDescriptorsFor<HeaderDescriptor>(it) }
+                        .flatMap {
+                            DescriptorExtractor.extractDescriptorsFor<HeaderDescriptor>(
+                                it
+                            )
+                        }
                         .toTypedArray()
                 )
                 .build()

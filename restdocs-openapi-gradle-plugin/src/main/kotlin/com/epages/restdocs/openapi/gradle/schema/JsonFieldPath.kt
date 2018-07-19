@@ -1,6 +1,6 @@
-package com.epages.restdocs.openapi.schema
+package com.epages.restdocs.openapi.gradle.schema
 
-import com.epages.restdocs.openapi.schema.JsonSchemaFromFieldDescriptorsGenerator.FieldDescriptorWithSchemaType
+import com.epages.restdocs.openapi.gradle.schema.JsonSchemaFromFieldDescriptorsGenerator.FieldDescriptorWithSchemaType
 import java.util.ArrayList
 import java.util.regex.Pattern
 

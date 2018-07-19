@@ -1,4 +1,4 @@
-package com.epages.restdocs.openapi
+package com.epages.restdocs.openapi.gradle
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input

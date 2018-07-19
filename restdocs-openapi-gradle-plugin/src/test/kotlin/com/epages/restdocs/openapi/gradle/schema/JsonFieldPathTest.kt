@@ -1,7 +1,7 @@
-package com.epages.restdocs.openapi.schema
+package com.epages.restdocs.openapi.gradle.schema
 
-import com.epages.restdocs.openapi.Attributes
-import com.epages.restdocs.openapi.schema.JsonFieldPath.Companion.compile
+import com.epages.restdocs.openapi.gradle.Attributes
+import com.epages.restdocs.openapi.gradle.schema.JsonFieldPath.Companion.compile
 import com.google.common.collect.ImmutableList
 import org.assertj.core.api.BDDAssertions.then
 import org.junit.jupiter.api.Test
@@ -11,7 +11,10 @@ class JsonFieldPathTest {
 
     @Test
     fun should_get_remaining_segments() {
-        with (compile(JsonSchemaFromFieldDescriptorsGenerator.FieldDescriptorWithSchemaType("a.b.c", "", "", false, false, Attributes()))) {
+        with (compile(
+            com.epages.restdocs.openapi.gradle.schema.JsonSchemaFromFieldDescriptorsGenerator.FieldDescriptorWithSchemaType("a.b.c", "", "", false, false,
+                com.epages.restdocs.openapi.gradle.Attributes()
+            ))) {
             then(remainingSegments(ImmutableList.of("a"))).contains("b", "c")
             then(remainingSegments(ImmutableList.of("a", "b"))).contains("c")
             then(remainingSegments(ImmutableList.of("a", "b", "c"))).isEmpty()

@@ -28,7 +28,9 @@ class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetPara
 
         val model = createModel(operation)
 
-        (StandardWriterResolver(RestDocumentationContextPlaceholderResolverFactory(), Charsets.UTF_8.name(), JsonTemplateFormat))
+        (StandardWriterResolver(RestDocumentationContextPlaceholderResolverFactory(), Charsets.UTF_8.name(),
+            JsonTemplateFormat
+        ))
                 .resolve(operation.name, "resource", context)
             .use { it.append(objectMapper.writeValueAsString(model)) }
     }
@@ -37,7 +39,8 @@ class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetPara
         val hasRequestBody = operation.request.contentAsString.isNotEmpty()
         val hasResponseBody = operation.response.contentAsString.isNotEmpty()
 
-        val securityRequirements: SecurityRequirements? = JwtScopeHandler().extractScopes(operation)
+        val securityRequirements: SecurityRequirements? = JwtScopeHandler()
+            .extractScopes(operation)
             .let { if (it.isNotEmpty()) Oauth2(it) else null }
 
         return ResourceModel(
@@ -117,7 +120,8 @@ class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetPara
         val type: SecurityType
     }
 
-    private class Oauth2(val requiredScopes: List<String>) : SecurityRequirements {
+    private class Oauth2(val requiredScopes: List<String>) :
+        SecurityRequirements {
         override val type = SecurityType.OAUTH2
     }
 

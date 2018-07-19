@@ -13,7 +13,11 @@ object ResourceDocumentation {
     }
 
     fun resource(description: String): ResourceSnippet {
-        return ResourceSnippet(ResourceSnippetParameters.builder().description(description).build())
+        return ResourceSnippet(
+            ResourceSnippetParameters.builder().description(
+                description
+            ).build()
+        )
     }
 
     fun fields(vararg fieldDescriptors: FieldDescriptor): FieldDescriptors {

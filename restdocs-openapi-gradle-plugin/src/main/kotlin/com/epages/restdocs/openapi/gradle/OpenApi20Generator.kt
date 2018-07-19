@@ -1,4 +1,4 @@
-package com.epages.restdocs.openapi
+package com.epages.restdocs.openapi.gradle
 
 import io.swagger.models.Info
 import io.swagger.models.Operation
@@ -34,7 +34,7 @@ internal object OpenApi20Generator {
         }
     }
 
-    fun generate(resources: List<ResourceModel>) : Swagger {
+    fun generate(resources: List<com.epages.restdocs.openapi.gradle.ResourceModel>) : Swagger {
         return Swagger().apply {
             basePath = "/api"
             host = "localhost"
@@ -46,17 +46,17 @@ internal object OpenApi20Generator {
         }
     }
 
-    fun generatePaths(resources: List<ResourceModel>): List<Pair<String, Path>> {
+    fun generatePaths(resources: List<com.epages.restdocs.openapi.gradle.ResourceModel>): List<Pair<String, Path>> {
         return resources
             .groupBy { it.request.path }
             .map { it.key to aggregateWithSamePath(it.value) }
     }
 
-    private fun aggregateWithSamePath(resources: List<ResourceModel>) : Path {
+    private fun aggregateWithSamePath(resources: List<com.epages.restdocs.openapi.gradle.ResourceModel>) : Path {
         TODO()
     }
 
-    private fun resourceModel2Path(resource: ResourceModel): Path {
+    private fun resourceModel2Path(resource: com.epages.restdocs.openapi.gradle.ResourceModel): Path {
         return Path().apply {
 
         }

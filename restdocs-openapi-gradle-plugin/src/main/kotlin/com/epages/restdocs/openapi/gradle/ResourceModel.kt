@@ -1,4 +1,4 @@
-package com.epages.restdocs.openapi
+package com.epages.restdocs.openapi.gradle
 
 import java.util.Objects
 

@@ -1,7 +1,7 @@
-package com.epages.restdocs.openapi.schema
+package com.epages.restdocs.openapi.gradle.schema
 
-import com.epages.restdocs.openapi.Constraint
-import com.epages.restdocs.openapi.FieldDescriptor
+import com.epages.restdocs.openapi.gradle.Constraint
+import com.epages.restdocs.openapi.gradle.FieldDescriptor
 
 internal object ConstraintResolver {
 
@@ -22,7 +22,7 @@ internal object ConstraintResolver {
 
     private const val LENGTH_CONSTRAINT = "org.hibernate.validator.constraints.Length"
 
-    internal fun minLengthString(fieldDescriptor: FieldDescriptor): Int? {
+    internal fun minLengthString(fieldDescriptor: com.epages.restdocs.openapi.gradle.FieldDescriptor): Int? {
         return findConstraints(fieldDescriptor)
             .firstOrNull { constraint ->
             (NOT_EMPTY_CONSTRAINTS.contains(constraint.name)
@@ -32,16 +32,16 @@ internal object ConstraintResolver {
             ?.let { constraint -> if (LENGTH_CONSTRAINT == constraint.name) constraint.configuration["min"] as Int else 1 }
     }
 
-    internal fun maxLengthString(fieldDescriptor: FieldDescriptor): Int? {
+    internal fun maxLengthString(fieldDescriptor: com.epages.restdocs.openapi.gradle.FieldDescriptor): Int? {
         return findConstraints(fieldDescriptor)
             .firstOrNull { LENGTH_CONSTRAINT == it.name }
             ?.let { it.configuration["max"] as Int }
     }
 
-    internal fun isRequired(fieldDescriptor: FieldDescriptor): Boolean =
+    internal fun isRequired(fieldDescriptor: com.epages.restdocs.openapi.gradle.FieldDescriptor): Boolean =
         findConstraints(fieldDescriptor)
             .any { constraint -> REQUIRED_CONSTRAINTS.contains(constraint.name) }
 
-    private fun findConstraints(fieldDescriptor: FieldDescriptor): List<Constraint> =
+    private fun findConstraints(fieldDescriptor: com.epages.restdocs.openapi.gradle.FieldDescriptor): List<com.epages.restdocs.openapi.gradle.Constraint> =
         fieldDescriptor.attributes.validationConstraints
 }

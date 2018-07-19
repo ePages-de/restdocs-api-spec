@@ -1,8 +1,8 @@
-package com.epages.restdocs.openapi.schema
+package com.epages.restdocs.openapi.gradle.schema
 
-import com.epages.restdocs.openapi.Attributes
-import com.epages.restdocs.openapi.Constraint
-import com.epages.restdocs.openapi.FieldDescriptor
+import com.epages.restdocs.openapi.gradle.Attributes
+import com.epages.restdocs.openapi.gradle.Constraint
+import com.epages.restdocs.openapi.gradle.FieldDescriptor
 import com.github.fge.jackson.JsonLoader
 import com.github.fge.jsonschema.main.JsonSchemaFactory
 import com.jayway.jsonpath.JsonPath
@@ -23,11 +23,11 @@ import javax.validation.constraints.NotNull
 
 class JsonSchemaFromFieldDescriptorsGeneratorTest {
 
-    private val generator = JsonSchemaFromFieldDescriptorsGenerator()
+    private val generator = com.epages.restdocs.openapi.gradle.schema.JsonSchemaFromFieldDescriptorsGenerator()
 
     private var schema: Schema? = null
 
-    private var fieldDescriptors: List<FieldDescriptor>? = null
+    private var fieldDescriptors: List<com.epages.restdocs.openapi.gradle.FieldDescriptor>? = null
 
     private var schemaString: String? = null
 
@@ -177,56 +177,96 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
     }
 
     private fun givenFieldDescriptorWithPrimitiveArray() {
-        fieldDescriptors = listOf(FieldDescriptor("a[]", "some", "ARRAY"))
+        fieldDescriptors = listOf(com.epages.restdocs.openapi.gradle.FieldDescriptor("a[]", "some", "ARRAY"))
     }
 
     private fun givenFieldDescriptorWithTopLevelArray() {
-        fieldDescriptors = listOf(FieldDescriptor("[]['id']", "some", "STRING"))
+        fieldDescriptors = listOf(com.epages.restdocs.openapi.gradle.FieldDescriptor("[]['id']", "some", "STRING"))
     }
 
     private fun givenFieldDescriptorWithInvalidType() {
-        fieldDescriptors = listOf(FieldDescriptor("id", "some", "invalid-type"))
+        fieldDescriptors = listOf(com.epages.restdocs.openapi.gradle.FieldDescriptor("id", "some", "invalid-type"))
     }
 
     private fun givenEqualFieldDescriptorsWithSamePath() {
         fieldDescriptors = listOf(
-            FieldDescriptor("id", "some", "STRING"),
-            FieldDescriptor("id", "some", "STRING")
+            com.epages.restdocs.openapi.gradle.FieldDescriptor("id", "some", "STRING"),
+            com.epages.restdocs.openapi.gradle.FieldDescriptor("id", "some", "STRING")
         )
     }
 
     private fun givenDifferentFieldDescriptorsWithSamePathAndDifferentTypes() {
         fieldDescriptors = listOf(
-            FieldDescriptor("id", "some", "STRING"),
-            FieldDescriptor("id", "some", "NULL"),
-            FieldDescriptor("id", "some", "BOOLEAN")
+            com.epages.restdocs.openapi.gradle.FieldDescriptor("id", "some", "STRING"),
+            com.epages.restdocs.openapi.gradle.FieldDescriptor("id", "some", "NULL"),
+            com.epages.restdocs.openapi.gradle.FieldDescriptor("id", "some", "BOOLEAN")
         )
     }
 
     private fun givenFieldDescriptorsWithConstraints() {
         val constraintAttributeWithNotNull =
-            Attributes(listOf(Constraint(NotNull::class.java.name, emptyMap())))
+            com.epages.restdocs.openapi.gradle.Attributes(
+                listOf(
+                    com.epages.restdocs.openapi.gradle.Constraint(
+                        NotNull::class.java.name,
+                        emptyMap()
+                    )
+                )
+            )
 
         val constraintAttributeWithLength =
-            Attributes(listOf(
-                Constraint("org.hibernate.validator.constraints.Length", mapOf(
-                    "min" to 2,
-                    "max" to 255
-                ))
-            ))
+            com.epages.restdocs.openapi.gradle.Attributes(
+                listOf(
+                    com.epages.restdocs.openapi.gradle.Constraint(
+                        "org.hibernate.validator.constraints.Length", mapOf(
+                            "min" to 2,
+                            "max" to 255
+                        )
+                    )
+                )
+            )
 
         fieldDescriptors = listOf(
-            FieldDescriptor("id", "some", "STRING", attributes = constraintAttributeWithNotNull),
-            FieldDescriptor("lineItems[*].name", "some", "STRING", attributes = constraintAttributeWithLength),
-            FieldDescriptor("lineItems[*]._id", "some", "STRING", attributes = constraintAttributeWithNotNull),
-            FieldDescriptor("lineItems[*].quantity.value", "some", "NUMBER", attributes = constraintAttributeWithNotNull),
-            FieldDescriptor("lineItems[*].quantity.unit", "some", "STRING"),
-            FieldDescriptor("shippingAddress", "some", "OBJECT"),
-            FieldDescriptor("billingAddress", "some", "OBJECT"),
-            FieldDescriptor("billingAddress.firstName", "some", "STRING",
-                attributes = Attributes(listOf(Constraint("javax.validation.constraints.NotEmpty", emptyMap())))),
-            FieldDescriptor("billingAddress.valid", "some", "BOOLEAN"),
-            FieldDescriptor("paymentLineItem.lineItemTaxes", "some", "ARRAY")
+            com.epages.restdocs.openapi.gradle.FieldDescriptor(
+                "id",
+                "some",
+                "STRING",
+                attributes = constraintAttributeWithNotNull
+            ),
+            com.epages.restdocs.openapi.gradle.FieldDescriptor(
+                "lineItems[*].name",
+                "some",
+                "STRING",
+                attributes = constraintAttributeWithLength
+            ),
+            com.epages.restdocs.openapi.gradle.FieldDescriptor(
+                "lineItems[*]._id",
+                "some",
+                "STRING",
+                attributes = constraintAttributeWithNotNull
+            ),
+            com.epages.restdocs.openapi.gradle.FieldDescriptor(
+                "lineItems[*].quantity.value",
+                "some",
+                "NUMBER",
+                attributes = constraintAttributeWithNotNull
+            ),
+            com.epages.restdocs.openapi.gradle.FieldDescriptor("lineItems[*].quantity.unit", "some", "STRING"),
+            com.epages.restdocs.openapi.gradle.FieldDescriptor("shippingAddress", "some", "OBJECT"),
+            com.epages.restdocs.openapi.gradle.FieldDescriptor("billingAddress", "some", "OBJECT"),
+            com.epages.restdocs.openapi.gradle.FieldDescriptor(
+                "billingAddress.firstName", "some", "STRING",
+                attributes = com.epages.restdocs.openapi.gradle.Attributes(
+                    listOf(
+                        com.epages.restdocs.openapi.gradle.Constraint(
+                            "javax.validation.constraints.NotEmpty",
+                            emptyMap()
+                        )
+                    )
+                )
+            ),
+            com.epages.restdocs.openapi.gradle.FieldDescriptor("billingAddress.valid", "some", "BOOLEAN"),
+            com.epages.restdocs.openapi.gradle.FieldDescriptor("paymentLineItem.lineItemTaxes", "some", "ARRAY")
         )
     }
 

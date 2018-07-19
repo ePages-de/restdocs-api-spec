@@ -1,10 +1,10 @@
-package com.epages.restdocs.openapi.schema
+package com.epages.restdocs.openapi.gradle.schema
 
-import com.epages.restdocs.openapi.Attributes
-import com.epages.restdocs.openapi.FieldDescriptor
-import com.epages.restdocs.openapi.schema.ConstraintResolver.isRequired
-import com.epages.restdocs.openapi.schema.ConstraintResolver.maxLengthString
-import com.epages.restdocs.openapi.schema.ConstraintResolver.minLengthString
+import com.epages.restdocs.openapi.gradle.Attributes
+import com.epages.restdocs.openapi.gradle.FieldDescriptor
+import com.epages.restdocs.openapi.gradle.schema.ConstraintResolver.isRequired
+import com.epages.restdocs.openapi.gradle.schema.ConstraintResolver.maxLengthString
+import com.epages.restdocs.openapi.gradle.schema.ConstraintResolver.minLengthString
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.everit.json.schema.ArraySchema
@@ -24,9 +24,9 @@ import java.util.function.Predicate
 
 internal class JsonSchemaFromFieldDescriptorsGenerator {
 
-    internal fun generateSchema(fieldDescriptors: List<FieldDescriptor>, title: String? = null): String {
+    internal fun generateSchema(fieldDescriptors: List<com.epages.restdocs.openapi.gradle.FieldDescriptor>, title: String? = null): String {
         val jsonFieldPaths = reduceFieldDescriptors(fieldDescriptors)
-            .map { JsonFieldPath.compile(it) }
+            .map { com.epages.restdocs.openapi.gradle.schema.JsonFieldPath.compile(it) }
 
         val schema = traverse(emptyList(), jsonFieldPaths, ObjectSchema.builder().title(title) as ObjectSchema.Builder)
 
@@ -38,7 +38,7 @@ internal class JsonSchemaFromFieldDescriptorsGenerator {
      *
      * The implementation will
      */
-    private fun reduceFieldDescriptors(fieldDescriptors: List<FieldDescriptor>): List<FieldDescriptorWithSchemaType> {
+    private fun reduceFieldDescriptors(fieldDescriptors: List<com.epages.restdocs.openapi.gradle.FieldDescriptor>): List<FieldDescriptorWithSchemaType> {
         return fieldDescriptors
             .map { FieldDescriptorWithSchemaType.fromFieldDescriptor(it) }
             .foldRight(listOf())
@@ -51,7 +51,7 @@ internal class JsonSchemaFromFieldDescriptorsGenerator {
             }
     }
 
-    private fun unWrapRootArray(jsonFieldPaths: List<JsonFieldPath>, schema: Schema): Schema {
+    private fun unWrapRootArray(jsonFieldPaths: List<com.epages.restdocs.openapi.gradle.schema.JsonFieldPath>, schema: Schema): Schema {
         if (schema is ObjectSchema) {
             val groups = groupFieldsByFirstRemainingPathSegment(emptyList(), jsonFieldPaths)
             if (groups.keys.size == 1 && groups.keys.contains("[]")) {
@@ -71,7 +71,7 @@ internal class JsonSchemaFromFieldDescriptorsGenerator {
 
     private fun traverse(
         traversedSegments: List<String>,
-        jsonFieldPaths: List<JsonFieldPath>,
+        jsonFieldPaths: List<com.epages.restdocs.openapi.gradle.schema.JsonFieldPath>,
         builder: ObjectSchema.Builder
     ): Schema {
 
@@ -105,17 +105,17 @@ internal class JsonSchemaFromFieldDescriptorsGenerator {
         return builder.build()
     }
 
-    private fun isDirectMatch(traversedSegments: List<String>): Predicate<JsonFieldPath> {
+    private fun isDirectMatch(traversedSegments: List<String>): Predicate<com.epages.restdocs.openapi.gradle.schema.JsonFieldPath> {
         //we have a direct match when there are no remaining segments or when the only following element is an array
         return Predicate { jsonFieldPath ->
             val remainingSegments = jsonFieldPath.remainingSegments(traversedSegments)
-            remainingSegments.isEmpty() || remainingSegments.size == 1 && JsonFieldPath.isArraySegment(remainingSegments[0])
+            remainingSegments.isEmpty() || remainingSegments.size == 1 && com.epages.restdocs.openapi.gradle.schema.JsonFieldPath.isArraySegment(remainingSegments[0])
         }
     }
 
     private fun groupFieldsByFirstRemainingPathSegment(
         traversedSegments: List<String>,
-        jsonFieldPaths: List<JsonFieldPath>): Map<String, List<JsonFieldPath>> {
+        jsonFieldPaths: List<com.epages.restdocs.openapi.gradle.schema.JsonFieldPath>): Map<String, List<com.epages.restdocs.openapi.gradle.schema.JsonFieldPath>> {
         return jsonFieldPaths.groupBy { it.remainingSegments(traversedSegments)[0] }
     }
 
@@ -123,11 +123,11 @@ internal class JsonSchemaFromFieldDescriptorsGenerator {
         builder: ObjectSchema.Builder,
         propertyName: String,
         traversedSegments: MutableList<String>,
-        fields: List<JsonFieldPath>,
+        fields: List<com.epages.restdocs.openapi.gradle.schema.JsonFieldPath>,
         description: String?
     ) {
         val remainingSegments = fields[0].remainingSegments(traversedSegments)
-        if (remainingSegments.isNotEmpty() && JsonFieldPath.isArraySegment(remainingSegments[0])) {
+        if (remainingSegments.isNotEmpty() && com.epages.restdocs.openapi.gradle.schema.JsonFieldPath.isArraySegment(remainingSegments[0])) {
             traversedSegments.add(remainingSegments[0])
             builder.addPropertySchema(
                 propertyName, ArraySchema.builder()
@@ -163,9 +163,9 @@ internal class JsonSchemaFromFieldDescriptorsGenerator {
         type: String,
         optional: Boolean,
         ignored: Boolean,
-        attributes: Attributes,
+        attributes: com.epages.restdocs.openapi.gradle.Attributes,
         private val jsonSchemaPrimitiveTypes: Set<String> = setOf(jsonSchemaPrimitiveTypeFromDescriptorType(type))
-    ) : FieldDescriptor(path, description, type, optional, ignored, attributes) {
+    ) : com.epages.restdocs.openapi.gradle.FieldDescriptor(path, description, type, optional, ignored, attributes) {
 
         fun jsonSchemaType(): Schema {
             val schemaBuilders = jsonSchemaPrimitiveTypes.map { typeToSchema(it) }
@@ -173,7 +173,7 @@ internal class JsonSchemaFromFieldDescriptorsGenerator {
             else CombinedSchema.oneOf(schemaBuilders.map { it.build() }).description(description).build()
         }
 
-        fun merge(fieldDescriptor: FieldDescriptor): FieldDescriptorWithSchemaType {
+        fun merge(fieldDescriptor: com.epages.restdocs.openapi.gradle.FieldDescriptor): FieldDescriptorWithSchemaType {
             if (this.path != fieldDescriptor.path)
                 throw IllegalArgumentException("path of fieldDescriptor is not equal to ${this.path}")
 
@@ -207,7 +207,7 @@ internal class JsonSchemaFromFieldDescriptorsGenerator {
                 && this.type == f.type)
 
         companion object {
-            fun fromFieldDescriptor(fieldDescriptor: FieldDescriptor) =
+            fun fromFieldDescriptor(fieldDescriptor: com.epages.restdocs.openapi.gradle.FieldDescriptor) =
                 FieldDescriptorWithSchemaType(
                     path = fieldDescriptor.path,
                     description = fieldDescriptor.description,

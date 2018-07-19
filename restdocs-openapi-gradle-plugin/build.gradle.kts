@@ -7,9 +7,9 @@ repositories {
     maven { url = uri("https://jitpack.io") }
 }
 
+
 plugins {
     `java-gradle-plugin`
-    kotlin("jvm")
     `kotlin-dsl`
     `maven-publish`
 }
@@ -24,7 +24,6 @@ gradlePlugin {
 }
 
 dependencies {
-    compile(kotlin("gradle-plugin"))
     compileOnly(gradleKotlinDsl())
 
     compile(kotlin("gradle-plugin"))
