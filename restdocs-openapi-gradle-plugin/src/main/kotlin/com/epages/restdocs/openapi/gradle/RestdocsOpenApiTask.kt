@@ -5,7 +5,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 
-open class RestdocsOpenapiTask : DefaultTask() {
+open class RestdocsOpenApiTask : DefaultTask() {
 
     @Input @Optional
     lateinit var basePath: String

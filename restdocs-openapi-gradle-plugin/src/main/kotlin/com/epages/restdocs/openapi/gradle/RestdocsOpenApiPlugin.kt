@@ -1,5 +1,3 @@
-import com.epages.restdocs.openapi.gradle.RestdocsOpenApiPluginExtension
-import com.epages.restdocs.openapi.gradle.RestdocsOpenapiTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -9,7 +7,7 @@ open class RestdocsOpenApiPlugin : Plugin<Project> {
             extensions.create("openapi", com.epages.restdocs.openapi.gradle.RestdocsOpenApiPluginExtension::class.java, project)
             afterEvaluate {
                 val openapi = extensions.findByName("openapi") as com.epages.restdocs.openapi.gradle.RestdocsOpenApiPluginExtension
-                tasks.create("openapi", com.epages.restdocs.openapi.gradle.RestdocsOpenapiTask::class.java).apply {
+                tasks.create("openapi", com.epages.restdocs.openapi.gradle.RestdocsOpenApiTask::class.java).apply {
                     dependsOn("check")
                     description = "Aggregate resource fragments into an OpenAPI API specification"
 
