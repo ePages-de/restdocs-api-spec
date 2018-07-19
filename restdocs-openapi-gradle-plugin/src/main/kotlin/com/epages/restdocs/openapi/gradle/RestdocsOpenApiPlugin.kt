@@ -1,3 +1,5 @@
+package com.epages.restdocs.openapi.gradle
+
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
