@@ -75,13 +75,11 @@ subprojects {
     }
 
     if (!isSampleProject()) {
-        println("found project $name")
-
         tasks.withType<JacocoReport> {
             dependsOn("test")
             reports {
-                html.isEnabled = true // human readable
-                xml.isEnabled = true // required by coveralls
+                html.isEnabled = true
+                xml.isEnabled = true
             }
         }
     }
@@ -109,5 +107,4 @@ tasks {
         }
     }
     tasks["coveralls"].dependsOn(jacocoRootReport)
-
 }
