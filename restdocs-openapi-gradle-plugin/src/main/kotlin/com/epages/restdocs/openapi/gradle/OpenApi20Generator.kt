@@ -18,7 +18,7 @@ internal object OpenApi20Generator {
                 title = "API"
                 version = "1.0.0"
             }
-            paths = listOf("/{id}" to Path().apply {
+            paths = mapOf("/{id}" to Path().apply {
                 get = Operation().apply {
                     parameters = listOf(PathParameter().apply {
                         name = "id"
@@ -26,12 +26,12 @@ internal object OpenApi20Generator {
                         type = "string"
                     })
                     produces = listOf("application/json")
-                    responses = listOf("200" to Response().apply {
+                    responses = mapOf("200" to Response().apply {
                         description = "some"
-                        examples = listOf("application/json" to """{ "name": "some"}""").toMap()
-                    }).toMap()
+                        examples = mapOf("application/json" to """{ "name": "some"}""")
+                    })
                 }
-            }).toMap()
+            })
         }
     }
 
@@ -79,10 +79,7 @@ internal object OpenApi20Generator {
                     resource.request.requestParameters.map {
                         requestParameterDescriptor2PathParameter(it)
                     })
-            responses = listOf("200" to Response().apply {
-                description = "some"
-                examples = listOf("application/json" to """{ "name": "some"}""").toMap()
-            }).toMap()
+            responses = mapOf(resource.response.status.toString() to responseModel2Response(resource.response))
         }
     }
 
@@ -90,7 +87,7 @@ internal object OpenApi20Generator {
         return PathParameter().apply {
             name = parameterDescriptor.name
             description = parameterDescriptor.description
-            type = parameterDescriptor.type
+            type = parameterDescriptor.type.toLowerCase()
         }
     }
 
@@ -98,7 +95,14 @@ internal object OpenApi20Generator {
         return QueryParameter().apply {
             name = parameterDescriptor.name
             description = parameterDescriptor.description
-            type = parameterDescriptor.type
+            type = parameterDescriptor.type.toLowerCase()
+        }
+    }
+
+    private fun responseModel2Response(responseModel: ResponseModel): Response {
+        return Response().apply {
+            description = ""
+            examples = mapOf(responseModel.contentType to responseModel.example)
         }
     }
 }

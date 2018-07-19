@@ -25,7 +25,7 @@ class OpenApi20GeneratorTest {
 
         val openapi = OpenApi20Generator.generate(api)
 
-        println(Yaml.pretty().writeValueAsString(openapi))
+        println(Json.pretty().writeValueAsString(openapi))
     }
 
     private fun givenOneResourceModel(): List<ResourceModel> {
@@ -35,7 +35,7 @@ class OpenApi20GeneratorTest {
                 privateResource = false,
                 deprecated = false,
                 request = RequestModel(
-                    path = "/products/{id}{?locale}",
+                    path = "/products/{id}",
                     method = "GET",
                     securityRequirements = SecurityRequirements(
                         type = OAUTH2
