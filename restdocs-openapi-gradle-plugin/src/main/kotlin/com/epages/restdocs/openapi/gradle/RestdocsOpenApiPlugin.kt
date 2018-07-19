@@ -3,7 +3,7 @@ import com.epages.restdocs.openapi.gradle.RestdocsOpenapiTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
-open class RestdocsOpenapiPlugin : Plugin<Project> {
+open class RestdocsOpenApiPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         with(project) {
             extensions.create("openapi", com.epages.restdocs.openapi.gradle.RestdocsOpenApiPluginExtension::class.java, project)
