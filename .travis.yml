@@ -6,7 +6,7 @@ cache:
   directories:
   - "$HOME/.gradle"
 install: true
-script: "./gradlew clean build jacocoRootReport coveralls"
+script: "./gradlew clean build coveralls"
 env:
   global:
     - CI_NAME=travis-ci

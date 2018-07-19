@@ -96,7 +96,6 @@ configure<CoverallsPluginExtension> {
 tasks {
     val jacocoTestReport = tasks["jacocoTestReport"]
     jacocoTestReport.dependsOn(nonSampleProjects.map { it.tasks["jacocoTestReport"] })
-
     val jacocoRootReport by creating(JacocoReport::class) {
         description = "Generates an aggregate report from all subprojects"
         group = "Coverage reports"
@@ -109,4 +108,6 @@ tasks {
             xml.isEnabled = true
         }
     }
+    tasks["coveralls"].dependsOn(jacocoRootReport)
+
 }
