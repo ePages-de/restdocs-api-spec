@@ -6,6 +6,7 @@ import io.swagger.models.Path
 import io.swagger.models.Response
 import io.swagger.models.Swagger
 import io.swagger.models.parameters.PathParameter
+import io.swagger.models.parameters.QueryParameter
 
 internal object OpenApi20Generator {
 
@@ -34,7 +35,7 @@ internal object OpenApi20Generator {
         }
     }
 
-    fun generate(resources: List<com.epages.restdocs.openapi.gradle.ResourceModel>) : Swagger {
+    fun generate(resources: List<ResourceModel>) : Swagger {
         return Swagger().apply {
             basePath = "/api"
             host = "localhost"
@@ -46,19 +47,60 @@ internal object OpenApi20Generator {
         }
     }
 
-    fun generatePaths(resources: List<com.epages.restdocs.openapi.gradle.ResourceModel>): List<Pair<String, Path>> {
+    fun generatePaths(resources: List<ResourceModel>): List<Pair<String, Path>> {
         return resources
-            .groupBy { it.request.path }
-            .map { it.key to aggregateWithSamePath(it.value) }
+                .map { it.request.path to resourceModel2Path(it) }
+            //.map { it.key.path to aggregateWithSamePath(it.value) }
     }
 
-    private fun aggregateWithSamePath(resources: List<com.epages.restdocs.openapi.gradle.ResourceModel>) : Path {
+    private fun aggregateWithSamePath(resources: List<ResourceModel>) : Path {
         TODO()
     }
 
-    private fun resourceModel2Path(resource: com.epages.restdocs.openapi.gradle.ResourceModel): Path {
-        return Path().apply {
+    private fun resourceModel2Path(resource: ResourceModel): Path {
+        return when (resource.request.method) {
+            "GET" -> Path().get(resourceModel2Operation(resource))
+            "POST" -> Path().post(resourceModel2Operation(resource))
+            "PUT" -> Path().put(resourceModel2Operation(resource))
+            "DELETE" -> Path().delete(resourceModel2Operation(resource))
+            "PATCH" -> Path().patch(resourceModel2Operation(resource))
+            else -> throw UnsupportedHttpMethodException("Unsupported HTTP operation, OZ TODO: choose better exception name")
+        }
+    }
 
+    private fun resourceModel2Operation(resource: ResourceModel): Operation {
+        return Operation().apply {
+            consumes = listOfNotNull(resource.request.contentType)
+            produces = listOfNotNull(resource.response.contentType)
+            parameters =
+                    resource.request.pathParameters.map {
+                        pathParameterDescriptor2PathParameter(it)
+                    }.plus(
+                    resource.request.requestParameters.map {
+                        requestParameterDescriptor2PathParameter(it)
+                    })
+            responses = listOf("200" to Response().apply {
+                description = "some"
+                examples = listOf("application/json" to """{ "name": "some"}""").toMap()
+            }).toMap()
+        }
+    }
+
+    private fun pathParameterDescriptor2PathParameter(parameterDescriptor: ParameterDescriptor): PathParameter {
+        return PathParameter().apply {
+            name = parameterDescriptor.name
+            description = parameterDescriptor.description
+            type = parameterDescriptor.type
+        }
+    }
+
+    private fun requestParameterDescriptor2PathParameter(parameterDescriptor: ParameterDescriptor): QueryParameter {
+        return QueryParameter().apply {
+            name = parameterDescriptor.name
+            description = parameterDescriptor.description
+            type = parameterDescriptor.type
         }
     }
 }
+
+class UnsupportedHttpMethodException(message: String) : RuntimeException(message)

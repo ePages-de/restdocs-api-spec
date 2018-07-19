@@ -1,12 +1,13 @@
 package com.epages.restdocs.openapi.gradle
 
+import com.damnhandy.uri.template.UriTemplate
 import java.util.Objects
 
 
 internal data class ResourceModel(
     val operationId: String,
-    val summary: String?,
-    val description: String?,
+    val summary: String? = null,
+    val description: String? = null,
     val privateResource: Boolean,
     val deprecated: Boolean,
     val request: RequestModel,
@@ -16,19 +17,19 @@ internal data class ResourceModel(
 internal data class RequestModel(
     val path: String,
     val method: String,
-    val contentType: String?,
+    val contentType: String? = null,
     val securityRequirements: SecurityRequirements?,
     val headers: List<HeaderDescriptor>,
     val pathParameters: List<ParameterDescriptor>,
     val requestParameters: List<ParameterDescriptor>,
     val requestFields: List<FieldDescriptor>,
-    val example: String?,
-    val schema: String?
+    val example: String? = null,
+    val schema: String? = null
 ) {
     override fun equals(other: Any?): Boolean {
         val that = other as RequestModel
         return path == that.path &&
-                method == that.path &&
+                method == that.method &&
                 contentType == that.contentType &&
                 securityRequirements == that.securityRequirements
     }
@@ -37,13 +38,25 @@ internal data class RequestModel(
     }
 }
 
+internal data class PathTemplate(
+    val path: String
+) {
+    override fun equals(other: Any?): Boolean {
+        var that = other as PathTemplate
+        var thisUriTemplate = UriTemplate.fromTemplate(path)
+        var thatUriTemplate = UriTemplate.fromTemplate(that.path)
+
+        return thisUriTemplate.expand() == thatUriTemplate.template
+    }
+}
+
 internal data class ResponseModel(
     val status: Int,
-    val contentType: String?,
+    val contentType: String? = null,
     val headers: List<HeaderDescriptor>,
     val responseFields: List<FieldDescriptor>,
-    val example: String?,
-    val schema: String?
+    val example: String? = null,
+    val schema: String? = null
 )
 
 internal enum class SimpleType {
@@ -86,9 +99,9 @@ internal data class ParameterDescriptor(
     val ignored: Boolean
 )
 
-internal interface SecurityRequirements {
+internal data class SecurityRequirements(
     val type: SecurityType
-}
+)
 
 internal enum class SecurityType {
     OAUTH2,
