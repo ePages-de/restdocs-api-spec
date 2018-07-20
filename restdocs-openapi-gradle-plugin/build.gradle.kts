@@ -9,6 +9,7 @@ repositories {
 
 
 plugins {
+    kotlin("jvm")
     `java-gradle-plugin`
     `kotlin-dsl`
 }
