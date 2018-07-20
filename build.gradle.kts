@@ -55,10 +55,9 @@ allprojects {
 
     if (!isSampleProject()) {
         apply(plugin = "java")
-        apply(plugin = "kotlin")
-        apply(plugin = "maven-publish")
         apply(plugin = "jacoco")
         apply(plugin = "com.github.kt3k.coveralls")
+        apply(plugin = "maven-publish")
     }
 }
 
@@ -81,6 +80,21 @@ subprojects {
             reports {
                 html.isEnabled = true
                 xml.isEnabled = true
+            }
+        }
+
+        val sourcesJar by tasks.creating(Jar::class) {
+            classifier = "sources"
+            from(java.sourceSets["main"].allSource)
+        }
+
+        publishing {
+
+            (publications) {
+                "mavenJava"(MavenPublication::class) {
+                    from(components["java"])
+                    artifact(sourcesJar)
+                }
             }
         }
     }
