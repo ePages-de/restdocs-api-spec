@@ -16,7 +16,7 @@ import java.util.ArrayList
 import java.util.Collections.emptyList
 
 @Suppress("UNCHECKED_CAST")
-object DescriptorExtractor {
+internal object DescriptorExtractor {
 
     fun <T: AbstractDescriptor<T>> extractDescriptorsFor(snippet: Snippet): List<T> {
         return when(snippet)  {
