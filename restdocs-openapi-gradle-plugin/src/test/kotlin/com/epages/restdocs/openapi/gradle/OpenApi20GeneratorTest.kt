@@ -1,6 +1,7 @@
 package com.epages.restdocs.openapi.gradle
 
 import com.epages.restdocs.openapi.gradle.SecurityType.OAUTH2
+import io.swagger.models.Path
 import io.swagger.models.Swagger
 import io.swagger.util.Json
 import io.swagger.util.Yaml
@@ -31,6 +32,9 @@ class OpenApi20GeneratorTest {
         thenGetProductWith200ResponseIsGenerated(openapi, api)
     }
 
+    // different responses
+    // different operations for same path
+    // aggregate consumes and produces
 
     @Test
     fun `should convert multiple resource models to openapi`() {
@@ -45,38 +49,47 @@ class OpenApi20GeneratorTest {
     }
 
     private fun thenGetProductWith200ResponseIsGenerated(openapi: Swagger, api: List<ResourceModel>) {
+        val successfulGetProductModel = api.get(0)
+        val productPath = openapi.paths.getValue(successfulGetProductModel.request.path)
+
         then(openapi.basePath).isEqualTo("/api")
-        then(openapi.paths.getValue(api.get(0).request.path)).isNotNull
-        then(openapi.paths.getValue(api.get(0).request.path).get.consumes).contains(api.get(0).request.contentType)
-        then(openapi.paths.getValue(api.get(0).request.path).get.responses.get(api.get(0).response.status.toString())).isNotNull
-        then(openapi.paths.getValue(api.get(0).request.path).get.security.get(0).get("OAUTH2"))
-                .isEqualTo(api.get(0).request.securityRequirements!!.requiredScopes)
-        then(openapi.paths.getValue(api.get(0).request.path).get.responses.get(api.get(0).response.status.toString())!!
-                .examples.get(api.get(0).response.contentType)).isEqualTo(api.get(0).response.example)
-        then(openapi.paths.getValue(api.get(0).request.path).get.parameters.get(0).name)
-                .isEqualTo(api.get(0).request.pathParameters.get(0).name)
-        then(openapi.paths.getValue(api.get(0).request.path).get.parameters.get(1).name)
-                .isEqualTo(api.get(0).request.requestParameters.get(0).name)
+        then(productPath).isNotNull
+        then(productPath.get.consumes).contains(successfulGetProductModel.request.contentType)
+        then(productPath.get.responses.get(successfulGetProductModel.response.status.toString())).isNotNull
+        then(productPath.get.security.get(0).get("OAUTH2"))
+                .isEqualTo(successfulGetProductModel.request.securityRequirements!!.requiredScopes)
+        then(productPath.get.responses.get(successfulGetProductModel.response.status.toString())!!
+                .examples.get(successfulGetProductModel.response.contentType)).isEqualTo(successfulGetProductModel.response.example)
+        thenParametersForGetMatch(productPath, successfulGetProductModel)
     }
 
     private fun thenGetProductWith400ResponseIsGenerated(openapi: Swagger, api: List<ResourceModel>) {
-        then(openapi.paths.getValue(api.get(2).request.path).get.responses.get(api.get(2).response.status.toString())).isNotNull
-        then(openapi.paths.getValue(api.get(2).request.path).get.responses.get(api.get(2).response.status.toString())!!
-                .examples.get(api.get(2).response.contentType)).isEqualTo(api.get(2).response.example)
-        then(openapi.paths.getValue(api.get(2).request.path).get.parameters.get(0).name)
-                .isEqualTo(api.get(2).request.pathParameters.get(0).name)
-        then(openapi.paths.getValue(api.get(2).request.path).get.parameters.get(1).name)
-                .isEqualTo(api.get(2).request.requestParameters.get(0).name)
+        val badGetProductModel = api.get(2)
+        val productPath = openapi.paths.getValue(badGetProductModel.request.path)
+        then(productPath.get.responses.get(badGetProductModel.response.status.toString())).isNotNull
+        then(productPath.get.responses.get(badGetProductModel.response.status.toString())!!
+                .examples.get(badGetProductModel.response.contentType)).isEqualTo(badGetProductModel.response.example)
+        thenParametersForGetMatch(productPath, badGetProductModel)
+    }
+
+    private fun thenParametersForGetMatch(path: Path, resourceModel: ResourceModel) {
+        then(path.get.parameters.get(0).name)
+                .isEqualTo(resourceModel.request.pathParameters.get(0).name)
+        then(path.get.parameters.get(1).name)
+                .isEqualTo(resourceModel.request.requestParameters.get(0).name)
     }
 
     private fun thenDeleteProductIsGenerated(openapi: Swagger, api: List<ResourceModel>) {
-        then(openapi.paths.getValue(api.get(3).request.path)).isNotNull
-        then(openapi.paths.getValue(api.get(3).request.path).delete.consumes).isEmpty()
-        then(openapi.paths.getValue(api.get(3).request.path).delete.responses.get(api.get(3).response.status.toString())).isNotNull
-        then(openapi.paths.getValue(api.get(3).request.path).delete.security.get(0).get("OAUTH2"))
-                .isEqualTo(api.get(3).request.securityRequirements!!.requiredScopes)
-        then(openapi.paths.getValue(api.get(3).request.path).delete.responses.get(api.get(3).response.status.toString())!!
-                .examples.get(api.get(3).response.contentType)).isEqualTo(api.get(3).response.example)
+        val successfulDeleteProductModel = api.get(3)
+        val productPath = openapi.paths.getValue(successfulDeleteProductModel.request.path)
+
+        then(productPath).isNotNull
+        then(productPath.delete.consumes).isEmpty()
+        then(productPath.delete.responses.get(successfulDeleteProductModel.response.status.toString())).isNotNull
+        then(productPath.delete.security.get(0).get("OAUTH2"))
+                .isEqualTo(successfulDeleteProductModel.request.securityRequirements!!.requiredScopes)
+        then(productPath.delete.responses.get(successfulDeleteProductModel.response.status.toString())!!
+                .examples.get(successfulDeleteProductModel.response.contentType)).isEqualTo(successfulDeleteProductModel.response.example)
     }
 
     private fun givenOneResourceModel(): List<ResourceModel> {
