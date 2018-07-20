@@ -92,20 +92,28 @@ internal object OpenApi20Generator {
     }
 
     private fun resourceModels2Operation(resources: List<ResourceModel>): Operation {
-        val mainResourceMode = getMainResourceModel(resources)
+        val mainResourceModel = getMainResourceModel(resources)
         return Operation().apply {
-            consumes = listOfNotNull(mainResourceMode.request.contentType)
-            produces = listOfNotNull(mainResourceMode.response.contentType)
+            consumes = listOfNotNull(mainResourceModel.request.contentType)
+            produces = listOfNotNull(mainResourceModel.response.contentType)
+            if(mainResourceModel.request.securityRequirements != null) {
+                addSecurity(mainResourceModel.request.securityRequirements.type.toString(),
+                        scurityRequirements2ScopesList(mainResourceModel.request.securityRequirements))
+            }
             parameters =
-                    mainResourceMode.request.pathParameters.map {
+                    mainResourceModel.request.pathParameters.map {
                         pathParameterDescriptor2PathParameter(it)
                     }.plus(
-                            mainResourceMode.request.requestParameters.map {
+                            mainResourceModel.request.requestParameters.map {
                         requestParameterDescriptor2PathParameter(it)
                     })
             responses = groupByStatusCode(resources)
                     .mapValues { responseModel2Response(it.value) }
         }
+    }
+
+    private fun scurityRequirements2ScopesList(securityRequirements: SecurityRequirements): List<String> {
+        return if(securityRequirements.type.equals(SecurityType.OAUTH2)) securityRequirements.requiredScopes else listOf()
     }
 
     private fun pathParameterDescriptor2PathParameter(parameterDescriptor: ParameterDescriptor): PathParameter {

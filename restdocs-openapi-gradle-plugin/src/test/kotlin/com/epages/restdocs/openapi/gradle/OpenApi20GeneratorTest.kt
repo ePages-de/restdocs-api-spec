@@ -49,6 +49,8 @@ class OpenApi20GeneratorTest {
         then(openapi.paths.getValue(api.get(0).request.path)).isNotNull
         then(openapi.paths.getValue(api.get(0).request.path).get.consumes).contains(api.get(0).request.contentType)
         then(openapi.paths.getValue(api.get(0).request.path).get.responses.get(api.get(0).response.status.toString())).isNotNull
+        then(openapi.paths.getValue(api.get(0).request.path).get.security.get(0).get("OAUTH2"))
+                .isEqualTo(api.get(0).request.securityRequirements!!.requiredScopes)
         then(openapi.paths.getValue(api.get(0).request.path).get.responses.get(api.get(0).response.status.toString())!!
                 .examples.get(api.get(0).response.contentType)).isEqualTo(api.get(0).response.example)
         then(openapi.paths.getValue(api.get(0).request.path).get.parameters.get(0).name)
@@ -71,7 +73,9 @@ class OpenApi20GeneratorTest {
         then(openapi.paths.getValue(api.get(3).request.path)).isNotNull
         then(openapi.paths.getValue(api.get(3).request.path).delete.consumes).isEmpty()
         then(openapi.paths.getValue(api.get(3).request.path).delete.responses.get(api.get(3).response.status.toString())).isNotNull
-        then(openapi.paths.getValue(api.get(0).request.path).delete.responses.get(api.get(3).response.status.toString())!!
+        then(openapi.paths.getValue(api.get(3).request.path).delete.security.get(0).get("OAUTH2"))
+                .isEqualTo(api.get(3).request.securityRequirements!!.requiredScopes)
+        then(openapi.paths.getValue(api.get(3).request.path).delete.responses.get(api.get(3).response.status.toString())!!
                 .examples.get(api.get(3).response.contentType)).isEqualTo(api.get(3).response.example)
     }
 
@@ -171,7 +175,8 @@ class OpenApi20GeneratorTest {
                 method = "GET",
                 contentType = "application/json",
                 securityRequirements = SecurityRequirements(
-                        type = OAUTH2
+                        type = OAUTH2,
+                        requiredScopes = listOf("prod:r")
                 ),
                 headers = listOf(),
                 pathParameters = listOf(
@@ -201,7 +206,8 @@ class OpenApi20GeneratorTest {
                 path = "/products/{id}",
                 method = "DELETE",
                 securityRequirements = SecurityRequirements(
-                        type = OAUTH2
+                        type = OAUTH2,
+                        requiredScopes = listOf("prod:d")
                 ),
                 headers = listOf(),
                 pathParameters = listOf(

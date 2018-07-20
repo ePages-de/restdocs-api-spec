@@ -100,7 +100,8 @@ internal data class ParameterDescriptor(
 )
 
 internal data class SecurityRequirements(
-    val type: SecurityType
+    val type: SecurityType,
+    val requiredScopes: List<String>
 )
 
 internal enum class SecurityType {
