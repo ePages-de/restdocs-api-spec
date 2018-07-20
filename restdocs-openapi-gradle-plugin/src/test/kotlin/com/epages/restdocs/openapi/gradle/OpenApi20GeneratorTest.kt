@@ -1,8 +1,10 @@
 package com.epages.restdocs.openapi.gradle
 
 import com.epages.restdocs.openapi.gradle.SecurityType.OAUTH2
+import io.swagger.models.Swagger
 import io.swagger.util.Json
 import io.swagger.util.Yaml
+import org.assertj.core.api.BDDAssertions.then
 import org.junit.jupiter.api.Test
 
 class OpenApi20GeneratorTest {
@@ -26,7 +28,9 @@ class OpenApi20GeneratorTest {
         val openapi = OpenApi20Generator.generate(api)
 
         println(Json.pretty().writeValueAsString(openapi))
+        thenGetProductWith200ResponseIsGenerated(openapi, api)
     }
+
 
     @Test
     fun `should convert multiple resource models to openapi`() {
@@ -35,6 +39,40 @@ class OpenApi20GeneratorTest {
         val openapi = OpenApi20Generator.generate(api)
 
         println(Json.pretty().writeValueAsString(openapi))
+        thenGetProductWith200ResponseIsGenerated(openapi, api)
+        thenGetProductWith400ResponseIsGenerated(openapi, api)
+        thenDeleteProductIsGenerated(openapi, api)
+    }
+
+    private fun thenGetProductWith200ResponseIsGenerated(openapi: Swagger, api: List<ResourceModel>) {
+        then(openapi.basePath).isEqualTo("/api")
+        then(openapi.paths.getValue(api.get(0).request.path)).isNotNull
+        then(openapi.paths.getValue(api.get(0).request.path).get.consumes).contains(api.get(0).request.contentType)
+        then(openapi.paths.getValue(api.get(0).request.path).get.responses.get(api.get(0).response.status.toString())).isNotNull
+        then(openapi.paths.getValue(api.get(0).request.path).get.responses.get(api.get(0).response.status.toString())!!
+                .examples.get(api.get(0).response.contentType)).isEqualTo(api.get(0).response.example)
+        then(openapi.paths.getValue(api.get(0).request.path).get.parameters.get(0).name)
+                .isEqualTo(api.get(0).request.pathParameters.get(0).name)
+        then(openapi.paths.getValue(api.get(0).request.path).get.parameters.get(1).name)
+                .isEqualTo(api.get(0).request.requestParameters.get(0).name)
+    }
+
+    private fun thenGetProductWith400ResponseIsGenerated(openapi: Swagger, api: List<ResourceModel>) {
+        then(openapi.paths.getValue(api.get(2).request.path).get.responses.get(api.get(2).response.status.toString())).isNotNull
+        then(openapi.paths.getValue(api.get(2).request.path).get.responses.get(api.get(2).response.status.toString())!!
+                .examples.get(api.get(2).response.contentType)).isEqualTo(api.get(2).response.example)
+        then(openapi.paths.getValue(api.get(2).request.path).get.parameters.get(0).name)
+                .isEqualTo(api.get(2).request.pathParameters.get(0).name)
+        then(openapi.paths.getValue(api.get(2).request.path).get.parameters.get(1).name)
+                .isEqualTo(api.get(2).request.requestParameters.get(0).name)
+    }
+
+    private fun thenDeleteProductIsGenerated(openapi: Swagger, api: List<ResourceModel>) {
+        then(openapi.paths.getValue(api.get(3).request.path)).isNotNull
+        then(openapi.paths.getValue(api.get(3).request.path).delete.consumes).isEmpty()
+        then(openapi.paths.getValue(api.get(3).request.path).delete.responses.get(api.get(3).response.status.toString())).isNotNull
+        then(openapi.paths.getValue(api.get(0).request.path).delete.responses.get(api.get(3).response.status.toString())!!
+                .examples.get(api.get(3).response.contentType)).isEqualTo(api.get(3).response.example)
     }
 
     private fun givenOneResourceModel(): List<ResourceModel> {
@@ -131,6 +169,7 @@ class OpenApi20GeneratorTest {
         return RequestModel(
                 path = "/products/{id}",
                 method = "GET",
+                contentType = "application/json",
                 securityRequirements = SecurityRequirements(
                         type = OAUTH2
                 ),
