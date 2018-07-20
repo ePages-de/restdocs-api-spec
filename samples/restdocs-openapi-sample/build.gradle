@@ -34,17 +34,19 @@ ext {
 }
 
 dependencies {
-	asciidoctor("org.springframework.restdocs:spring-restdocs-asciidoctor")
+	asciidoctor('org.springframework.restdocs:spring-restdocs-asciidoctor')
 	compile('org.springframework.boot:spring-boot-starter-data-jpa')
 	compile('org.springframework.boot:spring-boot-starter-data-rest')
 	runtime('com.h2database:h2')
 	compileOnly('org.projectlombok:lombok')
 	testCompileOnly('org.projectlombok:lombok')
+	testCompile('org.junit.jupiter:junit-jupiter-engine:5.2.0')
+
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	testCompile('org.springframework.restdocs:spring-restdocs-mockmvc')
 	//testCompile("com.github.epages-de.restdocs-openapi:restdocs-openapi:master-SNAPSHOT")
-	testCompile project(":restdocs-openapi")
-	testCompile("com.google.guava:guava:23.0")
+	testCompile project(':restdocs-openapi')
+	testCompile('com.google.guava:guava:23.0')
 }
 
 configurations.all {
