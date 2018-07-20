@@ -30,6 +30,7 @@ data class ResourceSnippetParameters @JvmOverloads constructor(
     val responseFieldsWithLinks by lazy { responseFields + links.map(Companion::toFieldDescriptor) }
 
     companion object {
+        @JvmStatic
         fun builder() = ResourceSnippetParametersBuilder()
 
         private fun toFieldDescriptor(linkDescriptor: LinkDescriptor): FieldDescriptor {

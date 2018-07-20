@@ -4,9 +4,13 @@ buildscript {
 	}
 	repositories {
 		mavenCentral()
+        maven { url = "https://jitpack.io" }
+		maven { url "https://plugins.gradle.org/m2/" }
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+		classpath("org.asciidoctor:asciidoctor-gradle-plugin:1.5.3")
+		classpath("com.github.epages-de.restdocs-openapi:restdocs-openapi-gradle-plugin:master-SNAPSHOT")
 	}
 }
 
@@ -14,25 +18,35 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
+apply plugin: 'org.asciidoctor.convert'
+apply plugin: 'com.epages.restdocs-openapi'
 
 sourceCompatibility = 1.8
 
 repositories {
 	mavenCentral()
 	maven { url = "https://jitpack.io" }
-
+	mavenLocal()
 }
 
+ext {
+	snippetsDir = file('build/generated-snippets')
+}
 
 dependencies {
+	asciidoctor("org.springframework.restdocs:spring-restdocs-asciidoctor")
 	compile('org.springframework.boot:spring-boot-starter-data-jpa')
-	compile('org.springframework.boot:spring-boot-starter-web')
+	compile('org.springframework.boot:spring-boot-starter-data-rest')
 	runtime('com.h2database:h2')
 	compileOnly('org.projectlombok:lombok')
-	testCompile("org.springframework.boot:spring-boot-starter-test") {
-		exclude group: "junit"
-	}
-	testCompile("org.junit.jupiter:junit-jupiter-engine:5.2.0")
+	testCompileOnly('org.projectlombok:lombok')
+	testCompile('org.springframework.boot:spring-boot-starter-test')
 	testCompile('org.springframework.restdocs:spring-restdocs-mockmvc')
-	testCompile project(':restdocs-openapi')
+	//testCompile("com.github.epages-de.restdocs-openapi:restdocs-openapi:master-SNAPSHOT")
+	testCompile project(":restdocs-openapi")
+	testCompile("com.google.guava:guava:23.0")
+}
+
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
