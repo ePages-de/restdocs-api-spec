@@ -57,25 +57,19 @@ internal object OpenApi20Generator {
         return resources.groupBy { it.request.path }
     }
 
-    private fun groupByOperation(resources: List<ResourceModel>) : Map<String, List<ResourceModel>> {
+    private fun groupByHttpMethod(resources: List<ResourceModel>) : Map<String, List<ResourceModel>> {
         return resources.groupBy { it.request.method }
     }
 
-    private fun groupByStatusCode(resources: List<ResourceModel>) : Map<String, ResponseModel> {
+    private fun responsesByStatusCode(resources: List<ResourceModel>) : Map<String, ResponseModel> {
         return resources.groupBy { it.response.status }
                 .mapKeys { it.key.toString() }
                 .mapValues { it.value.get(0).response }
     }
 
-    private fun getMainResourceModel(resources: List<ResourceModel>) : ResourceModel {
-        return resources
-            .filter { it.response.status >= 200 && it.response.status < 300 }
-            .first()
-    }
-
-    private fun resourceModels2Path(resources: List<ResourceModel>): Path {
+    private fun resourceModels2Path(modelsWithSamePath: List<ResourceModel>): Path {
         val path = Path()
-        groupByOperation(resources)
+        groupByHttpMethod(modelsWithSamePath)
             .entries
             .forEach {
                 when (it.key) {
@@ -91,29 +85,29 @@ internal object OpenApi20Generator {
         return path;
     }
 
-    private fun resourceModels2Operation(resources: List<ResourceModel>): Operation {
-        val mainResourceModel = getMainResourceModel(resources)
+    private fun resourceModels2Operation(modelsWithSamePathAndMethod: List<ResourceModel>): Operation {
+        val firstModelForPathAndMehtod = modelsWithSamePathAndMethod.first()
         return Operation().apply {
-            consumes = listOfNotNull(mainResourceModel.request.contentType)
-            produces = listOfNotNull(mainResourceModel.response.contentType)
-            if(mainResourceModel.request.securityRequirements != null) {
-                addSecurity(mainResourceModel.request.securityRequirements.type.toString(),
-                        scurityRequirements2ScopesList(mainResourceModel.request.securityRequirements))
+            consumes = modelsWithSamePathAndMethod.map { it.request.contentType }.distinct().filterNotNull()
+            produces = modelsWithSamePathAndMethod.map { it.response.contentType }.distinct().filterNotNull()
+            if(firstModelForPathAndMehtod.request.securityRequirements != null) {
+                addSecurity(firstModelForPathAndMehtod.request.securityRequirements.type.toString(),
+                        securityRequirements2ScopesList(firstModelForPathAndMehtod.request.securityRequirements))
             }
             parameters =
-                    mainResourceModel.request.pathParameters.map {
+                    firstModelForPathAndMehtod.request.pathParameters.map {
                         pathParameterDescriptor2PathParameter(it)
                     }.plus(
-                            mainResourceModel.request.requestParameters.map {
+                            firstModelForPathAndMehtod.request.requestParameters.map {
                         requestParameterDescriptor2PathParameter(it)
                     })
-            responses = groupByStatusCode(resources)
+            responses = responsesByStatusCode(modelsWithSamePathAndMethod)
                     .mapValues { responseModel2Response(it.value) }
         }
     }
 
-    private fun scurityRequirements2ScopesList(securityRequirements: SecurityRequirements): List<String> {
-        return if(securityRequirements.type.equals(SecurityType.OAUTH2)) securityRequirements.requiredScopes else listOf()
+    private fun securityRequirements2ScopesList(securityRequirements: SecurityRequirements): List<String> {
+        return if(securityRequirements.type.equals(SecurityType.OAUTH2) && securityRequirements.requiredScopes != null) securityRequirements.requiredScopes else listOf()
     }
 
     private fun pathParameterDescriptor2PathParameter(parameterDescriptor: ParameterDescriptor): PathParameter {
