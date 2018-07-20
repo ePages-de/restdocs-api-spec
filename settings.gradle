@@ -1,5 +1,5 @@
 rootProject.name = 'restdocs-openapi-parent'
 include 'restdocs-openapi'
 include 'restdocs-openapi-gradle-plugin'
-include 'restdocs-openapi-sample'
-project(':restdocs-openapi-sample').projectDir = file('samples/restdocs-openapi-sample')
+//include 'restdocs-openapi-sample'
+//project(':restdocs-openapi-sample').projectDir = file('samples/restdocs-openapi-sample')
