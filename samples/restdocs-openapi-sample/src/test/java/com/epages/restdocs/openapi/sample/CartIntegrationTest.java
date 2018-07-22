@@ -3,12 +3,12 @@ package com.epages.restdocs.openapi.sample;
 import com.epages.restdocs.openapi.ResourceSnippetParameters;
 import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static com.epages.restdocs.openapi.MockMvcRestDocumentationWrapper.document;
 import static com.epages.restdocs.openapi.ResourceDocumentation.parameterWithName;
@@ -31,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureRestDocs
 @SpringBootTest
 @FieldDefaults(level = PRIVATE)
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class CartIntegrationTest extends BaseIntegrationTest {
 
     String cartId;
