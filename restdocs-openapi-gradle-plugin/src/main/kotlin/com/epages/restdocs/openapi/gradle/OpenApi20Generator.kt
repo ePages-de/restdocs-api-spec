@@ -143,7 +143,7 @@ internal object OpenApi20Generator {
         return Response().apply {
             description = ""
             headers = responseModel.headers
-                .map { it.name to PropertyBuilder.build(it.type, "", mapOf()).description(it.description) }
+                .map { it.name to PropertyBuilder.build(it.type, null, null).description(it.description) }
                 .toMap()
             examples = mapOf(responseModel.contentType to responseModel.example)
         }
