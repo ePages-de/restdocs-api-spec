@@ -5,8 +5,10 @@ import io.swagger.models.Operation
 import io.swagger.models.Path
 import io.swagger.models.Response
 import io.swagger.models.Swagger
+import io.swagger.models.parameters.HeaderParameter
 import io.swagger.models.parameters.PathParameter
 import io.swagger.models.parameters.QueryParameter
+import io.swagger.models.properties.PropertyBuilder
 
 internal object OpenApi20Generator {
 
@@ -57,7 +59,7 @@ internal object OpenApi20Generator {
         return resources.groupBy { it.request.path }
     }
 
-    private fun groupByHttpMethod(resources: List<ResourceModel>) : Map<String, List<ResourceModel>> {
+    private fun groupByHttpMethod(resources: List<ResourceModel>) : Map<HTTPMethod, List<ResourceModel>> {
         return resources.groupBy { it.request.method }
     }
 
@@ -73,12 +75,11 @@ internal object OpenApi20Generator {
             .entries
             .forEach {
                 when (it.key) {
-                    "GET" -> path.get(resourceModels2Operation(it.value))
-                    "POST" -> path.post(resourceModels2Operation(it.value))
-                    "PUT" -> path.put(resourceModels2Operation(it.value))
-                    "DELETE" -> path.delete(resourceModels2Operation(it.value))
-                    "PATCH" -> path.patch(resourceModels2Operation(it.value))
-                    else -> throw UnsupportedHttpMethodException("Unsupported HTTP operation, OZ TODO: choose better exception name")
+                    HTTPMethod.GET -> path.get(resourceModels2Operation(it.value))
+                    HTTPMethod.POST -> path.post(resourceModels2Operation(it.value))
+                    HTTPMethod.PUT -> path.put(resourceModels2Operation(it.value))
+                    HTTPMethod.DELETE -> path.delete(resourceModels2Operation(it.value))
+                    HTTPMethod.PATCH -> path.patch(resourceModels2Operation(it.value))
                 }
             }
 
@@ -96,11 +97,15 @@ internal object OpenApi20Generator {
             }
             parameters =
                     firstModelForPathAndMehtod.request.pathParameters.map {
-                        pathParameterDescriptor2PathParameter(it)
+                        pathParameterDescriptor2Parameter(it)
                     }.plus(
-                            firstModelForPathAndMehtod.request.requestParameters.map {
-                        requestParameterDescriptor2PathParameter(it)
-                    })
+                        firstModelForPathAndMehtod.request.requestParameters.map {
+                            requestParameterDescriptor2Parameter(it)
+                    }).plus(
+                        firstModelForPathAndMehtod.request.headers.map {
+                            header2Parameter(it)
+                        }
+                    )
             responses = responsesByStatusCode(modelsWithSamePathAndMethod)
                     .mapValues { responseModel2Response(it.value) }
         }
@@ -110,7 +115,7 @@ internal object OpenApi20Generator {
         return if(securityRequirements.type.equals(SecurityType.OAUTH2) && securityRequirements.requiredScopes != null) securityRequirements.requiredScopes else listOf()
     }
 
-    private fun pathParameterDescriptor2PathParameter(parameterDescriptor: ParameterDescriptor): PathParameter {
+    private fun pathParameterDescriptor2Parameter(parameterDescriptor: ParameterDescriptor): PathParameter {
         return PathParameter().apply {
             name = parameterDescriptor.name
             description = parameterDescriptor.description
@@ -118,7 +123,7 @@ internal object OpenApi20Generator {
         }
     }
 
-    private fun requestParameterDescriptor2PathParameter(parameterDescriptor: ParameterDescriptor): QueryParameter {
+    private fun requestParameterDescriptor2Parameter(parameterDescriptor: ParameterDescriptor): QueryParameter {
         return QueryParameter().apply {
             name = parameterDescriptor.name
             description = parameterDescriptor.description
@@ -126,12 +131,21 @@ internal object OpenApi20Generator {
         }
     }
 
+    private fun header2Parameter(headerDescriptor: HeaderDescriptor): HeaderParameter {
+        return HeaderParameter().apply {
+            name = headerDescriptor.name
+            description = headerDescriptor.description
+            type = headerDescriptor.type.toLowerCase()
+        }
+    }
+
     private fun responseModel2Response(responseModel: ResponseModel): Response {
         return Response().apply {
             description = ""
+            headers = responseModel.headers
+                .map { it.name to PropertyBuilder.build(it.type, null, null).description(it.description) }
+                .toMap()
             examples = mapOf(responseModel.contentType to responseModel.example)
         }
     }
 }
-
-class UnsupportedHttpMethodException(message: String) : RuntimeException(message)
