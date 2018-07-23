@@ -3,6 +3,7 @@ package com.epages.restdocs.openapi.gradle
 import com.epages.restdocs.openapi.gradle.SecurityType.OAUTH2
 import io.swagger.models.Path
 import io.swagger.models.Swagger
+import io.swagger.models.parameters.Parameter
 import io.swagger.util.Json
 import io.swagger.util.Yaml
 import org.assertj.core.api.BDDAssertions.then
@@ -35,6 +36,7 @@ class OpenApi20GeneratorTest {
     // different responses
     // different operations for same path
     // aggregate consumes and produces
+    // next step is headers
 
     @Test
     fun `should convert multiple resource models to openapi`() {
@@ -50,17 +52,25 @@ class OpenApi20GeneratorTest {
 
     private fun thenGetProductWith200ResponseIsGenerated(openapi: Swagger, api: List<ResourceModel>) {
         val successfulGetProductModel = api.get(0)
+        val responseHeaders = successfulGetProductModel.response.headers
         val productPath = openapi.paths.getValue(successfulGetProductModel.request.path)
+        val successfulGetResponse = productPath.get.responses.get(successfulGetProductModel.response.status.toString())
 
         then(openapi.basePath).isEqualTo("/api")
         then(productPath).isNotNull
         then(productPath.get.consumes).contains(successfulGetProductModel.request.contentType)
-        then(productPath.get.responses.get(successfulGetProductModel.response.status.toString())).isNotNull
+        then(successfulGetResponse).isNotNull
+        then(successfulGetResponse!!.headers).isNotNull
+        for(i in responseHeaders.indices) {
+            then(successfulGetResponse!!.headers.get(responseHeaders.get(i).name)!!).isNotNull
+            then(successfulGetResponse!!.headers.get(responseHeaders.get(i).name)!!.description).isEqualTo(responseHeaders.get(i).description)
+            then(successfulGetResponse!!.headers.get(responseHeaders.get(i).name)!!.type).isEqualTo(responseHeaders.get(i).type)
+        }
         then(productPath.get.security.get(0).get("OAUTH2"))
                 .isEqualTo(successfulGetProductModel.request.securityRequirements!!.requiredScopes)
-        then(productPath.get.responses.get(successfulGetProductModel.response.status.toString())!!
+        then(successfulGetResponse!!
                 .examples.get(successfulGetProductModel.response.contentType)).isEqualTo(successfulGetProductModel.response.example)
-        thenParametersForGetMatch(productPath, successfulGetProductModel)
+        thenParametersForGetMatch(productPath.get.parameters, successfulGetProductModel.request)
     }
 
     private fun thenGetProductWith400ResponseIsGenerated(openapi: Swagger, api: List<ResourceModel>) {
@@ -69,14 +79,19 @@ class OpenApi20GeneratorTest {
         then(productPath.get.responses.get(badGetProductModel.response.status.toString())).isNotNull
         then(productPath.get.responses.get(badGetProductModel.response.status.toString())!!
                 .examples.get(badGetProductModel.response.contentType)).isEqualTo(badGetProductModel.response.example)
-        thenParametersForGetMatch(productPath, badGetProductModel)
+        thenParametersForGetMatch(productPath.get.parameters, badGetProductModel.request)
     }
 
-    private fun thenParametersForGetMatch(path: Path, resourceModel: ResourceModel) {
-        then(path.get.parameters.get(0).name)
-                .isEqualTo(resourceModel.request.pathParameters.get(0).name)
-        then(path.get.parameters.get(1).name)
-                .isEqualTo(resourceModel.request.requestParameters.get(0).name)
+    private fun thenParametersForGetMatch(parameters: List<Parameter>, request: RequestModel) {
+        thenParameterMatches(parameters.get(0), "path", request.pathParameters.get(0))
+        thenParameterMatches(parameters.get(1), "query", request.requestParameters.get(0))
+        thenParameterMatches(parameters.get(2), "header", request.headers.get(0))
+    }
+
+    private fun thenParameterMatches(parameter: Parameter, type: String, parameterDescriptor: AbstractParameterDescriptor) {
+        then(parameter.`in`).isEqualTo(type)
+        then(parameter.name).isEqualTo(parameterDescriptor.name)
+        then(parameter.description).isEqualTo(parameterDescriptor.description)
     }
 
     private fun thenDeleteProductIsGenerated(openapi: Swagger, api: List<ResourceModel>) {
@@ -141,7 +156,14 @@ class OpenApi20GeneratorTest {
         return ResponseModel(
                 status = 200,
                 contentType = "application/json",
-                headers = listOf(),
+                headers = listOf(
+                    HeaderDescriptor(
+                        name = "SIGNATURE",
+                        description = "This is some signature",
+                        type = "string",
+                        optional = false
+                    )
+                ),
                 responseFields = listOf(
                         FieldDescriptor(
                                 path = "_id",
@@ -185,13 +207,20 @@ class OpenApi20GeneratorTest {
     private fun getProductRequest(): RequestModel {
         return RequestModel(
                 path = "/products/{id}",
-                method = "GET",
+                method = HTTPMethod.GET,
                 contentType = "application/json",
                 securityRequirements = SecurityRequirements(
                         type = OAUTH2,
                         requiredScopes = listOf("prod:r")
                 ),
-                headers = listOf(),
+                headers = listOf(
+                    HeaderDescriptor(
+                        name = "Authorization",
+                        description = "Access token",
+                        type = "string",
+                        optional = false
+                    )
+                ),
                 pathParameters = listOf(
                         ParameterDescriptor(
                                 name = "id",
@@ -217,7 +246,7 @@ class OpenApi20GeneratorTest {
     private fun deleteProductRequest(): RequestModel {
         return RequestModel(
                 path = "/products/{id}",
-                method = "DELETE",
+                method = HTTPMethod.DELETE,
                 securityRequirements = SecurityRequirements(
                         type = OAUTH2,
                         requiredScopes = listOf("prod:d")

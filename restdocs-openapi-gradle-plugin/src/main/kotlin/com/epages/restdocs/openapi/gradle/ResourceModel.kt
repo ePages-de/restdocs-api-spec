@@ -16,7 +16,7 @@ internal data class ResourceModel(
 
 internal data class RequestModel(
     val path: String,
-    val method: String,
+    val method: HTTPMethod,
     val contentType: String? = null,
     val securityRequirements: SecurityRequirements?,
     val headers: List<HeaderDescriptor>,
@@ -66,12 +66,19 @@ internal enum class SimpleType {
     BOOLEAN
 }
 
-internal data class HeaderDescriptor(
-    val name: String,
-    val description: String,
-    val type: String,
+interface AbstractParameterDescriptor {
+    val name: String
+    val description: String
+    val type: String
     val optional: Boolean
-)
+}
+
+internal data class HeaderDescriptor(
+    override val name: String,
+    override val description: String,
+    override val type: String,
+    override val optional: Boolean
+): AbstractParameterDescriptor
 
 internal open class FieldDescriptor(
     val path: String,
@@ -92,12 +99,12 @@ internal data class Constraint(
 )
 
 internal data class ParameterDescriptor(
-    val name: String,
-    val description: String,
-    val type: String,
-    val optional: Boolean,
+    override val name: String,
+    override val description: String,
+    override val type: String,
+    override val optional: Boolean,
     val ignored: Boolean
-)
+): AbstractParameterDescriptor
 
 internal data class SecurityRequirements(
     val type: SecurityType,
@@ -108,4 +115,12 @@ internal enum class SecurityType {
     OAUTH2,
     BASIC,
     API_KEY
+}
+
+internal enum class HTTPMethod {
+    GET,
+    POST,
+    PUT,
+    DELETE,
+    PATCH
 }
