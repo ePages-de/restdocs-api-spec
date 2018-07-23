@@ -48,39 +48,66 @@ internal object OpenApi20Generator {
     }
 
     fun generatePaths(resources: List<ResourceModel>): List<Pair<String, Path>> {
-        return resources
-                .map { it.request.path to resourceModel2Path(it) }
-            //.map { it.key.path to aggregateWithSamePath(it.value) }
+        return groupByPath(resources)
+            .entries
+            .map { it.key to resourceModels2Path(it.value) }
     }
 
-    private fun aggregateWithSamePath(resources: List<ResourceModel>) : Path {
-        TODO()
+    private fun groupByPath(resources: List<ResourceModel>) : Map<String, List<ResourceModel>> {
+        return resources.groupBy { it.request.path }
     }
 
-    private fun resourceModel2Path(resource: ResourceModel): Path {
-        return when (resource.request.method) {
-            "GET" -> Path().get(resourceModel2Operation(resource))
-            "POST" -> Path().post(resourceModel2Operation(resource))
-            "PUT" -> Path().put(resourceModel2Operation(resource))
-            "DELETE" -> Path().delete(resourceModel2Operation(resource))
-            "PATCH" -> Path().patch(resourceModel2Operation(resource))
-            else -> throw UnsupportedHttpMethodException("Unsupported HTTP operation, OZ TODO: choose better exception name")
-        }
+    private fun groupByHttpMethod(resources: List<ResourceModel>) : Map<String, List<ResourceModel>> {
+        return resources.groupBy { it.request.method }
     }
 
-    private fun resourceModel2Operation(resource: ResourceModel): Operation {
+    private fun responsesByStatusCode(resources: List<ResourceModel>) : Map<String, ResponseModel> {
+        return resources.groupBy { it.response.status }
+                .mapKeys { it.key.toString() }
+                .mapValues { it.value.get(0).response }
+    }
+
+    private fun resourceModels2Path(modelsWithSamePath: List<ResourceModel>): Path {
+        val path = Path()
+        groupByHttpMethod(modelsWithSamePath)
+            .entries
+            .forEach {
+                when (it.key) {
+                    "GET" -> path.get(resourceModels2Operation(it.value))
+                    "POST" -> path.post(resourceModels2Operation(it.value))
+                    "PUT" -> path.put(resourceModels2Operation(it.value))
+                    "DELETE" -> path.delete(resourceModels2Operation(it.value))
+                    "PATCH" -> path.patch(resourceModels2Operation(it.value))
+                    else -> throw UnsupportedHttpMethodException("Unsupported HTTP operation, OZ TODO: choose better exception name")
+                }
+            }
+
+        return path;
+    }
+
+    private fun resourceModels2Operation(modelsWithSamePathAndMethod: List<ResourceModel>): Operation {
+        val firstModelForPathAndMehtod = modelsWithSamePathAndMethod.first()
         return Operation().apply {
-            consumes = listOfNotNull(resource.request.contentType)
-            produces = listOfNotNull(resource.response.contentType)
+            consumes = modelsWithSamePathAndMethod.map { it.request.contentType }.distinct().filterNotNull()
+            produces = modelsWithSamePathAndMethod.map { it.response.contentType }.distinct().filterNotNull()
+            if(firstModelForPathAndMehtod.request.securityRequirements != null) {
+                addSecurity(firstModelForPathAndMehtod.request.securityRequirements.type.toString(),
+                        securityRequirements2ScopesList(firstModelForPathAndMehtod.request.securityRequirements))
+            }
             parameters =
-                    resource.request.pathParameters.map {
+                    firstModelForPathAndMehtod.request.pathParameters.map {
                         pathParameterDescriptor2PathParameter(it)
                     }.plus(
-                    resource.request.requestParameters.map {
+                            firstModelForPathAndMehtod.request.requestParameters.map {
                         requestParameterDescriptor2PathParameter(it)
                     })
-            responses = mapOf(resource.response.status.toString() to responseModel2Response(resource.response))
+            responses = responsesByStatusCode(modelsWithSamePathAndMethod)
+                    .mapValues { responseModel2Response(it.value) }
         }
+    }
+
+    private fun securityRequirements2ScopesList(securityRequirements: SecurityRequirements): List<String> {
+        return if(securityRequirements.type.equals(SecurityType.OAUTH2) && securityRequirements.requiredScopes != null) securityRequirements.requiredScopes else listOf()
     }
 
     private fun pathParameterDescriptor2PathParameter(parameterDescriptor: ParameterDescriptor): PathParameter {
