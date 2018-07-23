@@ -43,14 +43,15 @@ internal object OpenApi20Generator {
                 title = "API"
                 version = "1.0.0"
             }
-            paths = generatePaths(resources).toMap()
+            paths = generatePaths(resources)
         }
     }
 
-    fun generatePaths(resources: List<ResourceModel>): List<Pair<String, Path>> {
+    private fun generatePaths(resources: List<ResourceModel>): Map<String, Path> {
         return groupByPath(resources)
             .entries
             .map { it.key to resourceModels2Path(it.value) }
+            .toMap()
     }
 
     private fun groupByPath(resources: List<ResourceModel>) : Map<String, List<ResourceModel>> {
@@ -64,7 +65,7 @@ internal object OpenApi20Generator {
     private fun responsesByStatusCode(resources: List<ResourceModel>) : Map<String, ResponseModel> {
         return resources.groupBy { it.response.status }
                 .mapKeys { it.key.toString() }
-                .mapValues { it.value.get(0).response }
+                .mapValues { it.value[0].response }
     }
 
     private fun resourceModels2Path(modelsWithSamePath: List<ResourceModel>): Path {
@@ -86,19 +87,19 @@ internal object OpenApi20Generator {
     }
 
     private fun resourceModels2Operation(modelsWithSamePathAndMethod: List<ResourceModel>): Operation {
-        val firstModelForPathAndMehtod = modelsWithSamePathAndMethod.first()
+        val firstModelForPathAndMethod = modelsWithSamePathAndMethod.first()
         return Operation().apply {
             consumes = modelsWithSamePathAndMethod.map { it.request.contentType }.distinct().filterNotNull()
-            produces = modelsWithSamePathAndMethod.map { it.response.contentType }.distinct().filterNotNull()
-            if(firstModelForPathAndMehtod.request.securityRequirements != null) {
-                addSecurity(firstModelForPathAndMehtod.request.securityRequirements.type.toString(),
-                        securityRequirements2ScopesList(firstModelForPathAndMehtod.request.securityRequirements))
+            produces = modelsWithSamePathAndMethod.map { it.response.contentType }.distinct()
+            if(firstModelForPathAndMethod.request.securityRequirements != null) {
+                addSecurity(firstModelForPathAndMethod.request.securityRequirements.type.name,
+                        securityRequirements2ScopesList(firstModelForPathAndMethod.request.securityRequirements))
             }
             parameters =
-                    firstModelForPathAndMehtod.request.pathParameters.map {
+                    firstModelForPathAndMethod.request.pathParameters.map {
                         pathParameterDescriptor2PathParameter(it)
                     }.plus(
-                            firstModelForPathAndMehtod.request.requestParameters.map {
+                            firstModelForPathAndMethod.request.requestParameters.map {
                         requestParameterDescriptor2PathParameter(it)
                     })
             responses = responsesByStatusCode(modelsWithSamePathAndMethod)
