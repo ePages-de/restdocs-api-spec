@@ -161,6 +161,8 @@ internal object OpenApi20Generator {
     private fun resourceModels2Operation(modelsWithSamePathAndMethod: List<ResourceModel>): Operation {
         val firstModelForPathAndMethod = modelsWithSamePathAndMethod.first()
         return Operation().apply {
+            summary = firstModelForPathAndMethod.summary
+            description = firstModelForPathAndMethod.description
             consumes = modelsWithSamePathAndMethod.map { it.request.contentType }.distinct().filterNotNull()
             produces = modelsWithSamePathAndMethod.map { it.response.contentType }.distinct().filterNotNull()
             if(firstModelForPathAndMethod.request.securityRequirements != null) {
