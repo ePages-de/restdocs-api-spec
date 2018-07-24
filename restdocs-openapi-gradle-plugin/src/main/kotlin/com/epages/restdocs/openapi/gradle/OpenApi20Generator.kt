@@ -178,7 +178,7 @@ internal object OpenApi20Generator {
                             header2Parameter(it)
                         }
                     ).plus(
-                        listOfNotNull(requestFieldDescriptor2Parameter(modelsWithSamePathAndMethod.map { it.request.requestFields }.flatten()))
+                        listOfNotNull(requestFieldDescriptor2Parameter(modelsWithSamePathAndMethod.map { it.request.requestFields }.flatten(), firstModelForPathAndMethod.request.example))
                     )
             responses = responsesByStatusCode(modelsWithSamePathAndMethod)
                     .mapValues { responseModel2Response(it.value) }
@@ -213,13 +213,14 @@ internal object OpenApi20Generator {
         }
     }
 
-    private fun requestFieldDescriptor2Parameter(fieldDescriptors: List<FieldDescriptor>): BodyParameter? {
+    private fun requestFieldDescriptor2Parameter(fieldDescriptors: List<FieldDescriptor>, example : String?): BodyParameter? {
         return if(!fieldDescriptors.isEmpty()) {
+            val parsedSchema : Model = Json.mapper().readValue(JsonSchemaFromFieldDescriptorsGenerator().generateSchema(fieldDescriptors = fieldDescriptors))
+            parsedSchema.example = example
             BodyParameter().apply {
                 name = ""
                 description = ""
-                schema = Json.mapper().readValue(
-                    JsonSchemaFromFieldDescriptorsGenerator().generateSchema(fieldDescriptors = fieldDescriptors))
+                schema = parsedSchema
             }
         } else {
             null
