@@ -73,7 +73,7 @@ class OpenApi20GeneratorTest {
         for(i in responseHeaders.indices) {
             then(successfulGetResponse!!.headers.get(responseHeaders.get(i).name)!!).isNotNull
             then(successfulGetResponse!!.headers.get(responseHeaders.get(i).name)!!.description).isEqualTo(responseHeaders.get(i).description)
-            then(successfulGetResponse!!.headers.get(responseHeaders.get(i).name)!!.type).isEqualTo(responseHeaders.get(i).type)
+            then(successfulGetResponse!!.headers.get(responseHeaders.get(i).name)!!.type).isEqualTo(responseHeaders.get(i).type.toLowerCase())
         }
         then(productPath.get.security.get(0).get("OAUTH2"))
                 .isEqualTo(successfulGetProductModel.request.securityRequirements!!.requiredScopes)

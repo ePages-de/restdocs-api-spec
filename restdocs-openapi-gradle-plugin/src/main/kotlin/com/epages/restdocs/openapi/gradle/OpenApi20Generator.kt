@@ -157,7 +157,7 @@ internal object OpenApi20Generator {
                             header2Parameter(it)
                         }
                     ).plus(
-                        requestFieldDescriptor2Parameter(firstModelForPathAndMehtod, modelsWithSamePathAndMethod.map { it.request.requestFields }.reduce{l1, l2 -> l1.plus(l2)})
+                        requestFieldDescriptor2Parameter(firstModelForPathAndMehtod, modelsWithSamePathAndMethod.map { it.request.requestFields }.flatten())
                     )
             responses = responsesByStatusCode(modelsWithSamePathAndMethod)
                     .mapValues { responseModel2Response(it.value) }
@@ -210,7 +210,6 @@ internal object OpenApi20Generator {
             examples = mapOf(responseModel.contentType to responseModel.example)
             responseSchema = Json.mapper().readValue(
                     JsonSchemaFromFieldDescriptorsGenerator().generateSchema(fieldDescriptors = responseModel.responseFields))
-            //schema =
         }
     }
 }
