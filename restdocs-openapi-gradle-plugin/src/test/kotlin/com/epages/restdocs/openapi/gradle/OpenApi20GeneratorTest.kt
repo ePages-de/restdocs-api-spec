@@ -27,6 +27,7 @@ class OpenApi20GeneratorTest {
         val api = givenGetProductResourceModel()
 
         val openapi = OpenApi20Generator.generate(api)
+            .also { OpenApi20Generator.extractDefinitions(it) }
 
         println(Json.pretty().writeValueAsString(openapi))
         thenGetProductWith200ResponseIsGenerated(openapi, api)
