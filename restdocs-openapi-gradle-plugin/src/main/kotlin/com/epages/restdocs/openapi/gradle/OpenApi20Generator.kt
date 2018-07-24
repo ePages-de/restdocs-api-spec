@@ -76,7 +76,6 @@ internal object OpenApi20Generator {
             extractBodyParameter(it.parameters)?.
                 takeIf { it.schema != null }?.
                 let {
-                    val sad : () -> String = { "asd" }
                     it.schema(extractOrFindSchema(schemasToKeys, it.schema, generateSchemaName(pathKey)) )
                 }
 
