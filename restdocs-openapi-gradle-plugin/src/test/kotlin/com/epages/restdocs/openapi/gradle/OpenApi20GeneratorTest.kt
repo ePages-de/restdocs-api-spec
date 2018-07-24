@@ -108,8 +108,8 @@ class OpenApi20GeneratorTest {
         val requestBody = productPath.post.parameters.filter { it.`in` == "body" }.first() as BodyParameter
         val requestSchemaRef = requestBody.schema.reference
         then(requestSchemaRef).startsWith("${SCHEMA_JSONPATH_PREFIX}products_")
-        val resquestSchemaRefName = requestSchemaRef.replace(SCHEMA_JSONPATH_PREFIX, "")
-        then(definitions.get(resquestSchemaRefName)!!.properties.keys).containsExactlyInAnyOrder("description", "price")
+        val requestSchemaRefName = requestSchemaRef.replace(SCHEMA_JSONPATH_PREFIX, "")
+        then(definitions.get(requestSchemaRefName)!!.properties.keys).containsExactlyInAnyOrder("description", "price")
 
         then(successfulPostResponse.responseSchema.reference).startsWith("${SCHEMA_JSONPATH_PREFIX}products_")
         val responseSchemaRefName = successfulPostResponse.responseSchema.reference.replace(SCHEMA_JSONPATH_PREFIX, "")
