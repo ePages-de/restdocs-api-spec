@@ -11,10 +11,12 @@ import io.swagger.models.Response
 import io.swagger.models.Swagger
 import io.swagger.models.parameters.BodyParameter
 import io.swagger.models.parameters.HeaderParameter
+import io.swagger.models.parameters.Parameter
 import io.swagger.models.parameters.PathParameter
 import io.swagger.models.parameters.QueryParameter
 import io.swagger.models.properties.PropertyBuilder
 import io.swagger.util.Json
+import org.jetbrains.kotlin.backend.common.onlyIf
 import java.util.UUID
 
 internal object OpenApi20Generator {
@@ -59,45 +61,49 @@ internal object OpenApi20Generator {
     fun extractDefinitions(swagger: Swagger) : Swagger {
         val schemasToKeys = HashMap<Model, String>()
 
-        swagger.paths.values.forEach {
-            it.operations.forEach {
-                val parameter = it.parameters
-                    .filter {
-                        it.`in`.equals("body")
+        swagger.paths.values.map { it.operations }.flatten().forEach {
+            extractBodyParameter(it.parameters)
+                    .let {
+                        if(it != null && it.schema != null) {
+                            it.schema(extractOrFindSchema(schemasToKeys, it.schema, generateSchemaName()))
+                        }
                     }
-                    .map { it as BodyParameter }
-                    .firstOrNull()
-                //TODO response schema
 
-                if(parameter != null && parameter.schema != null) {
-                    val key = extractOrFindSchema(schemasToKeys, parameter.schema)
-                    val model = RefModel("#/definitions/$key")
-                    parameter.setSchema(model)
+            it.responses.values
+                .filter { it.responseSchema != null }
+                .forEach {
+                    it.responseSchema(extractOrFindSchema(schemasToKeys, it.responseSchema, generateSchemaName()))
                 }
-            }
         }
 
-        val definitions = HashMap<String, Model>()
-
-        schemasToKeys.keys.forEach {
-            val schemaName = schemasToKeys.getValue(it)
-            definitions.put(schemaName, it)
-        }
-
-        swagger.setDefinitions(definitions)
+        swagger.definitions =
+            schemasToKeys.keys.map {
+                schemasToKeys.getValue(it) to it
+            }.toMap()
 
         return swagger
     }
 
-    private fun extractOrFindSchema(schemasToKeys: HashMap<Model, String>, schema: Model): String {
-        if (schemasToKeys.containsKey(schema)) {
-            return schemasToKeys.get(schema)!!
+    private fun extractBodyParameter(parameters: List<Parameter>): BodyParameter? {
+        return parameters
+            .filter { it.`in`.equals("body") }
+            .map { it as BodyParameter }
+            .firstOrNull()
+    }
+
+    private fun extractOrFindSchema(schemasToKeys: HashMap<Model, String>, schema: Model, schemaName: String): Model {
+        val key = if (schemasToKeys.containsKey(schema)) {
+            schemasToKeys.get(schema)!!
         } else {
-            //TODO key names
-            val key = UUID.randomUUID().toString()
-            schemasToKeys.put(schema, key)
-            return key
+            schemasToKeys[schema] = schemaName
+            schemaName
         }
+        return RefModel("#/definitions/$key")
+    }
+
+    private fun generateSchemaName() : String {
+        //TODO key names
+        return UUID.randomUUID().toString()
     }
 
     fun generatePaths(resources: List<ResourceModel>): List<Pair<String, Path>> {

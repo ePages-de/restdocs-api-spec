@@ -70,10 +70,10 @@ class OpenApi20GeneratorTest {
         then(productPath.get.consumes).contains(successfulGetProductModel.request.contentType)
         then(successfulGetResponse).isNotNull
         then(successfulGetResponse!!.headers).isNotNull
-        for(i in responseHeaders.indices) {
-            then(successfulGetResponse!!.headers.get(responseHeaders.get(i).name)!!).isNotNull
-            then(successfulGetResponse!!.headers.get(responseHeaders.get(i).name)!!.description).isEqualTo(responseHeaders.get(i).description)
-            then(successfulGetResponse!!.headers.get(responseHeaders.get(i).name)!!.type).isEqualTo(responseHeaders.get(i).type.toLowerCase())
+        for (header in responseHeaders) {
+            then(successfulGetResponse!!.headers.get(header.name)!!).isNotNull
+            then(successfulGetResponse!!.headers.get(header.name)!!.description).isEqualTo(header.description)
+            then(successfulGetResponse!!.headers.get(header.name)!!.type).isEqualTo(header.type.toLowerCase())
         }
         then(productPath.get.security.get(0).get("OAUTH2"))
                 .isEqualTo(successfulGetProductModel.request.securityRequirements!!.requiredScopes)
@@ -199,22 +199,32 @@ class OpenApi20GeneratorTest {
 
     private fun postProduct200Response(example: String): ResponseModel {
         return ResponseModel(
-                status = 200,
-                contentType = "application/json",
-                headers = listOf(),
-                responseFields = listOf(
-                        FieldDescriptor(
-                                path = "_id",
-                                description = "ID of the product",
-                                type = "STRING"
-                        ),
-                        FieldDescriptor(
-                                path = "description",
-                                description = "Product description, localized.",
-                                type = "STRING"
-                        )
+            status = 200,
+            contentType = "application/json",
+            headers = listOf(),
+            responseFields = listOf(
+                FieldDescriptor(
+                    path = "_id",
+                    description = "ID of the product",
+                    type = "STRING"
                 ),
-                example = example
+                FieldDescriptor(
+                    path = "description",
+                    description = "Product description, localized.",
+                    type = "STRING"
+                ),
+                FieldDescriptor(
+                    path = "price.currency",
+                    description = "Product currency.",
+                    type = "STRING"
+                ),
+                FieldDescriptor(
+                    path = "price.amount",
+                    description = "Product price.",
+                    type = "NUMBER"
+                )
+            ),
+            example = example
         )
     }
 
