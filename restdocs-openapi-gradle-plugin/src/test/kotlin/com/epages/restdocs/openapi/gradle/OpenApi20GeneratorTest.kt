@@ -113,7 +113,7 @@ class OpenApi20GeneratorTest {
     }
 
     private fun thenParametersForPostMatch(parameters: List<Parameter>, request: RequestModel) {
-
+        thenParameterMatches(parameters, "header", request.headers.get(0))
     }
 
     private fun thenParameterMatches(parameters: List<Parameter>, type: String, parameterDescriptor: AbstractParameterDescriptor) {
