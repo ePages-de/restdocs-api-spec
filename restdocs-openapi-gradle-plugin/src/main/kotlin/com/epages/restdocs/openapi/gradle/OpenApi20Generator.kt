@@ -16,7 +16,6 @@ import io.swagger.models.parameters.PathParameter
 import io.swagger.models.parameters.QueryParameter
 import io.swagger.models.properties.PropertyBuilder
 import io.swagger.util.Json
-import java.util.UUID
 
 internal object OpenApi20Generator {
 
@@ -53,7 +52,7 @@ internal object OpenApi20Generator {
                 title = "API"
                 version = "1.0.0"
             }
-            paths = generatePaths(resources).toMap()
+            paths = generatePaths(resources)
         }
     }
 
@@ -119,10 +118,11 @@ internal object OpenApi20Generator {
         }
     }
 
-    private fun generatePaths(resources: List<ResourceModel>): List<Pair<String, Path>> {
+    private fun generatePaths(resources: List<ResourceModel>): Map<String, Path> {
         return groupByPath(resources)
             .entries
             .map { it.key to resourceModels2Path(it.value) }
+            .toMap()
     }
 
     private fun groupByPath(resources: List<ResourceModel>) : Map<String, List<ResourceModel>> {
@@ -136,7 +136,7 @@ internal object OpenApi20Generator {
     private fun responsesByStatusCode(resources: List<ResourceModel>) : Map<String, ResponseModel> {
         return resources.groupBy { it.response.status }
                 .mapKeys { it.key.toString() }
-                .mapValues { it.value.get(0).response }
+                .mapValues { it.value[0].response }
     }
 
     private fun resourceModels2Path(modelsWithSamePath: List<ResourceModel>): Path {
@@ -157,26 +157,26 @@ internal object OpenApi20Generator {
     }
 
     private fun resourceModels2Operation(modelsWithSamePathAndMethod: List<ResourceModel>): Operation {
-        val firstModelForPathAndMehtod = modelsWithSamePathAndMethod.first()
+        val firstModelForPathAndMethod = modelsWithSamePathAndMethod.first()
         return Operation().apply {
             consumes = modelsWithSamePathAndMethod.map { it.request.contentType }.distinct().filterNotNull()
             produces = modelsWithSamePathAndMethod.map { it.response.contentType }.distinct().filterNotNull()
-            if(firstModelForPathAndMehtod.request.securityRequirements != null) {
-                addSecurity(firstModelForPathAndMehtod.request.securityRequirements.type.toString(),
-                        securityRequirements2ScopesList(firstModelForPathAndMehtod.request.securityRequirements))
+            if(firstModelForPathAndMethod.request.securityRequirements != null) {
+                addSecurity(firstModelForPathAndMethod.request.securityRequirements.type.name,
+                        securityRequirements2ScopesList(firstModelForPathAndMethod.request.securityRequirements))
             }
             parameters =
-                    firstModelForPathAndMehtod.request.pathParameters.map {
+                    firstModelForPathAndMethod.request.pathParameters.map {
                         pathParameterDescriptor2Parameter(it)
                     }.plus(
-                        firstModelForPathAndMehtod.request.requestParameters.map {
+                        firstModelForPathAndMethod.request.requestParameters.map {
                             requestParameterDescriptor2Parameter(it)
                     }).plus(
-                        firstModelForPathAndMehtod.request.headers.map {
+                        firstModelForPathAndMethod.request.headers.map {
                             header2Parameter(it)
                         }
                     ).plus(
-                        requestFieldDescriptor2Parameter(firstModelForPathAndMehtod, modelsWithSamePathAndMethod.map { it.request.requestFields }.flatten())
+                        requestFieldDescriptor2Parameter(firstModelForPathAndMethod, modelsWithSamePathAndMethod.map { it.request.requestFields }.flatten())
                     )
             responses = responsesByStatusCode(modelsWithSamePathAndMethod)
                     .mapValues { responseModel2Response(it.value) }
