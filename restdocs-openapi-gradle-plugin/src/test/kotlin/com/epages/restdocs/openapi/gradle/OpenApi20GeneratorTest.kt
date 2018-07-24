@@ -61,7 +61,7 @@ class OpenApi20GeneratorTest {
     }
 
     private fun thenGetProductWith200ResponseIsGenerated(openapi: Swagger, api: List<ResourceModel>) {
-        val successfulGetProductModel = api.get(0)
+        val successfulGetProductModel = api[0]
         val responseHeaders = successfulGetProductModel.response.headers
         val productPath = openapi.paths.getValue(successfulGetProductModel.request.path)
         val successfulGetResponse = productPath.get.responses.get(successfulGetProductModel.response.status.toString())
@@ -76,7 +76,7 @@ class OpenApi20GeneratorTest {
             then(successfulGetResponse!!.headers.get(header.name)!!.description).isEqualTo(header.description)
             then(successfulGetResponse!!.headers.get(header.name)!!.type).isEqualTo(header.type.toLowerCase())
         }
-        then(productPath.get.security.get(0).get("OAUTH2"))
+        then(productPath.get.security[0].get("OAUTH2"))
                 .isEqualTo(successfulGetProductModel.request.securityRequirements!!.requiredScopes)
         then(successfulGetResponse!!
                 .examples.get(successfulGetProductModel.response.contentType)).isEqualTo(successfulGetProductModel.response.example)
@@ -84,7 +84,7 @@ class OpenApi20GeneratorTest {
     }
 
     private fun thenPostProductWith200ResponseIsGenerated(openapi: Swagger, api: List<ResourceModel>) {
-        val successfulPostProductModel = api.get(0)
+        val successfulPostProductModel = api[0]
         val productPath = openapi.paths.getValue(successfulPostProductModel.request.path)
         val successfulPostResponse = productPath.post.responses.get(successfulPostProductModel.response.status.toString())
 
@@ -98,7 +98,7 @@ class OpenApi20GeneratorTest {
     }
 
     private fun thenGetProductWith400ResponseIsGenerated(openapi: Swagger, api: List<ResourceModel>) {
-        val badGetProductModel = api.get(2)
+        val badGetProductModel = api[2]
         val productPath = openapi.paths.getValue(badGetProductModel.request.path)
         then(productPath.get.responses.get(badGetProductModel.response.status.toString())).isNotNull
         then(productPath.get.responses.get(badGetProductModel.response.status.toString())!!
@@ -107,13 +107,13 @@ class OpenApi20GeneratorTest {
     }
 
     private fun thenParametersForGetMatch(parameters: List<Parameter>, request: RequestModel) {
-        thenParameterMatches(parameters, "path", request.pathParameters.get(0))
-        thenParameterMatches(parameters, "query", request.requestParameters.get(0))
-        thenParameterMatches(parameters, "header", request.headers.get(0))
+        thenParameterMatches(parameters, "path", request.pathParameters[0])
+        thenParameterMatches(parameters, "query", request.requestParameters[0])
+        thenParameterMatches(parameters, "header", request.headers[0])
     }
 
     private fun thenParametersForPostMatch(parameters: List<Parameter>, request: RequestModel) {
-        thenParameterMatches(parameters, "header", request.headers.get(0))
+        thenParameterMatches(parameters, "header", request.headers[0])
     }
 
     private fun thenParameterMatches(parameters: List<Parameter>, type: String, parameterDescriptor: AbstractParameterDescriptor) {
@@ -127,13 +127,13 @@ class OpenApi20GeneratorTest {
     }
 
     private fun thenDeleteProductIsGenerated(openapi: Swagger, api: List<ResourceModel>) {
-        val successfulDeleteProductModel = api.get(3)
+        val successfulDeleteProductModel = api[3]
         val productPath = openapi.paths.getValue(successfulDeleteProductModel.request.path)
 
         then(productPath).isNotNull
         then(productPath.delete.consumes).isEmpty()
         then(productPath.delete.responses.get(successfulDeleteProductModel.response.status.toString())).isNotNull
-        then(productPath.delete.security.get(0).get("OAUTH2"))
+        then(productPath.delete.security[0].get("OAUTH2"))
                 .isEqualTo(successfulDeleteProductModel.request.securityRequirements!!.requiredScopes)
         then(productPath.delete.responses.get(successfulDeleteProductModel.response.status.toString())!!
                 .examples.get(successfulDeleteProductModel.response.contentType)).isEqualTo(successfulDeleteProductModel.response.example)
