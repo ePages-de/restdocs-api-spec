@@ -123,9 +123,7 @@ class OpenApi20GeneratorTest {
     }
 
     private fun findParameterByTypeAndName(parameters: List<Parameter>, type: String, name: String): Parameter? {
-        return parameters
-                .filter { it.`in`.equals(type) && it.name.equals(name) }
-                .firstOrNull()
+        return parameters.firstOrNull { it.`in` == type && it.name == name }
     }
 
     private fun thenDeleteProductIsGenerated(openapi: Swagger, api: List<ResourceModel>) {
