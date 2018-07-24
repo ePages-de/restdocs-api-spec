@@ -1,14 +1,22 @@
 package com.epages.restdocs.openapi.gradle
 
+import com.epages.restdocs.openapi.gradle.schema.JsonSchemaFromFieldDescriptorsGenerator
+import com.fasterxml.jackson.module.kotlin.readValue
 import io.swagger.models.Info
+import io.swagger.models.Model
 import io.swagger.models.Operation
 import io.swagger.models.Path
+import io.swagger.models.RefModel
 import io.swagger.models.Response
 import io.swagger.models.Swagger
+import io.swagger.models.parameters.BodyParameter
 import io.swagger.models.parameters.HeaderParameter
+import io.swagger.models.parameters.Parameter
 import io.swagger.models.parameters.PathParameter
 import io.swagger.models.parameters.QueryParameter
 import io.swagger.models.properties.PropertyBuilder
+import io.swagger.util.Json
+import java.util.UUID
 
 internal object OpenApi20Generator {
 
@@ -49,7 +57,69 @@ internal object OpenApi20Generator {
         }
     }
 
-    fun generatePaths(resources: List<ResourceModel>): List<Pair<String, Path>> {
+    fun extractDefinitions(swagger: Swagger) : Swagger {
+        val schemasToKeys = HashMap<Model, String>()
+        val operationToPathKey = HashMap<Operation, String>()
+
+        swagger.paths
+            .map { it.key to it.value.operations }
+            .forEach {
+                val pathKey = it.first
+                it.second.forEach {
+                    operationToPathKey[it] = pathKey
+                }
+            }
+
+        operationToPathKey.keys.forEach {
+            val pathKey = operationToPathKey[it]!!
+
+            extractBodyParameter(it.parameters)?.
+                takeIf { it.schema != null }?.
+                let {
+                    it.schema(extractOrFindSchema(schemasToKeys, it.schema, generateSchemaName(pathKey)) )
+                }
+
+            it.responses.values
+                .filter { it.responseSchema != null }
+                .forEach {
+                    it.responseSchema(extractOrFindSchema(schemasToKeys, it.responseSchema, generateSchemaName(pathKey)))
+                }
+        }
+
+        swagger.definitions =
+            schemasToKeys.keys.map {
+                schemasToKeys.getValue(it) to it
+            }.toMap()
+
+        return swagger
+    }
+
+    private fun extractBodyParameter(parameters: List<Parameter>): BodyParameter? {
+        return parameters
+            .filter { it.`in` == "body" }
+            .map { it as BodyParameter }
+            .firstOrNull()
+    }
+
+    private fun extractOrFindSchema(schemasToKeys: HashMap<Model, String>, schema: Model, schemaNameGenerator: (Model) -> String): Model {
+        val schemaKey = if (schemasToKeys.containsKey(schema)) {
+            schemasToKeys[schema]!!
+        } else {
+            schemasToKeys.put(schema, schemaNameGenerator(schema))
+        }
+        return RefModel("#/definitions/$schemaKey")
+    }
+
+    private fun generateSchemaName(path : String) : (Model) -> String {
+        return { schema -> path
+            .replaceFirst("/", "")
+            .replace("/", "_")
+            .replace("{", "")
+            .replace("}", "") + "_" + schema.hashCode()
+        }
+    }
+
+    private fun generatePaths(resources: List<ResourceModel>): List<Pair<String, Path>> {
         return groupByPath(resources)
             .entries
             .map { it.key to resourceModels2Path(it.value) }
@@ -105,6 +175,8 @@ internal object OpenApi20Generator {
                         firstModelForPathAndMehtod.request.headers.map {
                             header2Parameter(it)
                         }
+                    ).plus(
+                        requestFieldDescriptor2Parameter(firstModelForPathAndMehtod, modelsWithSamePathAndMethod.map { it.request.requestFields }.flatten())
                     )
             responses = responsesByStatusCode(modelsWithSamePathAndMethod)
                     .mapValues { responseModel2Response(it.value) }
@@ -139,13 +211,24 @@ internal object OpenApi20Generator {
         }
     }
 
+    private fun requestFieldDescriptor2Parameter(resourceModel: ResourceModel, fieldDescriptors: List<FieldDescriptor>): BodyParameter {
+        return BodyParameter().apply {
+            name = ""
+            description = ""
+            schema = Json.mapper().readValue(
+                    JsonSchemaFromFieldDescriptorsGenerator().generateSchema(fieldDescriptors = fieldDescriptors))
+        }
+    }
+
     private fun responseModel2Response(responseModel: ResponseModel): Response {
         return Response().apply {
             description = ""
             headers = responseModel.headers
-                .map { it.name to PropertyBuilder.build(it.type, null, null).description(it.description) }
+                .map { it.name to PropertyBuilder.build(it.type.toLowerCase(), null, null).description(it.description) }
                 .toMap()
             examples = mapOf(responseModel.contentType to responseModel.example)
+            responseSchema = Json.mapper().readValue(
+                    JsonSchemaFromFieldDescriptorsGenerator().generateSchema(fieldDescriptors = responseModel.responseFields))
         }
     }
 }
