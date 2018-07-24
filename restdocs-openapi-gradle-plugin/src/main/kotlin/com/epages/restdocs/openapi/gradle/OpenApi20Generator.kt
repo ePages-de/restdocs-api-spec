@@ -104,7 +104,9 @@ internal object OpenApi20Generator {
         val schemaKey = if (schemasToKeys.containsKey(schema)) {
             schemasToKeys[schema]!!
         } else {
-            schemasToKeys.put(schema, schemaNameGenerator(schema))
+            val name = schemaNameGenerator(schema)
+            schemasToKeys[schema] = name
+            name
         }
         return RefModel("#/definitions/$schemaKey")
     }
@@ -176,7 +178,7 @@ internal object OpenApi20Generator {
                             header2Parameter(it)
                         }
                     ).plus(
-                        requestFieldDescriptor2Parameter(firstModelForPathAndMethod, modelsWithSamePathAndMethod.map { it.request.requestFields }.flatten())
+                        listOfNotNull(requestFieldDescriptor2Parameter(modelsWithSamePathAndMethod.map { it.request.requestFields }.flatten()))
                     )
             responses = responsesByStatusCode(modelsWithSamePathAndMethod)
                     .mapValues { responseModel2Response(it.value) }
@@ -211,12 +213,16 @@ internal object OpenApi20Generator {
         }
     }
 
-    private fun requestFieldDescriptor2Parameter(resourceModel: ResourceModel, fieldDescriptors: List<FieldDescriptor>): BodyParameter {
-        return BodyParameter().apply {
-            name = ""
-            description = ""
-            schema = Json.mapper().readValue(
+    private fun requestFieldDescriptor2Parameter(fieldDescriptors: List<FieldDescriptor>): BodyParameter? {
+        return if(!fieldDescriptors.isEmpty()) {
+            BodyParameter().apply {
+                name = ""
+                description = ""
+                schema = Json.mapper().readValue(
                     JsonSchemaFromFieldDescriptorsGenerator().generateSchema(fieldDescriptors = fieldDescriptors))
+            }
+        } else {
+            null
         }
     }
 
