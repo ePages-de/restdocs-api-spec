@@ -341,11 +341,6 @@ class OpenApi20GeneratorTest {
                 requestParameters = listOf(),
                 requestFields = listOf(
                         FieldDescriptor(
-                                path = "_id",
-                                description = "ID of the product",
-                                type = "STRING"
-                        ),
-                        FieldDescriptor(
                                 path = "description",
                                 description = "Product description, localized.",
                                 type = "STRING"
