@@ -93,8 +93,10 @@ class OpenApi20GeneratorTest {
         then(successfulPostResponse).isNotNull
         then(successfulPostResponse!!
                 .examples.get(successfulPostProductModel.response.contentType)).isEqualTo(successfulPostProductModel.response.example)
-        //TODO then check response schema
         thenParametersForPostMatch(productPath.post.parameters, successfulPostProductModel.request)
+        //TODO then check response schema
+        then(successfulPostResponse.responseSchema.reference).startsWith("#/definitions/products_")
+        //then(openapi.definitions.get(successfulPostResponse.responseSchema.reference)).isNotNull
     }
 
     private fun thenGetProductWith400ResponseIsGenerated(openapi: Swagger, api: List<ResourceModel>) {
