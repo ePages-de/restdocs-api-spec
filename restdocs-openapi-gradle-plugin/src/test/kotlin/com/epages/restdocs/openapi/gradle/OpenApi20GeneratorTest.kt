@@ -1,12 +1,18 @@
 package com.epages.restdocs.openapi.gradle
 
 import com.epages.restdocs.openapi.gradle.SecurityType.OAUTH2
+import io.swagger.models.Model
+import io.swagger.models.Path
+import io.swagger.models.Response
 import io.swagger.models.Swagger
+import io.swagger.models.parameters.BodyParameter
 import io.swagger.models.parameters.Parameter
 import io.swagger.util.Json
 import io.swagger.util.Yaml
 import org.assertj.core.api.BDDAssertions.then
 import org.junit.jupiter.api.Test
+
+private const val SCHEMA_JSONPATH_PREFIX = "#/definitions/"
 
 class OpenApi20GeneratorTest {
 
@@ -94,9 +100,20 @@ class OpenApi20GeneratorTest {
         then(successfulPostResponse!!
                 .examples.get(successfulPostProductModel.response.contentType)).isEqualTo(successfulPostProductModel.response.example)
         thenParametersForPostMatch(productPath.post.parameters, successfulPostProductModel.request)
-        //TODO then check response schema
-        then(successfulPostResponse.responseSchema.reference).startsWith("#/definitions/products_")
-        //then(openapi.definitions.get(successfulPostResponse.responseSchema.reference)).isNotNull
+
+        thenRequestAndResponseSchemataAreReferenced(productPath, successfulPostResponse, openapi.definitions)
+    }
+
+    private fun thenRequestAndResponseSchemataAreReferenced(productPath: Path, successfulPostResponse: Response, definitions: Map<String, Model>) {
+        val requestBody = productPath.post.parameters.filter { it.`in` == "body" }.first() as BodyParameter
+        val requestSchemaRef = requestBody.schema.reference
+        then(requestSchemaRef).startsWith("${SCHEMA_JSONPATH_PREFIX}products_")
+        val resquestSchemaRefName = requestSchemaRef.replace(SCHEMA_JSONPATH_PREFIX, "")
+        then(definitions.get(resquestSchemaRefName)!!.properties.keys).containsExactlyInAnyOrder("description", "price")
+
+        then(successfulPostResponse.responseSchema.reference).startsWith("${SCHEMA_JSONPATH_PREFIX}products_")
+        val responseSchemaRefName = successfulPostResponse.responseSchema.reference.replace(SCHEMA_JSONPATH_PREFIX, "")
+        then(definitions.get(responseSchemaRefName)!!.properties.keys).containsExactlyInAnyOrder("_id", "description", "price")
     }
 
     private fun thenGetProductWith400ResponseIsGenerated(openapi: Swagger, api: List<ResourceModel>) {
