@@ -5,7 +5,7 @@ import org.gradle.api.Project
 open class RestdocsOpenApiPluginExtension(project: Project) {
     var host: String = "localhost"
     var basePath: String = ""
-    var schemes: Array<String> = emptyArray()
+    var schemes: Array<String> = arrayOf("http")
 
     var title = "API documentation"
     var version = project.version as String
@@ -16,5 +16,5 @@ open class RestdocsOpenApiPluginExtension(project: Project) {
     var outputDirectory = "build/openapi"
     var snippetsDirectory = "build/generated-snippets"
 
-    var outputFileNamePrefix = "api"
+    var outputFileNamePrefix = "openapi"
 }

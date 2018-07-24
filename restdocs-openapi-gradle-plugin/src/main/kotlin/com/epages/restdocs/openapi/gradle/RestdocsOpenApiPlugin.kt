@@ -6,16 +6,19 @@ import org.gradle.api.Project
 open class RestdocsOpenApiPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         with(project) {
-            extensions.create("openapi", com.epages.restdocs.openapi.gradle.RestdocsOpenApiPluginExtension::class.java, project)
+            extensions.create("openapi", RestdocsOpenApiPluginExtension::class.java, project)
             afterEvaluate {
-                val openapi = extensions.findByName("openapi") as com.epages.restdocs.openapi.gradle.RestdocsOpenApiPluginExtension
-                tasks.create("openapi", com.epages.restdocs.openapi.gradle.RestdocsOpenApiTask::class.java).apply {
+                val openapi = extensions.findByName("openapi") as RestdocsOpenApiPluginExtension
+
+                tasks.create("openapi", RestdocsOpenApiTask::class.java).apply {
                     dependsOn("check")
                     description = "Aggregate resource fragments into an OpenAPI API specification"
 
                     basePath = openapi.basePath
                     host = openapi.host
                     schemes = openapi.schemes
+
+                    format = openapi.format
 
                     title = openapi.title
                     apiVersion = openapi.version
