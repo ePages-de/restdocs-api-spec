@@ -50,8 +50,6 @@ class OpenApi20GeneratorTest {
         thenPostProductWith200ResponseIsGenerated(openapi, api)
     }
 
-    // different responses
-    // different operations for same path
     // aggregate consumes and produces
 
     @Test
@@ -78,13 +76,13 @@ class OpenApi20GeneratorTest {
         then(successfulGetResponse).isNotNull
         then(successfulGetResponse!!.headers).isNotNull
         for (header in responseHeaders) {
-            then(successfulGetResponse!!.headers.get(header.name)!!).isNotNull
-            then(successfulGetResponse!!.headers.get(header.name)!!.description).isEqualTo(header.description)
-            then(successfulGetResponse!!.headers.get(header.name)!!.type).isEqualTo(header.type.toLowerCase())
+            then(successfulGetResponse.headers.get(header.name)!!).isNotNull
+            then(successfulGetResponse.headers.get(header.name)!!.description).isEqualTo(header.description)
+            then(successfulGetResponse.headers.get(header.name)!!.type).isEqualTo(header.type.toLowerCase())
         }
         then(productPath.get.security[0].get("OAUTH2"))
                 .isEqualTo(successfulGetProductModel.request.securityRequirements!!.requiredScopes)
-        then(successfulGetResponse!!
+        then(successfulGetResponse
                 .examples.get(successfulGetProductModel.response.contentType)).isEqualTo(successfulGetProductModel.response.example)
         thenParametersForGetMatch(productPath.get.parameters, successfulGetProductModel.request)
     }
