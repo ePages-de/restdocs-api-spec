@@ -52,7 +52,7 @@ internal data class PathTemplate(
 
 internal data class ResponseModel(
     val status: Int,
-    val contentType: String,
+    val contentType: String?,
     val headers: List<HeaderDescriptor>,
     val responseFields: List<FieldDescriptor>,
     val example: String? = null,
