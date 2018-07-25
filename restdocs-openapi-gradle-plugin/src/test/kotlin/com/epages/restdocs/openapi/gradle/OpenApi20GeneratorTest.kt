@@ -1,12 +1,18 @@
 package com.epages.restdocs.openapi.gradle
 
 import com.epages.restdocs.openapi.gradle.SecurityType.OAUTH2
+import io.swagger.models.Model
+import io.swagger.models.Path
+import io.swagger.models.Response
 import io.swagger.models.Swagger
+import io.swagger.models.parameters.BodyParameter
 import io.swagger.models.parameters.Parameter
 import io.swagger.util.Json
 import io.swagger.util.Yaml
 import org.assertj.core.api.BDDAssertions.then
 import org.junit.jupiter.api.Test
+
+private const val SCHEMA_JSONPATH_PREFIX = "#/definitions/"
 
 class OpenApi20GeneratorTest {
 
@@ -61,7 +67,7 @@ class OpenApi20GeneratorTest {
     }
 
     private fun thenGetProductWith200ResponseIsGenerated(openapi: Swagger, api: List<ResourceModel>) {
-        val successfulGetProductModel = api.get(0)
+        val successfulGetProductModel = api[0]
         val responseHeaders = successfulGetProductModel.response.headers
         val productPath = openapi.paths.getValue(successfulGetProductModel.request.path)
         val successfulGetResponse = productPath.get.responses.get(successfulGetProductModel.response.status.toString())
@@ -76,7 +82,7 @@ class OpenApi20GeneratorTest {
             then(successfulGetResponse!!.headers.get(header.name)!!.description).isEqualTo(header.description)
             then(successfulGetResponse!!.headers.get(header.name)!!.type).isEqualTo(header.type.toLowerCase())
         }
-        then(productPath.get.security.get(0).get("OAUTH2"))
+        then(productPath.get.security[0].get("OAUTH2"))
                 .isEqualTo(successfulGetProductModel.request.securityRequirements!!.requiredScopes)
         then(successfulGetResponse!!
                 .examples.get(successfulGetProductModel.response.contentType)).isEqualTo(successfulGetProductModel.response.example)
@@ -84,7 +90,7 @@ class OpenApi20GeneratorTest {
     }
 
     private fun thenPostProductWith200ResponseIsGenerated(openapi: Swagger, api: List<ResourceModel>) {
-        val successfulPostProductModel = api.get(0)
+        val successfulPostProductModel = api[0]
         val productPath = openapi.paths.getValue(successfulPostProductModel.request.path)
         val successfulPostResponse = productPath.post.responses.get(successfulPostProductModel.response.status.toString())
 
@@ -93,12 +99,25 @@ class OpenApi20GeneratorTest {
         then(successfulPostResponse).isNotNull
         then(successfulPostResponse!!
                 .examples.get(successfulPostProductModel.response.contentType)).isEqualTo(successfulPostProductModel.response.example)
-        //TODO then check response schema
         thenParametersForPostMatch(productPath.post.parameters, successfulPostProductModel.request)
+
+        thenRequestAndResponseSchemataAreReferenced(productPath, successfulPostResponse, openapi.definitions)
+    }
+
+    private fun thenRequestAndResponseSchemataAreReferenced(productPath: Path, successfulPostResponse: Response, definitions: Map<String, Model>) {
+        val requestBody = productPath.post.parameters.filter { it.`in` == "body" }.first() as BodyParameter
+        val requestSchemaRef = requestBody.schema.reference
+        then(requestSchemaRef).startsWith("${SCHEMA_JSONPATH_PREFIX}products_")
+        val requestSchemaRefName = requestSchemaRef.replace(SCHEMA_JSONPATH_PREFIX, "")
+        then(definitions.get(requestSchemaRefName)!!.properties.keys).containsExactlyInAnyOrder("description", "price")
+
+        then(successfulPostResponse.responseSchema.reference).startsWith("${SCHEMA_JSONPATH_PREFIX}products_")
+        val responseSchemaRefName = successfulPostResponse.responseSchema.reference.replace(SCHEMA_JSONPATH_PREFIX, "")
+        then(definitions.get(responseSchemaRefName)!!.properties.keys).containsExactlyInAnyOrder("_id", "description", "price")
     }
 
     private fun thenGetProductWith400ResponseIsGenerated(openapi: Swagger, api: List<ResourceModel>) {
-        val badGetProductModel = api.get(2)
+        val badGetProductModel = api[2]
         val productPath = openapi.paths.getValue(badGetProductModel.request.path)
         then(productPath.get.responses.get(badGetProductModel.response.status.toString())).isNotNull
         then(productPath.get.responses.get(badGetProductModel.response.status.toString())!!
@@ -107,13 +126,13 @@ class OpenApi20GeneratorTest {
     }
 
     private fun thenParametersForGetMatch(parameters: List<Parameter>, request: RequestModel) {
-        thenParameterMatches(parameters, "path", request.pathParameters.get(0))
-        thenParameterMatches(parameters, "query", request.requestParameters.get(0))
-        thenParameterMatches(parameters, "header", request.headers.get(0))
+        thenParameterMatches(parameters, "path", request.pathParameters[0])
+        thenParameterMatches(parameters, "query", request.requestParameters[0])
+        thenParameterMatches(parameters, "header", request.headers[0])
     }
 
     private fun thenParametersForPostMatch(parameters: List<Parameter>, request: RequestModel) {
-
+        thenParameterMatches(parameters, "header", request.headers[0])
     }
 
     private fun thenParameterMatches(parameters: List<Parameter>, type: String, parameterDescriptor: AbstractParameterDescriptor) {
@@ -123,19 +142,17 @@ class OpenApi20GeneratorTest {
     }
 
     private fun findParameterByTypeAndName(parameters: List<Parameter>, type: String, name: String): Parameter? {
-        return parameters
-                .filter { it.`in`.equals(type) && it.name.equals(name) }
-                .firstOrNull()
+        return parameters.firstOrNull { it.`in` == type && it.name == name }
     }
 
     private fun thenDeleteProductIsGenerated(openapi: Swagger, api: List<ResourceModel>) {
-        val successfulDeleteProductModel = api.get(3)
+        val successfulDeleteProductModel = api[3]
         val productPath = openapi.paths.getValue(successfulDeleteProductModel.request.path)
 
         then(productPath).isNotNull
         then(productPath.delete.consumes).isEmpty()
         then(productPath.delete.responses.get(successfulDeleteProductModel.response.status.toString())).isNotNull
-        then(productPath.delete.security.get(0).get("OAUTH2"))
+        then(productPath.delete.security[0].get("OAUTH2"))
                 .isEqualTo(successfulDeleteProductModel.request.securityRequirements!!.requiredScopes)
         then(productPath.delete.responses.get(successfulDeleteProductModel.response.status.toString())!!
                 .examples.get(successfulDeleteProductModel.response.contentType)).isEqualTo(successfulDeleteProductModel.response.example)
@@ -340,11 +357,6 @@ class OpenApi20GeneratorTest {
                 pathParameters = listOf(),
                 requestParameters = listOf(),
                 requestFields = listOf(
-                        FieldDescriptor(
-                                path = "_id",
-                                description = "ID of the product",
-                                type = "STRING"
-                        ),
                         FieldDescriptor(
                                 path = "description",
                                 description = "Product description, localized.",
