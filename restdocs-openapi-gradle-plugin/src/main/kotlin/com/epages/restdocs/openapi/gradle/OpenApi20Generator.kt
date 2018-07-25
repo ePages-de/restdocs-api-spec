@@ -106,11 +106,11 @@ internal object OpenApi20Generator {
         return swagger
     }
 
-    private fun extractBodyParameter(parameters: List<Parameter>): BodyParameter? {
+    private fun extractBodyParameter(parameters: List<Parameter>?): BodyParameter? {
         return parameters
-            .filter { it.`in` == "body" }
-            .map { it as BodyParameter }
-            .firstOrNull()
+            ?.filter { it.`in` == "body" }
+            ?.map { it as BodyParameter }
+            ?.firstOrNull()
     }
 
     private fun extractOrFindSchema(schemasToKeys: HashMap<Model, String>, schema: Model, schemaNameGenerator: (Model) -> String): Model {
