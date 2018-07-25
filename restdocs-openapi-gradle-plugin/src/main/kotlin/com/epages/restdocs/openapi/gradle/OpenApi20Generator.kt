@@ -21,31 +21,6 @@ import io.swagger.util.Json
 
 internal object OpenApi20Generator {
 
-    fun sample(): Swagger {
-        return Swagger().apply {
-            basePath = "/api"
-            host = "localhost"
-            info = Info().apply {
-                title = "API"
-                version = "1.0.0"
-            }
-            paths = mapOf("/{id}" to Path().apply {
-                get = Operation().apply {
-                    parameters = listOf(PathParameter().apply {
-                        name = "id"
-                        description = "The id"
-                        type = "string"
-                    })
-                    produces = listOf("application/json")
-                    responses = mapOf("200" to Response().apply {
-                        description = "some"
-                        examples = mapOf("application/json" to """{ "name": "some" }""")
-                    })
-                }
-            })
-        }
-    }
-
     fun generate(
         resources: List<ResourceModel>,
         basePath: String = "/api",
@@ -168,7 +143,7 @@ internal object OpenApi20Generator {
                 }
             }
 
-        return path;
+        return path
     }
 
     private fun resourceModels2Operation(modelsWithSamePathAndMethod: List<ResourceModel>): Operation {
