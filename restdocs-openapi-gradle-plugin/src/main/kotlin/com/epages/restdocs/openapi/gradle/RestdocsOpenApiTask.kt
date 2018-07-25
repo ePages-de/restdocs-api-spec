@@ -1,5 +1,7 @@
 package com.epages.restdocs.openapi.gradle
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
@@ -37,8 +39,31 @@ open class RestdocsOpenApiTask : DefaultTask() {
     @Input
     lateinit var outputFileNamePrefix: String
 
-    @TaskAction
-    fun aggregateResourceFragments() {
+    private val outputDirectoryFile
+        get() = project.file(outputDirectory)
 
+    private val snippetsDirectoryFile
+        get() = project.file(snippetsDirectory)
+
+    private val objectMapper = jacksonObjectMapper()
+
+    @TaskAction
+    fun aggregateResourceModels() {
+
+        val resourceModels =snippetsDirectoryFile.walkTopDown()
+            .filter { it.name == "resource.json" }
+            .map { objectMapper.readValue<ResourceModel>(it.readText()) }
+            .toList()
+
+        val apiSpecification = OpenApi20Generator.generate(
+            resources = resourceModels,
+            basePath = basePath,
+            host = host,
+            schemes = schemes.toList(),
+            title = title,
+            version = apiVersion
+        )
+
+        ApiSpecificationWriter.write(format, outputDirectoryFile, outputFileNamePrefix, apiSpecification)
     }
 }

@@ -8,6 +8,7 @@ import io.swagger.models.Operation
 import io.swagger.models.Path
 import io.swagger.models.RefModel
 import io.swagger.models.Response
+import io.swagger.models.Scheme
 import io.swagger.models.Swagger
 import io.swagger.models.parameters.BodyParameter
 import io.swagger.models.parameters.HeaderParameter
@@ -44,13 +45,22 @@ internal object OpenApi20Generator {
         }
     }
 
-    fun generate(resources: List<ResourceModel>) : Swagger {
+    fun generate(
+        resources: List<ResourceModel>,
+        basePath: String = "/api",
+        host: String = "localhost",
+        schemes: List<String> = listOf("http"),
+        title: String = "API",
+        version: String = "1.0.0"
+    ) : Swagger {
         return Swagger().apply {
-            basePath = "/api"
-            host = "localhost"
+
+            this.basePath = basePath
+            this.host = host
+            this.schemes(schemes.map { Scheme.forValue(it) } )
             info = Info().apply {
-                title = "API"
-                version = "1.0.0"
+                this.title = title
+                this.version = version
             }
             paths = generatePaths(resources)
         }
