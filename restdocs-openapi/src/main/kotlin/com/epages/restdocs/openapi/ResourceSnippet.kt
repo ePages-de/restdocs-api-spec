@@ -56,7 +56,7 @@ class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetPara
                 headers = resourceSnippetParameters.requestHeaders,
                 pathParameters = resourceSnippetParameters.pathParameters,
                 requestParameters = resourceSnippetParameters.requestParameters,
-                requestFields = if (hasRequestBody) resourceSnippetParameters.requestFields else emptyList(),
+                requestFields = if (hasRequestBody) resourceSnippetParameters.requestFields.filter { !it.isIgnored }  else emptyList(),
                 example = if (hasRequestBody) operation.request.contentAsString else null,
                 securityRequirements = securityRequirements
             ),
@@ -64,7 +64,7 @@ class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetPara
                 status = operation.response.status.value(),
                 contentType = if (hasResponseBody) getContentTypeOrDefault(operation.response.headers) else null,
                 headers = resourceSnippetParameters.responseHeaders,
-                responseFields = if (hasResponseBody) resourceSnippetParameters.responseFields else emptyList(),
+                responseFields = if (hasResponseBody) resourceSnippetParameters.responseFields.filter { !it.isIgnored } else emptyList(),
                 example = if (hasResponseBody) operation.response.contentAsString else null
             )
         )
