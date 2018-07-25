@@ -178,7 +178,7 @@ internal object OpenApi20Generator {
             description = firstModelForPathAndMethod.description
             consumes = modelsWithSamePathAndMethod.map { it.request.contentType }.distinct().filterNotNull().nullIfEmpty()
             produces = modelsWithSamePathAndMethod.map { it.response.contentType }.distinct().filterNotNull().nullIfEmpty()
-            if(firstModelForPathAndMethod.request.securityRequirements != null) {
+            if (firstModelForPathAndMethod.request.securityRequirements != null) {
                 addSecurity(firstModelForPathAndMethod.request.securityRequirements.type.name,
                         securityRequirements2ScopesList(firstModelForPathAndMethod.request.securityRequirements))
             }
@@ -202,7 +202,7 @@ internal object OpenApi20Generator {
     }
 
     private fun securityRequirements2ScopesList(securityRequirements: SecurityRequirements): List<String> {
-        return if(securityRequirements.type.equals(SecurityType.OAUTH2) && securityRequirements.requiredScopes != null) securityRequirements.requiredScopes else listOf()
+        return if (securityRequirements.type.equals(SecurityType.OAUTH2) && securityRequirements.requiredScopes != null) securityRequirements.requiredScopes else listOf()
     }
 
     private fun pathParameterDescriptor2Parameter(parameterDescriptor: ParameterDescriptor): PathParameter {
@@ -230,14 +230,14 @@ internal object OpenApi20Generator {
     }
 
     private fun requestFieldDescriptor2Parameter(fieldDescriptors: List<FieldDescriptor>, example : String?): BodyParameter? {
-        return if(!fieldDescriptors.isEmpty()) {
+        return if (!fieldDescriptors.isEmpty()) {
             val parsedSchema : Model = Json.mapper().readValue(JsonSchemaFromFieldDescriptorsGenerator().generateSchema(fieldDescriptors = fieldDescriptors))
             parsedSchema.example = example
             BodyParameter().apply {
                 name = ""
                 schema = parsedSchema
             }
-        } else if(example != null) {
+        } else if (example != null) {
             val emptySchemaWithExample = ModelImpl().example(example)
             BodyParameter().apply {
                 name = ""
