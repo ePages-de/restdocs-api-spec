@@ -40,7 +40,7 @@ class RestdocsOpenApiTaskTest(private val testProjectDir: TemporaryFolder) {
         buildFile = testProjectDir.newFile("build.gradle")
 
         snippetsFolder = testProjectDir.newFolder("build", "generated-snippets")
-        outputFolder = testProjectDir.newFolder("build", "openapi")
+        outputFolder = File(testProjectDir.root, "build/openapi")
     }
 
     @Test
@@ -153,7 +153,7 @@ class RestdocsOpenApiTaskTest(private val testProjectDir: TemporaryFolder) {
             .withProjectDir(testProjectDir.root)
             .withArguments("--info", "--stacktrace", "openapi")
             .withPluginClasspath()
-            .withDebug(true)
+            .withDebug(false)
             .build()
     }
 }

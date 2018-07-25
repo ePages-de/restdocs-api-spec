@@ -11,6 +11,7 @@ internal object ApiSpecificationWriter {
     private val jsonFormats = setOf("json")
 
     fun write(format: String, outputDirectory: File, outputFilenamePrefix: String, apiSpecification: Swagger) {
+        outputDirectory.mkdir()
         validateFormat(format)
         val target = File(outputDirectory, "$outputFilenamePrefix.${outputFileExtension(format)}")
         if (yamlFormats.contains(format)) {
