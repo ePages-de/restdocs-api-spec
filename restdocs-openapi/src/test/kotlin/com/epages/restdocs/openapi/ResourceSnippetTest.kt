@@ -54,7 +54,7 @@ class ResourceSnippetTest(private val temporaryFolder: TemporaryFolder) {
     }
 
     @Test
-    fun should_generate_raml_fragment_for_operation_with_request_and_response_body() {
+    fun should_generate_resourcemodel_for_operation_with_request_and_response_body() {
         givenOperationWithRequestAndResponseBody()
         givenRequestFieldDescriptors()
         givenResponseFieldDescriptors()
@@ -104,13 +104,25 @@ class ResourceSnippetTest(private val temporaryFolder: TemporaryFolder) {
     }
 
     @Test
-    fun should_generate_raml_fragment_for_operation_without_body() {
+    fun should_generate_resourcemodel_for_operation_without_body() {
         givenOperationWithoutBody()
 
         whenResourceSnippetInvoked()
 
         thenSnippetFileExists()
         thenSnippetFileHasCommonRequestAttributes()
+    }
+
+    @Test
+    fun should_filter_ignored_request_and_response_fields() {
+        givenOperationWithRequestBodyAndIgnoredRequestField()
+        givenIgnoredAndNotIgnoredRequestFieldDescriptors()
+        givenIgnoredAndNotIgnoredResponseFieldDescriptors()
+
+        whenResourceSnippetInvoked()
+
+        thenSnippetFileExists()
+        thenSnippetFilesHasNoIgnoredFields()
     }
 
     @Test
@@ -134,6 +146,11 @@ class ResourceSnippetTest(private val temporaryFolder: TemporaryFolder) {
         then(resourceSnippetJson.read<String>("operationId")).isEqualTo("test")
         then(resourceSnippetJson.read<String>("request.path")).isEqualTo("/some/{id}")
         then(resourceSnippetJson.read<String>("request.method")).isEqualTo("POST")
+    }
+
+    private fun thenSnippetFilesHasNoIgnoredFields() {
+        then(resourceSnippetJson.read<List<*>>("request.requestFields")).hasSize(1)
+        then(resourceSnippetJson.read<List<*>>("response.responseFields")).hasSize(1)
     }
 
     private fun givenPathParameterDescriptors() {
@@ -195,12 +212,42 @@ class ResourceSnippetTest(private val temporaryFolder: TemporaryFolder) {
             .build()
     }
 
+    private fun givenOperationWithRequestBodyAndIgnoredRequestField() {
+        val operationBuilder = OperationBuilder("test", temporaryFolder.root)
+
+        operationBuilder
+            .attribute(ATTRIBUTE_NAME_URL_TEMPLATE, "http://localhost:8080/some/{id}")
+            .request("http://localhost:8080/some/123")
+            .method("POST")
+            .header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+            .content("{\"comment\": \"some\", \"ignored\": \"notVeryImportant\"}")
+
+        operationBuilder
+            .response()
+            .status(201)
+            .content("{\"comment\": \"some\", \"ignored\": \"notVeryImportant\"}")
+
+        operation = operationBuilder.build()
+    }
+
     private fun givenRequestFieldDescriptors() {
         parametersBuilder.requestFields(fieldWithPath("comment").description("description"))
     }
 
     private fun givenResponseFieldDescriptors() {
         parametersBuilder.responseFields(fieldWithPath("comment").description("description"))
+    }
+
+    private fun givenIgnoredAndNotIgnoredRequestFieldDescriptors() {
+        parametersBuilder.requestFields(
+            fieldWithPath("comment").description("description"),
+            fieldWithPath("ignored").description("description").ignored())
+    }
+
+    private fun givenIgnoredAndNotIgnoredResponseFieldDescriptors() {
+        parametersBuilder.responseFields(
+            fieldWithPath("comment").description("description"),
+            fieldWithPath("ignored").description("description").ignored())
     }
 
     private fun givenOperationWithRequestAndResponseBody() {
