@@ -1,8 +1,5 @@
 package com.epages.restdocs.openapi.gradle
 
-import com.damnhandy.uri.template.UriTemplate
-import java.util.Objects
-
 
 internal data class ResourceModel(
     val operationId: String,
@@ -25,30 +22,7 @@ internal data class RequestModel(
     val requestFields: List<FieldDescriptor>,
     val example: String? = null,
     val schema: String? = null
-) {
-    override fun equals(other: Any?): Boolean {
-        val that = other as RequestModel
-        return path == that.path &&
-                method == that.method &&
-                contentType == that.contentType &&
-                securityRequirements == that.securityRequirements
-    }
-    override fun hashCode(): Int {
-        return Objects.hash(path, method, contentType, securityRequirements)
-    }
-}
-
-internal data class PathTemplate(
-    val path: String
-) {
-    override fun equals(other: Any?): Boolean {
-        var that = other as PathTemplate
-        var thisUriTemplate = UriTemplate.fromTemplate(path)
-        var thatUriTemplate = UriTemplate.fromTemplate(that.path)
-
-        return thisUriTemplate.expand() == thatUriTemplate.template
-    }
-}
+)
 
 internal data class ResponseModel(
     val status: Int,

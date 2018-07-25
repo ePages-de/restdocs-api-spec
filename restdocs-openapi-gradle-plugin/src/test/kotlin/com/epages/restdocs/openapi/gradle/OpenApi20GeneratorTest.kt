@@ -50,8 +50,6 @@ class OpenApi20GeneratorTest {
         thenPostProductWith200ResponseIsGenerated(openapi, api)
     }
 
-    // different responses
-    // different operations for same path
     // aggregate consumes and produces
 
     @Test
@@ -78,13 +76,13 @@ class OpenApi20GeneratorTest {
         then(successfulGetResponse).isNotNull
         then(successfulGetResponse!!.headers).isNotNull
         for (header in responseHeaders) {
-            then(successfulGetResponse!!.headers.get(header.name)!!).isNotNull
-            then(successfulGetResponse!!.headers.get(header.name)!!.description).isEqualTo(header.description)
-            then(successfulGetResponse!!.headers.get(header.name)!!.type).isEqualTo(header.type.toLowerCase())
+            then(successfulGetResponse.headers.get(header.name)!!).isNotNull
+            then(successfulGetResponse.headers.get(header.name)!!.description).isEqualTo(header.description)
+            then(successfulGetResponse.headers.get(header.name)!!.type).isEqualTo(header.type.toLowerCase())
         }
         then(productPath.get.security[0].get("OAUTH2"))
                 .isEqualTo(successfulGetProductModel.request.securityRequirements!!.requiredScopes)
-        then(successfulGetResponse!!
+        then(successfulGetResponse
                 .examples.get(successfulGetProductModel.response.contentType)).isEqualTo(successfulGetProductModel.response.example)
         thenParametersForGetMatch(productPath.get.parameters, successfulGetProductModel.request)
     }
@@ -107,11 +105,11 @@ class OpenApi20GeneratorTest {
     private fun thenRequestAndResponseSchemataAreReferenced(productPath: Path, successfulPostResponse: Response, definitions: Map<String, Model>) {
         val requestBody = productPath.post.parameters.filter { it.`in` == "body" }.first() as BodyParameter
         val requestSchemaRef = requestBody.schema.reference
-        then(requestSchemaRef).startsWith("${SCHEMA_JSONPATH_PREFIX}products_")
+        then(requestSchemaRef).startsWith("${SCHEMA_JSONPATH_PREFIX}products")
         val requestSchemaRefName = requestSchemaRef.replace(SCHEMA_JSONPATH_PREFIX, "")
         then(definitions.get(requestSchemaRefName)!!.properties.keys).containsExactlyInAnyOrder("description", "price")
 
-        then(successfulPostResponse.responseSchema.reference).startsWith("${SCHEMA_JSONPATH_PREFIX}products_")
+        then(successfulPostResponse.responseSchema.reference).startsWith("${SCHEMA_JSONPATH_PREFIX}products")
         val responseSchemaRefName = successfulPostResponse.responseSchema.reference.replace(SCHEMA_JSONPATH_PREFIX, "")
         then(definitions.get(responseSchemaRefName)!!.properties.keys).containsExactlyInAnyOrder("_id", "description", "price")
     }

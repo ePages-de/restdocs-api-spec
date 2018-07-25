@@ -38,7 +38,7 @@ internal object OpenApi20Generator {
                     produces = listOf("application/json")
                     responses = mapOf("200" to Response().apply {
                         description = "some"
-                        examples = mapOf("application/json" to """{ "name": "some"}""")
+                        examples = mapOf("application/json" to """{ "name": "some" }""")
                     })
                 }
             })
@@ -125,8 +125,8 @@ internal object OpenApi20Generator {
         return { schema -> path
             .replaceFirst("/", "")
             .replace("/", "_")
-            .replace("{", "")
-            .replace("}", "") + "_" + schema.hashCode()
+            .replace(Regex.fromLiteral("[{}]"), "")
+            .plus(schema.hashCode())
         }
     }
 
