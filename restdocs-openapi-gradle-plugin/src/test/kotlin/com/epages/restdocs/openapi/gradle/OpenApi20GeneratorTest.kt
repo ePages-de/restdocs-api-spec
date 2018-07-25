@@ -33,7 +33,6 @@ class OpenApi20GeneratorTest {
         val api = givenGetProductResourceModel()
 
         val openapi = OpenApi20Generator.generate(api)
-            .also { OpenApi20Generator.extractDefinitions(it) }
 
         println(Json.pretty().writeValueAsString(openapi))
         thenGetProductWith200ResponseIsGenerated(openapi, api)
@@ -44,7 +43,6 @@ class OpenApi20GeneratorTest {
         val api = givenPostProductResourceModel()
 
         val openapi = OpenApi20Generator.generate(api)
-                .also { OpenApi20Generator.extractDefinitions(it) }
 
         println(Json.pretty().writeValueAsString(openapi))
         thenPostProductWith200ResponseIsGenerated(openapi, api)
@@ -148,7 +146,7 @@ class OpenApi20GeneratorTest {
         val productPath = openapi.paths.getValue(successfulDeleteProductModel.request.path)
 
         then(productPath).isNotNull
-        then(productPath.delete.consumes).isEmpty()
+        then(productPath.delete.consumes).isNull()
         then(productPath.delete.responses.get(successfulDeleteProductModel.response.status.toString())).isNotNull
         then(productPath.delete.security[0].get("OAUTH2"))
                 .isEqualTo(successfulDeleteProductModel.request.securityRequirements!!.requiredScopes)

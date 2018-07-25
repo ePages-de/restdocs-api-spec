@@ -4,6 +4,7 @@ import com.epages.restdocs.openapi.gradle.schema.JsonSchemaFromFieldDescriptorsG
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.swagger.models.Info
 import io.swagger.models.Model
+import io.swagger.models.ModelImpl
 import io.swagger.models.Operation
 import io.swagger.models.Path
 import io.swagger.models.RefModel
@@ -63,10 +64,12 @@ internal object OpenApi20Generator {
                 this.version = version
             }
             paths = generatePaths(resources)
+
+            extractDefinitions(this)
         }
     }
 
-    fun extractDefinitions(swagger: Swagger) : Swagger {
+    private fun extractDefinitions(swagger: Swagger) : Swagger {
         val schemasToKeys = HashMap<Model, String>()
         val operationToPathKey = HashMap<Operation, String>()
 
@@ -103,11 +106,11 @@ internal object OpenApi20Generator {
         return swagger
     }
 
-    private fun extractBodyParameter(parameters: List<Parameter>): BodyParameter? {
+    private fun extractBodyParameter(parameters: List<Parameter>?): BodyParameter? {
         return parameters
-            .filter { it.`in` == "body" }
-            .map { it as BodyParameter }
-            .firstOrNull()
+            ?.filter { it.`in` == "body" }
+            ?.map { it as BodyParameter }
+            ?.firstOrNull()
     }
 
     private fun extractOrFindSchema(schemasToKeys: HashMap<Model, String>, schema: Model, schemaNameGenerator: (Model) -> String): Model {
@@ -173,9 +176,9 @@ internal object OpenApi20Generator {
         return Operation().apply {
             summary = firstModelForPathAndMethod.summary
             description = firstModelForPathAndMethod.description
-            consumes = modelsWithSamePathAndMethod.map { it.request.contentType }.distinct().filterNotNull()
-            produces = modelsWithSamePathAndMethod.map { it.response.contentType }.distinct().filterNotNull()
-            if(firstModelForPathAndMethod.request.securityRequirements != null) {
+            consumes = modelsWithSamePathAndMethod.map { it.request.contentType }.distinct().filterNotNull().nullIfEmpty()
+            produces = modelsWithSamePathAndMethod.map { it.response.contentType }.distinct().filterNotNull().nullIfEmpty()
+            if (firstModelForPathAndMethod.request.securityRequirements != null) {
                 addSecurity(firstModelForPathAndMethod.request.securityRequirements.type.name,
                         securityRequirements2ScopesList(firstModelForPathAndMethod.request.securityRequirements))
             }
@@ -190,15 +193,16 @@ internal object OpenApi20Generator {
                             header2Parameter(it)
                         }
                     ).plus(
-                        listOfNotNull(requestFieldDescriptor2Parameter(modelsWithSamePathAndMethod.map { it.request.requestFields }.flatten(), firstModelForPathAndMethod.request.example))
-                    )
+                        listOfNotNull<Parameter>(requestFieldDescriptor2Parameter(modelsWithSamePathAndMethod.map { it.request.requestFields }.flatten(), firstModelForPathAndMethod.request.example))
+                    ).nullIfEmpty()
             responses = responsesByStatusCode(modelsWithSamePathAndMethod)
                     .mapValues { responseModel2Response(it.value) }
+                    .nullIfEmpty()
         }
     }
 
     private fun securityRequirements2ScopesList(securityRequirements: SecurityRequirements): List<String> {
-        return if(securityRequirements.type.equals(SecurityType.OAUTH2) && securityRequirements.requiredScopes != null) securityRequirements.requiredScopes else listOf()
+        return if (securityRequirements.type.equals(SecurityType.OAUTH2) && securityRequirements.requiredScopes != null) securityRequirements.requiredScopes else listOf()
     }
 
     private fun pathParameterDescriptor2Parameter(parameterDescriptor: ParameterDescriptor): PathParameter {
@@ -226,13 +230,18 @@ internal object OpenApi20Generator {
     }
 
     private fun requestFieldDescriptor2Parameter(fieldDescriptors: List<FieldDescriptor>, example : String?): BodyParameter? {
-        return if(!fieldDescriptors.isEmpty()) {
+        return if (!fieldDescriptors.isEmpty()) {
             val parsedSchema : Model = Json.mapper().readValue(JsonSchemaFromFieldDescriptorsGenerator().generateSchema(fieldDescriptors = fieldDescriptors))
             parsedSchema.example = example
             BodyParameter().apply {
                 name = ""
-                description = ""
                 schema = parsedSchema
+            }
+        } else if (example != null) {
+            val emptySchemaWithExample = ModelImpl().example(example)
+            BodyParameter().apply {
+                name = ""
+                schema = emptySchemaWithExample
             }
         } else {
             null
@@ -241,13 +250,25 @@ internal object OpenApi20Generator {
 
     private fun responseModel2Response(responseModel: ResponseModel): Response {
         return Response().apply {
-            description = ""
             headers = responseModel.headers
                 .map { it.name to PropertyBuilder.build(it.type.toLowerCase(), null, null).description(it.description) }
                 .toMap()
-            examples = mapOf(responseModel.contentType to responseModel.example)
-            responseSchema = Json.mapper().readValue(
+                .nullIfEmpty()
+            examples = mapOf(responseModel.contentType to responseModel.example).nullIfEmpty()
+            responseSchema = if (!responseModel.responseFields.isEmpty()) {
+                Json.mapper().readValue(
                     JsonSchemaFromFieldDescriptorsGenerator().generateSchema(fieldDescriptors = responseModel.responseFields))
+            } else {
+                null
+            }
         }
+    }
+
+    private fun <K, V> Map<K, V>.nullIfEmpty() : Map<K, V>? {
+        return if (this.isEmpty()) null else this
+    }
+
+    private fun <T> List<T>.nullIfEmpty() : List<T>? {
+        return if (this.isEmpty()) null else this
     }
 }
