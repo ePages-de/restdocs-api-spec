@@ -1,5 +1,6 @@
 package com.epages.restdocs.openapi.gradle
 
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.gradle.api.DefaultTask
@@ -45,7 +46,7 @@ open class RestdocsOpenApiTask : DefaultTask() {
     private val snippetsDirectoryFile
         get() = project.file(snippetsDirectory)
 
-    private val objectMapper = jacksonObjectMapper()
+    private val objectMapper = jacksonObjectMapper().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
 
     @TaskAction
     fun aggregateResourceModels() {
