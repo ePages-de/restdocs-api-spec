@@ -70,7 +70,7 @@ object MockMvcRestDocumentationWrapper {
         requestPreprocessor: OperationRequestPreprocessor,
         vararg snippets: Snippet
     ): RestDocumentationResultHandler {
-        return document(identifier = identifier, requestPreprocessor = requestPreprocessor, snippets = *snippets)
+        return document(identifier, null, null, false, false, requestPreprocessor, snippets = *snippets)
     }
 
     @JvmStatic
@@ -80,7 +80,7 @@ object MockMvcRestDocumentationWrapper {
         privateResource: Boolean,
         vararg snippets: Snippet
     ): RestDocumentationResultHandler {
-        return document(identifier = identifier, description = description, privateResource = privateResource, snippets = *snippets)
+        return document(identifier, description, null, privateResource, snippets = *snippets)
     }
 
 
