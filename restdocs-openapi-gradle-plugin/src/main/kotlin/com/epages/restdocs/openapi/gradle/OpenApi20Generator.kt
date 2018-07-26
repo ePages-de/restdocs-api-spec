@@ -28,12 +28,12 @@ internal object OpenApi20Generator {
         schemes: List<String> = listOf("http"),
         title: String = "API",
         version: String = "1.0.0"
-    ) : Swagger {
+    ): Swagger {
         return Swagger().apply {
 
             this.basePath = basePath
             this.host = host
-            this.schemes(schemes.map { Scheme.forValue(it) } )
+            this.schemes(schemes.map { Scheme.forValue(it) })
             info = Info().apply {
                 this.title = title
                 this.version = version
@@ -44,7 +44,7 @@ internal object OpenApi20Generator {
         }
     }
 
-    private fun extractDefinitions(swagger: Swagger) : Swagger {
+    private fun extractDefinitions(swagger: Swagger): Swagger {
         val schemasToKeys = HashMap<Model, String>()
         val operationToPathKey = HashMap<Operation, String>()
 
@@ -60,10 +60,10 @@ internal object OpenApi20Generator {
         operationToPathKey.keys.forEach {
             val pathKey = operationToPathKey[it]!!
 
-            extractBodyParameter(it.parameters)?.
-                takeIf { it.schema != null }?.
-                let {
-                    it.schema(extractOrFindSchema(schemasToKeys, it.schema, generateSchemaName(pathKey)) )
+            extractBodyParameter(it.parameters)
+                ?.takeIf { it.schema != null }
+                ?.let {
+                    it.schema(extractOrFindSchema(schemasToKeys, it.schema, generateSchemaName(pathKey)))
                 }
 
             it.responses.values
@@ -99,7 +99,7 @@ internal object OpenApi20Generator {
         return RefModel("#/definitions/$schemaKey")
     }
 
-    private fun generateSchemaName(path : String) : (Model) -> String {
+    private fun generateSchemaName(path: String): (Model) -> String {
         return { schema -> path
             .replaceFirst("/", "")
             .replace("/", "_")
@@ -116,15 +116,15 @@ internal object OpenApi20Generator {
             .toMap()
     }
 
-    private fun groupByPath(resources: List<ResourceModel>) : Map<String, List<ResourceModel>> {
+    private fun groupByPath(resources: List<ResourceModel>): Map<String, List<ResourceModel>> {
         return resources.groupBy { it.request.path }
     }
 
-    private fun groupByHttpMethod(resources: List<ResourceModel>) : Map<HTTPMethod, List<ResourceModel>> {
+    private fun groupByHttpMethod(resources: List<ResourceModel>): Map<HTTPMethod, List<ResourceModel>> {
         return resources.groupBy { it.request.method }
     }
 
-    private fun responsesByStatusCode(resources: List<ResourceModel>) : Map<String, ResponseModel> {
+    private fun responsesByStatusCode(resources: List<ResourceModel>): Map<String, ResponseModel> {
         return resources.groupBy { it.response.status }
                 .mapKeys { it.key.toString() }
                 .mapValues { it.value[0].response }
@@ -185,7 +185,7 @@ internal object OpenApi20Generator {
         val pathParameterNames = resourceModel.request.path
             .split("/")
             .filter { it.startsWith("{") && it.endsWith("}") }
-            .map { it.removePrefix("{").removeSuffix("}")}
+            .map { it.removePrefix("{").removeSuffix("}") }
 
         return pathParameterNames.map {
             val parameterName = it
@@ -232,10 +232,10 @@ internal object OpenApi20Generator {
         }
     }
 
-    private fun requestFieldDescriptor2Parameter(fieldDescriptors: List<FieldDescriptor>, examples : Map<String, String>): BodyParameter? {
-        val firstExample = examples.entries.sortedBy { it.key.length }.map{ it.value }.firstOrNull()
+    private fun requestFieldDescriptor2Parameter(fieldDescriptors: List<FieldDescriptor>, examples: Map<String, String>): BodyParameter? {
+        val firstExample = examples.entries.sortedBy { it.key.length }.map { it.value }.firstOrNull()
         return if (!fieldDescriptors.isEmpty()) {
-            val parsedSchema : Model = Json.mapper().readValue(JsonSchemaFromFieldDescriptorsGenerator().generateSchema(fieldDescriptors = fieldDescriptors))
+            val parsedSchema: Model = Json.mapper().readValue(JsonSchemaFromFieldDescriptorsGenerator().generateSchema(fieldDescriptors = fieldDescriptors))
             parsedSchema.example = firstExample // a schema can only have one example
             BodyParameter().apply {
                 name = ""
@@ -270,11 +270,11 @@ internal object OpenApi20Generator {
         }
     }
 
-    private fun <K, V> Map<K, V>.nullIfEmpty() : Map<K, V>? {
+    private fun <K, V> Map<K, V>.nullIfEmpty(): Map<K, V>? {
         return if (this.isEmpty()) null else this
     }
 
-    private fun <T> List<T>.nullIfEmpty() : List<T>? {
+    private fun <T> List<T>.nullIfEmpty(): List<T>? {
         return if (this.isEmpty()) null else this
     }
 }

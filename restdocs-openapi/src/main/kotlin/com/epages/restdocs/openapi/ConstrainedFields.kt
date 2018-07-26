@@ -29,7 +29,6 @@ class ConstrainedFields(private val classHoldingConstraints: Class<*>) {
     fun withMappedPath(jsonPath: String, beanPropertyName: String): FieldDescriptor =
         addConstraints(fieldWithPath(jsonPath), beanPropertyName)
 
-
     /**
      * Add bean validation constraints for the field beanPropertyName to the descriptor
      */
@@ -38,7 +37,6 @@ class ConstrainedFields(private val classHoldingConstraints: Class<*>) {
             key(CONSTRAINTS_KEY)
                 .value(this.validatorConstraintResolver.resolveForProperty(beanPropertyName, classHoldingConstraints))
         )
-
 
     companion object {
         private const val CONSTRAINTS_KEY = "validationConstraints"

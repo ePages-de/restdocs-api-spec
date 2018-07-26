@@ -83,7 +83,6 @@ object MockMvcRestDocumentationWrapper {
         return document(identifier, description, null, privateResource, snippets = *snippets)
     }
 
-
     internal fun enhanceSnippetsWithResourceSnippet(
         description: String? = null,
         summary: String? = null,

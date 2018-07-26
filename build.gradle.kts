@@ -22,6 +22,7 @@ plugins {
     id("pl.allegro.tech.build.axion-release") version "1.9.2"
     jacoco
     `maven-publish`
+    id("org.jmailen.kotlinter") version "1.15.1" apply false
 }
 
 repositories {
@@ -58,6 +59,7 @@ allprojects {
         apply(plugin = "jacoco")
         apply(plugin = "com.github.kt3k.coveralls")
         apply(plugin = "maven-publish")
+        apply(plugin = "org.jmailen.kotlinter")
     }
 }
 

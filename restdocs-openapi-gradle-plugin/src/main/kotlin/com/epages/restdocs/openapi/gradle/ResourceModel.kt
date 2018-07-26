@@ -1,6 +1,5 @@
 package com.epages.restdocs.openapi.gradle
 
-
 internal data class ResourceModel(
     val operationId: String,
     val summary: String? = null,
@@ -52,7 +51,7 @@ internal data class HeaderDescriptor(
     override val description: String,
     override val type: String,
     override val optional: Boolean
-): AbstractParameterDescriptor
+) : AbstractParameterDescriptor
 
 internal open class FieldDescriptor(
     val path: String,
@@ -78,7 +77,7 @@ internal data class ParameterDescriptor(
     override val type: String,
     override val optional: Boolean,
     val ignored: Boolean
-): AbstractParameterDescriptor
+) : AbstractParameterDescriptor
 
 internal data class SecurityRequirements(
     val type: SecurityType,

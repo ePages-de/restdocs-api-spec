@@ -57,7 +57,7 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
         then(billingAddressSchema.requiredProperties.contains("firstName")).isTrue()
         val firstNameSchema = billingAddressSchema.propertySchemas["firstName"] as StringSchema
         then(firstNameSchema.minLength).isEqualTo(1)
-        @Suppress("USELESS_CAST") //needed because Int becomes a primitive and cannot be checked isNull then
+        @Suppress("USELESS_CAST") // needed because Int becomes a primitive and cannot be checked isNull then
         then(firstNameSchema.maxLength as Int?).isNull()
 
         then(billingAddressSchema.definesProperty("valid")).isTrue()
@@ -79,7 +79,7 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
         then(lineItemSchema.allItemSchema).isInstanceOf(ObjectSchema::class.java)
 
         thenSchemaIsValid()
-        //language=JSON
+        // language=JSON
         thenSchemaValidatesJson(
             """{
                 "id": "1",
@@ -173,7 +173,6 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
         schemaString = generator.generateSchema(fieldDescriptors!!)
         println(schemaString)
         schema = SchemaLoader.load(JSONObject(schemaString))
-
     }
 
     private fun givenFieldDescriptorWithPrimitiveArray() {
@@ -277,5 +276,4 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
     private fun thenSchemaDoesNotValidateJson(json: String) {
         thenThrownBy { thenSchemaValidatesJson(json) }.isInstanceOf(ValidationException::class.java)
     }
-
 }

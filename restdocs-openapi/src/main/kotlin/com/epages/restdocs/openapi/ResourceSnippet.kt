@@ -16,7 +16,7 @@ import org.springframework.restdocs.templates.TemplateFormat
 import org.springframework.web.util.UriComponentsBuilder
 import java.util.Optional
 
-class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetParameters): Snippet {
+class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetParameters) : Snippet {
 
     private val objectMapper = jacksonObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
 
@@ -56,7 +56,7 @@ class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetPara
                 headers = resourceSnippetParameters.requestHeaders,
                 pathParameters = resourceSnippetParameters.pathParameters,
                 requestParameters = resourceSnippetParameters.requestParameters,
-                requestFields = if (hasRequestBody) resourceSnippetParameters.requestFields.filter { !it.isIgnored }  else emptyList(),
+                requestFields = if (hasRequestBody) resourceSnippetParameters.requestFields.filter { !it.isIgnored } else emptyList(),
                 example = if (hasRequestBody) operation.request.contentAsString else null,
                 securityRequirements = securityRequirements
             ),
@@ -83,7 +83,7 @@ class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetPara
 
     internal object JsonTemplateFormat : TemplateFormat {
         override fun getId(): String = "json"
-        override fun getFileExtension(): String ="json"
+        override fun getFileExtension(): String = "json"
     }
 
     private data class ResourceModel(
@@ -132,5 +132,4 @@ class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetPara
     }
 
     class MissingUrlTemplateException : RuntimeException("Missing URL template - please use RestDocumentationRequestBuilders with urlTemplate to construct the request")
-
 }

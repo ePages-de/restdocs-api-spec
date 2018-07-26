@@ -6,7 +6,7 @@ import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.api.extension.ParameterContext
 import org.junit.jupiter.api.extension.ParameterResolver
 
-class TemporaryFolderExtension: BeforeEachCallback, AfterEachCallback, ParameterResolver {
+class TemporaryFolderExtension : BeforeEachCallback, AfterEachCallback, ParameterResolver {
 
     private val temporaryFolder = TemporaryFolder()
 
@@ -20,7 +20,6 @@ class TemporaryFolderExtension: BeforeEachCallback, AfterEachCallback, Parameter
 
     override fun supportsParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext?): Boolean =
         TemporaryFolder::class.java.isAssignableFrom(parameterContext.parameter.type)
-
 
     override fun resolveParameter(parameterContext: ParameterContext?, extensionContext: ExtensionContext?): Any =
         temporaryFolder
