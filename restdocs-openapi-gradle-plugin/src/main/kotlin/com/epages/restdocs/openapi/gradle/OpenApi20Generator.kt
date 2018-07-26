@@ -159,9 +159,7 @@ internal object OpenApi20Generator {
                         securityRequirements2ScopesList(firstModelForPathAndMethod.request.securityRequirements))
             }
             parameters =
-                    firstModelForPathAndMethod.request.pathParameters.map {
-                        pathParameterDescriptor2Parameter(it)
-                    }.plus(
+                    extractPathParameters(firstModelForPathAndMethod).plus(
                         firstModelForPathAndMethod.request.requestParameters.map {
                             requestParameterDescriptor2Parameter(it)
                     }).plus(
@@ -183,6 +181,21 @@ internal object OpenApi20Generator {
         }
     }
 
+    private fun extractPathParameters(resourceModel: ResourceModel): List<PathParameter> {
+        val pathParameterNames = resourceModel.request.path
+            .split("/")
+            .filter { it.startsWith("{") && it.endsWith("}") }
+            .map { it.removePrefix("{").removeSuffix("}")}
+
+        return pathParameterNames.map {
+            val parameterName = it
+            resourceModel.request.pathParameters
+                .firstOrNull { it.name == parameterName }
+                ?.let { pathParameterDescriptor2Parameter(it) }
+                ?: parameterName2PathParameter(parameterName)
+        }
+    }
+
     private fun securityRequirements2ScopesList(securityRequirements: SecurityRequirements): List<String> {
         return if (securityRequirements.type == SecurityType.OAUTH2 && securityRequirements.requiredScopes != null) securityRequirements.requiredScopes else listOf()
     }
@@ -192,6 +205,14 @@ internal object OpenApi20Generator {
             name = parameterDescriptor.name
             description = parameterDescriptor.description
             type = parameterDescriptor.type.toLowerCase()
+        }
+    }
+
+    private fun parameterName2PathParameter(parameterName: String): PathParameter {
+        return PathParameter().apply {
+            name = parameterName
+            description = ""
+            type = "string"
         }
     }
 

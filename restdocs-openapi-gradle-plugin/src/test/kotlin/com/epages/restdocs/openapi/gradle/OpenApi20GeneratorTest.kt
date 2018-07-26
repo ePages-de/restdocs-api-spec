@@ -7,6 +7,7 @@ import io.swagger.models.Response
 import io.swagger.models.Swagger
 import io.swagger.models.parameters.BodyParameter
 import io.swagger.models.parameters.Parameter
+import io.swagger.models.parameters.PathParameter
 import io.swagger.parser.Swagger20Parser
 import io.swagger.util.Json
 import org.assertj.core.api.BDDAssertions.then
@@ -62,6 +63,23 @@ class OpenApi20GeneratorTest {
 
         thenApiSpecificationWithoutJsonSchemaButWithExamplesIsGenerated(openapi, api)
         thenValidateOpenApi(openapi)
+    }
+
+    @Test
+    fun `should extract path parameters from path as fallback`() {
+        val api = givenGetProductResourceModelWithoutPathParameters()
+
+        val openapi = OpenApi20Generator.generate(api)
+        println(Json.pretty().writeValueAsString(openapi))
+
+        thenPathParametersExist(openapi, api)
+    }
+
+    private fun thenPathParametersExist(openapi: Swagger, api: List<ResourceModel>) {
+        val path = openapi.paths.getValue(api[0].request.path).get
+        then(path.parameters.firstOrNull()).isNotNull
+        val pathParameter = path.parameters.first{ it is PathParameter } as PathParameter
+        then(pathParameter.name).isEqualTo("id")
     }
 
     private fun thenApiSpecificationWithoutJsonSchemaButWithExamplesIsGenerated(
@@ -180,6 +198,18 @@ class OpenApi20GeneratorTest {
                 privateResource = false,
                 deprecated = false,
                 request = getProductRequest(),
+                response = getProduct200Response(getProductPayloadExample())
+            )
+        )
+    }
+
+    private fun givenGetProductResourceModelWithoutPathParameters(): List<ResourceModel> {
+        return listOf(
+            ResourceModel(
+                operationId = "test",
+                privateResource = false,
+                deprecated = false,
+                request = getProductRequestWithoutPathParameters(),
                 response = getProduct200Response(getProductPayloadExample())
             )
         )
@@ -361,6 +391,22 @@ class OpenApi20GeneratorTest {
                         )
                 ),
                 requestFields = listOf()
+        )
+    }
+
+    private fun getProductRequestWithoutPathParameters(): RequestModel {
+        return RequestModel(
+            path = "/products/{id}",
+            method = HTTPMethod.GET,
+            contentType = "application/json",
+            securityRequirements = SecurityRequirements(
+                type = OAUTH2,
+                requiredScopes = listOf("prod:r")
+            ),
+            headers = listOf(),
+            pathParameters = listOf(),
+            requestParameters = listOf(),
+            requestFields = listOf()
         )
     }
 
