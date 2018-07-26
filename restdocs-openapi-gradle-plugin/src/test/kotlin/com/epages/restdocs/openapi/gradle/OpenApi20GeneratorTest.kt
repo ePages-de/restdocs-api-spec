@@ -8,25 +8,12 @@ import io.swagger.models.Swagger
 import io.swagger.models.parameters.BodyParameter
 import io.swagger.models.parameters.Parameter
 import io.swagger.util.Json
-import io.swagger.util.Yaml
 import org.assertj.core.api.BDDAssertions.then
 import org.junit.jupiter.api.Test
 
 private const val SCHEMA_JSONPATH_PREFIX = "#/definitions/"
 
 class OpenApi20GeneratorTest {
-
-    @Test
-    fun `should generate open api json`() {
-        val api = OpenApi20Generator.sample()
-        println(Json.pretty().writeValueAsString(api))
-    }
-
-    @Test
-    fun `should generate open api yaml`() {
-        val api = OpenApi20Generator.sample()
-        println(Yaml.pretty().writeValueAsString(api))
-    }
 
     @Test
     fun `should convert single resource model to openapi`() {
@@ -60,6 +47,32 @@ class OpenApi20GeneratorTest {
         thenGetProductWith200ResponseIsGenerated(openapi, api)
         thenGetProductWith400ResponseIsGenerated(openapi, api)
         thenDeleteProductIsGenerated(openapi, api)
+    }
+
+    @Test
+    fun `should convert resource without schema`() {
+        val api = givenPostProductResourceModelWithoutFieldDescriptors()
+
+        val openapi = OpenApi20Generator.generate(api)
+        println(Json.pretty().writeValueAsString(openapi))
+
+        thenApiSpecificationWithoutJsonSchemaButWithExamplesIsGenerated(openapi, api)
+    }
+
+    private fun thenApiSpecificationWithoutJsonSchemaButWithExamplesIsGenerated(
+        openapi: Swagger,
+        api: List<ResourceModel>
+    ) {
+        val path = openapi.paths.getValue(api[0].request.path).post
+        val bodyParameter = path.parameters.first { it is BodyParameter } as BodyParameter
+        then(bodyParameter.schema.reference).isNotNull()
+        then(openapi.definitions).hasSize(1)
+        then(openapi.definitions.values.first().properties).isNull()
+        then(openapi.definitions.values.first().example).isNotNull()
+
+        val response = path.responses[api[0].response.status.toString()]!!
+        then(response.examples[api[0].response.contentType]).isNotNull()
+        then(response.responseSchema).isNull()
     }
 
     private fun thenGetProductWith200ResponseIsGenerated(openapi: Swagger, api: List<ResourceModel>) {
@@ -162,6 +175,18 @@ class OpenApi20GeneratorTest {
                 deprecated = false,
                 request = getProductRequest(),
                 response = getProduct200Response(getProductPayloadExample())
+            )
+        )
+    }
+
+    private fun givenPostProductResourceModelWithoutFieldDescriptors(): List<ResourceModel> {
+        return listOf(
+            ResourceModel(
+                operationId = "test",
+                privateResource = false,
+                deprecated = false,
+                request = postProductRequest().copy(requestFields = listOf()),
+                response = postProduct200Response(getProductPayloadExample()).copy(responseFields = listOf())
             )
         )
     }
