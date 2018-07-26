@@ -128,7 +128,8 @@ internal object OpenApi20Generator {
         return { schema -> path
             .replaceFirst("/", "")
             .replace("/", "_")
-            .replace(Regex.fromLiteral("[{}]"), "")
+            .replace(Regex.fromLiteral("{"), "")
+            .replace(Regex.fromLiteral("}"), "")
             .plus(schema.hashCode())
         }
     }
@@ -250,6 +251,7 @@ internal object OpenApi20Generator {
 
     private fun responseModel2Response(responseModel: ResponseModel): Response {
         return Response().apply {
+            description = ""
             headers = responseModel.headers
                 .map { it.name to PropertyBuilder.build(it.type.toLowerCase(), null, null).description(it.description) }
                 .toMap()
