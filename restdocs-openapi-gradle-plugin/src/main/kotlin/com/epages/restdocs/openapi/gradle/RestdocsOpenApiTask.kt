@@ -51,20 +51,30 @@ open class RestdocsOpenApiTask : DefaultTask() {
     @TaskAction
     fun aggregateResourceModels() {
 
-        val resourceModels =snippetsDirectoryFile.walkTopDown()
+        val resourceModels = snippetsDirectoryFile.walkTopDown()
             .filter { it.name == "resource.json" }
             .map { objectMapper.readValue<ResourceModel>(it.readText()) }
             .toList()
 
-        val apiSpecification = OpenApi20Generator.generate(
-            resources = resourceModels,
-            basePath = basePath,
-            host = host,
-            schemes = schemes.toList(),
-            title = title,
-            version = apiVersion
-        )
+        generateAndWriteSpecification(resourceModels, outputFileNamePrefix)
 
-        ApiSpecificationWriter.write(format, outputDirectoryFile, outputFileNamePrefix, apiSpecification)
+        if (separatePublicApi) {
+            generateAndWriteSpecification(resourceModels.filterNot { it.privateResource }, "$outputFileNamePrefix-public")
+        }
+    }
+
+    private fun generateAndWriteSpecification(resourceModels: List<ResourceModel>, fileNamePrefix: String) {
+        if (resourceModels.isNotEmpty()) {
+            val apiSpecification = OpenApi20Generator.generate(
+                resources = resourceModels,
+                basePath = basePath,
+                host = host,
+                schemes = schemes.toList(),
+                title = title,
+                version = apiVersion
+            )
+
+            ApiSpecificationWriter.write(format, outputDirectoryFile, fileNamePrefix, apiSpecification)
+        }
     }
 }

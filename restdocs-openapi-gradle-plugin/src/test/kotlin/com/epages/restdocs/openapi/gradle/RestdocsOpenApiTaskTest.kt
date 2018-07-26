@@ -52,6 +52,7 @@ class RestdocsOpenApiTaskTest(private val testProjectDir: TemporaryFolder) {
 
         thenOpenApiTaskSuccessful()
         thenOutputFileFound()
+        thenOutputFileForPublicResourceSpecificationNotFound()
     }
 
     @Test
@@ -61,8 +62,9 @@ class RestdocsOpenApiTaskTest(private val testProjectDir: TemporaryFolder) {
 
         whenPluginExecuted()
 
-        then(result.task(":openapi")!!.outcome).isEqualTo(TaskOutcome.SUCCESS)
+        thenTaskSuccessful()
         thenOutputFileFound()
+        thenOutputFileForPublicResourceSpecificationNotFound()
     }
 
     @Test
@@ -73,9 +75,28 @@ class RestdocsOpenApiTaskTest(private val testProjectDir: TemporaryFolder) {
 
         whenPluginExecuted()
 
-        then(result.task(":openapi")!!.outcome).isEqualTo(TaskOutcome.SUCCESS)
+        thenTaskSuccessful()
         thenOutputFileFound()
     }
+
+    @Test
+    fun `should generate separate public api specification`() {
+        separatePublicApi = true
+        givenBuildFileWithOpenApiClosure()
+        givenResourceSnippet()
+        givenPrivateResourceSnippet()
+
+        whenPluginExecuted()
+
+        thenTaskSuccessful()
+        thenOutputFileFound()
+        thenOutputFileForPublicResourceSpecificationFound()
+    }
+
+    private fun thenTaskSuccessful() {
+        then(result.task(":openapi")!!.outcome).isEqualTo(TaskOutcome.SUCCESS)
+    }
+
 
     private fun thenOpenApiTaskSuccessful() {
         then(result.task(":openapi")!!.outcome).isEqualTo(TaskOutcome.SUCCESS)
@@ -83,9 +104,58 @@ class RestdocsOpenApiTaskTest(private val testProjectDir: TemporaryFolder) {
 
     private fun thenOutputFileFound() {
         val expectedFile = "$outputFileNamePrefix.$format"
+        thenExpectedFileFound(expectedFile)
+    }
+
+    private fun thenOutputFileForPublicResourceSpecificationFound() {
+        val expectedFile = "$outputFileNamePrefix-public.$format"
+        thenExpectedFileFound(expectedFile)
+    }
+
+    private fun thenOutputFileForPublicResourceSpecificationNotFound() {
+        val expectedFile = "$outputFileNamePrefix-public.$format"
+        then(outputFolder.resolve(expectedFile)).doesNotExist()
+    }
+
+    private fun thenExpectedFileFound(expectedFile: String) {
         then(outputFolder.resolve(expectedFile))
-            .describedAs("Output file not found '$expectedFile' - output dir contains ${Files.list(outputFolder.toPath()).map { it.toFile().path }.toList()}")
+            .describedAs("Output file not found '$expectedFile' - output dir contains ${Files.list(outputFolder.toPath()).map {
+                it.toFile().path
+            }.toList()}")
             .exists()
+    }
+
+    private fun givenPrivateResourceSnippet() {
+        val operationDir = File(snippetsFolder, "some-private-operation").apply { mkdir() }
+        File(operationDir, "resource.json").writeText(
+            """
+                {
+  "operationId" : "product-get-some",
+  "summary" : null,
+  "description" : null,
+  "privateResource" : true,
+  "deprecated" : false,
+  "request" : {
+    "path" : "/products/some/{id}",
+    "method" : "GET",
+    "contentType" : null,
+    "headers" : [ ],
+    "pathParameters" : [ ],
+    "requestParameters" : [ ],
+    "requestFields" : [ ],
+    "example" : null,
+    "securityRequirements" : null
+  },
+  "response" : {
+    "status" : 200,
+    "contentType" : "application/hal+json",
+    "headers" : [ ],
+    "responseFields" : [ ],
+    "example" : "{\n  \"name\" : \"Fancy pants\",\n  \"price\" : 49.99,\n  \"_links\" : {\n    \"self\" : {\n      \"href\" : \"http://localhost:8080/products/7\"\n    },\n    \"product\" : {\n      \"href\" : \"http://localhost:8080/products/7\"\n    }\n  }\n}"
+  }
+}
+            """.trimIndent()
+        )
     }
 
     private fun givenResourceSnippet() {
