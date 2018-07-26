@@ -35,9 +35,7 @@ data class ResourceSnippetParameters @JvmOverloads constructor(
 
         private fun toFieldDescriptor(linkDescriptor: LinkDescriptor): FieldDescriptor {
 
-            var descriptor = createLinkFieldDescriptor(
-                linkDescriptor.rel
-            )
+            var descriptor = createLinkFieldDescriptor(linkDescriptor.rel)
                 .description(linkDescriptor.description)
                 .type(JsonFieldType.VARIES)
                 .attributes(*linkDescriptor.attributes.entries
