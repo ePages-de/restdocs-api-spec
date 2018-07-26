@@ -184,7 +184,7 @@ internal object OpenApi20Generator {
     }
 
     private fun securityRequirements2ScopesList(securityRequirements: SecurityRequirements): List<String> {
-        return if (securityRequirements.type.equals(SecurityType.OAUTH2) && securityRequirements.requiredScopes != null) securityRequirements.requiredScopes else listOf()
+        return if (securityRequirements.type == SecurityType.OAUTH2 && securityRequirements.requiredScopes != null) securityRequirements.requiredScopes else listOf()
     }
 
     private fun pathParameterDescriptor2Parameter(parameterDescriptor: ParameterDescriptor): PathParameter {
