@@ -178,26 +178,20 @@ class ResourceSnippetParametersBuilder {
     fun pathParameters(vararg pathParameters: ParameterDescriptorWithType) = pathParameters(pathParameters.toList())
     fun pathParameters(pathParameters: List<ParameterDescriptorWithType>) = apply { this.pathParameters = pathParameters }
     fun pathParameters(vararg pathParameters: ParameterDescriptor) = pathParameters(pathParameters.map {
-        ParameterDescriptorWithType.fromParameterDescriptor(
-            it
-        )
+        ParameterDescriptorWithType.fromParameterDescriptor(it)
     } )
 
     fun requestParameters(vararg requestParameters: ParameterDescriptorWithType) = requestParameters(requestParameters.toList())
     fun requestParameters(requestParameters: List<ParameterDescriptorWithType>) = apply { this.requestParameters = requestParameters }
     fun requestParameters(vararg requestParameters: ParameterDescriptor) = requestParameters(requestParameters.map {
-        ParameterDescriptorWithType.fromParameterDescriptor(
-            it
-        )
+        ParameterDescriptorWithType.fromParameterDescriptor(it)
     } )
 
     fun requestHeaders(requestHeaders: List<HeaderDescriptorWithType>) = apply { this.requestHeaders = requestHeaders }
     fun requestHeaders(vararg requestHeaders: HeaderDescriptorWithType) = requestHeaders(requestHeaders.toList())
     fun requestHeaders(vararg requestHeaders: HeaderDescriptor) =
         requestHeaders(requestHeaders.map {
-            HeaderDescriptorWithType.fromHeaderDescriptor(
-                it
-            )
+            HeaderDescriptorWithType.fromHeaderDescriptor(it)
         })
 
     fun responseHeaders(responseHeaders: List<HeaderDescriptorWithType>) = apply { this.responseHeaders = responseHeaders }

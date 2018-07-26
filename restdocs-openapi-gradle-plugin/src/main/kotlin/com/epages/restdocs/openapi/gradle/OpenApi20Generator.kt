@@ -169,7 +169,13 @@ internal object OpenApi20Generator {
                             header2Parameter(it)
                         }
                     ).plus(
-                        listOfNotNull<Parameter>(requestFieldDescriptor2Parameter(modelsWithSamePathAndMethod.map { it.request.requestFields }.flatten(), firstModelForPathAndMethod.request.example))
+                        listOfNotNull<Parameter>(
+                            requestFieldDescriptor2Parameter(modelsWithSamePathAndMethod.flatMap { it.request.requestFields },
+                                modelsWithSamePathAndMethod
+                                    .filter { it.request.contentType != null && it.request.example != null }
+                                    .map { it.request.contentType!! to it.request.example!! }
+                                    .toMap())
+                        )
                     ).nullIfEmpty()
             responses = responsesByStatusCode(modelsWithSamePathAndMethod)
                     .mapValues { responseModel2Response(it.value) }
@@ -205,19 +211,21 @@ internal object OpenApi20Generator {
         }
     }
 
-    private fun requestFieldDescriptor2Parameter(fieldDescriptors: List<FieldDescriptor>, example : String?): BodyParameter? {
+    private fun requestFieldDescriptor2Parameter(fieldDescriptors: List<FieldDescriptor>, examples : Map<String, String>): BodyParameter? {
+        val firstExample = examples.entries.sortedBy { it.key.length }.map{ it.value }.firstOrNull()
         return if (!fieldDescriptors.isEmpty()) {
             val parsedSchema : Model = Json.mapper().readValue(JsonSchemaFromFieldDescriptorsGenerator().generateSchema(fieldDescriptors = fieldDescriptors))
-            parsedSchema.example = example
+            parsedSchema.example = firstExample // a schema can only have one example
             BodyParameter().apply {
                 name = ""
                 schema = parsedSchema
+                this.examples = examples
             }
-        } else if (example != null) {
-            val emptySchemaWithExample = ModelImpl().example(example)
+        } else if (examples.isNotEmpty()) {
             BodyParameter().apply {
                 name = ""
-                schema = emptySchemaWithExample
+                this.examples = examples
+                schema = ModelImpl().example(firstExample)
             }
         } else {
             null
