@@ -7,6 +7,7 @@ import io.swagger.models.Response
 import io.swagger.models.Swagger
 import io.swagger.models.parameters.BodyParameter
 import io.swagger.models.parameters.Parameter
+import io.swagger.parser.Swagger20Parser
 import io.swagger.util.Json
 import org.assertj.core.api.BDDAssertions.then
 import org.junit.jupiter.api.Test
@@ -23,6 +24,7 @@ class OpenApi20GeneratorTest {
 
         println(Json.pretty().writeValueAsString(openapi))
         thenGetProductWith200ResponseIsGenerated(openapi, api)
+        thenValidateOpenApi(openapi)
     }
 
     @Test
@@ -33,6 +35,7 @@ class OpenApi20GeneratorTest {
 
         println(Json.pretty().writeValueAsString(openapi))
         thenPostProductWith200ResponseIsGenerated(openapi, api)
+        thenValidateOpenApi(openapi)
     }
 
     // aggregate consumes and produces
@@ -47,6 +50,7 @@ class OpenApi20GeneratorTest {
         thenGetProductWith200ResponseIsGenerated(openapi, api)
         thenGetProductWith400ResponseIsGenerated(openapi, api)
         thenDeleteProductIsGenerated(openapi, api)
+        thenValidateOpenApi(openapi)
     }
 
     @Test
@@ -57,6 +61,7 @@ class OpenApi20GeneratorTest {
         println(Json.pretty().writeValueAsString(openapi))
 
         thenApiSpecificationWithoutJsonSchemaButWithExamplesIsGenerated(openapi, api)
+        thenValidateOpenApi(openapi)
     }
 
     private fun thenApiSpecificationWithoutJsonSchemaButWithExamplesIsGenerated(
@@ -66,6 +71,7 @@ class OpenApi20GeneratorTest {
         val path = openapi.paths.getValue(api[0].request.path).post
         val bodyParameter = path.parameters.first { it is BodyParameter } as BodyParameter
         then(bodyParameter.schema.reference).isNotNull()
+        then(bodyParameter.examples).hasSize(1)
         then(openapi.definitions).hasSize(1)
         then(openapi.definitions.values.first().properties).isNull()
         then(openapi.definitions.values.first().example).isNotNull()
@@ -429,5 +435,9 @@ class OpenApi20GeneratorTest {
                 responseFields = listOf(),
                 example = ""
         )
+    }
+
+    private fun thenValidateOpenApi(openapi: Swagger) {
+        Swagger20Parser().parse(Json.pretty().writeValueAsString(openapi))
     }
 }

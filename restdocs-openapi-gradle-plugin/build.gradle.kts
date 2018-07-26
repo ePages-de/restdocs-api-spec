@@ -34,6 +34,7 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.9.5")
     implementation("com.github.everit-org.json-schema:org.everit.json.schema:1.9.1")
 
+    testImplementation("io.swagger:swagger-parser:1.0.36")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.2.0")
     testImplementation("org.assertj:assertj-core:3.10.0")
 
