@@ -10,7 +10,7 @@ buildscript {
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
 		classpath("org.asciidoctor:asciidoctor-gradle-plugin:1.5.3")
-		classpath("com.github.epages-de.restdocs-openapi:restdocs-openapi-gradle-plugin:sample-SNAPSHOT")
+		classpath("com.github.epages-de.restdocs-openapi:restdocs-openapi-gradle-plugin:0.1.1")
 	}
 }
 
@@ -43,7 +43,9 @@ dependencies {
 
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	testCompile('org.springframework.restdocs:spring-restdocs-mockmvc')
-	testCompile project(':restdocs-openapi')
+
+	testCompile('com.github.epages-de.restdocs-openapi:restdocs-openapi:0.1.1')
+	//testCompile project(':restdocs-openapi')
 	testCompile('com.google.guava:guava:23.0')
 }
 
