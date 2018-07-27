@@ -12,7 +12,7 @@ plugins {
     jacoco
     `maven-publish`
     id("org.jmailen.kotlinter") version "1.15.1" apply false
-    id("com.github.kt3k.coveralls") version "2.8.2" apply false
+    id("com.github.kt3k.coveralls") version "2.8.2"
 }
 
 repositories {
@@ -47,7 +47,6 @@ allprojects {
     if (!isSampleProject()) {
         apply(plugin = "java")
         apply(plugin = "jacoco")
-        apply(plugin = "com.github.kt3k.coveralls")
         apply(plugin = "maven-publish")
         apply(plugin = "org.jmailen.kotlinter")
     }
@@ -92,22 +91,30 @@ subprojects {
     }
 }
 
+//coverall multi module plugin configuration starts here
 configure<CoverallsPluginExtension> {
-    sourceDirs = nonSampleProjects.flatMap { it.java.sourceSets["main"].allSource.srcDirs }.map { it.path }
+    sourceDirs = nonSampleProjects.flatMap { it.java.sourceSets["main"].allSource.srcDirs }.filter { it.exists() }.map { it.path }
     jacocoReportPath = "$buildDir/reports/jacoco/jacocoRootReport/jacocoRootReport.xml"
 }
 
-
 tasks {
+    val jacocoMerge by creating(JacocoMerge::class) {
+        executionData = files(nonSampleProjects.map { File(it.buildDir, "/jacoco/test.exec")})
+        doFirst {
+            executionData = files(executionData.filter { it.exists() })
+        }
+    }
+
     val jacocoTestReport = tasks["jacocoTestReport"]
     jacocoTestReport.dependsOn(nonSampleProjects.map { it.tasks["jacocoTestReport"] })
+    jacocoMerge.dependsOn(jacocoTestReport)
     val jacocoRootReport by creating(JacocoReport::class) {
         description = "Generates an aggregate report from all subprojects"
         group = "Coverage reports"
-        dependsOn(jacocoTestReport)
+        dependsOn(jacocoMerge)
         sourceDirectories = files(nonSampleProjects.flatMap { it.java.sourceSets["main"].allSource.srcDirs } )
         classDirectories = files(nonSampleProjects.flatMap { it.java.sourceSets["main"].output } )
-        executionData = files(nonSampleProjects.map { File(it.buildDir, "/jacoco/test.exec")})
+        executionData = files(jacocoMerge.destinationFile)
         reports {
             html.isEnabled = true
             xml.isEnabled = true
