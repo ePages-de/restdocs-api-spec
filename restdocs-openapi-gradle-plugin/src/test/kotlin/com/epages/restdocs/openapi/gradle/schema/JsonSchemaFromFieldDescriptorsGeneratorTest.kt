@@ -132,6 +132,17 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
     }
 
     @Test
+    fun should_generate_schema_for_top_level_array_of_array_of_any() {
+        givenFieldDescriptorWithTopLevelArrayOfArrayOfAny()
+
+        whenSchemaGenerated()
+
+        then(schema).isInstanceOf(ArraySchema::class.java)
+        thenSchemaIsValid()
+        thenSchemaValidatesJson("""[[{"id": "some"}]]""")
+    }
+
+    @Test
     fun should_generate_schema_primitive_array() {
         givenFieldDescriptorWithPrimitiveArray()
 
@@ -196,6 +207,10 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
 
     private fun givenFieldDescriptorWithTopLevelArrayOfAny() {
         fieldDescriptors = listOf(com.epages.restdocs.openapi.gradle.FieldDescriptor("[]", "some", "ARRAY"))
+    }
+
+    private fun givenFieldDescriptorWithTopLevelArrayOfArrayOfAny() {
+        fieldDescriptors = listOf(com.epages.restdocs.openapi.gradle.FieldDescriptor("[][]", "some", "ARRAY"))
     }
 
     private fun givenFieldDescriptorWithInvalidType() {

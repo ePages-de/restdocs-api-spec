@@ -152,10 +152,27 @@ internal class JsonSchemaFromFieldDescriptorsGenerator {
                 builder.addRequiredProperty(propertyName)
             }
             if (propertyName == "[]") {
-                builder.addPropertySchema(propertyName, ObjectSchema.builder().build())
+                builder.addPropertySchema(propertyName,
+                    createSchemaWithArrayContent(ObjectSchema.builder().build(), depthOfArrayPath(fieldDescriptor.path)))
             } else {
                 builder.addPropertySchema(propertyName, fieldDescriptor.jsonSchemaType())
             }
+        }
+    }
+
+    private fun depthOfArrayPath(path: String): Int {
+        return path.split("]")
+            .filter { it.isNotEmpty() }
+            .size - 1
+    }
+
+    private fun createSchemaWithArrayContent(schema: Schema, level: Int): Schema {
+        return if (schema is ObjectSchema && level < 1) {
+            schema
+        } else if (level <= 1) {
+            ArraySchema.builder().addItemSchema(schema).build()
+        } else {
+            createSchemaWithArrayContent(ArraySchema.builder().addItemSchema(schema).build(), level - 1)
         }
     }
 
