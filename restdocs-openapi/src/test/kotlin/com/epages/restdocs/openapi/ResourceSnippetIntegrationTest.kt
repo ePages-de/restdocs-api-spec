@@ -78,7 +78,7 @@ open class ResourceSnippetIntegrationTest(@Autowired private val mockMvc: MockMv
     fun should_document_request_with_null_field() {
         givenEndpointInvoked("null")
 
-        assertThatCode{ this.whenResourceSnippetDocumentedWithRequestAndResponseFields() }
+        assertThatCode { this.whenResourceSnippetDocumentedWithRequestAndResponseFields() }
             .doesNotThrowAnyException()
     }
 
@@ -151,7 +151,7 @@ open class ResourceSnippetIntegrationTest(@Autowired private val mockMvc: MockMv
     }
 
     fun thenSnippetFileExists() {
-        with (generatedSnippetFile()) {
+        with(generatedSnippetFile()) {
             then(this).exists()
             val contents = readText()
             then(contents).isNotEmpty()

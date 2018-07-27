@@ -5,7 +5,7 @@ import com.epages.restdocs.openapi.gradle.FieldDescriptor
 
 internal object ConstraintResolver {
 
-    //since validation-api 2.0 NotEmpty moved to javax.validation - we support both
+    // since validation-api 2.0 NotEmpty moved to javax.validation - we support both
     private val NOT_EMPTY_CONSTRAINTS = setOf(
         "org.hibernate.validator.constraints.NotEmpty",
         "javax.validation.constraints.NotEmpty"
@@ -25,9 +25,9 @@ internal object ConstraintResolver {
     internal fun minLengthString(fieldDescriptor: com.epages.restdocs.openapi.gradle.FieldDescriptor): Int? {
         return findConstraints(fieldDescriptor)
             .firstOrNull { constraint ->
-            (NOT_EMPTY_CONSTRAINTS.contains(constraint.name)
-                || NOT_BLANK_CONSTRAINTS.contains(constraint.name)
-                || LENGTH_CONSTRAINT == constraint.name)
+            (NOT_EMPTY_CONSTRAINTS.contains(constraint.name) ||
+                NOT_BLANK_CONSTRAINTS.contains(constraint.name) ||
+                LENGTH_CONSTRAINT == constraint.name)
             }
             ?.let { constraint -> if (LENGTH_CONSTRAINT == constraint.name) constraint.configuration["min"] as Int else 1 }
     }

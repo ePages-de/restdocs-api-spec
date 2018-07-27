@@ -16,8 +16,8 @@ import kotlin.streams.toList
 @ExtendWith(TemporaryFolderExtension::class)
 class RestdocsOpenApiTaskTest(private val testProjectDir: TemporaryFolder) {
 
-    private lateinit var  snippetsFolder: File
-    private lateinit var outputFolder : File
+    private lateinit var snippetsFolder: File
+    private lateinit var outputFolder: File
     private lateinit var buildFile: File
 
     private lateinit var result: BuildResult
@@ -96,7 +96,6 @@ class RestdocsOpenApiTaskTest(private val testProjectDir: TemporaryFolder) {
     private fun thenTaskSuccessful() {
         then(result.task(":openapi")!!.outcome).isEqualTo(TaskOutcome.SUCCESS)
     }
-
 
     private fun thenOpenApiTaskSuccessful() {
         then(result.task(":openapi")!!.outcome).isEqualTo(TaskOutcome.SUCCESS)

@@ -35,7 +35,7 @@ class JwtScopeHandler {
                     return scope as List<String>
                 }
             } catch (e: IOException) {
-                //probably not JWT
+                // probably not JWT
             }
         }
 

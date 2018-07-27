@@ -56,7 +56,7 @@ class MockMvcRestDocumentationWrapperIntegrationTest(@Autowired mockMvc: MockMvc
     fun should_value_ignored_fields_and_links() {
         givenEndpointInvoked()
 
-        assertThatCode{ this.whenDocumentedWithAllFieldsLinksIgnored() }.doesNotThrowAnyException()
+        assertThatCode { this.whenDocumentedWithAllFieldsLinksIgnored() }.doesNotThrowAnyException()
     }
 
     @Throws(Exception::class)

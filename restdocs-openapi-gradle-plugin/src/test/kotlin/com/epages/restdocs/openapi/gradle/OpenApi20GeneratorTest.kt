@@ -78,7 +78,7 @@ class OpenApi20GeneratorTest {
     private fun thenPathParametersExist(openapi: Swagger, api: List<ResourceModel>) {
         val path = openapi.paths.getValue(api[0].request.path).get
         then(path.parameters.firstOrNull()).isNotNull
-        val pathParameter = path.parameters.first{ it is PathParameter } as PathParameter
+        val pathParameter = path.parameters.first { it is PathParameter } as PathParameter
         then(pathParameter.name).isEqualTo("id")
     }
 
@@ -239,7 +239,7 @@ class OpenApi20GeneratorTest {
         )
     }
 
-    private fun givenResourceModelsWithDifferentResponsesForSameRequest() : List<ResourceModel> {
+    private fun givenResourceModelsWithDifferentResponsesForSameRequest(): List<ResourceModel> {
         return listOf(
                 ResourceModel(
                         operationId = "test",

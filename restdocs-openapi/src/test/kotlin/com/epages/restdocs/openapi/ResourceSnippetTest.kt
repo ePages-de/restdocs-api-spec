@@ -168,7 +168,7 @@ class ResourceSnippetTest(private val temporaryFolder: TemporaryFolder) {
     }
 
     private fun thenSnippetFileExists() {
-        with (generatedSnippetFile()) {
+        with(generatedSnippetFile()) {
             then(this).exists()
             val contents = readText()
             then(contents).isNotEmpty()

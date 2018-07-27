@@ -11,7 +11,7 @@ class JsonFieldPathTest {
 
     @Test
     fun should_get_remaining_segments() {
-        with (compile(
+        with(compile(
             com.epages.restdocs.openapi.gradle.schema.JsonSchemaFromFieldDescriptorsGenerator.FieldDescriptorWithSchemaType("a.b.c", "", "", false, false,
                 com.epages.restdocs.openapi.gradle.Attributes()
             ))) {

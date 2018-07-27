@@ -5,23 +5,14 @@ import pl.allegro.tech.build.axion.release.domain.TagNameSerializationConfig
 import pl.allegro.tech.build.axion.release.domain.VersionConfig
 import pl.allegro.tech.build.axion.release.domain.hooks.HooksConfig
 
-
-buildscript {
-    repositories {
-        mavenCentral()
-        jcenter()
-    }
-    dependencies {
-        classpath("org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.8.2")
-    }
-}
-
 plugins {
     java
     kotlin("jvm") version "1.2.51" apply false
     id("pl.allegro.tech.build.axion-release") version "1.9.2"
     jacoco
     `maven-publish`
+    id("org.jmailen.kotlinter") version "1.15.1" apply false
+    id("com.github.kt3k.coveralls") version "2.8.2" apply false
 }
 
 repositories {
@@ -58,6 +49,7 @@ allprojects {
         apply(plugin = "jacoco")
         apply(plugin = "com.github.kt3k.coveralls")
         apply(plugin = "maven-publish")
+        apply(plugin = "org.jmailen.kotlinter")
     }
 }
 

@@ -41,13 +41,12 @@ internal class JsonSchemaFromFieldDescriptorsGenerator {
     private fun reduceFieldDescriptors(fieldDescriptors: List<com.epages.restdocs.openapi.gradle.FieldDescriptor>): List<FieldDescriptorWithSchemaType> {
         return fieldDescriptors
             .map { FieldDescriptorWithSchemaType.fromFieldDescriptor(it) }
-            .foldRight(listOf())
-            { fieldDescriptor,groups -> groups
+            .foldRight(listOf()) { fieldDescriptor, groups -> groups
                 .firstOrNull { it.equalsOnPathAndType(fieldDescriptor) }
-                ?.let { groups } //omit the descriptor it is considered equal and can be omitted
+                ?.let { groups } // omit the descriptor it is considered equal and can be omitted
                 ?: groups.firstOrNull { it.path == fieldDescriptor.path }
                     ?.let { groups - it + it.merge(fieldDescriptor) } // merge the type with the descriptor with the same name
-                    ?: groups + fieldDescriptor //it is new just add it
+                    ?: groups + fieldDescriptor // it is new just add it
             }
     }
 
@@ -106,7 +105,7 @@ internal class JsonSchemaFromFieldDescriptorsGenerator {
     }
 
     private fun isDirectMatch(traversedSegments: List<String>): Predicate<com.epages.restdocs.openapi.gradle.schema.JsonFieldPath> {
-        //we have a direct match when there are no remaining segments or when the only following element is an array
+        // we have a direct match when there are no remaining segments or when the only following element is an array
         return Predicate { jsonFieldPath ->
             val remainingSegments = jsonFieldPath.remainingSegments(traversedSegments)
             remainingSegments.isEmpty() || remainingSegments.size == 1 && com.epages.restdocs.openapi.gradle.schema.JsonFieldPath.isArraySegment(remainingSegments[0])
@@ -115,7 +114,8 @@ internal class JsonSchemaFromFieldDescriptorsGenerator {
 
     private fun groupFieldsByFirstRemainingPathSegment(
         traversedSegments: List<String>,
-        jsonFieldPaths: List<com.epages.restdocs.openapi.gradle.schema.JsonFieldPath>): Map<String, List<com.epages.restdocs.openapi.gradle.schema.JsonFieldPath>> {
+        jsonFieldPaths: List<com.epages.restdocs.openapi.gradle.schema.JsonFieldPath>
+    ): Map<String, List<com.epages.restdocs.openapi.gradle.schema.JsonFieldPath>> {
         return jsonFieldPaths.groupBy { it.remainingSegments(traversedSegments)[0] }
     }
 
@@ -181,8 +181,8 @@ internal class JsonSchemaFromFieldDescriptorsGenerator {
                 path = path,
                 description = description,
                 type = type,
-                optional = this.optional || fieldDescriptor.optional, //optional if one it optional
-                ignored = this.ignored && fieldDescriptor.optional, //ignored if both are optional
+                optional = this.optional || fieldDescriptor.optional, // optional if one it optional
+                ignored = this.ignored && fieldDescriptor.optional, // ignored if both are optional
                 attributes = attributes,
                 jsonSchemaPrimitiveTypes = jsonSchemaPrimitiveTypes + jsonSchemaPrimitiveTypeFromDescriptorType(fieldDescriptor.type)
             )
@@ -203,8 +203,8 @@ internal class JsonSchemaFromFieldDescriptorsGenerator {
             }
 
         fun equalsOnPathAndType(f: JsonSchemaFromFieldDescriptorsGenerator.FieldDescriptorWithSchemaType): Boolean =
-            (this.path == f.path
-                && this.type == f.type)
+            (this.path == f.path &&
+                this.type == f.type)
 
         companion object {
             fun fromFieldDescriptor(fieldDescriptor: com.epages.restdocs.openapi.gradle.FieldDescriptor) =
@@ -219,8 +219,7 @@ internal class JsonSchemaFromFieldDescriptorsGenerator {
 
             private fun jsonSchemaPrimitiveTypeFromDescriptorType(fieldDescriptorType: String) =
                 fieldDescriptorType.toLowerCase()
-                    .let { if (it == "varies") "empty" else it } //varies is used by spring rest docs if the type is ambiguous - in json schema we want to represent as empty
-
+                    .let { if (it == "varies") "empty" else it } // varies is used by spring rest docs if the type is ambiguous - in json schema we want to represent as empty
         }
     }
 }

@@ -15,17 +15,17 @@ import org.springframework.util.ReflectionUtils
 import java.util.Optional
 
 data class ResourceSnippetParameters @JvmOverloads constructor(
-        val summary: String? = null,
-        val description: String? = null,
-        val privateResource: Boolean = false,
-        val deprecated: Boolean = false,
-        val requestFields: List<FieldDescriptor> = emptyList(),
-        val responseFields: List<FieldDescriptor> = emptyList(),
-        val links: List<LinkDescriptor> = emptyList(),
-        val pathParameters: List<ParameterDescriptorWithType> = emptyList(),
-        val requestParameters: List<ParameterDescriptorWithType> = emptyList(),
-        val requestHeaders: List<HeaderDescriptorWithType> = emptyList(),
-        val responseHeaders: List<HeaderDescriptorWithType> = emptyList()
+    val summary: String? = null,
+    val description: String? = null,
+    val privateResource: Boolean = false,
+    val deprecated: Boolean = false,
+    val requestFields: List<FieldDescriptor> = emptyList(),
+    val responseFields: List<FieldDescriptor> = emptyList(),
+    val links: List<LinkDescriptor> = emptyList(),
+    val pathParameters: List<ParameterDescriptorWithType> = emptyList(),
+    val requestParameters: List<ParameterDescriptorWithType> = emptyList(),
+    val requestHeaders: List<HeaderDescriptorWithType> = emptyList(),
+    val responseHeaders: List<HeaderDescriptorWithType> = emptyList()
 ) {
     val responseFieldsWithLinks by lazy { responseFields + links.map(Companion::toFieldDescriptor) }
 
@@ -120,7 +120,7 @@ class ParameterDescriptorWithType(val name: String) : IgnorableDescriptor<Parame
 
     fun type(type: SimpleType) = apply { this.type = type }
 
-    fun optional() = apply { optional = true}
+    fun optional() = apply { optional = true }
 
     companion object {
         fun fromParameterDescriptor(parameterDescriptor: ParameterDescriptor) =
@@ -177,13 +177,13 @@ class ResourceSnippetParametersBuilder {
     fun pathParameters(pathParameters: List<ParameterDescriptorWithType>) = apply { this.pathParameters = pathParameters }
     fun pathParameters(vararg pathParameters: ParameterDescriptor) = pathParameters(pathParameters.map {
         ParameterDescriptorWithType.fromParameterDescriptor(it)
-    } )
+    })
 
     fun requestParameters(vararg requestParameters: ParameterDescriptorWithType) = requestParameters(requestParameters.toList())
     fun requestParameters(requestParameters: List<ParameterDescriptorWithType>) = apply { this.requestParameters = requestParameters }
     fun requestParameters(vararg requestParameters: ParameterDescriptor) = requestParameters(requestParameters.map {
         ParameterDescriptorWithType.fromParameterDescriptor(it)
-    } )
+    })
 
     fun requestHeaders(requestHeaders: List<HeaderDescriptorWithType>) = apply { this.requestHeaders = requestHeaders }
     fun requestHeaders(vararg requestHeaders: HeaderDescriptorWithType) = requestHeaders(requestHeaders.toList())
