@@ -23,7 +23,7 @@ internal object OpenApi20Generator {
 
     fun generate(
         resources: List<ResourceModel>,
-        basePath: String = "/api",
+        basePath: String? = null,
         host: String = "localhost",
         schemes: List<String> = listOf("http"),
         title: String = "API",

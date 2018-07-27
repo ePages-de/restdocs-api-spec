@@ -4,7 +4,7 @@ import org.gradle.api.Project
 
 open class RestdocsOpenApiPluginExtension(project: Project) {
     var host: String = "localhost"
-    var basePath: String = ""
+    var basePath: String? = null
     var schemes: Array<String> = arrayOf("http")
 
     var title = "API documentation"

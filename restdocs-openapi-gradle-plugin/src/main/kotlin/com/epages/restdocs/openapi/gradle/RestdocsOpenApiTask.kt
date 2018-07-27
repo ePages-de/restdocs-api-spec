@@ -11,7 +11,7 @@ import org.gradle.api.tasks.TaskAction
 open class RestdocsOpenApiTask : DefaultTask() {
 
     @Input @Optional
-    lateinit var basePath: String
+    var basePath: String? = null
 
     @Input @Optional
     lateinit var host: String

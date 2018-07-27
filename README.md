@@ -236,7 +236,7 @@ Name | Description | Default value
 title | The title of the application. Used for the `title` attribute in the [Info object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#info-object) | `API documentation`
 version | The version of the api. Used for the `version` attribute in the [Info object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#info-object) | project version
 host | The host serving the API - corresponds to the attribute with the same name in the [OpenAPI root object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#swagger-object)| `localhost`
-basePath | The base path on which the API is served - corresponds to the attribute with the same name in the [OpenAPI root object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#swagger-object) | empty
+basePath | The base path on which the API is served - corresponds to the attribute with the same name in the [OpenAPI root object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#swagger-object) | null
 schemes | The supported transfer protocols of the API - corresponds to the attribute with the same name in the [OpenAPI root object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#swagger-object) | `['http'"]`
 format | The format of the output OpenAPI file - supported values are `json` and `yaml` | `json`
 separatePublicApi | Should the plugin generate an additional OpenAPI specification file that does not contain the resources marked as private | `false`

@@ -105,7 +105,7 @@ class OpenApi20GeneratorTest {
         val productPath = openapi.paths.getValue(successfulGetProductModel.request.path)
         val successfulGetResponse = productPath.get.responses.get(successfulGetProductModel.response.status.toString())
 
-        then(openapi.basePath).isEqualTo("/api")
+        then(openapi.basePath).isNull()
         then(productPath).isNotNull
         then(productPath.get.consumes).contains(successfulGetProductModel.request.contentType)
         then(successfulGetResponse).isNotNull
