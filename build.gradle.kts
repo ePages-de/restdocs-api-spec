@@ -46,6 +46,7 @@ allprojects {
 
     if (!isSampleProject()) {
         apply(plugin = "java")
+        apply(plugin = "kotlin")
         apply(plugin = "jacoco")
         apply(plugin = "maven-publish")
         apply(plugin = "org.jmailen.kotlinter")
@@ -108,13 +109,14 @@ tasks {
     val jacocoTestReport = tasks["jacocoTestReport"]
     jacocoTestReport.dependsOn(nonSampleProjects.map { it.tasks["jacocoTestReport"] })
     jacocoMerge.dependsOn(jacocoTestReport)
+
     val jacocoRootReport by creating(JacocoReport::class) {
         description = "Generates an aggregate report from all subprojects"
         group = "Coverage reports"
         dependsOn(jacocoMerge)
-        sourceDirectories = files(nonSampleProjects.flatMap { it.java.sourceSets["main"].allSource.srcDirs } )
+        sourceDirectories = files(nonSampleProjects.flatMap { it.java.sourceSets["main"].allSource.srcDirs.filter { it.exists() } } )
         classDirectories = files(nonSampleProjects.flatMap { it.java.sourceSets["main"].output } )
-        executionData = files(jacocoMerge.destinationFile)
+        executionData(jacocoMerge.destinationFile)
         reports {
             html.isEnabled = true
             xml.isEnabled = true
