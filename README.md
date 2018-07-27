@@ -71,7 +71,7 @@ dependencies {
 
 openapi { //7
     host = 'localhost:8080'
-    basePath = 'api'
+    basePath = '/api'
     title = 'My API'
     version = '1.0.0'
     format = 'json'
