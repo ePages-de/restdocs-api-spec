@@ -1,7 +1,5 @@
 package com.epages.restdocs.openapi.gradle.schema
 
-import com.epages.restdocs.openapi.gradle.Attributes
-import com.epages.restdocs.openapi.gradle.FieldDescriptor
 import com.epages.restdocs.openapi.gradle.schema.ConstraintResolver.isRequired
 import com.epages.restdocs.openapi.gradle.schema.ConstraintResolver.maxLengthString
 import com.epages.restdocs.openapi.gradle.schema.ConstraintResolver.minLengthString
@@ -153,7 +151,11 @@ internal class JsonSchemaFromFieldDescriptorsGenerator {
             if (isRequired(fieldDescriptor)) {
                 builder.addRequiredProperty(propertyName)
             }
-            builder.addPropertySchema(propertyName, fieldDescriptor.jsonSchemaType())
+            if (propertyName == "[]") {
+                builder.addPropertySchema(propertyName, ObjectSchema.builder().build())
+            } else {
+                builder.addPropertySchema(propertyName, fieldDescriptor.jsonSchemaType())
+            }
         }
     }
 
