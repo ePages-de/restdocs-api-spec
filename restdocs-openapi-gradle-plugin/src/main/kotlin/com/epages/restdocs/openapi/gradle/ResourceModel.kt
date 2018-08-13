@@ -95,5 +95,7 @@ internal enum class HTTPMethod {
     POST,
     PUT,
     DELETE,
-    PATCH
+    PATCH,
+    HEAD,
+    OPTIONS
 }

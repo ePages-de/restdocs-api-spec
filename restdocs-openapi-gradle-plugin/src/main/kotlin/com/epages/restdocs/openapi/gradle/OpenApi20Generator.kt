@@ -141,6 +141,8 @@ internal object OpenApi20Generator {
                     HTTPMethod.PUT -> path.put(resourceModels2Operation(it.value))
                     HTTPMethod.DELETE -> path.delete(resourceModels2Operation(it.value))
                     HTTPMethod.PATCH -> path.patch(resourceModels2Operation(it.value))
+                    HTTPMethod.HEAD -> path.head(resourceModels2Operation(it.value))
+                    HTTPMethod.OPTIONS -> path.options(resourceModels2Operation(it.value))
                 }
             }
 

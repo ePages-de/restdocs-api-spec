@@ -75,6 +75,34 @@ class OpenApi20GeneratorTest {
         thenPathParametersExist(openapi, api)
     }
 
+    @Test
+    fun `should convert resource with head http method`() {
+        val api = givenHeadResourceModel()
+
+        val openapi = OpenApi20Generator.generate(api)
+        println(Json.pretty().writeValueAsString(openapi))
+
+        thenHeadRequestExist(openapi, api)
+    }
+
+    @Test
+    fun `should convert resource with options http method`() {
+        val api = givenOptionsResourceModel()
+
+        val openapi = OpenApi20Generator.generate(api)
+        println(Json.pretty().writeValueAsString(openapi))
+
+        thenOptionsRequestExist(openapi, api)
+    }
+
+    private fun thenOptionsRequestExist(openapi: Swagger, api: List<ResourceModel>) {
+        then(openapi.getPath(api.get(0).request.path).options).isNotNull()
+    }
+
+    private fun thenHeadRequestExist(openapi: Swagger, api: List<ResourceModel>) {
+        then(openapi.getPath(api.get(0).request.path).head).isNotNull()
+    }
+
     private fun thenPathParametersExist(openapi: Swagger, api: List<ResourceModel>) {
         val path = openapi.paths.getValue(api[0].request.path).get
         then(path.parameters.firstOrNull()).isNotNull
@@ -272,6 +300,30 @@ class OpenApi20GeneratorTest {
         )
     }
 
+    private fun givenHeadResourceModel(): List<ResourceModel> {
+        return listOf(
+            ResourceModel(
+                operationId = "testHead",
+                privateResource = false,
+                deprecated = false,
+                request = headRequest(),
+                response = getProductDummyResponse()
+            )
+        )
+    }
+
+    private fun givenOptionsResourceModel(): List<ResourceModel> {
+        return listOf(
+            ResourceModel(
+                operationId = "testOptions",
+                privateResource = false,
+                deprecated = false,
+                request = optionsRequest(),
+                response = getProductDummyResponse()
+            )
+        )
+    }
+
     private fun postProduct200Response(example: String): ResponseModel {
         return ResponseModel(
             status = 200,
@@ -338,6 +390,16 @@ class OpenApi20GeneratorTest {
                 headers = listOf(),
                 responseFields = listOf(),
                 example = "This is an ERROR!"
+        )
+    }
+
+    private fun getProductDummyResponse(): ResponseModel {
+        return ResponseModel(
+            status = 200,
+            contentType = "application/json",
+            headers = listOf(),
+            responseFields = listOf(),
+            example = "{}"
         )
     }
 
@@ -470,6 +532,36 @@ class OpenApi20GeneratorTest {
                 ),
                 requestParameters = listOf(),
                 requestFields = listOf()
+        )
+    }
+
+    private fun headRequest(): RequestModel {
+        return RequestModel(
+            path = "/products",
+            method = HTTPMethod.HEAD,
+            securityRequirements = SecurityRequirements(
+                type = OAUTH2,
+                requiredScopes = listOf()
+            ),
+            headers = listOf(),
+            pathParameters = listOf(),
+            requestParameters = listOf(),
+            requestFields = listOf()
+        )
+    }
+
+    private fun optionsRequest(): RequestModel {
+        return RequestModel(
+            path = "/products",
+            method = HTTPMethod.OPTIONS,
+            securityRequirements = SecurityRequirements(
+                type = OAUTH2,
+                requiredScopes = listOf()
+            ),
+            headers = listOf(),
+            pathParameters = listOf(),
+            requestParameters = listOf(),
+            requestFields = listOf()
         )
     }
 
