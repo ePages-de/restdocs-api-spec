@@ -544,8 +544,7 @@ class OpenApi20GeneratorTest {
                 requiredScopes = listOf()
             ),
             headers = listOf(),
-            pathParameters = listOf(
-            ),
+            pathParameters = listOf(),
             requestParameters = listOf(),
             requestFields = listOf()
         )
@@ -560,8 +559,7 @@ class OpenApi20GeneratorTest {
                 requiredScopes = listOf()
             ),
             headers = listOf(),
-            pathParameters = listOf(
-            ),
+            pathParameters = listOf(),
             requestParameters = listOf(),
             requestFields = listOf()
         )
