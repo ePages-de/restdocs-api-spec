@@ -156,10 +156,6 @@ internal object OpenApi20Generator {
             description = firstModelForPathAndMethod.description
             consumes = modelsWithSamePathAndMethod.map { it.request.contentType }.distinct().filterNotNull().nullIfEmpty()
             produces = modelsWithSamePathAndMethod.map { it.response.contentType }.distinct().filterNotNull().nullIfEmpty()
-            if (firstModelForPathAndMethod.request.securityRequirements != null) {
-                addSecurity(firstModelForPathAndMethod.request.securityRequirements.type.name,
-                        securityRequirements2ScopesList(firstModelForPathAndMethod.request.securityRequirements))
-            }
             parameters =
                     extractPathParameters(firstModelForPathAndMethod).plus(
                         firstModelForPathAndMethod.request.requestParameters.map {
@@ -180,6 +176,16 @@ internal object OpenApi20Generator {
             responses = responsesByStatusCode(modelsWithSamePathAndMethod)
                     .mapValues { responseModel2Response(it.value) }
                     .nullIfEmpty()
+        }.apply {
+            if (firstModelForPathAndMethod.request.securityRequirements != null) {
+                val openApiSecurityType = when (firstModelForPathAndMethod.request.securityRequirements.type) {
+                    SecurityType.OAUTH2 -> "oauth2"
+                    SecurityType.API_KEY -> "apiKey"
+                    SecurityType.BASIC -> "basic"
+                }
+                addSecurity(openApiSecurityType,
+                    securityRequirements2ScopesList(firstModelForPathAndMethod.request.securityRequirements))
+            }
         }
     }
 

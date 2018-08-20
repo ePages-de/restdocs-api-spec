@@ -131,11 +131,16 @@ class OpenApi20GeneratorTest {
         val successfulGetProductModel = api[0]
         val responseHeaders = successfulGetProductModel.response.headers
         val productPath = openapi.paths.getValue(successfulGetProductModel.request.path)
-        val successfulGetResponse = productPath.get.responses.get(successfulGetProductModel.response.status.toString())
+        val successfulGetResponse = productPath.get.responses[successfulGetProductModel.response.status.toString()]
 
-        then(openapi.basePath).isNull()
         then(productPath).isNotNull
+        then(openapi.basePath).isNull()
         then(productPath.get.consumes).contains(successfulGetProductModel.request.contentType)
+
+        then(productPath.get.security).hasSize(1)
+        then(productPath.get.security.first().keys).containsOnly("oauth2")
+        then(productPath.get.security.first()["oauth2"]).isEqualTo(listOf("prod:r"))
+
         then(successfulGetResponse).isNotNull
         then(successfulGetResponse!!.headers).isNotNull
         for (header in responseHeaders) {
@@ -143,8 +148,7 @@ class OpenApi20GeneratorTest {
             then(successfulGetResponse.headers.get(header.name)!!.description).isEqualTo(header.description)
             then(successfulGetResponse.headers.get(header.name)!!.type).isEqualTo(header.type.toLowerCase())
         }
-        then(productPath.get.security[0].get("OAUTH2"))
-                .isEqualTo(successfulGetProductModel.request.securityRequirements!!.requiredScopes)
+
         then(successfulGetResponse
                 .examples.get(successfulGetProductModel.response.contentType)).isEqualTo(successfulGetProductModel.response.example)
         thenParametersForGetMatch(productPath.get.parameters, successfulGetProductModel.request)
@@ -212,11 +216,13 @@ class OpenApi20GeneratorTest {
 
         then(productPath).isNotNull
         then(productPath.delete.consumes).isNull()
-        then(productPath.delete.responses.get(successfulDeleteProductModel.response.status.toString())).isNotNull
-        then(productPath.delete.security[0].get("OAUTH2"))
+        then(productPath.delete.responses[successfulDeleteProductModel.response.status.toString()]).isNotNull
+        then(productPath.delete.security.first()["oauth2"])
                 .isEqualTo(successfulDeleteProductModel.request.securityRequirements!!.requiredScopes)
-        then(productPath.delete.responses.get(successfulDeleteProductModel.response.status.toString())!!
-                .examples.get(successfulDeleteProductModel.response.contentType)).isEqualTo(successfulDeleteProductModel.response.example)
+        then(
+            productPath.delete.responses[successfulDeleteProductModel.response.status.toString()]!!
+                .examples[successfulDeleteProductModel.response.contentType]
+        ).isEqualTo(successfulDeleteProductModel.response.example)
     }
 
     private fun givenGetProductResourceModel(): List<ResourceModel> {
