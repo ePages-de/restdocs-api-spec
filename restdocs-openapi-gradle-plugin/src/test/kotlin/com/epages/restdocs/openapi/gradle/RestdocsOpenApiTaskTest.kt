@@ -2,6 +2,7 @@ package com.epages.restdocs.openapi.gradle
 
 import com.epages.restdocs.openapi.gradle.junit.TemporaryFolder
 import com.epages.restdocs.openapi.gradle.junit.TemporaryFolderExtension
+import com.jayway.jsonpath.JsonPath
 import org.assertj.core.api.BDDAssertions.then
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
@@ -62,7 +63,7 @@ class RestdocsOpenApiTaskTest(private val testProjectDir: TemporaryFolder) {
 
         whenPluginExecuted()
 
-        thenTaskSuccessful()
+        thenOpenApiTaskSuccessful()
         thenOutputFileFound()
         thenOutputFileForPublicResourceSpecificationNotFound()
     }
@@ -75,7 +76,7 @@ class RestdocsOpenApiTaskTest(private val testProjectDir: TemporaryFolder) {
 
         whenPluginExecuted()
 
-        thenTaskSuccessful()
+        thenOpenApiTaskSuccessful()
         thenOutputFileFound()
     }
 
@@ -88,13 +89,39 @@ class RestdocsOpenApiTaskTest(private val testProjectDir: TemporaryFolder) {
 
         whenPluginExecuted()
 
-        thenTaskSuccessful()
+        thenOpenApiTaskSuccessful()
         thenOutputFileFound()
         thenOutputFileForPublicResourceSpecificationFound()
     }
 
-    private fun thenTaskSuccessful() {
-        then(result.task(":openapi")!!.outcome).isEqualTo(TaskOutcome.SUCCESS)
+    @Test
+    fun `should consider security definitions`() {
+        givenBuildFileWithOpenApiClosureAndSecurityDefintions()
+        givenResourceSnippet()
+        givenScopeTextFile()
+
+        whenPluginExecuted()
+
+        thenOpenApiTaskSuccessful()
+        thenOutputFileFound()
+        thenSecurityDefinitionsFoundInOutputFile()
+    }
+
+    private fun thenSecurityDefinitionsFoundInOutputFile() {
+        with(JsonPath.parse(outputFolder.resolve("$outputFileNamePrefix.$format").readText())) {
+            then(read<String>("securityDefinitions.oauth2_accessCode.scopes.prod:r")).isEqualTo("Some text")
+            then(read<String>("securityDefinitions.oauth2_accessCode.type")).isEqualTo("oauth2")
+            then(read<String>("securityDefinitions.oauth2_accessCode.tokenUrl")).isNotEmpty()
+            then(read<String>("securityDefinitions.oauth2_accessCode.flow")).isNotEmpty()
+        }
+    }
+
+    private fun givenScopeTextFile() {
+        File(testProjectDir.root, "scopeDescriptions.yaml").writeText(
+                """
+                    "prod:r": "Some text"
+                """.trimIndent()
+            )
     }
 
     private fun thenOpenApiTaskSuccessful() {
@@ -176,7 +203,10 @@ class RestdocsOpenApiTaskTest(private val testProjectDir: TemporaryFolder) {
     "requestParameters" : [ ],
     "requestFields" : [ ],
     "example" : null,
-    "securityRequirements" : null
+    "securityRequirements" : {
+      "type": "OAUTH2",
+      "requiredScopes": ["prod:r"]
+    }
   },
   "response" : {
     "status" : 200,
@@ -207,7 +237,27 @@ class RestdocsOpenApiTaskTest(private val testProjectDir: TemporaryFolder) {
                 outputFileNamePrefix = '$outputFileNamePrefix'
             }
             """.trimIndent())
-}
+    }
+
+    private fun givenBuildFileWithOpenApiClosureAndSecurityDefintions() {
+        buildFile.writeText(baseBuildFile() + """
+            openapi {
+                host = '$host'
+                basePath = '$basePath'
+                schemes = ${schemes.joinToString(",", "['", "']")}
+                title = '$title'
+                version = '$version'
+                format = '$format'
+                separatePublicApi = $separatePublicApi
+                outputFileNamePrefix = '$outputFileNamePrefix'
+                oauth2SecuritySchemeDefinition = {
+                    flows = ['accessCode']
+                    tokenUrl = 'http://example.com/token'
+                    scopeDescriptionsPropertiesFile = "scopeDescriptions.yaml"
+                }
+            }
+            """.trimIndent())
+    }
 
     private fun baseBuildFile() = """
         plugins {

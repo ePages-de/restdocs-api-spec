@@ -24,6 +24,8 @@ open class RestdocsOpenApiPlugin : Plugin<Project> {
                     apiVersion = openapi.version
                     separatePublicApi = openapi.separatePublicApi
 
+                    oauth2SecuritySchemeDefinition = openapi.oauth2SecuritySchemeDefinition
+
                     outputDirectory = openapi.outputDirectory
                     snippetsDirectory = openapi.snippetsDirectory
 

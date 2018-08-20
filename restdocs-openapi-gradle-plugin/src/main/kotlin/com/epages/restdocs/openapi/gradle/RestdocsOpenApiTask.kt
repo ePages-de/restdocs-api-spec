@@ -40,6 +40,9 @@ open class RestdocsOpenApiTask : DefaultTask() {
     @Input
     lateinit var outputFileNamePrefix: String
 
+    @Input @Optional
+    var oauth2SecuritySchemeDefinition: Oauth2Configuration? = null
+
     private val outputDirectoryFile
         get() = project.file(outputDirectory)
 
@@ -71,7 +74,8 @@ open class RestdocsOpenApiTask : DefaultTask() {
                 host = host,
                 schemes = schemes.toList(),
                 title = title,
-                version = apiVersion
+                version = apiVersion,
+                oauth2SecuritySchemeDefinition = oauth2SecuritySchemeDefinition
             )
 
             ApiSpecificationWriter.write(format, outputDirectoryFile, fileNamePrefix, apiSpecification)

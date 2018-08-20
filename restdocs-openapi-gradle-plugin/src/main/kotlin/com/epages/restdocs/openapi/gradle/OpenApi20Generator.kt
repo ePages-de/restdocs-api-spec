@@ -1,6 +1,8 @@
 package com.epages.restdocs.openapi.gradle
 
 import com.epages.restdocs.openapi.gradle.schema.JsonSchemaFromFieldDescriptorsGenerator
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.swagger.models.Info
 import io.swagger.models.Model
@@ -11,6 +13,7 @@ import io.swagger.models.RefModel
 import io.swagger.models.Response
 import io.swagger.models.Scheme
 import io.swagger.models.Swagger
+import io.swagger.models.auth.OAuth2Definition
 import io.swagger.models.parameters.BodyParameter
 import io.swagger.models.parameters.HeaderParameter
 import io.swagger.models.parameters.Parameter
@@ -21,13 +24,16 @@ import io.swagger.util.Json
 
 internal object OpenApi20Generator {
 
+    private val objectMapper = ObjectMapper(YAMLFactory())
+
     fun generate(
         resources: List<ResourceModel>,
         basePath: String? = null,
         host: String = "localhost",
         schemes: List<String> = listOf("http"),
         title: String = "API",
-        version: String = "1.0.0"
+        version: String = "1.0.0",
+        oauth2SecuritySchemeDefinition: Oauth2Configuration? = null
     ): Swagger {
         return Swagger().apply {
 
@@ -41,7 +47,7 @@ internal object OpenApi20Generator {
             paths = generatePaths(resources)
 
             extractDefinitions(this)
-        }
+        }.apply { addSecurityDefinitions(this, oauth2SecuritySchemeDefinition) }
     }
 
     private fun extractDefinitions(swagger: Swagger): Swagger {
@@ -206,6 +212,31 @@ internal object OpenApi20Generator {
 
     private fun securityRequirements2ScopesList(securityRequirements: SecurityRequirements): List<String> {
         return if (securityRequirements.type == SecurityType.OAUTH2 && securityRequirements.requiredScopes != null) securityRequirements.requiredScopes else listOf()
+    }
+
+    private fun addSecurityDefinitions(openApi: Swagger, oauth2SecuritySchemeDefinition: Oauth2Configuration?) {
+        oauth2SecuritySchemeDefinition?.flows?.map { f ->
+            openApi.addSecurityDefinition("oauth2_$f", OAuth2Definition().apply {
+                flow = f
+                tokenUrl = oauth2SecuritySchemeDefinition.tokenUrl
+                val scopeAndDescriptions = oauth2SecuritySchemeDefinition.scopeDescriptionsPropertiesProjectFile
+                    ?.let { objectMapper.readValue<Map<String, Any>>(it) }
+                    ?: emptyMap()
+                val allScopes = openApi.paths
+                    .flatMap {
+                        it.value.operations
+                            .flatMap {
+                                it?.security
+                                    ?.filter { it.containsKey("oauth2") }
+                                    ?.flatMap { it.values.flatMap { it } }
+                                    ?: listOf()
+                            }
+                    }
+                allScopes.forEach {
+                    addScope(it, scopeAndDescriptions.getOrDefault(it, "No description") as String)
+                }
+            })
+        }
     }
 
     private fun pathParameterDescriptor2Parameter(parameterDescriptor: ParameterDescriptor): PathParameter {
