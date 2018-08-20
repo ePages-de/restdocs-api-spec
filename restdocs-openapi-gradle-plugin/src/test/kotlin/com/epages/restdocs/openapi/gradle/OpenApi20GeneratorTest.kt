@@ -5,6 +5,7 @@ import io.swagger.models.Model
 import io.swagger.models.Path
 import io.swagger.models.Response
 import io.swagger.models.Swagger
+import io.swagger.models.auth.OAuth2Definition
 import io.swagger.models.parameters.BodyParameter
 import io.swagger.models.parameters.Parameter
 import io.swagger.models.parameters.PathParameter
@@ -93,6 +94,27 @@ class OpenApi20GeneratorTest {
         println(Json.pretty().writeValueAsString(openapi))
 
         thenOptionsRequestExist(openapi, api)
+    }
+
+    @Test
+    fun `should add security scheme`() {
+        val api = givenGetProductResourceModel()
+
+        val openapi = OpenApi20Generator.generate(
+            resources = api,
+            oauth2SecuritySchemeDefinition = Oauth2Configuration("http://example.com/token", arrayOf("accessCode"))
+        )
+
+        println(Json.pretty().writeValueAsString(openapi))
+        with(openapi.securityDefinitions) {
+            then(this.containsKey("name"))
+            then(this["oauth2_accessCode"]).isEqualTo(OAuth2Definition().apply {
+                tokenUrl = "http://example.com/token"
+                flow = "accessCode"
+                scope("prod:r", "No description")
+            })
+        }
+        thenValidateOpenApi(openapi)
     }
 
     private fun thenOptionsRequestExist(openapi: Swagger, api: List<ResourceModel>) {
