@@ -22,7 +22,7 @@ class OpenApi20GeneratorTest {
     fun `should convert single resource model to openapi`() {
         val api = givenGetProductResourceModel()
 
-        val openapi = OpenApi20Generator.generate(api)
+        val openapi = whenOpenApiObjectGenerated(api)
 
         println(Json.pretty().writeValueAsString(openapi))
         thenGetProductWith200ResponseIsGenerated(openapi, api)
@@ -33,7 +33,7 @@ class OpenApi20GeneratorTest {
     fun `should convert request fields to body parameters`() {
         val api = givenPostProductResourceModel()
 
-        val openapi = OpenApi20Generator.generate(api)
+        val openapi = whenOpenApiObjectGenerated(api)
 
         println(Json.pretty().writeValueAsString(openapi))
         thenPostProductWith200ResponseIsGenerated(openapi, api)
@@ -46,9 +46,8 @@ class OpenApi20GeneratorTest {
     fun `should convert multiple resource models to openapi`() {
         val api = givenResourceModelsWithDifferentResponsesForSameRequest()
 
-        val openapi = OpenApi20Generator.generate(api)
+        val openapi = whenOpenApiObjectGenerated(api)
 
-        println(Json.pretty().writeValueAsString(openapi))
         thenGetProductWith200ResponseIsGenerated(openapi, api)
         thenGetProductWith400ResponseIsGenerated(openapi, api)
         thenDeleteProductIsGenerated(openapi, api)
@@ -59,8 +58,7 @@ class OpenApi20GeneratorTest {
     fun `should convert resource without schema`() {
         val api = givenPostProductResourceModelWithoutFieldDescriptors()
 
-        val openapi = OpenApi20Generator.generate(api)
-        println(Json.pretty().writeValueAsString(openapi))
+        val openapi = whenOpenApiObjectGenerated(api)
 
         thenApiSpecificationWithoutJsonSchemaButWithExamplesIsGenerated(openapi, api)
         thenValidateOpenApi(openapi)
@@ -70,8 +68,7 @@ class OpenApi20GeneratorTest {
     fun `should extract path parameters from path as fallback`() {
         val api = givenGetProductResourceModelWithoutPathParameters()
 
-        val openapi = OpenApi20Generator.generate(api)
-        println(Json.pretty().writeValueAsString(openapi))
+        val openapi = whenOpenApiObjectGenerated(api)
 
         thenPathParametersExist(openapi, api)
     }
@@ -80,7 +77,7 @@ class OpenApi20GeneratorTest {
     fun `should convert resource with head http method`() {
         val api = givenHeadResourceModel()
 
-        val openapi = OpenApi20Generator.generate(api)
+        val openapi = whenOpenApiObjectGenerated(api)
         println(Json.pretty().writeValueAsString(openapi))
 
         thenHeadRequestExist(openapi, api)
@@ -90,8 +87,7 @@ class OpenApi20GeneratorTest {
     fun `should convert resource with options http method`() {
         val api = givenOptionsResourceModel()
 
-        val openapi = OpenApi20Generator.generate(api)
-        println(Json.pretty().writeValueAsString(openapi))
+        val openapi = whenOpenApiObjectGenerated(api)
 
         thenOptionsRequestExist(openapi, api)
     }
@@ -100,21 +96,29 @@ class OpenApi20GeneratorTest {
     fun `should add security scheme`() {
         val api = givenGetProductResourceModel()
 
+        val openapi = whenOpenApiObjectGenerated(api)
+
+        with(openapi.securityDefinitions) {
+            then(this.containsKey("oauth2_accessCode"))
+            then(this["oauth2_accessCode"])
+                .isEqualToComparingFieldByField(OAuth2Definition().accessCode("http://example.com/authorize", "http://example.com/token")
+                    .apply { addScope("prod:r", "No description") })
+        }
+        thenValidateOpenApi(openapi)
+    }
+
+    private fun whenOpenApiObjectGenerated(api: List<ResourceModel>): Swagger {
         val openapi = OpenApi20Generator.generate(
             resources = api,
-            oauth2SecuritySchemeDefinition = Oauth2Configuration("http://example.com/token", arrayOf("accessCode"))
+            oauth2SecuritySchemeDefinition = Oauth2Configuration(
+                "http://example.com/token",
+                "http://example.com/authorize",
+                arrayOf("application", "accessCode")
+            )
         )
 
         println(Json.pretty().writeValueAsString(openapi))
-        with(openapi.securityDefinitions) {
-            then(this.containsKey("name"))
-            then(this["oauth2_accessCode"]).isEqualTo(OAuth2Definition().apply {
-                tokenUrl = "http://example.com/token"
-                flow = "accessCode"
-                scope("prod:r", "No description")
-            })
-        }
-        thenValidateOpenApi(openapi)
+        return openapi
     }
 
     private fun thenOptionsRequestExist(openapi: Swagger, api: List<ResourceModel>) {
@@ -159,9 +163,10 @@ class OpenApi20GeneratorTest {
         then(openapi.basePath).isNull()
         then(productPath.get.consumes).contains(successfulGetProductModel.request.contentType)
 
-        then(productPath.get.security).hasSize(1)
-        then(productPath.get.security.first().keys).containsOnly("oauth2")
-        then(productPath.get.security.first()["oauth2"]).isEqualTo(listOf("prod:r"))
+        then(productPath.get.security).hasSize(2)
+        val combined = productPath.get.security.reduce { map1, map2 -> map1 + map2 }
+        then(combined).containsOnlyKeys("oauth2_application", "oauth2_accessCode")
+        then(combined.values).containsOnly(listOf("prod:r"))
 
         then(successfulGetResponse).isNotNull
         then(successfulGetResponse!!.headers).isNotNull
@@ -239,8 +244,8 @@ class OpenApi20GeneratorTest {
         then(productPath).isNotNull
         then(productPath.delete.consumes).isNull()
         then(productPath.delete.responses[successfulDeleteProductModel.response.status.toString()]).isNotNull
-        then(productPath.delete.security.first()["oauth2"])
-                .isEqualTo(successfulDeleteProductModel.request.securityRequirements!!.requiredScopes)
+        then(productPath.delete.security.reduce { map1, map2 -> map1 + map2 }.values)
+                .containsOnly(successfulDeleteProductModel.request.securityRequirements!!.requiredScopes)
         then(
             productPath.delete.responses[successfulDeleteProductModel.response.status.toString()]!!
                 .examples[successfulDeleteProductModel.response.contentType]

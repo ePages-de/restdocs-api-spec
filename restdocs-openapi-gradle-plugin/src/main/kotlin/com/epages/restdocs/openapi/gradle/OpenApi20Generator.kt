@@ -44,7 +44,7 @@ internal object OpenApi20Generator {
                 this.title = title
                 this.version = version
             }
-            paths = generatePaths(resources)
+            paths = generatePaths(resources, oauth2SecuritySchemeDefinition)
 
             extractDefinitions(this)
         }.apply { addSecurityDefinitions(this, oauth2SecuritySchemeDefinition) }
@@ -115,10 +115,13 @@ internal object OpenApi20Generator {
         }
     }
 
-    private fun generatePaths(resources: List<ResourceModel>): Map<String, Path> {
+    private fun generatePaths(
+        resources: List<ResourceModel>,
+        oauth2SecuritySchemeDefinition: Oauth2Configuration?
+    ): Map<String, Path> {
         return groupByPath(resources)
             .entries
-            .map { it.key to resourceModels2Path(it.value) }
+            .map { it.key to resourceModels2Path(it.value, oauth2SecuritySchemeDefinition) }
             .toMap()
     }
 
@@ -136,26 +139,32 @@ internal object OpenApi20Generator {
                 .mapValues { it.value[0].response }
     }
 
-    private fun resourceModels2Path(modelsWithSamePath: List<ResourceModel>): Path {
+    private fun resourceModels2Path(
+        modelsWithSamePath: List<ResourceModel>,
+        oauth2SecuritySchemeDefinition: Oauth2Configuration?
+    ): Path {
         val path = Path()
         groupByHttpMethod(modelsWithSamePath)
             .entries
             .forEach {
                 when (it.key) {
-                    HTTPMethod.GET -> path.get(resourceModels2Operation(it.value))
-                    HTTPMethod.POST -> path.post(resourceModels2Operation(it.value))
-                    HTTPMethod.PUT -> path.put(resourceModels2Operation(it.value))
-                    HTTPMethod.DELETE -> path.delete(resourceModels2Operation(it.value))
-                    HTTPMethod.PATCH -> path.patch(resourceModels2Operation(it.value))
-                    HTTPMethod.HEAD -> path.head(resourceModels2Operation(it.value))
-                    HTTPMethod.OPTIONS -> path.options(resourceModels2Operation(it.value))
+                    HTTPMethod.GET -> path.get(resourceModels2Operation(it.value, oauth2SecuritySchemeDefinition))
+                    HTTPMethod.POST -> path.post(resourceModels2Operation(it.value, oauth2SecuritySchemeDefinition))
+                    HTTPMethod.PUT -> path.put(resourceModels2Operation(it.value, oauth2SecuritySchemeDefinition))
+                    HTTPMethod.DELETE -> path.delete(resourceModels2Operation(it.value, oauth2SecuritySchemeDefinition))
+                    HTTPMethod.PATCH -> path.patch(resourceModels2Operation(it.value, oauth2SecuritySchemeDefinition))
+                    HTTPMethod.HEAD -> path.head(resourceModels2Operation(it.value, oauth2SecuritySchemeDefinition))
+                    HTTPMethod.OPTIONS -> path.options(resourceModels2Operation(it.value, oauth2SecuritySchemeDefinition))
                 }
             }
 
         return path
     }
 
-    private fun resourceModels2Operation(modelsWithSamePathAndMethod: List<ResourceModel>): Operation {
+    private fun resourceModels2Operation(
+        modelsWithSamePathAndMethod: List<ResourceModel>,
+        oauth2SecuritySchemeDefinition: Oauth2Configuration?
+    ): Operation {
         val firstModelForPathAndMethod = modelsWithSamePathAndMethod.first()
         return Operation().apply {
             summary = firstModelForPathAndMethod.summary
@@ -183,14 +192,12 @@ internal object OpenApi20Generator {
                     .mapValues { responseModel2Response(it.value) }
                     .nullIfEmpty()
         }.apply {
-            if (firstModelForPathAndMethod.request.securityRequirements != null) {
-                val openApiSecurityType = when (firstModelForPathAndMethod.request.securityRequirements.type) {
-                    SecurityType.OAUTH2 -> "oauth2"
-                    SecurityType.API_KEY -> "apiKey"
-                    SecurityType.BASIC -> "basic"
+            if (firstModelForPathAndMethod.request.securityRequirements != null &&
+                firstModelForPathAndMethod.request.securityRequirements.type == SecurityType.OAUTH2) {
+                oauth2SecuritySchemeDefinition?.flows?.map {
+                    addSecurity(oauth2SecuritySchemeDefinition.securitySchemeName(it),
+                        securityRequirements2ScopesList(firstModelForPathAndMethod.request.securityRequirements))
                 }
-                addSecurity(openApiSecurityType,
-                    securityRequirements2ScopesList(firstModelForPathAndMethod.request.securityRequirements))
             }
         }
     }
@@ -215,28 +222,42 @@ internal object OpenApi20Generator {
     }
 
     private fun addSecurityDefinitions(openApi: Swagger, oauth2SecuritySchemeDefinition: Oauth2Configuration?) {
-        oauth2SecuritySchemeDefinition?.flows?.map { f ->
-            openApi.addSecurityDefinition("oauth2_$f", OAuth2Definition().apply {
-                flow = f
-                tokenUrl = oauth2SecuritySchemeDefinition.tokenUrl
-                val scopeAndDescriptions = oauth2SecuritySchemeDefinition.scopeDescriptionsPropertiesProjectFile
-                    ?.let { objectMapper.readValue<Map<String, Any>>(it) }
-                    ?: emptyMap()
-                val allScopes = openApi.paths
-                    .flatMap {
-                        it.value.operations
-                            .flatMap {
-                                it?.security
-                                    ?.filter { it.containsKey("oauth2") }
-                                    ?.flatMap { it.values.flatMap { it } }
-                                    ?: listOf()
-                            }
-                    }
+        oauth2SecuritySchemeDefinition?.flows?.map { flow ->
+            val scopeAndDescriptions = scopeDescriptionSource(oauth2SecuritySchemeDefinition)
+            val allScopes = collectScopesFromOperations(openApi)
+
+            val oauth2Definition = when (flow) {
+                "accessCode" -> OAuth2Definition().accessCode(oauth2SecuritySchemeDefinition.authorizationUrl, oauth2SecuritySchemeDefinition.tokenUrl)
+                "application" -> OAuth2Definition().application(oauth2SecuritySchemeDefinition.tokenUrl)
+                "password" -> OAuth2Definition().password(oauth2SecuritySchemeDefinition.tokenUrl)
+                "implicit" -> OAuth2Definition().password(oauth2SecuritySchemeDefinition.tokenUrl)
+                else -> throw IllegalArgumentException("Unknown flow '$flow' in oauth2SecuritySchemeDefinition")
+            }.apply {
                 allScopes.forEach {
                     addScope(it, scopeAndDescriptions.getOrDefault(it, "No description") as String)
                 }
-            })
+            }
+            openApi.addSecurityDefinition(oauth2SecuritySchemeDefinition.securitySchemeName(flow), oauth2Definition)
         }
+    }
+
+    private fun collectScopesFromOperations(openApi: Swagger): Set<String> {
+        return openApi.paths
+            .flatMap {
+                it.value.operations
+                    .flatMap {
+                        it?.security
+                            ?.filter { it.filterKeys { it.startsWith("oauth2") }.isNotEmpty() }
+                            ?.flatMap { it.values.flatMap { it } }
+                            ?: listOf()
+                    }
+            }.toSet()
+    }
+
+    private fun scopeDescriptionSource(oauth2SecuritySchemeDefinition: Oauth2Configuration): Map<String, Any> {
+        return oauth2SecuritySchemeDefinition.scopeDescriptionsPropertiesProjectFile
+            ?.let { objectMapper.readValue<Map<String, Any>>(it) }
+            ?: emptyMap()
     }
 
     private fun pathParameterDescriptor2Parameter(parameterDescriptor: ParameterDescriptor): PathParameter {
