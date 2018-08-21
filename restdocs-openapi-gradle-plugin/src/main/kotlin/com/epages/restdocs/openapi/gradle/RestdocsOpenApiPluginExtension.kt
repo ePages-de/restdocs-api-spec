@@ -35,10 +35,13 @@ open class RestdocsOpenApiPluginExtension(val project: Project) {
 }
 
 class Oauth2Configuration(
-    var tokenUrl: String = "",
+    var tokenUrl: String = "", // required for types "password", "application", "accessCode"
+    var authorizationUrl: String = "", // required for the "accessCode" type
     var flows: Array<String> = arrayOf(),
     var scopeDescriptionsPropertiesFile: String? = null
 ) {
     internal var
         scopeDescriptionsPropertiesProjectFile: File? = null
+
+    fun securitySchemeName(flow: String) = "oauth2_$flow"
 }

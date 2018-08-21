@@ -112,6 +112,7 @@ class RestdocsOpenApiTaskTest(private val testProjectDir: TemporaryFolder) {
             then(read<String>("securityDefinitions.oauth2_accessCode.scopes.prod:r")).isEqualTo("Some text")
             then(read<String>("securityDefinitions.oauth2_accessCode.type")).isEqualTo("oauth2")
             then(read<String>("securityDefinitions.oauth2_accessCode.tokenUrl")).isNotEmpty()
+            then(read<String>("securityDefinitions.oauth2_accessCode.authorizationUrl")).isNotEmpty()
             then(read<String>("securityDefinitions.oauth2_accessCode.flow")).isNotEmpty()
         }
     }
@@ -253,6 +254,7 @@ class RestdocsOpenApiTaskTest(private val testProjectDir: TemporaryFolder) {
                 oauth2SecuritySchemeDefinition = {
                     flows = ['accessCode']
                     tokenUrl = 'http://example.com/token'
+                    authorizationUrl = 'http://example.com/authorize'
                     scopeDescriptionsPropertiesFile = "scopeDescriptions.yaml"
                 }
             }
