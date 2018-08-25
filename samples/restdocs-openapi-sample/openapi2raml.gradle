@@ -1,0 +1,25 @@
+plugins {
+    id 'com.bmuschko.docker-remote-api' version '3.6.1'
+}
+
+import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
+
+task('pullOasRamlConverterDocker', type:DockerPullImage) {
+    description = 'Pulls docker image zaddo/oas-raml-converter-docker'
+    repository = 'zaddo/oas-raml-converter-docker'
+    tag = 'latest'
+}
+
+task('createOasRamlConverterContainer', type:DockerCreateContainer, dependsOn: 'pullOasRamlConverterDocker') {
+    description = 'Creates container to generate RAML out of the OpenAPI file'
+    targetImageId { tasks.pullOasRamlConverterDocker.repository + ':' + tasks.pullOasRamlConverterDocker.tag }
+    binds = ["${project.file('build/openapi').path}":'/data']
+    cmd = ['OAS20', 'RAML', 'openapi.json', 'api.raml']
+}
+
+task('openapi2raml', type:DockerStartContainer, dependsOn: 'createOasRamlConverterContainer') {
+    description = 'Starts container to generate RAML out of the OPENAPI file'
+    targetContainerId { tasks.createOasRamlConverterContainer.containerId }
+}
