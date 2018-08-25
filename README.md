@@ -333,10 +333,10 @@ There are converters around that can help you to achieve this conversion.
 The sample project contains a build configuration that uses the [oas-raml-converter-docker](https://hub.docker.com/r/zaddo/oas-raml-converter-docker/) docker image and the [gradle-docker-plugin](https://github.com/bmuschko/gradle-docker-plugin) to leverage the `oas-raml-converter` to convert the output of the `openapi` task to RAML. 
 Using this approach your gradle build can still output a RAML specification.
 
-See [samples/restdocs-openapi-sample/openapi2raml.gradle].
+See [openapi2raml.gradle](samples/restdocs-openapi-sample/openapi2raml.gradle).
 
 ```
-./gradlew openapi
+./gradlew restdocs-openapi-sample:openapi
 ./gradlew -b samples/restdocs-openapi-sample/openapi2raml.gradle openapi2raml
 ```
 
