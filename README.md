@@ -30,6 +30,25 @@ We do not like enriching our production code with this information and clutter i
 We agree with Spring REST Docs that the test-driven way to produce accurate API documentation is the way to go.
 This is why we came up with this project.
 
+<!-- TOC depthFrom:2 -->
+
+- [Motivation](#motivation)
+- [Getting started](#getting-started)
+    - [Project structure](#project-structure)
+    - [Build configuration](#build-configuration)
+    - [Usage with Spring REST Docs](#usage-with-spring-rest-docs)
+    - [Documenting Bean Validation constraints](#documenting-bean-validation-constraints)
+    - [Migrate existing Spring REST Docs tests](#migrate-existing-spring-rest-docs-tests)
+    - [Security Definitions](#security-definitions)
+    - [Running the gradle plugin](#running-the-gradle-plugin)
+    - [Gradle plugin configuration](#gradle-plugin-configuration)
+- [Generate HTML](#generate-html)
+- [Limitations](#limitations)
+    - [Rest Assured](#rest-assured)
+    - [Maven plugin](#maven-plugin)
+
+<!-- /TOC -->
+
 ## Getting started
 
 ### Project structure
@@ -216,6 +235,18 @@ resultActions
 This will do exactly the same as using `MockMvcRestDocumentation.document` without `restdocs-openapi`.
 Additionally it will add a `ResourceSnippet` with the descriptors you provided in the `RequestFieldsSnippet`, `ResponseFieldsSnippet`, and `LinksSnippet`.
 
+### Security Definitions
+
+The project has limited suport for describing security requirements of an API. 
+Currently we only suppert Oauth2 with [JWT](https://jwt.io/) tokens.
+
+`restdocs-openapi` inspects the `AUTHORIZATION` header of a request for a `JWT` token. 
+If such a token is found the scopes are extracted and added to the `resource.json` snippet.
+
+The `restdocs-openapi-gradle-plugin` will consider this information if the `oauth2SecuritySchemeDefinition` configuration option is set (see [Gradle plugin configuration](#gradle-plugin-configuration)). 
+This will result in a top-level `securityDefinitions` in the OpenAPI definition. 
+Addionally the required scopes will be added added in the `security` section of an `operation`.
+
 ### Running the gradle plugin
 
 `restdocs-openapi-gradle-plugin` is responsible for picking up the generated `resource.json` files and aggregate them into an OpenAPI specification (at the moment we support 2.0 only).
@@ -243,6 +274,37 @@ separatePublicApi | Should the plugin generate an additional OpenAPI specificati
 outputDirectory | The output directory | `build/openapi`
 outputFileNamePrefix | The file name prefix of the output file. | `api` which results in e.g. `api.json`
 snippetsDirectory | The directory Spring REST Docs generated the snippets to | `build/generated-snippets`
+oauth2SecuritySchemeDefinition | Closure containing information to generate the [securityDefinitions](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#securityDefinitionsObject) object in the `OpenAPI` specification. | empty
+oauth2SecuritySchemeDefinition.flows | The Oauth2 flows the API supports. Use valid values from the [securityDefinitions](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#securityDefinitionsObject) specification. | no default - required if `oauth2SecuritySchemeDefinition` is set.
+oauth2SecuritySchemeDefinition.tokenUrl | The Oauth2 tokenUrl | no default - required for the flows `password`, `application`, `accessCode`.
+oauth2SecuritySchemeDefinition.authorizationUrl | The Oauth2 authorizationUrl | no default - required for the flows `implicit`, `accessCode`.
+oauth2SecuritySchemeDefinition.scopeDescriptionsPropertiesFile | A yaml file mapping scope names to descriptions. These are used in the `securityDefinitions` as the [scope description](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#scopesObject) | no default - if not provided the scope descriptions default to `No description`.
+
+Example configuration closure:
+```
+openapi {
+    basePath = "/api"
+    host = "api-shop.beyondshop.cloud"
+    schemes = ["https"]
+    format = "yaml"
+    title = 'Beyond REST API'
+    version = "1.0.0"
+    separatePublicApi = true
+    snippetsDirectory="src/docs/asciidoc/generated-snippets/"
+    outputDirectory="openapi/"
+    oauth2SecuritySchemeDefinition = {
+        flows = ['accessCode', 'application']
+        tokenUrl = 'https://api-shop.beyondshop.cloud/api/oauth/token'
+        authorizationUrl = 'https://api-shop.beyondshop.cloud/api/auth/oauth-ext/authorize'
+        scopeDescriptionsPropertiesFile = "src/docs/scope-descriptions.yaml"
+    }
+}
+```
+
+The `scopeDescriptionsPropertiesFile` is supposed to be a yaml file:
+```yaml
+scope-name: A description
+```
 
 ## Generate HTML
 
@@ -253,11 +315,6 @@ The [redoc-cli](https://www.npmjs.com/package/redoc-cli) can be used to serve th
 npm install -g redoc-cli
 redoc-cli serve build/openapi/openapi.json
 ```
-
-
-## Compatibility with Spring Boot 2 (WebTestClient)
-
-`restdocs-openapi` is compatible with Spring REST Docs 2 and the new `WebTestClient`.
 
 ## Limitations
 
