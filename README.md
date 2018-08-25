@@ -43,6 +43,7 @@ This is why we came up with this project.
     - [Running the gradle plugin](#running-the-gradle-plugin)
     - [Gradle plugin configuration](#gradle-plugin-configuration)
 - [Generate HTML](#generate-html)
+- [Convert to RAML](#convert-to-raml)
 - [Limitations](#limitations)
     - [Rest Assured](#rest-assured)
     - [Maven plugin](#maven-plugin)
@@ -314,6 +315,29 @@ The [redoc-cli](https://www.npmjs.com/package/redoc-cli) can be used to serve th
 ```
 npm install -g redoc-cli
 redoc-cli serve build/openapi/openapi.json
+```
+
+## Convert to RAML
+
+This project supersedes [restdocs-raml](https://github.com/ePages-de/restdocs-raml). 
+So if you are coming from `restdocs-raml` you might want to switch to `restdocs-openapi`. 
+
+The API of both projects is fairly similar and it is easy to migrate.
+
+Also there are several ways to convert an OpenAPI specification to RAML.
+There are converters around that can help you to achieve this conversion.
+
+- [oas-raml-converter](https://github.com/mulesoft/oas-raml-converter) - an npm project that provides a CLI to convert between OpenAPI and RAML - it also provides an [online converter](https://mulesoft.github.io/oas-raml-converter/)
+- [api-matic](https://apimatic.io/transformer) - an online converter capable of converting between many api specifications
+
+The sample project contains a build configuration that uses the [oas-raml-converter-docker](https://hub.docker.com/r/zaddo/oas-raml-converter-docker/) docker image and the [gradle-docker-plugin](https://github.com/bmuschko/gradle-docker-plugin) to leverage the `oas-raml-converter` to convert the output of the `openapi` task to RAML. 
+Using this approach your gradle build can still output a RAML specification.
+
+See [samples/restdocs-openapi-sample/openapi2raml.gradle].
+
+```
+./gradlew openapi
+./gradlew -b samples/restdocs-openapi-sample/openapi2raml.gradle openapi2raml
 ```
 
 ## Limitations
