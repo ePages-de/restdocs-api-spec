@@ -246,7 +246,7 @@ If such a token is found the scopes are extracted and added to the `resource.jso
 
 The `restdocs-openapi-gradle-plugin` will consider this information if the `oauth2SecuritySchemeDefinition` configuration option is set (see [Gradle plugin configuration](#gradle-plugin-configuration)). 
 This will result in a top-level `securityDefinitions` in the OpenAPI definition. 
-Addionally the required scopes will be added added in the `security` section of an `operation`.
+Additionally the required scopes will be added in the `security` section of an `operation`.
 
 ### Running the gradle plugin
 
@@ -330,7 +330,7 @@ There are converters around that can help you to achieve this conversion.
 - [oas-raml-converter](https://github.com/mulesoft/oas-raml-converter) - an npm project that provides a CLI to convert between OpenAPI and RAML - it also provides an [online converter](https://mulesoft.github.io/oas-raml-converter/)
 - [api-matic](https://apimatic.io/transformer) - an online converter capable of converting between many api specifications
 
-The sample project contains a build configuration that uses the [oas-raml-converter-docker](https://hub.docker.com/r/zaddo/oas-raml-converter-docker/) docker image and the [gradle-docker-plugin](https://github.com/bmuschko/gradle-docker-plugin) to leverage the `oas-raml-converter` to convert the output of the `openapi` task to RAML. 
+In the [sample project](samples/restdocs-openapi-sample) you find a build configuration that uses the [oas-raml-converter-docker](https://hub.docker.com/r/zaddo/oas-raml-converter-docker/) docker image and the [gradle-docker-plugin](https://github.com/bmuschko/gradle-docker-plugin) to leverage the `oas-raml-converter` to convert the output of the `openapi` task to RAML. 
 Using this approach your gradle build can still output a RAML specification.
 
 See [openapi2raml.gradle](samples/restdocs-openapi-sample/openapi2raml.gradle).

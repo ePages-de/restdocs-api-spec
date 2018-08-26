@@ -21,6 +21,8 @@ import io.swagger.models.parameters.PathParameter
 import io.swagger.models.parameters.QueryParameter
 import io.swagger.models.properties.PropertyBuilder
 import io.swagger.util.Json
+import java.util.Comparator.comparing
+import java.util.Comparator.comparingInt
 
 internal object OpenApi20Generator {
 
@@ -126,7 +128,11 @@ internal object OpenApi20Generator {
     }
 
     private fun groupByPath(resources: List<ResourceModel>): Map<String, List<ResourceModel>> {
-        return resources.groupBy { it.request.path }
+        return resources.sortedWith(
+            // by path segment count first (first main resources, subresources later) - then path string
+            comparingInt<ResourceModel> { it.request.path.count { c -> c == '/' } }
+                .thenComparing(comparing<ResourceModel, String> { it.request.path }))
+            .groupBy { it.request.path }
     }
 
     private fun groupByHttpMethod(resources: List<ResourceModel>): Map<HTTPMethod, List<ResourceModel>> {
