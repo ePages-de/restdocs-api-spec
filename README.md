@@ -71,7 +71,7 @@ buildscript {
     }
     dependencies {
         //..
-        classpath("com.github.epages-de.restdocs-openapi:restdocs-openapi-gradle-plugin:0.2.0) //2
+        classpath("com.github.epages-de.restdocs-openapi:restdocs-openapi-gradle-plugin:0.2.1) //2
     }
 }
 //..
@@ -85,7 +85,7 @@ repositories { //4
 
 dependencies {
     //..
-    testCompile 'com.github.epages-de.restdocs-openapi:restdocs-openapi:0.2.0' //5
+    testCompile 'com.github.epages-de.restdocs-openapi:restdocs-openapi:0.2.1' //5
     testCompile 'org.json:json:20170516' //6
 }
 
