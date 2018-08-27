@@ -129,8 +129,9 @@ internal object OpenApi20Generator {
 
     private fun groupByPath(resources: List<ResourceModel>): Map<String, List<ResourceModel>> {
         return resources.sortedWith(
-            // by path segment count first (first main resources, subresources later) - then path string
-            comparingInt<ResourceModel> { it.request.path.count { c -> c == '/' } }
+            // by first path segment, then path length, then path
+            comparing<ResourceModel, String> { it.request.path.split("/").firstOrNull().orEmpty() }
+                .thenComparing(comparingInt<ResourceModel> { it.request.path.count { c -> c == '/' } })
                 .thenComparing(comparing<ResourceModel, String> { it.request.path }))
             .groupBy { it.request.path }
     }
