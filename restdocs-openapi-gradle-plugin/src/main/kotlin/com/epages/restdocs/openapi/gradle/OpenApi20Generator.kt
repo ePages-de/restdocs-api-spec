@@ -329,7 +329,7 @@ internal object OpenApi20Generator {
                 .nullIfEmpty()
             examples = mapOf(responseModel.contentType to responseModel.example).nullIfEmpty()
             responseSchema = if (!responseModel.responseFields.isEmpty()) {
-                Json.mapper().readValue(
+                Json.mapper().readValue<Model>(
                     JsonSchemaFromFieldDescriptorsGenerator().generateSchema(fieldDescriptors = responseModel.responseFields))
             } else {
                 null

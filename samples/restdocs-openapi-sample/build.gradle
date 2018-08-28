@@ -9,7 +9,7 @@ buildscript {
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-		classpath("com.github.epages-de.restdocs-openapi:restdocs-openapi-gradle-plugin:0.2.0")
+		classpath("com.github.epages-de.restdocs-openapi:restdocs-openapi-gradle-plugin:0.2.2")
 	}
 }
 
@@ -35,14 +35,14 @@ dependencies {
 	compile('org.springframework.boot:spring-boot-starter-data-jpa')
 	compile('org.springframework.boot:spring-boot-starter-data-rest')
 	runtime('com.h2database:h2')
-	compileOnly('org.projectlombok:lombok')
-	testCompileOnly('org.projectlombok:lombok')
+	compileOnly('org.projectlombok:lombok:1.16.20') // see https://github.com/rzwitserloot/lombok/issues/1716
+	testCompileOnly('org.projectlombok:lombok:1.16.20')
 	testCompile('org.junit.jupiter:junit-jupiter-engine:5.2.0')
 
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	testCompile('org.springframework.restdocs:spring-restdocs-mockmvc')
 
-	testCompile('com.github.epages-de.restdocs-openapi:restdocs-openapi:0.2.1')
+	testCompile('com.github.epages-de.restdocs-openapi:restdocs-openapi:0.2.2')
 	//testCompile project(':restdocs-openapi') //enable for depending on the submodule directly
 	testCompile('com.google.guava:guava:23.0')
 }

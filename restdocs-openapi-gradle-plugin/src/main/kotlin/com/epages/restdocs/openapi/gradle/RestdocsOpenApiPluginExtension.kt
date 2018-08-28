@@ -28,7 +28,7 @@ open class RestdocsOpenApiPluginExtension(val project: Project) {
         oauth2SecuritySchemeDefinition = project.configure(Oauth2Configuration(), closure) as Oauth2Configuration
         with(oauth2SecuritySchemeDefinition!!) {
             if (scopeDescriptionsPropertiesFile != null) {
-                scopeDescriptionsPropertiesProjectFile = project.file(scopeDescriptionsPropertiesFile)
+                scopeDescriptionsPropertiesProjectFile = project.file(scopeDescriptionsPropertiesFile!!)
             }
         }
     }
