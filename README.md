@@ -4,6 +4,7 @@
 [![Release](https://jitpack.io/v/ePages-de/restdocs-openapi.svg)](https://jitpack.io/#ePages-de/restdocs-openapi)
 [![Build Status](https://travis-ci.org/ePages-de/restdocs-openapi.svg?branch=master)](https://travis-ci.org/ePages-de/restdocs-openapi)
 [![Coverage Status](https://coveralls.io/repos/github/ePages-de/restdocs-openapi/badge.svg?branch=master)](https://coveralls.io/github/ePages-de/restdocs-openapi?branch=master)
+[![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/restdocs-openapi/Lobby)
 
 This is an extension that adds [OpenAPI](https://www.openapis.org) as an output format to [Spring REST Docs](https://projects.spring.io/spring-restdocs/). 
 It currently can output [OpenAPI 2.0](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md) in `json` and `yaml`
