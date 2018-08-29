@@ -10,7 +10,7 @@ open class RestdocsOpenApiPluginExtension(val project: Project) {
     var schemes: Array<String> = arrayOf("http")
 
     var title = "API documentation"
-    var version = project.version as String
+    var version = project.version as? String ?: "1.0.0"
 
     var format = "json"
 
