@@ -35,8 +35,8 @@ dependencies {
 	compile('org.springframework.boot:spring-boot-starter-data-jpa')
 	compile('org.springframework.boot:spring-boot-starter-data-rest')
 	runtime('com.h2database:h2')
-	compileOnly('org.projectlombok:lombok')
-	testCompileOnly('org.projectlombok:lombok')
+	compileOnly('org.projectlombok:lombok:1.16.20') // see https://github.com/rzwitserloot/lombok/issues/1716
+	testCompileOnly('org.projectlombok:lombok:1.16.20')
 	testCompile('org.junit.jupiter:junit-jupiter-engine:5.2.0')
 
 	testCompile('org.springframework.boot:spring-boot-starter-test')

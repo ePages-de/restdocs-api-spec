@@ -4,10 +4,12 @@ import org.kt3k.gradle.plugin.CoverallsPluginExtension
 import pl.allegro.tech.build.axion.release.domain.TagNameSerializationConfig
 import pl.allegro.tech.build.axion.release.domain.VersionConfig
 import pl.allegro.tech.build.axion.release.domain.hooks.HooksConfig
+import org.gradle.api.tasks.bundling.Jar
+
 
 plugins {
     java
-    kotlin("jvm") version "1.2.51" apply false
+    kotlin("jvm") version "1.2.60" apply false
     id("pl.allegro.tech.build.axion-release") version "1.9.2"
     jacoco
     `maven-publish`
@@ -77,13 +79,12 @@ subprojects {
 
         val sourcesJar by tasks.creating(Jar::class) {
             classifier = "sources"
-            from(java.sourceSets["main"].allSource)
+            from(sourceSets["main"].allSource)
         }
 
         publishing {
-
-            (publications) {
-                "mavenJava"(MavenPublication::class) {
+            publications {
+                register("mavenJava", MavenPublication::class) {
                     from(components["java"])
                     artifact(sourcesJar)
                 }
@@ -94,7 +95,7 @@ subprojects {
 
 //coverall multi module plugin configuration starts here
 configure<CoverallsPluginExtension> {
-    sourceDirs = nonSampleProjects.flatMap { it.java.sourceSets["main"].allSource.srcDirs }.filter { it.exists() }.map { it.path }
+    sourceDirs = nonSampleProjects.flatMap { it.sourceSets["main"].allSource.srcDirs }.filter { it.exists() }.map { it.path }
     jacocoReportPath = "$buildDir/reports/jacoco/jacocoRootReport/jacocoRootReport.xml"
 }
 
@@ -114,8 +115,8 @@ tasks {
         description = "Generates an aggregate report from all subprojects"
         group = "Coverage reports"
         dependsOn(jacocoMerge)
-        sourceDirectories = files(nonSampleProjects.flatMap { it.java.sourceSets["main"].allSource.srcDirs.filter { it.exists() } } )
-        classDirectories = files(nonSampleProjects.flatMap { it.java.sourceSets["main"].output } )
+        sourceDirectories = files(nonSampleProjects.flatMap { it.sourceSets["main"].allSource.srcDirs.filter { it.exists() } } )
+        classDirectories = files(nonSampleProjects.flatMap { it.sourceSets["main"].output } )
         executionData(jacocoMerge.destinationFile)
         reports {
             html.isEnabled = true
