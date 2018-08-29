@@ -1,11 +1,11 @@
-package com.epages.restdocs.openapi.gradle
+package com.epages.restdocs.openapi.generator
 
 import io.swagger.models.Swagger
 import io.swagger.util.Json
 import io.swagger.util.Yaml
 import java.io.File
 
-internal object ApiSpecificationWriter {
+object ApiSpecificationWriter {
 
     private val yamlFormats = setOf("yaml", "yml")
     private val jsonFormats = setOf("json")

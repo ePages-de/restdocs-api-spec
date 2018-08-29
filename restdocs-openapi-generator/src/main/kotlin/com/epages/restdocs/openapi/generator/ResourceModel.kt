@@ -1,6 +1,6 @@
-package com.epages.restdocs.openapi.gradle
+package com.epages.restdocs.openapi.generator
 
-internal data class ResourceModel(
+data class ResourceModel(
     val operationId: String,
     val summary: String? = null,
     val description: String? = null,
@@ -10,7 +10,7 @@ internal data class ResourceModel(
     val response: ResponseModel
 )
 
-internal data class RequestModel(
+data class RequestModel(
     val path: String,
     val method: HTTPMethod,
     val contentType: String? = null,
@@ -23,7 +23,7 @@ internal data class RequestModel(
     val schema: String? = null
 )
 
-internal data class ResponseModel(
+data class ResponseModel(
     val status: Int,
     val contentType: String?,
     val headers: List<HeaderDescriptor>,
@@ -32,7 +32,7 @@ internal data class ResponseModel(
     val schema: String? = null
 )
 
-internal enum class SimpleType {
+enum class SimpleType {
     STRING,
     INTEGER,
     NUMBER,
@@ -46,14 +46,14 @@ interface AbstractParameterDescriptor {
     val optional: Boolean
 }
 
-internal data class HeaderDescriptor(
+data class HeaderDescriptor(
     override val name: String,
     override val description: String,
     override val type: String,
     override val optional: Boolean
 ) : AbstractParameterDescriptor
 
-internal open class FieldDescriptor(
+open class FieldDescriptor(
     val path: String,
     val description: String,
     val type: String,
@@ -62,16 +62,16 @@ internal open class FieldDescriptor(
     val attributes: Attributes = Attributes()
 )
 
-internal data class Attributes(
+data class Attributes(
     val validationConstraints: List<Constraint> = emptyList()
 )
 
-internal data class Constraint(
+data class Constraint(
     val name: String,
     val configuration: Map<String, Any>
 )
 
-internal data class ParameterDescriptor(
+data class ParameterDescriptor(
     override val name: String,
     override val description: String,
     override val type: String,
@@ -79,18 +79,18 @@ internal data class ParameterDescriptor(
     val ignored: Boolean
 ) : AbstractParameterDescriptor
 
-internal data class SecurityRequirements(
+data class SecurityRequirements(
     val type: SecurityType,
     val requiredScopes: List<String>?
 )
 
-internal enum class SecurityType {
+enum class SecurityType {
     OAUTH2,
     BASIC,
     API_KEY
 }
 
-internal enum class HTTPMethod {
+enum class HTTPMethod {
     GET,
     POST,
     PUT,

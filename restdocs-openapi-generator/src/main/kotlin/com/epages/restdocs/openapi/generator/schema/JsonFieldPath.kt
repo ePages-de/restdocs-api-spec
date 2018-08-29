@@ -1,12 +1,11 @@
-package com.epages.restdocs.openapi.gradle.schema
+package com.epages.restdocs.openapi.generator.schema
 
-import com.epages.restdocs.openapi.gradle.schema.JsonSchemaFromFieldDescriptorsGenerator.FieldDescriptorWithSchemaType
 import java.util.ArrayList
 import java.util.regex.Pattern
 
 internal class JsonFieldPath private constructor(
     private val segments: List<String>,
-    val fieldDescriptor: FieldDescriptorWithSchemaType
+    val fieldDescriptor: JsonSchemaFromFieldDescriptorsGenerator.FieldDescriptorWithSchemaType
 ) {
 
     fun remainingSegments(traversedSegments: List<String>): List<String> {
@@ -31,7 +30,7 @@ internal class JsonFieldPath private constructor(
         private val ARRAY_INDEX_PATTERN = Pattern
             .compile("\\[([0-9]+|\\*){0,1}\\]")
 
-        fun compile(descriptor: FieldDescriptorWithSchemaType): JsonFieldPath {
+        fun compile(descriptor: JsonSchemaFromFieldDescriptorsGenerator.FieldDescriptorWithSchemaType): JsonFieldPath {
             val segments = extractSegments(descriptor.path)
             return JsonFieldPath(segments, descriptor)
         }

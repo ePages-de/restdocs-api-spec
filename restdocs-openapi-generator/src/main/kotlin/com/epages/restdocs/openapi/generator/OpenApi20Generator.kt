@@ -1,6 +1,6 @@
-package com.epages.restdocs.openapi.gradle
+package com.epages.restdocs.openapi.generator
 
-import com.epages.restdocs.openapi.gradle.schema.JsonSchemaFromFieldDescriptorsGenerator
+import com.epages.restdocs.openapi.generator.schema.JsonSchemaFromFieldDescriptorsGenerator
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -24,7 +24,7 @@ import io.swagger.util.Json
 import java.util.Comparator.comparing
 import java.util.Comparator.comparingInt
 
-internal object OpenApi20Generator {
+object OpenApi20Generator {
 
     private val objectMapper = ObjectMapper(YAMLFactory())
 
