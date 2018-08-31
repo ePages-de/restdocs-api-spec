@@ -1,6 +1,6 @@
-package com.epages.restdocs.openapi.gradle
+package com.epages.restdocs.openapi.generator
 
-import com.epages.restdocs.openapi.gradle.SecurityType.OAUTH2
+import com.epages.restdocs.openapi.generator.SecurityType.OAUTH2
 import io.swagger.models.Model
 import io.swagger.models.Path
 import io.swagger.models.Response
