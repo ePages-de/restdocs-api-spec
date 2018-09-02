@@ -44,13 +44,15 @@ interface AbstractParameterDescriptor {
     val description: String
     val type: String
     val optional: Boolean
+    val attributes: Attributes
 }
 
 data class HeaderDescriptor(
     override val name: String,
     override val description: String,
     override val type: String,
-    override val optional: Boolean
+    override val optional: Boolean,
+    override val attributes: Attributes = Attributes()
 ) : AbstractParameterDescriptor
 
 open class FieldDescriptor(
@@ -76,7 +78,8 @@ data class ParameterDescriptor(
     override val description: String,
     override val type: String,
     override val optional: Boolean,
-    val ignored: Boolean
+    val ignored: Boolean,
+    override val attributes: Attributes = Attributes()
 ) : AbstractParameterDescriptor
 
 data class SecurityRequirements(
