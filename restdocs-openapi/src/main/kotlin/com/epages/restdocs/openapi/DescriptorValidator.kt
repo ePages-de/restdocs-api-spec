@@ -24,14 +24,17 @@ internal object DescriptorValidator {
                 requestFields,
                 operation
             ) { RequestFieldsSnippetWrapper(requestFields) }
+
             validateIfDescriptorsPresent(
                 links,
                 operation
             ) { LinksSnippetWrapper(links) }
+
             validateIfDescriptorsPresent(
                 responseFieldsWithLinks,
                 operation
             ) { ResponseFieldsSnippetWrapper(responseFieldsWithLinks) }
+
             validateIfDescriptorsPresent(
                 pathParameters,
                 operation
@@ -42,6 +45,7 @@ internal object DescriptorValidator {
                     )
                 )
             }
+
             validateIfDescriptorsPresent(
                 requestParameters,
                 operation
@@ -94,17 +98,42 @@ internal object DescriptorValidator {
      *
      * This is baked into [org.springframework.restdocs.payload.AbstractFieldsSnippet.createModel] and is not accessible separately.
      */
-    private class RequestFieldsSnippetWrapper(descriptors: List<FieldDescriptor>) : RequestFieldsSnippet(descriptors),
-        ValidateableSnippet {
+    private class RequestFieldsSnippetWrapper(val descriptors: List<FieldDescriptor>) : RequestFieldsSnippet(descriptors),
+        ValidateableSnippet, FieldTypeExtractor {
+
+        @Suppress("UNCHECKED_CAST")
         override fun validate(operation: Operation) {
-            super.createModel(operation)
+            val model = super.createModel(operation)
+            applyFieldTypes(model["fields"] as List<Map<String, Any>>, descriptors)
         }
     }
 
-    private class ResponseFieldsSnippetWrapper(descriptors: List<FieldDescriptor>) : ResponseFieldsSnippet(descriptors),
-        ValidateableSnippet {
+    private class ResponseFieldsSnippetWrapper(val descriptors: List<FieldDescriptor>) : ResponseFieldsSnippet(descriptors),
+        ValidateableSnippet, FieldTypeExtractor {
+
+        @Suppress("UNCHECKED_CAST")
         override fun validate(operation: Operation) {
-            super.createModel(operation)
+            val model = super.createModel(operation)
+            applyFieldTypes(model["fields"] as List<Map<String, Any>>, descriptors)
+        }
+    }
+
+    /**
+     * with spring-restdocs 2.0.2 field descriptor types are not set on the descriptors passed here
+     * but just added to the model
+     * see https://github.com/spring-projects/spring-restdocs/commit/a2a9a7cb0fe86c30016091d977aa2f7f521c96c0
+     */
+    private interface FieldTypeExtractor {
+
+        fun applyFieldTypes(fieldsModel: List<Map<String, Any>>, descriptors: List<FieldDescriptor>) {
+            descriptors.forEach { d ->
+                if (d.type == null) {
+                    fieldsModel
+                        .firstOrNull { d.path == it["path"] }
+                        ?.get("type")
+                        ?.let { d.type(it) }
+                }
+            }
         }
     }
 
