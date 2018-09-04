@@ -18,6 +18,7 @@ import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.restdocs.generate.RestDocumentationGenerator.ATTRIBUTE_NAME_URL_TEMPLATE
 import org.springframework.restdocs.headers.HeaderDocumentation
 import org.springframework.restdocs.operation.Operation
+import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import java.io.File
 import java.io.IOException
@@ -137,7 +138,12 @@ class ResourceSnippetTest(private val temporaryFolder: TemporaryFolder) {
         then(resourceSnippetJson.read<String>("request.example")).isEqualTo(operation.request.contentAsString)
         then(resourceSnippetJson.read<List<*>>("request.requestFields")).hasSize(1)
         then(resourceSnippetJson.read<String>("request.requestFields[0].description")).isNotEmpty()
+        with(resourceSnippetJson.read<String>("request.requestFields[0].type")) {
+            then(this).isNotEmpty()
+            then(JsonFieldType.valueOf(this)).isEqualTo(JsonFieldType.STRING)
+        }
         then(resourceSnippetJson.read<String>("request.requestFields[0].type")).isNotEmpty()
+        then(JsonFieldType.valueOf(resourceSnippetJson.read("request.requestFields[0].type"))).isNotNull()
         then(resourceSnippetJson.read<Boolean>("request.requestFields[0].optional")).isFalse()
         then(resourceSnippetJson.read<Boolean>("request.requestFields[0].ignored")).isFalse()
     }
