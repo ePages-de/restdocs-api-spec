@@ -1,7 +1,6 @@
 package com.epages.restdocs.openapi.gradle
 
 import com.epages.restdocs.openapi.generator.ApiSpecificationWriter
-import com.epages.restdocs.openapi.generator.Oauth2Configuration
 import com.epages.restdocs.openapi.generator.OpenApi20Generator
 import com.epages.restdocs.openapi.generator.ResourceModel
 import com.fasterxml.jackson.databind.DeserializationFeature
@@ -45,7 +44,7 @@ open class RestdocsOpenApiTask : DefaultTask() {
     lateinit var outputFileNamePrefix: String
 
     @Input @Optional
-    var oauth2SecuritySchemeDefinition: Oauth2Configuration? = null
+    var oauth2SecuritySchemeDefinition: PluginOauth2Configuration? = null
 
     private val outputDirectoryFile
         get() = project.file(outputDirectory)

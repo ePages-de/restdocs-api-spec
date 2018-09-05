@@ -1,8 +1,6 @@
 package com.epages.restdocs.openapi.generator
 
 import com.epages.restdocs.openapi.generator.schema.JsonSchemaFromFieldDescriptorsGenerator
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.swagger.models.Info
 import io.swagger.models.Model
@@ -25,8 +23,6 @@ import java.util.Comparator.comparing
 import java.util.Comparator.comparingInt
 
 object OpenApi20Generator {
-
-    private val objectMapper = ObjectMapper(YAMLFactory())
 
     fun generate(
         resources: List<ResourceModel>,
@@ -230,7 +226,7 @@ object OpenApi20Generator {
 
     private fun addSecurityDefinitions(openApi: Swagger, oauth2SecuritySchemeDefinition: Oauth2Configuration?) {
         oauth2SecuritySchemeDefinition?.flows?.map { flow ->
-            val scopeAndDescriptions = scopeDescriptionSource(oauth2SecuritySchemeDefinition)
+            val scopeAndDescriptions = oauth2SecuritySchemeDefinition.scopes
             val allScopes = collectScopesFromOperations(openApi)
 
             val oauth2Definition = when (flow) {
@@ -241,7 +237,7 @@ object OpenApi20Generator {
                 else -> throw IllegalArgumentException("Unknown flow '$flow' in oauth2SecuritySchemeDefinition")
             }.apply {
                 allScopes.forEach {
-                    addScope(it, scopeAndDescriptions.getOrDefault(it, "No description") as String)
+                    addScope(it, scopeAndDescriptions.getOrDefault(it, "No description"))
                 }
             }
             openApi.addSecurityDefinition(oauth2SecuritySchemeDefinition.securitySchemeName(flow), oauth2Definition)
@@ -259,12 +255,6 @@ object OpenApi20Generator {
                             ?: listOf()
                     }
             }.toSet()
-    }
-
-    private fun scopeDescriptionSource(oauth2SecuritySchemeDefinition: Oauth2Configuration): Map<String, Any> {
-        return oauth2SecuritySchemeDefinition.scopeDescriptionsPropertiesProjectFile
-            ?.let { objectMapper.readValue<Map<String, Any>>(it) }
-            ?: emptyMap()
     }
 
     private fun pathParameterDescriptor2Parameter(parameterDescriptor: ParameterDescriptor): PathParameter {
