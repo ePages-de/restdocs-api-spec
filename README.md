@@ -72,7 +72,7 @@ buildscript {
     }
     dependencies {
         //..
-        classpath("com.github.epages-de.restdocs-openapi:restdocs-openapi-gradle-plugin:0.2.8) //2
+        classpath("com.github.epages-de.restdocs-openapi:restdocs-openapi-gradle-plugin:0.2.8") //2
     }
 }
 //..
