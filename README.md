@@ -72,7 +72,7 @@ buildscript {
     }
     dependencies {
         //..
-        classpath("com.github.epages-de.restdocs-openapi:restdocs-openapi-gradle-plugin:0.2.8") //2
+        classpath("com.github.epages-de.restdocs-openapi:restdocs-openapi-gradle-plugin:0.2.9") //2
     }
 }
 //..
@@ -86,7 +86,7 @@ repositories { //4
 
 dependencies {
     //..
-    testCompile 'com.github.epages-de.restdocs-openapi:restdocs-openapi:0.2.8' //5
+    testCompile 'com.github.epages-de.restdocs-openapi:restdocs-openapi:0.2.9' //5
     testCompile 'org.json:json:20170516' //6
 }
 
@@ -99,9 +99,9 @@ openapi { //7
 }
 ```
 
-1. add [jitpack](https://jitpack.io) repository to `buildscript` to resolve the `restdocs-raml-openapi-plugin`
-2. add the dependency to `restdocs-raml-openapi-plugin`
-3. apply `restdocs-raml-openapi-plugin`
+1. add [jitpack](https://jitpack.io) repository to `buildscript` to resolve the `restdocs-openapi-gradle-plugin`
+2. add the dependency to `restdocs-openapi-gradle-plugin`
+3. apply `restdocs-openapi-gradle-plugin`
 4. add repositories used for dependency resolution. We use [jitpack](https://jitpack.io) here.
 5. add the actual `restdocs-openapi` dependency to the test scope
 6. `spring-boot` specifies an old version of `org.json:json`. We use [everit-org/json-schema](https://github.com/everit-org/json-schema) to generate json schema files. This project depends on a newer version of `org.json:json`. As versions from BOM always override transitive versions coming in through maven dependencies, you need to add an explicit dependency to `org.json:json:20170516`
