@@ -24,7 +24,7 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
 
     private var schema: Schema? = null
 
-    private var fieldDescriptors: List<com.epages.restdocs.openapi.generator.FieldDescriptor>? = null
+    private var fieldDescriptors: List<com.epages.restdocs.openapi.model.FieldDescriptor>? = null
 
     private var schemaString: String? = null
 
@@ -195,45 +195,45 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
     }
 
     private fun givenFieldDescriptorWithPrimitiveArray() {
-        fieldDescriptors = listOf(com.epages.restdocs.openapi.generator.FieldDescriptor("a[]", "some", "ARRAY"))
+        fieldDescriptors = listOf(com.epages.restdocs.openapi.model.FieldDescriptor("a[]", "some", "ARRAY"))
     }
 
     private fun givenFieldDescriptorWithTopLevelArray() {
-        fieldDescriptors = listOf(com.epages.restdocs.openapi.generator.FieldDescriptor("[]['id']", "some", "STRING"))
+        fieldDescriptors = listOf(com.epages.restdocs.openapi.model.FieldDescriptor("[]['id']", "some", "STRING"))
     }
 
     private fun givenFieldDescriptorWithTopLevelArrayOfAny() {
-        fieldDescriptors = listOf(com.epages.restdocs.openapi.generator.FieldDescriptor("[]", "some", "ARRAY"))
+        fieldDescriptors = listOf(com.epages.restdocs.openapi.model.FieldDescriptor("[]", "some", "ARRAY"))
     }
 
     private fun givenFieldDescriptorWithTopLevelArrayOfArrayOfAny() {
-        fieldDescriptors = listOf(com.epages.restdocs.openapi.generator.FieldDescriptor("[][]", "some", "ARRAY"))
+        fieldDescriptors = listOf(com.epages.restdocs.openapi.model.FieldDescriptor("[][]", "some", "ARRAY"))
     }
 
     private fun givenFieldDescriptorWithInvalidType() {
-        fieldDescriptors = listOf(com.epages.restdocs.openapi.generator.FieldDescriptor("id", "some", "invalid-type"))
+        fieldDescriptors = listOf(com.epages.restdocs.openapi.model.FieldDescriptor("id", "some", "invalid-type"))
     }
 
     private fun givenEqualFieldDescriptorsWithSamePath() {
         fieldDescriptors = listOf(
-            com.epages.restdocs.openapi.generator.FieldDescriptor("id", "some", "STRING"),
-            com.epages.restdocs.openapi.generator.FieldDescriptor("id", "some", "STRING")
+            com.epages.restdocs.openapi.model.FieldDescriptor("id", "some", "STRING"),
+            com.epages.restdocs.openapi.model.FieldDescriptor("id", "some", "STRING")
         )
     }
 
     private fun givenDifferentFieldDescriptorsWithSamePathAndDifferentTypes() {
         fieldDescriptors = listOf(
-            com.epages.restdocs.openapi.generator.FieldDescriptor("id", "some", "STRING"),
-            com.epages.restdocs.openapi.generator.FieldDescriptor("id", "some", "NULL"),
-            com.epages.restdocs.openapi.generator.FieldDescriptor("id", "some", "BOOLEAN")
+            com.epages.restdocs.openapi.model.FieldDescriptor("id", "some", "STRING"),
+            com.epages.restdocs.openapi.model.FieldDescriptor("id", "some", "NULL"),
+            com.epages.restdocs.openapi.model.FieldDescriptor("id", "some", "BOOLEAN")
         )
     }
 
     private fun givenFieldDescriptorsWithConstraints() {
         val constraintAttributeWithNotNull =
-            com.epages.restdocs.openapi.generator.Attributes(
+            com.epages.restdocs.openapi.model.Attributes(
                 listOf(
-                    com.epages.restdocs.openapi.generator.Constraint(
+                    com.epages.restdocs.openapi.model.Constraint(
                         NotNull::class.java.name,
                         emptyMap()
                     )
@@ -241,9 +241,9 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
             )
 
         val constraintAttributeWithLength =
-            com.epages.restdocs.openapi.generator.Attributes(
+            com.epages.restdocs.openapi.model.Attributes(
                 listOf(
-                    com.epages.restdocs.openapi.generator.Constraint(
+                    com.epages.restdocs.openapi.model.Constraint(
                         "org.hibernate.validator.constraints.Length", mapOf(
                             "min" to 2,
                             "max" to 255
@@ -253,46 +253,46 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
             )
 
         fieldDescriptors = listOf(
-            com.epages.restdocs.openapi.generator.FieldDescriptor(
+            com.epages.restdocs.openapi.model.FieldDescriptor(
                 "id",
                 "some",
                 "STRING",
                 attributes = constraintAttributeWithNotNull
             ),
-            com.epages.restdocs.openapi.generator.FieldDescriptor(
+            com.epages.restdocs.openapi.model.FieldDescriptor(
                 "lineItems[*].name",
                 "some",
                 "STRING",
                 attributes = constraintAttributeWithLength
             ),
-            com.epages.restdocs.openapi.generator.FieldDescriptor(
+            com.epages.restdocs.openapi.model.FieldDescriptor(
                 "lineItems[*]._id",
                 "some",
                 "STRING",
                 attributes = constraintAttributeWithNotNull
             ),
-            com.epages.restdocs.openapi.generator.FieldDescriptor(
+            com.epages.restdocs.openapi.model.FieldDescriptor(
                 "lineItems[*].quantity.value",
                 "some",
                 "NUMBER",
                 attributes = constraintAttributeWithNotNull
             ),
-            com.epages.restdocs.openapi.generator.FieldDescriptor("lineItems[*].quantity.unit", "some", "STRING"),
-            com.epages.restdocs.openapi.generator.FieldDescriptor("shippingAddress", "some", "OBJECT"),
-            com.epages.restdocs.openapi.generator.FieldDescriptor("billingAddress", "some", "OBJECT"),
-            com.epages.restdocs.openapi.generator.FieldDescriptor(
+            com.epages.restdocs.openapi.model.FieldDescriptor("lineItems[*].quantity.unit", "some", "STRING"),
+            com.epages.restdocs.openapi.model.FieldDescriptor("shippingAddress", "some", "OBJECT"),
+            com.epages.restdocs.openapi.model.FieldDescriptor("billingAddress", "some", "OBJECT"),
+            com.epages.restdocs.openapi.model.FieldDescriptor(
                 "billingAddress.firstName", "some", "STRING",
-                attributes = com.epages.restdocs.openapi.generator.Attributes(
+                attributes = com.epages.restdocs.openapi.model.Attributes(
                     listOf(
-                        com.epages.restdocs.openapi.generator.Constraint(
+                        com.epages.restdocs.openapi.model.Constraint(
                             "javax.validation.constraints.NotEmpty",
                             emptyMap()
                         )
                     )
                 )
             ),
-            com.epages.restdocs.openapi.generator.FieldDescriptor("billingAddress.valid", "some", "BOOLEAN"),
-            com.epages.restdocs.openapi.generator.FieldDescriptor("paymentLineItem.lineItemTaxes", "some", "ARRAY")
+            com.epages.restdocs.openapi.model.FieldDescriptor("billingAddress.valid", "some", "BOOLEAN"),
+            com.epages.restdocs.openapi.model.FieldDescriptor("paymentLineItem.lineItemTaxes", "some", "ARRAY")
         )
     }
 
