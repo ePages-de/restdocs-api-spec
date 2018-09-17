@@ -1,6 +1,15 @@
 package com.epages.restdocs.openapi.generator
 
 import com.epages.restdocs.openapi.generator.schema.JsonSchemaFromFieldDescriptorsGenerator
+import com.epages.restdocs.openapi.model.FieldDescriptor
+import com.epages.restdocs.openapi.model.HTTPMethod
+import com.epages.restdocs.openapi.model.HeaderDescriptor
+import com.epages.restdocs.openapi.model.Oauth2Configuration
+import com.epages.restdocs.openapi.model.ParameterDescriptor
+import com.epages.restdocs.openapi.model.ResourceModel
+import com.epages.restdocs.openapi.model.ResponseModel
+import com.epages.restdocs.openapi.model.SecurityRequirements
+import com.epages.restdocs.openapi.model.SecurityType
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.swagger.models.Info
 import io.swagger.models.Model
@@ -196,10 +205,10 @@ object OpenApi20Generator {
                     .nullIfEmpty()
         }.apply {
             if (firstModelForPathAndMethod.request.securityRequirements != null &&
-                firstModelForPathAndMethod.request.securityRequirements.type == SecurityType.OAUTH2) {
+                firstModelForPathAndMethod.request.securityRequirements!!.type == SecurityType.OAUTH2) {
                 oauth2SecuritySchemeDefinition?.flows?.map {
                     addSecurity(oauth2SecuritySchemeDefinition.securitySchemeName(it),
-                        securityRequirements2ScopesList(firstModelForPathAndMethod.request.securityRequirements))
+                        securityRequirements2ScopesList(firstModelForPathAndMethod.request.securityRequirements!!))
                 }
             }
         }
@@ -221,7 +230,7 @@ object OpenApi20Generator {
     }
 
     private fun securityRequirements2ScopesList(securityRequirements: SecurityRequirements): List<String> {
-        return if (securityRequirements.type == SecurityType.OAUTH2 && securityRequirements.requiredScopes != null) securityRequirements.requiredScopes else listOf()
+        return if (securityRequirements.type == SecurityType.OAUTH2 && securityRequirements.requiredScopes != null) securityRequirements.requiredScopes!! else listOf()
     }
 
     private fun addSecurityDefinitions(openApi: Swagger, oauth2SecuritySchemeDefinition: Oauth2Configuration?) {

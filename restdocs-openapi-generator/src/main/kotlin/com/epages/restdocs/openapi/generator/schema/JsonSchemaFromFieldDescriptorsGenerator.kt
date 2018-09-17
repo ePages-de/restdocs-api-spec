@@ -22,7 +22,7 @@ import java.util.function.Predicate
 
 internal class JsonSchemaFromFieldDescriptorsGenerator {
 
-    internal fun generateSchema(fieldDescriptors: List<com.epages.restdocs.openapi.generator.FieldDescriptor>, title: String? = null): String {
+    internal fun generateSchema(fieldDescriptors: List<com.epages.restdocs.openapi.model.FieldDescriptor>, title: String? = null): String {
         val jsonFieldPaths = reduceFieldDescriptors(fieldDescriptors)
             .map { com.epages.restdocs.openapi.generator.schema.JsonFieldPath.compile(it) }
 
@@ -36,7 +36,7 @@ internal class JsonSchemaFromFieldDescriptorsGenerator {
      *
      * The implementation will
      */
-    private fun reduceFieldDescriptors(fieldDescriptors: List<com.epages.restdocs.openapi.generator.FieldDescriptor>): List<FieldDescriptorWithSchemaType> {
+    private fun reduceFieldDescriptors(fieldDescriptors: List<com.epages.restdocs.openapi.model.FieldDescriptor>): List<FieldDescriptorWithSchemaType> {
         return fieldDescriptors
             .map { FieldDescriptorWithSchemaType.fromFieldDescriptor(it) }
             .foldRight(listOf()) { fieldDescriptor, groups -> groups
@@ -182,9 +182,9 @@ internal class JsonSchemaFromFieldDescriptorsGenerator {
         type: String,
         optional: Boolean,
         ignored: Boolean,
-        attributes: com.epages.restdocs.openapi.generator.Attributes,
+        attributes: com.epages.restdocs.openapi.model.Attributes,
         private val jsonSchemaPrimitiveTypes: Set<String> = setOf(jsonSchemaPrimitiveTypeFromDescriptorType(type))
-    ) : com.epages.restdocs.openapi.generator.FieldDescriptor(path, description, type, optional, ignored, attributes) {
+    ) : com.epages.restdocs.openapi.model.FieldDescriptor(path, description, type, optional, ignored, attributes) {
 
         fun jsonSchemaType(): Schema {
             val schemaBuilders = jsonSchemaPrimitiveTypes.map { typeToSchema(it) }
@@ -192,7 +192,7 @@ internal class JsonSchemaFromFieldDescriptorsGenerator {
             else CombinedSchema.oneOf(schemaBuilders.map { it.build() }).description(description).build()
         }
 
-        fun merge(fieldDescriptor: com.epages.restdocs.openapi.generator.FieldDescriptor): FieldDescriptorWithSchemaType {
+        fun merge(fieldDescriptor: com.epages.restdocs.openapi.model.FieldDescriptor): FieldDescriptorWithSchemaType {
             if (this.path != fieldDescriptor.path)
                 throw IllegalArgumentException("path of fieldDescriptor is not equal to ${this.path}")
 
@@ -226,7 +226,7 @@ internal class JsonSchemaFromFieldDescriptorsGenerator {
                 this.type == f.type)
 
         companion object {
-            fun fromFieldDescriptor(fieldDescriptor: com.epages.restdocs.openapi.generator.FieldDescriptor) =
+            fun fromFieldDescriptor(fieldDescriptor: com.epages.restdocs.openapi.model.FieldDescriptor) =
                 FieldDescriptorWithSchemaType(
                     path = fieldDescriptor.path,
                     description = fieldDescriptor.description,

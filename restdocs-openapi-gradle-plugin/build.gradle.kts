@@ -29,6 +29,7 @@ dependencies {
     compile(kotlin("gradle-plugin"))
     compile(kotlin("stdlib-jdk8"))
 
+    implementation(project(":restdocs-openapi-model"))
     implementation(project(":restdocs-openapi-generator"))
     implementation("com.fasterxml.jackson.core:jackson-databind:2.9.5")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.9.5")

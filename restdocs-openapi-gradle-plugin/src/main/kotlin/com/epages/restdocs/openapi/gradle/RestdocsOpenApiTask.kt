@@ -2,7 +2,7 @@ package com.epages.restdocs.openapi.gradle
 
 import com.epages.restdocs.openapi.generator.ApiSpecificationWriter
 import com.epages.restdocs.openapi.generator.OpenApi20Generator
-import com.epages.restdocs.openapi.generator.ResourceModel
+import com.epages.restdocs.openapi.model.ResourceModel
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue

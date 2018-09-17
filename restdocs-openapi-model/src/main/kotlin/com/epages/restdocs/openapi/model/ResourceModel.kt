@@ -1,4 +1,4 @@
-package com.epages.restdocs.openapi.generator
+package com.epages.restdocs.openapi.model
 
 data class ResourceModel(
     val operationId: String,

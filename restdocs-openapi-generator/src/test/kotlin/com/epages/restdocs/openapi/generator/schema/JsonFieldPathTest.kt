@@ -12,7 +12,7 @@ class JsonFieldPathTest {
     fun should_get_remaining_segments() {
         with(compile(
             com.epages.restdocs.openapi.generator.schema.JsonSchemaFromFieldDescriptorsGenerator.FieldDescriptorWithSchemaType("a.b.c", "", "", false, false,
-                com.epages.restdocs.openapi.generator.Attributes()
+                com.epages.restdocs.openapi.model.Attributes()
             ))) {
             then(remainingSegments(ImmutableList.of("a"))).contains("b", "c")
             then(remainingSegments(ImmutableList.of("a", "b"))).contains("c")

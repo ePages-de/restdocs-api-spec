@@ -13,6 +13,7 @@ repositories {
 dependencies {
     compile(kotlin("stdlib-jdk8"))
 
+    compile(project(":restdocs-openapi-model"))
     compile("io.swagger:swagger-core:1.5.20")
     compile("com.fasterxml.jackson.core:jackson-databind:2.9.5")
     compile("com.fasterxml.jackson.module:jackson-module-kotlin:2.9.5")

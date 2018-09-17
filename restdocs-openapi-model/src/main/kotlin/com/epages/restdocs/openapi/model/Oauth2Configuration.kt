@@ -1,4 +1,4 @@
-package com.epages.restdocs.openapi.generator
+package com.epages.restdocs.openapi.model
 
 open class Oauth2Configuration(
     var tokenUrl: String = "", // required for types "password", "application", "accessCode"

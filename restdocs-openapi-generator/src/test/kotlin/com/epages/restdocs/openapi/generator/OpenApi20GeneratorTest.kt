@@ -1,6 +1,16 @@
 package com.epages.restdocs.openapi.generator
 
-import com.epages.restdocs.openapi.generator.SecurityType.OAUTH2
+import com.epages.restdocs.openapi.model.AbstractParameterDescriptor
+import com.epages.restdocs.openapi.model.FieldDescriptor
+import com.epages.restdocs.openapi.model.HTTPMethod
+import com.epages.restdocs.openapi.model.HeaderDescriptor
+import com.epages.restdocs.openapi.model.Oauth2Configuration
+import com.epages.restdocs.openapi.model.ParameterDescriptor
+import com.epages.restdocs.openapi.model.RequestModel
+import com.epages.restdocs.openapi.model.ResourceModel
+import com.epages.restdocs.openapi.model.ResponseModel
+import com.epages.restdocs.openapi.model.SecurityRequirements
+import com.epages.restdocs.openapi.model.SecurityType.OAUTH2
 import io.swagger.models.Model
 import io.swagger.models.Path
 import io.swagger.models.Response
