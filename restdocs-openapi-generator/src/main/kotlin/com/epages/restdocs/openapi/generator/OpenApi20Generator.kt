@@ -185,7 +185,7 @@ object OpenApi20Generator {
         return Operation().apply {
             summary = firstModelForPathAndMethod.summary
             description = firstModelForPathAndMethod.description
-            tags = modelsWithSamePathAndMethod.flatMap { it.tags }
+            tags = modelsWithSamePathAndMethod.flatMap { it.tags }.distinct().nullIfEmpty()
             consumes = modelsWithSamePathAndMethod.map { it.request.contentType }.distinct().filterNotNull().nullIfEmpty()
             produces = modelsWithSamePathAndMethod.map { it.response.contentType }.distinct().filterNotNull().nullIfEmpty()
             parameters =
