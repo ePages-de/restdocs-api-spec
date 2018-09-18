@@ -84,7 +84,7 @@ data class ParameterDescriptor(
 
 data class SecurityRequirements(
     val type: SecurityType,
-    val requiredScopes: List<String>?
+    val requiredScopes: List<String>? = null
 )
 
 enum class SecurityType {

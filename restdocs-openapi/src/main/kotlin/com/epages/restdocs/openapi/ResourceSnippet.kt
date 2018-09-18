@@ -39,9 +39,7 @@ class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetPara
         val hasRequestBody = operation.request.contentAsString.isNotEmpty()
         val hasResponseBody = operation.response.contentAsString.isNotEmpty()
 
-        val securityRequirements: SecurityRequirements? = JwtScopeHandler()
-            .extractScopes(operation)
-            .let { if (it.isNotEmpty()) Oauth2(it) else null }
+        val securityRequirements =  SecurityRequirementsHandler().extractSecurityRequirements(operation)
 
         return ResourceModel(
             operationId = operation.name,
@@ -115,21 +113,6 @@ class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetPara
         val responseFields: List<FieldDescriptor>,
         val example: String?
     )
-
-    private interface SecurityRequirements {
-        val type: SecurityType
-    }
-
-    private class Oauth2(val requiredScopes: List<String>) :
-        SecurityRequirements {
-        override val type = SecurityType.OAUTH2
-    }
-
-    private enum class SecurityType {
-        OAUTH2,
-        BASIC,
-        API_KEY
-    }
 
     class MissingUrlTemplateException : RuntimeException("Missing URL template - please use RestDocumentationRequestBuilders with urlTemplate to construct the request")
 }
