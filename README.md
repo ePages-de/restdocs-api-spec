@@ -47,7 +47,6 @@ This is why we came up with this project.
 - [Convert to RAML](#convert-to-raml)
 - [Limitations](#limitations)
     - [Rest Assured](#rest-assured)
-    - [Maven plugin](#maven-plugin)
 
 <!-- /TOC -->
 
@@ -108,6 +107,8 @@ openapi { //7
 7. add configuration options for restdocs-openapi-gradle-plugin see [Gradle plugin configuration](#gradle-plugin-configuration)
 
 See the [build.gradle](samples/restdocs-openapi-sample/build.gradle) for the setup used in the sample project.
+
+If you are searching for a maven plugin that works with `restdocs-openapi` head over to https://github.com/BerkleyTechnologyServices/restdocs-spec.
 
 ### Usage with Spring REST Docs
 
@@ -346,7 +347,3 @@ See [openapi2raml.gradle](samples/restdocs-openapi-sample/openapi2raml.gradle).
 ### Rest Assured
 
 Spring REST Docs also supports REST Assured to write tests that produce documentation. We currently have not tried REST Assured with our project.
-
-### Maven plugin
-
-Currently only a gradle plugin exists.
