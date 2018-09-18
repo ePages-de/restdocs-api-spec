@@ -52,6 +52,7 @@ class ResourceSnippetTest(private val temporaryFolder: TemporaryFolder) {
 
         then(resourceSnippetJson.read<Int>("response.status")).isEqualTo(OK.value())
         then(resourceSnippetJson.read<String>("response.example")).isNull()
+        then(resourceSnippetJson.read<List<String>>("tags")).isEqualTo(listOf("some"))
     }
 
     @Test
@@ -62,12 +63,15 @@ class ResourceSnippetTest(private val temporaryFolder: TemporaryFolder) {
         givenPathParameterDescriptors()
         givenRequestParameterDescriptors()
         givenRequestAndResponseHeaderDescriptors()
+        givenTag()
 
         whenResourceSnippetInvoked()
 
         thenSnippetFileExists()
         thenSnippetFileHasCommonRequestAttributes()
         thenResourceSnippetContainsCommonRequestAttributes()
+
+        then(resourceSnippetJson.read<List<*>>("tags")).hasSize(3)
 
         then(resourceSnippetJson.read<List<*>>("request.headers")).hasSize(1)
         then(resourceSnippetJson.read<String>("request.headers[0].name")).isNotEmpty()
@@ -131,6 +135,11 @@ class ResourceSnippetTest(private val temporaryFolder: TemporaryFolder) {
         givenOperationWithoutUrlTemplate()
 
         thenThrownBy { whenResourceSnippetInvoked() }.isInstanceOf(ResourceSnippet.MissingUrlTemplateException::class.java)
+    }
+
+    private fun givenTag() {
+        parametersBuilder.tag("some")
+        parametersBuilder.tags("someOther", "somethingElse")
     }
 
     private fun thenResourceSnippetContainsCommonRequestAttributes() {

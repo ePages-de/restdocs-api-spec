@@ -185,6 +185,7 @@ object OpenApi20Generator {
         return Operation().apply {
             summary = firstModelForPathAndMethod.summary
             description = firstModelForPathAndMethod.description
+            tags = modelsWithSamePathAndMethod.flatMap { it.tags }
             consumes = modelsWithSamePathAndMethod.map { it.request.contentType }.distinct().filterNotNull().nullIfEmpty()
             produces = modelsWithSamePathAndMethod.map { it.response.contentType }.distinct().filterNotNull().nullIfEmpty()
             parameters =
@@ -258,17 +259,22 @@ object OpenApi20Generator {
             }
             openApi.addSecurityDefinition(oauth2SecuritySchemeDefinition.securitySchemeName(flow), oauth2Definition)
         }
-        if (hasOperationWithSecurityName(openApi, BASIC_SECURITY_NAME)) {
+        if (hasAnyOperationWithSecurityName(openApi, BASIC_SECURITY_NAME)) {
             openApi.addSecurityDefinition(BASIC_SECURITY_NAME, BasicAuthDefinition())
         }
 
-        if (hasOperationWithSecurityName(openApi, API_KEY_SECURITY_NAME)) {
+        if (hasAnyOperationWithSecurityName(openApi, API_KEY_SECURITY_NAME)) {
             openApi.addSecurityDefinition(API_KEY_SECURITY_NAME, ApiKeyAuthDefinition())
         }
     }
 
-    private fun hasOperationWithSecurityName(openApi: Swagger, name: String) =
-        openApi.paths.flatMap { it.value.operations }.flatMap { it.security }.mapNotNull { it }.flatMap { it.keys }.filter { it == name }.isNotEmpty()
+    private fun hasAnyOperationWithSecurityName(openApi: Swagger, name: String) =
+        openApi.paths
+            .flatMap { it.value.operations }
+            .mapNotNull { it.security }
+            .flatMap { it }
+            .flatMap { it.keys }
+            .any { it == name }
 
     private fun collectScopesFromOperations(openApi: Swagger): Set<String> {
         return openApi.paths

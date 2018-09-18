@@ -6,6 +6,7 @@ data class ResourceModel(
     val description: String? = null,
     val privateResource: Boolean,
     val deprecated: Boolean,
+    val tags: Set<String> = emptySet(),
     val request: RequestModel,
     val response: ResponseModel
 )
