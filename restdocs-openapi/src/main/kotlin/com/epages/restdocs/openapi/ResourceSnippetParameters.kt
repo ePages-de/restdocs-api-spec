@@ -25,7 +25,8 @@ data class ResourceSnippetParameters @JvmOverloads constructor(
     val pathParameters: List<ParameterDescriptorWithType> = emptyList(),
     val requestParameters: List<ParameterDescriptorWithType> = emptyList(),
     val requestHeaders: List<HeaderDescriptorWithType> = emptyList(),
-    val responseHeaders: List<HeaderDescriptorWithType> = emptyList()
+    val responseHeaders: List<HeaderDescriptorWithType> = emptyList(),
+    val tags: Set<String> = emptySet()
 ) {
     val responseFieldsWithLinks by lazy { responseFields + links.map(Companion::toFieldDescriptor) }
 
@@ -156,6 +157,8 @@ class ResourceSnippetParametersBuilder {
         private set
     var responseHeaders: List<HeaderDescriptorWithType> = emptyList()
         private set
+    var tags: Set<String> = setOf()
+        private set
 
     fun summary(summary: String?) = apply { this.summary = summary }
     fun description(description: String?) = apply { this.description = description }
@@ -196,6 +199,8 @@ class ResourceSnippetParametersBuilder {
     fun responseHeaders(vararg responseHeaders: HeaderDescriptorWithType) = responseHeaders(responseHeaders.toList())
     fun responseHeaders(vararg responseHeaders: HeaderDescriptor) = responseHeaders(
         responseHeaders.map { HeaderDescriptorWithType.fromHeaderDescriptor(it) })
+    fun tag(tag: String) = tags(tag)
+    fun tags(vararg tags: String) = apply { this.tags += tags }
 
     fun build() = ResourceSnippetParameters(
         summary,
@@ -208,6 +213,7 @@ class ResourceSnippetParametersBuilder {
         pathParameters,
         requestParameters,
         requestHeaders,
-        responseHeaders
+        responseHeaders,
+        tags
     )
 }

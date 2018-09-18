@@ -39,7 +39,14 @@ class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetPara
         val hasRequestBody = operation.request.contentAsString.isNotEmpty()
         val hasResponseBody = operation.response.contentAsString.isNotEmpty()
 
-        val securityRequirements =  SecurityRequirementsHandler().extractSecurityRequirements(operation)
+        val securityRequirements = SecurityRequirementsHandler().extractSecurityRequirements(operation)
+
+        val tags =
+            if (resourceSnippetParameters.tags.isEmpty())
+                Optional.ofNullable(getUriComponents(operation).pathSegments.firstOrNull())
+                    .map { setOf(it) }
+                    .orElse(emptySet())
+            else resourceSnippetParameters.tags
 
         return ResourceModel(
             operationId = operation.name,
@@ -47,6 +54,7 @@ class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetPara
             description = resourceSnippetParameters.description ?: resourceSnippetParameters.summary,
             privateResource = resourceSnippetParameters.privateResource,
             deprecated = resourceSnippetParameters.deprecated,
+            tags = tags,
             request = RequestModel(
                 path = getUriPath(operation),
                 method = operation.request.method.name,
@@ -68,10 +76,13 @@ class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetPara
         )
     }
 
-    private fun getUriPath(operation: Operation) =
+    private fun getUriComponents(operation: Operation) =
         Optional.ofNullable(operation.attributes[ATTRIBUTE_NAME_URL_TEMPLATE] as? String)
-            .map { UriComponentsBuilder.fromUriString(it).build().path }
+            .map { UriComponentsBuilder.fromUriString(it).build() }
             .orElseThrow { MissingUrlTemplateException() }
+
+    private fun getUriPath(operation: Operation) =
+        getUriComponents(operation).path
 
     private fun getContentTypeOrDefault(headers: HttpHeaders): String =
         Optional.ofNullable(headers.contentType)
@@ -91,7 +102,8 @@ class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetPara
         val privateResource: Boolean,
         val deprecated: Boolean,
         val request: RequestModel,
-        val response: ResponseModel
+        val response: ResponseModel,
+        val tags: Set<String>
     )
 
     private data class RequestModel(

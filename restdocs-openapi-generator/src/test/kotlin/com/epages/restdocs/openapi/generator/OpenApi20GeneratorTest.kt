@@ -192,6 +192,9 @@ class OpenApi20GeneratorTest {
         then(productPath.get.consumes).contains(successfulGetProductModel.request.contentType)
 
         then(productPath.get.security).hasSize(2)
+
+        then(productPath.get.tags).containsOnly("tag1", "tag2")
+
         val combined = productPath.get.security.reduce { map1, map2 -> map1 + map2 }
         then(combined).containsOnlyKeys("oauth2_application", "oauth2_accessCode")
         then(combined.values).containsOnly(listOf("prod:r"))
@@ -286,6 +289,7 @@ class OpenApi20GeneratorTest {
                 operationId = "test",
                 privateResource = false,
                 deprecated = false,
+                tags = setOf("tag1", "tag2"),
                 request = getProductRequest(),
                 response = getProduct200Response(getProductPayloadExample())
             )
@@ -346,6 +350,7 @@ class OpenApi20GeneratorTest {
                         operationId = "test",
                         privateResource = false,
                         deprecated = false,
+                        tags = setOf("tag1", "tag2"),
                         request = getProductRequest(),
                         response = getProduct200Response(getProductPayloadExample())
                 ),
