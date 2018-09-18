@@ -81,10 +81,16 @@ internal object DescriptorValidator {
     }
 
     private fun toParameterDescriptors(parameters: List<ParameterDescriptorWithType>) =
-        parameters.map { parameterWithName(it.name).description(it.description) }
+        parameters.map { p -> parameterWithName(p.name).description(p.description)
+            .apply { if (p.optional) optional() }
+            .apply { if (p.isIgnored) optional() }
+        }
 
     private fun toHeaderDescriptors(requestHeaders: List<HeaderDescriptorWithType>) =
-        requestHeaders.map { headerWithName(it.name).description(it.description) }
+        requestHeaders.map { h ->
+            headerWithName(h.name).description(h.description)
+                .apply { if (h.optional) optional() }
+        }
 
     private interface ValidateableSnippet {
         fun validate(operation: Operation)
