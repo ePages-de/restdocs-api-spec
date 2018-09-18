@@ -13,7 +13,7 @@ plugins {
     id("pl.allegro.tech.build.axion-release") version "1.9.2"
     jacoco
     `maven-publish`
-    id("org.jmailen.kotlinter") version "1.15.1" apply false
+    id("org.jmailen.kotlinter") version "1.17.0" apply false
     id("com.github.kt3k.coveralls") version "2.8.2"
 }
 
