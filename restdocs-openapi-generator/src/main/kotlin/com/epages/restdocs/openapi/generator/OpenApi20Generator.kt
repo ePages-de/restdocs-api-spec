@@ -20,6 +20,8 @@ import io.swagger.models.RefModel
 import io.swagger.models.Response
 import io.swagger.models.Scheme
 import io.swagger.models.Swagger
+import io.swagger.models.auth.ApiKeyAuthDefinition
+import io.swagger.models.auth.BasicAuthDefinition
 import io.swagger.models.auth.OAuth2Definition
 import io.swagger.models.parameters.BodyParameter
 import io.swagger.models.parameters.HeaderParameter
@@ -33,6 +35,8 @@ import java.util.Comparator.comparingInt
 
 object OpenApi20Generator {
 
+    private const val API_KEY_SECURITY_NAME = "api_key"
+    private const val BASIC_SECURITY_NAME = "basic"
     fun generate(
         resources: List<ResourceModel>,
         basePath: String? = null,
@@ -65,21 +69,21 @@ object OpenApi20Generator {
             .map { it.key to it.value.operations }
             .forEach {
                 val pathKey = it.first
-                it.second.forEach {
-                    operationToPathKey[it] = pathKey
+                it.second.forEach { operation ->
+                    operationToPathKey[operation] = pathKey
                 }
             }
 
-        operationToPathKey.keys.forEach {
-            val pathKey = operationToPathKey[it]!!
+        operationToPathKey.keys.forEach { operation ->
+            val pathKey = operationToPathKey[operation]!!
 
-            extractBodyParameter(it.parameters)
+            extractBodyParameter(operation.parameters)
                 ?.takeIf { it.schema != null }
                 ?.let {
                     it.schema(extractOrFindSchema(schemasToKeys, it.schema, generateSchemaName(pathKey)))
                 }
 
-            it.responses.values
+            operation.responses.values
                 .filter { it.responseSchema != null }
                 .forEach {
                     it.responseSchema(extractOrFindSchema(schemasToKeys, it.responseSchema, generateSchemaName(pathKey)))
@@ -204,11 +208,15 @@ object OpenApi20Generator {
                     .mapValues { responseModel2Response(it.value) }
                     .nullIfEmpty()
         }.apply {
-            if (firstModelForPathAndMethod.request.securityRequirements != null &&
-                firstModelForPathAndMethod.request.securityRequirements!!.type == SecurityType.OAUTH2) {
-                oauth2SecuritySchemeDefinition?.flows?.map {
-                    addSecurity(oauth2SecuritySchemeDefinition.securitySchemeName(it),
-                        securityRequirements2ScopesList(firstModelForPathAndMethod.request.securityRequirements!!))
+            val securityRequirements = firstModelForPathAndMethod.request.securityRequirements
+            if (securityRequirements != null) {
+                when (securityRequirements.type) {
+                    SecurityType.OAUTH2 -> oauth2SecuritySchemeDefinition?.flows?.map {
+                        addSecurity(oauth2SecuritySchemeDefinition.securitySchemeName(it),
+                                securityRequirements2ScopesList(securityRequirements))
+                    }
+                    SecurityType.BASIC -> addSecurity(BASIC_SECURITY_NAME, null)
+                    SecurityType.API_KEY -> addSecurity(API_KEY_SECURITY_NAME, null)
                 }
             }
         }
@@ -220,8 +228,7 @@ object OpenApi20Generator {
             .filter { it.startsWith("{") && it.endsWith("}") }
             .map { it.removePrefix("{").removeSuffix("}") }
 
-        return pathParameterNames.map {
-            val parameterName = it
+        return pathParameterNames.map { parameterName ->
             resourceModel.request.pathParameters
                 .firstOrNull { it.name == parameterName }
                 ?.let { pathParameterDescriptor2Parameter(it) }
@@ -242,7 +249,7 @@ object OpenApi20Generator {
                 "accessCode" -> OAuth2Definition().accessCode(oauth2SecuritySchemeDefinition.authorizationUrl, oauth2SecuritySchemeDefinition.tokenUrl)
                 "application" -> OAuth2Definition().application(oauth2SecuritySchemeDefinition.tokenUrl)
                 "password" -> OAuth2Definition().password(oauth2SecuritySchemeDefinition.tokenUrl)
-                "implicit" -> OAuth2Definition().password(oauth2SecuritySchemeDefinition.tokenUrl)
+                "implicit" -> OAuth2Definition().implicit(oauth2SecuritySchemeDefinition.authorizationUrl)
                 else -> throw IllegalArgumentException("Unknown flow '$flow' in oauth2SecuritySchemeDefinition")
             }.apply {
                 allScopes.forEach {
@@ -251,16 +258,26 @@ object OpenApi20Generator {
             }
             openApi.addSecurityDefinition(oauth2SecuritySchemeDefinition.securitySchemeName(flow), oauth2Definition)
         }
+        if (hasOperationWithSecurityName(openApi, BASIC_SECURITY_NAME)) {
+            openApi.addSecurityDefinition(BASIC_SECURITY_NAME, BasicAuthDefinition())
+        }
+
+        if (hasOperationWithSecurityName(openApi, API_KEY_SECURITY_NAME)) {
+            openApi.addSecurityDefinition(API_KEY_SECURITY_NAME, ApiKeyAuthDefinition())
+        }
     }
+
+    private fun hasOperationWithSecurityName(openApi: Swagger, name: String) =
+        openApi.paths.flatMap { it.value.operations }.flatMap { it.security }.mapNotNull { it }.flatMap { it.keys }.filter { it == name }.isNotEmpty()
 
     private fun collectScopesFromOperations(openApi: Swagger): Set<String> {
         return openApi.paths
-            .flatMap {
-                it.value.operations
-                    .flatMap {
-                        it?.security
-                            ?.filter { it.filterKeys { it.startsWith("oauth2") }.isNotEmpty() }
-                            ?.flatMap { it.values.flatMap { it } }
+            .flatMap { path ->
+                path.value.operations
+                    .flatMap { operation ->
+                        operation?.security
+                            ?.filter { s -> s.filterKeys { it.startsWith("oauth2") }.isNotEmpty() }
+                            ?.flatMap { oauthSecurity -> oauthSecurity.values.flatMap { it } }
                             ?: listOf()
                     }
             }.toSet()

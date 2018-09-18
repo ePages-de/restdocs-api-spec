@@ -10,11 +10,13 @@ import com.epages.restdocs.openapi.model.RequestModel
 import com.epages.restdocs.openapi.model.ResourceModel
 import com.epages.restdocs.openapi.model.ResponseModel
 import com.epages.restdocs.openapi.model.SecurityRequirements
+import com.epages.restdocs.openapi.model.SecurityType.BASIC
 import com.epages.restdocs.openapi.model.SecurityType.OAUTH2
 import io.swagger.models.Model
 import io.swagger.models.Path
 import io.swagger.models.Response
 import io.swagger.models.Swagger
+import io.swagger.models.auth.BasicAuthDefinition
 import io.swagger.models.auth.OAuth2Definition
 import io.swagger.models.parameters.BodyParameter
 import io.swagger.models.parameters.Parameter
@@ -114,6 +116,22 @@ class OpenApi20GeneratorTest {
                 .isEqualToComparingFieldByField(OAuth2Definition().accessCode("http://example.com/authorize", "http://example.com/token")
                     .apply { addScope("prod:r", "No description") })
         }
+        thenValidateOpenApi(openapi)
+    }
+
+    @Test
+    fun `should add basic security`() {
+        val api = givenResourceModelWithBasicSecurity()
+
+        val openapi = whenOpenApiObjectGenerated(api)
+
+        with(openapi.securityDefinitions) {
+            then(this).containsKey("basic")
+            then(this["basic"])
+                    .isEqualToComparingFieldByField(BasicAuthDefinition())
+        }
+        then(openapi.paths.values.first().operations.first().security).hasSize(1)
+        then(openapi.paths.values.first().operations.first().security.first()).containsKey("basic")
         thenValidateOpenApi(openapi)
     }
 
@@ -271,6 +289,18 @@ class OpenApi20GeneratorTest {
                 request = getProductRequest(),
                 response = getProduct200Response(getProductPayloadExample())
             )
+        )
+    }
+
+    private fun givenResourceModelWithBasicSecurity(): List<ResourceModel> {
+        return listOf(
+                ResourceModel(
+                        operationId = "test",
+                        privateResource = false,
+                        deprecated = false,
+                        request = getProductRequestWithBasicSecurity(),
+                        response = getProduct200Response(getProductPayloadExample())
+                )
         )
     }
 
@@ -495,6 +525,20 @@ class OpenApi20GeneratorTest {
                                 ignored = false
                         )
                 ),
+                requestFields = listOf()
+        )
+    }
+
+    private fun getProductRequestWithBasicSecurity(): RequestModel {
+        return RequestModel(
+                path = "/products",
+                method = HTTPMethod.GET,
+                securityRequirements = SecurityRequirements(
+                        type = BASIC
+                ),
+                headers = listOf(),
+                pathParameters = listOf(),
+                requestParameters = listOf(),
                 requestFields = listOf()
         )
     }
