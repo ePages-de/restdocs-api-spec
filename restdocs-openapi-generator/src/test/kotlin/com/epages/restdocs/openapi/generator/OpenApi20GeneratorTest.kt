@@ -189,6 +189,7 @@ class OpenApi20GeneratorTest {
 
         then(productPath).isNotNull
         then(openapi.basePath).isNull()
+        then(productPath.get.operationId).isNotEmpty()
         then(productPath.get.consumes).contains(successfulGetProductModel.request.contentType)
 
         then(productPath.get.security).hasSize(2)
