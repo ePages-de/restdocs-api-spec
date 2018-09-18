@@ -310,6 +310,7 @@ object OpenApi20Generator {
         return QueryParameter().apply {
             name = parameterDescriptor.name
             description = parameterDescriptor.description
+            required = parameterDescriptor.optional.not()
             type = parameterDescriptor.type.toLowerCase()
         }
     }
@@ -318,6 +319,7 @@ object OpenApi20Generator {
         return HeaderParameter().apply {
             name = headerDescriptor.name
             description = headerDescriptor.description
+            required = headerDescriptor.optional.not()
             type = headerDescriptor.type.toLowerCase()
         }
     }
