@@ -134,15 +134,27 @@ class ParameterDescriptorWithType(val name: String) : IgnorableDescriptor<Parame
     }
 }
 
-class ResourceSnippetParametersBuilder {
+abstract class ResourceSnippetDetails {
     var summary: String? = null
-        private set
+        protected set
     var description: String? = null
-        private set
+        protected set
     var privateResource: Boolean = false
-        private set
+        protected set
     var deprecated: Boolean = false
-        private set
+        protected set
+    var tags: Set<String> = setOf()
+        protected set
+
+    abstract fun summary(summary: String?): ResourceSnippetDetails
+    abstract fun description(description: String?): ResourceSnippetDetails
+    abstract fun privateResource(privateResource: Boolean): ResourceSnippetDetails
+    abstract fun deprecated(deprecated: Boolean): ResourceSnippetDetails
+    abstract fun tag(tag: String): ResourceSnippetDetails
+    abstract fun tags(vararg tags: String): ResourceSnippetDetails
+}
+
+class ResourceSnippetParametersBuilder : ResourceSnippetDetails() {
     var requestFields: List<FieldDescriptor> = emptyList()
         private set
     var responseFields: List<FieldDescriptor> = emptyList()
@@ -157,13 +169,11 @@ class ResourceSnippetParametersBuilder {
         private set
     var responseHeaders: List<HeaderDescriptorWithType> = emptyList()
         private set
-    var tags: Set<String> = setOf()
-        private set
 
-    fun summary(summary: String?) = apply { this.summary = summary }
-    fun description(description: String?) = apply { this.description = description }
-    fun privateResource(privateResource: Boolean) = apply { this.privateResource = privateResource }
-    fun deprecated(deprecated: Boolean) = apply { this.deprecated = deprecated }
+    override fun summary(summary: String?) = apply { this.summary = summary }
+    override fun description(description: String?) = apply { this.description = description }
+    override fun privateResource(privateResource: Boolean) = apply { this.privateResource = privateResource }
+    override fun deprecated(deprecated: Boolean) = apply { this.deprecated = deprecated }
 
     fun requestFields(vararg requestFields: FieldDescriptor) = requestFields(requestFields.toList())
     fun requestFields(requestFields: List<FieldDescriptor>) = apply { this.requestFields = requestFields }
@@ -199,8 +209,9 @@ class ResourceSnippetParametersBuilder {
     fun responseHeaders(vararg responseHeaders: HeaderDescriptorWithType) = responseHeaders(responseHeaders.toList())
     fun responseHeaders(vararg responseHeaders: HeaderDescriptor) = responseHeaders(
         responseHeaders.map { HeaderDescriptorWithType.fromHeaderDescriptor(it) })
-    fun tag(tag: String) = tags(tag)
-    fun tags(vararg tags: String) = apply { this.tags += tags }
+
+    override fun tag(tag: String) = tags(tag)
+    override fun tags(vararg tags: String) = apply { this.tags += tags }
 
     fun build() = ResourceSnippetParameters(
         summary,

@@ -28,6 +28,39 @@ object MockMvcRestDocumentationWrapper {
     @JvmOverloads @JvmStatic
     fun document(
         identifier: String,
+        resourceDetails: ResourceSnippetDetails,
+        requestPreprocessor: OperationRequestPreprocessor? = null,
+        responsePreprocessor: OperationResponsePreprocessor? = null,
+        snippetFilter: Function<List<Snippet>, List<Snippet>> = Function.identity(),
+        vararg snippets: Snippet
+    ): RestDocumentationResultHandler {
+
+        val enhancedSnippets =
+                enhanceSnippetsWithResourceSnippet(
+                        resourceDetails = resourceDetails,
+                        snippetFilter = snippetFilter,
+                        snippets = *snippets
+                )
+
+        if (requestPreprocessor != null && responsePreprocessor != null) {
+            return MockMvcRestDocumentation.document(
+                    identifier,
+                    requestPreprocessor,
+                    responsePreprocessor,
+                    *enhancedSnippets
+            )
+        } else if (requestPreprocessor != null) {
+            return MockMvcRestDocumentation.document(identifier, requestPreprocessor, *enhancedSnippets)
+        } else if (responsePreprocessor != null) {
+            return MockMvcRestDocumentation.document(identifier, responsePreprocessor, *enhancedSnippets)
+        }
+
+        return MockMvcRestDocumentation.document(identifier, *enhancedSnippets)
+    }
+
+    @JvmOverloads @JvmStatic
+    fun document(
+        identifier: String,
         description: String? = null,
         summary: String? = null,
         privateResource: Boolean = false,
@@ -37,31 +70,18 @@ object MockMvcRestDocumentationWrapper {
         snippetFilter: Function<List<Snippet>, List<Snippet>> = Function.identity(),
         vararg snippets: Snippet
     ): RestDocumentationResultHandler {
-
-        val enhancedSnippets =
-            enhanceSnippetsWithResourceSnippet(
-                description = description,
-                summary = summary,
-                privateResource = privateResource,
-                deprecated = deprecated,
+        return document(
+                identifier = identifier,
+                resourceDetails = ResourceSnippetParametersBuilder()
+                        .description(description)
+                        .summary(summary)
+                        .privateResource(privateResource)
+                        .deprecated(deprecated),
+                requestPreprocessor = requestPreprocessor,
+                responsePreprocessor = responsePreprocessor,
                 snippetFilter = snippetFilter,
                 snippets = *snippets
-            )
-
-        if (requestPreprocessor != null && responsePreprocessor != null) {
-            return MockMvcRestDocumentation.document(
-                identifier,
-                requestPreprocessor,
-                responsePreprocessor,
-                *enhancedSnippets
-            )
-        } else if (requestPreprocessor != null) {
-            return MockMvcRestDocumentation.document(identifier, requestPreprocessor, *enhancedSnippets)
-        } else if (responsePreprocessor != null) {
-            return MockMvcRestDocumentation.document(identifier, responsePreprocessor, *enhancedSnippets)
-        }
-
-        return MockMvcRestDocumentation.document(identifier, *enhancedSnippets)
+        )
     }
 
     @JvmStatic
@@ -83,21 +103,19 @@ object MockMvcRestDocumentationWrapper {
         return document(identifier, description, null, privateResource, snippets = *snippets)
     }
 
+    @JvmStatic
+    fun resourceDetails(): ResourceSnippetDetails {
+        return ResourceSnippetParametersBuilder()
+    }
+
     internal fun enhanceSnippetsWithResourceSnippet(
-        description: String? = null,
-        summary: String? = null,
-        privateResource: Boolean = false,
-        deprecated: Boolean = false,
+        resourceDetails: ResourceSnippetDetails,
         snippetFilter: Function<List<Snippet>, List<Snippet>>,
         vararg snippets: Snippet
     ): Array<Snippet> {
 
         val enhancedSnippets = if (snippets.none { it is ResourceSnippet }) { // No ResourceSnippet, so we configure our own based on the info of the other snippets
-            val resourceParameters = ResourceSnippetParametersBuilder()
-                .description(description)
-                .summary(summary)
-                .privateResource(privateResource)
-                .deprecated(deprecated)
+            val resourceParameters = createBuilder(resourceDetails)
                 .requestFields(
                     snippets.filter { it is RequestFieldsSnippet }
                         .flatMap {
@@ -163,5 +181,17 @@ object MockMvcRestDocumentationWrapper {
         } else snippets.toList()
 
         return snippetFilter.apply(enhancedSnippets).toTypedArray()
+    }
+
+    internal fun createBuilder(resourceDetails: ResourceSnippetDetails): ResourceSnippetParametersBuilder {
+        return when (resourceDetails) {
+            is ResourceSnippetParametersBuilder -> resourceDetails
+            else -> ResourceSnippetParametersBuilder()
+                .description(resourceDetails.description)
+                .summary(resourceDetails.summary)
+                .privateResource(resourceDetails.privateResource)
+                .deprecated(resourceDetails.deprecated)
+                .tags(*resourceDetails.tags.toTypedArray())
+        }
     }
 }
