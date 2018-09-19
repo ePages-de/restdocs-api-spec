@@ -9,16 +9,19 @@ import org.springframework.restdocs.RestDocumentationContext
 import org.springframework.restdocs.generate.RestDocumentationGenerator.ATTRIBUTE_NAME_URL_TEMPLATE
 import org.springframework.restdocs.operation.Operation
 import org.springframework.restdocs.payload.FieldDescriptor
+import org.springframework.restdocs.snippet.PlaceholderResolverFactory
 import org.springframework.restdocs.snippet.RestDocumentationContextPlaceholderResolverFactory
 import org.springframework.restdocs.snippet.Snippet
 import org.springframework.restdocs.snippet.StandardWriterResolver
 import org.springframework.restdocs.templates.TemplateFormat
+import org.springframework.util.PropertyPlaceholderHelper
 import org.springframework.web.util.UriComponentsBuilder
 import java.util.Optional
 
 class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetParameters) : Snippet {
 
     private val objectMapper = jacksonObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
+    private val propertyPlaceholderHelper = PropertyPlaceholderHelper("{", "}")
 
     override fun document(operation: Operation) {
         val context = operation
@@ -26,16 +29,20 @@ class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetPara
 
         DescriptorValidator.validatePresentParameters(resourceSnippetParameters, operation)
 
-        val model = createModel(operation)
+        val placeholderResolverFactory = RestDocumentationContextPlaceholderResolverFactory()
 
-        (StandardWriterResolver(RestDocumentationContextPlaceholderResolverFactory(), Charsets.UTF_8.name(),
+        val model = createModel(operation, placeholderResolverFactory, context)
+
+        (StandardWriterResolver(placeholderResolverFactory, Charsets.UTF_8.name(),
             JsonTemplateFormat
         ))
                 .resolve(operation.name, "resource", context)
             .use { it.append(objectMapper.writeValueAsString(model)) }
     }
 
-    private fun createModel(operation: Operation): ResourceModel {
+    private fun createModel(operation: Operation, placeholderResolverFactory: PlaceholderResolverFactory, context: RestDocumentationContext): ResourceModel {
+        val operationId = propertyPlaceholderHelper.replacePlaceholders(operation.name, placeholderResolverFactory.create(context))
+
         val hasRequestBody = operation.request.contentAsString.isNotEmpty()
         val hasResponseBody = operation.response.contentAsString.isNotEmpty()
 
@@ -49,7 +56,7 @@ class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetPara
             else resourceSnippetParameters.tags
 
         return ResourceModel(
-            operationId = operation.name,
+            operationId = operationId,
             summary = resourceSnippetParameters.summary ?: resourceSnippetParameters.description,
             description = resourceSnippetParameters.description ?: resourceSnippetParameters.summary,
             privateResource = resourceSnippetParameters.privateResource,
