@@ -41,6 +41,10 @@ class OperationBuilder {
 
     private lateinit var outputDirectory: File
 
+    private var testClass: Class<*>? = null
+
+    private var testMethodName: String? = null
+
     private val templateFormat = TemplateFormats.asciidoctor()
 
     private var requestBuilder: OperationRequestBuilder? = null
@@ -65,6 +69,16 @@ class OperationBuilder {
 
     fun attribute(name: String, value: Any): OperationBuilder {
         this.attributes[name] = value
+        return this
+    }
+
+    fun testClass(testClass: Class<*>): OperationBuilder {
+        this.testClass = testClass
+        return this
+    }
+
+    fun testMethodName(testMethodName: String): OperationBuilder {
+        this.testMethodName = testMethodName
         return this
     }
 
@@ -109,7 +123,7 @@ class OperationBuilder {
         val manualRestDocumentation = ManualRestDocumentation(
             this.outputDirectory.absolutePath
         )
-        manualRestDocumentation.beforeTest(null, null)
+        manualRestDocumentation.beforeTest(this.testClass, this.testMethodName)
         return manualRestDocumentation.beforeOperation()
     }
 

@@ -137,6 +137,17 @@ class ResourceSnippetTest(private val temporaryFolder: TemporaryFolder) {
         thenThrownBy { whenResourceSnippetInvoked() }.isInstanceOf(ResourceSnippet.MissingUrlTemplateException::class.java)
     }
 
+    @Test
+    fun should_generate_resource_snippet_for_operation_name_placeholders() {
+        givenOperationWithNamePlaceholders()
+
+        whenResourceSnippetInvoked()
+
+        thenSnippetFileExists("resource-snippet-test/get-some-by-id")
+
+        then(resourceSnippetJson.read<String>("operationId")).isEqualTo("resource-snippet-test/get-some-by-id")
+    }
+
     private fun givenTag() {
         parametersBuilder.tag("some")
         parametersBuilder.tags("someOther", "somethingElse")
@@ -182,8 +193,8 @@ class ResourceSnippetTest(private val temporaryFolder: TemporaryFolder) {
         parametersBuilder.responseHeaders(HeaderDocumentation.headerWithName("X-SOME").description("some"))
     }
 
-    private fun thenSnippetFileExists() {
-        with(generatedSnippetFile()) {
+    private fun thenSnippetFileExists(operationName: String = this.operationName) {
+        with(generatedSnippetFile(operationName)) {
             then(this).exists()
             val contents = readText()
             then(contents).isNotEmpty()
@@ -192,7 +203,7 @@ class ResourceSnippetTest(private val temporaryFolder: TemporaryFolder) {
         }
     }
 
-    private fun generatedSnippetFile() = File(rootOutputDirectory, "$operationName/resource.json")
+    private fun generatedSnippetFile(operationName: String) = File(rootOutputDirectory, "$operationName/resource.json")
 
     private fun givenOperationWithoutBody() {
         val operationBuilder = OperationBuilder("test", temporaryFolder.root)
@@ -215,6 +226,18 @@ class ResourceSnippetTest(private val temporaryFolder: TemporaryFolder) {
             .response()
             .status(201)
         operation = operationBuilder.build()
+    }
+
+    private fun givenOperationWithNamePlaceholders() {
+        operation = OperationBuilder("{class-name}/{method-name}", temporaryFolder.root)
+                .attribute(ATTRIBUTE_NAME_URL_TEMPLATE, "http://localhost:8080/some/{id}")
+                .testClass(ResourceSnippetTest::class.java)
+                .testMethodName("getSomeById")
+                .request("http://localhost:8080/some/123")
+                .method("POST")
+                .header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+                .content("{\"comment\": \"some\"}")
+                .build()
     }
 
     private fun givenOperationWithRequestBody() {
