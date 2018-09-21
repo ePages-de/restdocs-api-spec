@@ -59,6 +59,15 @@ class MockMvcRestDocumentationWrapperIntegrationTest(@Autowired mockMvc: MockMvc
         assertThatCode { this.whenDocumentedWithAllFieldsLinksIgnored() }.doesNotThrowAnyException()
     }
 
+    @Test
+    fun should_document_restdocs_and_resource_snippet_details() {
+        givenEndpointInvoked()
+
+        whenDocumentedWithResourceSnippetDetails()
+
+        thenSnippetFileExists()
+    }
+
     @Throws(Exception::class)
     private fun whenDocumentedWithRestdocsAndResource() {
         resultActions
@@ -137,6 +146,36 @@ class MockMvcRestDocumentationWrapperIntegrationTest(@Autowired mockMvc: MockMvc
                 MockMvcRestDocumentationWrapper.document(
                     identifier = operationName,
                     privateResource = true,
+                    requestPreprocessor = operationRequestPreprocessor,
+                    snippets = *arrayOf(
+                        requestFields(fieldDescriptors().fieldDescriptors),
+                        responseFields(
+                            fieldWithPath("comment").description("the comment"),
+                            fieldWithPath("flag").description("the flag"),
+                            fieldWithPath("count").description("the count"),
+                            fieldWithPath("id").description("id"),
+                            subsectionWithPath("_links").ignored()
+                        ),
+                        links(
+                            linkWithRel("self").description("some"),
+                            linkWithRel("multiple").description("multiple")
+                        )
+                    )
+                )
+            )
+    }
+
+    @Throws(Exception::class)
+    private fun whenDocumentedWithResourceSnippetDetails() {
+        val operationRequestPreprocessor = OperationRequestPreprocessor { r -> r }
+        resultActions
+            .andDo(
+                MockMvcRestDocumentationWrapper.document(
+                    identifier = operationName,
+                    resourceDetails = MockMvcRestDocumentationWrapper.resourceDetails()
+                        .description("The Resource")
+                        .privateResource(true)
+                        .tag("some-tag"),
                     requestPreprocessor = operationRequestPreprocessor,
                     snippets = *arrayOf(
                         requestFields(fieldDescriptors().fieldDescriptors),
