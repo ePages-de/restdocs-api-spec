@@ -15,7 +15,7 @@ dependencies {
     compile("com.fasterxml.jackson.core:jackson-databind:2.9.5")
     compile("com.fasterxml.jackson.module:jackson-module-kotlin:2.9.5")
 
-    testCompile("org.springframework.boot:spring-boot-starter-test:2.0.4.RELEASE") {
+    testCompile("org.springframework.boot:spring-boot-starter-test:2.0.5.RELEASE") {
         exclude("junit")
     }
     testCompile("org.junit.jupiter:junit-jupiter-engine:5.2.0")

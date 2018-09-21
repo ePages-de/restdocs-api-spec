@@ -37,14 +37,16 @@ This is why we came up with this project.
 - [Getting started](#getting-started)
     - [Project structure](#project-structure)
     - [Build configuration](#build-configuration)
+        - [Gradle](#gradle)
+        - [Maven](#maven)
     - [Usage with Spring REST Docs](#usage-with-spring-rest-docs)
     - [Documenting Bean Validation constraints](#documenting-bean-validation-constraints)
     - [Migrate existing Spring REST Docs tests](#migrate-existing-spring-rest-docs-tests)
     - [Security Definitions](#security-definitions)
     - [Running the gradle plugin](#running-the-gradle-plugin)
     - [Gradle plugin configuration](#gradle-plugin-configuration)
-- [Generate HTML](#generate-html)
-- [Convert to RAML](#convert-to-raml)
+- [Generate an HTML-based API reference](#generate-an-html-based-api-reference)
+- [RAML](#raml)
 - [Limitations](#limitations)
     - [Rest Assured](#rest-assured)
 
@@ -63,6 +65,8 @@ The [ResourceSnippet](restdocs-openapi/src/main/kotlin/com/epages/restdocs/opena
 
 ### Build configuration
 
+#### Gradle
+
 ```groovy
 buildscript {
     repositories {
@@ -71,7 +75,7 @@ buildscript {
     }
     dependencies {
         //..
-        classpath("com.github.epages-de.restdocs-openapi:restdocs-openapi-gradle-plugin:0.3.1") //2
+        classpath("com.github.epages-de.restdocs-openapi:restdocs-openapi-gradle-plugin:0.4.2") //2
     }
 }
 //..
@@ -85,8 +89,8 @@ repositories { //4
 
 dependencies {
     //..
-    testCompile 'com.github.epages-de.restdocs-openapi:restdocs-openapi:0.3.1' //5
-    testCompile 'org.json:json:20170516' //6
+    testCompile 'com.github.epages-de.restdocs-openapi:restdocs-openapi:0.4.2' //5
+    testCompile 'org.json:json:20170516' //6 spring boot 1 only
 }
 
 openapi { //7
@@ -103,12 +107,15 @@ openapi { //7
 3. apply `restdocs-openapi-gradle-plugin`
 4. add repositories used for dependency resolution. We use [jitpack](https://jitpack.io) here.
 5. add the actual `restdocs-openapi` dependency to the test scope
-6. `spring-boot` specifies an old version of `org.json:json`. We use [everit-org/json-schema](https://github.com/everit-org/json-schema) to generate json schema files. This project depends on a newer version of `org.json:json`. As versions from BOM always override transitive versions coming in through maven dependencies, you need to add an explicit dependency to `org.json:json:20170516`
-7. add configuration options for restdocs-openapi-gradle-plugin see [Gradle plugin configuration](#gradle-plugin-configuration)
+6. Only needed if you are using `spring-boot 1.x`. `Spring-boot` specifies an old version of `org.json:json`. We use [everit-org/json-schema](https://github.com/everit-org/json-schema) to generate json schema files. This project depends on a newer version of `org.json:json`. As versions from BOM always override transitive versions coming in through maven dependencies, you need to add an explicit dependency to `org.json:json:20170516`
+7. add configuration options for restdocs-openapi-gradle-plugin`. See [Gradle plugin configuration](#gradle-plugin-configuration)
 
 See the [build.gradle](samples/restdocs-openapi-sample/build.gradle) for the setup used in the sample project.
 
-If you are searching for a maven plugin that works with `restdocs-openapi` head over to https://github.com/BerkleyTechnologyServices/restdocs-spec.
+#### Maven
+
+The root project does not provide a gradle plugin.
+But you can find a maven plugin that works with `restdocs-openapi` at [BerkleyTechnologyServices/restdocs-spec](https://github.com/BerkleyTechnologyServices/restdocs-spec).
 
 ### Usage with Spring REST Docs
 
@@ -309,9 +316,9 @@ The `scopeDescriptionsPropertiesFile` is supposed to be a yaml file:
 scope-name: A description
 ```
 
-## Generate HTML
+## Generate an HTML-based API reference
 
-We can use [redoc](https://github.com/Rebilly/ReDoc) to generate HTML API reference from our OpenAPI specification.
+We can use [redoc](https://github.com/Rebilly/ReDoc) to generate an HTML API reference from our OpenAPI specification.
 
 The [redoc-cli](https://www.npmjs.com/package/redoc-cli) can be used to serve this API reference
 ```
@@ -319,7 +326,7 @@ npm install -g redoc-cli
 redoc-cli serve build/openapi/openapi.json
 ```
 
-## Convert to RAML
+## RAML
 
 This project supersedes [restdocs-raml](https://github.com/ePages-de/restdocs-raml). 
 So if you are coming from `restdocs-raml` you might want to switch to `restdocs-openapi`. 

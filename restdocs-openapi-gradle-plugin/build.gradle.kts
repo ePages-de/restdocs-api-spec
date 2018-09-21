@@ -37,7 +37,6 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.2.0")
     testImplementation("org.assertj:assertj-core:3.10.0")
 
-    testImplementation("org.amshove.kluent:kluent:1.35")
     testImplementation("com.jayway.jsonpath:json-path:2.4.0")
 
     testCompile(gradleTestKit())
