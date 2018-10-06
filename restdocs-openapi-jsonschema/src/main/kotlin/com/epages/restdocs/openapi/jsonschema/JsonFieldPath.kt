@@ -1,4 +1,4 @@
-package com.epages.restdocs.openapi.generator.schema
+package com.epages.restdocs.openapi.jsonschema
 
 import java.util.ArrayList
 import java.util.regex.Pattern

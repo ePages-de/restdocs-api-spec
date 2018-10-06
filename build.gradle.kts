@@ -55,7 +55,14 @@ allprojects {
     }
 }
 
+
+
 subprojects {
+
+    val jacksonVersion by extra { "2.9.5" }
+    val springBootVersion by extra { "2.0.5.RELEASE" }
+    val springRestDocsVersion by extra { "2.0.2.RELEASE" }
+    val junitVersion by extra { "5.3.1" }
 
     tasks.withType<KotlinCompile> {
         kotlinOptions.jvmTarget = "1.8"

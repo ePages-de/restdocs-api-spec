@@ -1,6 +1,6 @@
 package com.epages.restdocs.openapi.generator
 
-import com.epages.restdocs.openapi.generator.schema.JsonSchemaFromFieldDescriptorsGenerator
+import com.epages.restdocs.openapi.jsonschema.JsonSchemaFromFieldDescriptorsGenerator
 import com.epages.restdocs.openapi.model.FieldDescriptor
 import com.epages.restdocs.openapi.model.HTTPMethod
 import com.epages.restdocs.openapi.model.HeaderDescriptor

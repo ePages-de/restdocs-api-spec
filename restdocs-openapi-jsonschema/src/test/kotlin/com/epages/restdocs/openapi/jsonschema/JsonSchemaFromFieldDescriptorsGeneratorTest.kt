@@ -1,5 +1,6 @@
-package com.epages.restdocs.openapi.generator.schema
+package com.epages.restdocs.openapi.jsonschema
 
+import com.epages.restdocs.openapi.model.Constraint
 import com.github.fge.jackson.JsonLoader
 import com.github.fge.jsonschema.main.JsonSchemaFactory
 import com.jayway.jsonpath.JsonPath
@@ -20,7 +21,7 @@ import javax.validation.constraints.NotNull
 
 class JsonSchemaFromFieldDescriptorsGeneratorTest {
 
-    private val generator = com.epages.restdocs.openapi.generator.schema.JsonSchemaFromFieldDescriptorsGenerator()
+    private val generator = JsonSchemaFromFieldDescriptorsGenerator()
 
     private var schema: Schema? = null
 
@@ -233,7 +234,7 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
         val constraintAttributeWithNotNull =
             com.epages.restdocs.openapi.model.Attributes(
                 listOf(
-                    com.epages.restdocs.openapi.model.Constraint(
+                    Constraint(
                         NotNull::class.java.name,
                         emptyMap()
                     )
