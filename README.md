@@ -1,4 +1,4 @@
-# Spring REST Docs OpenAPI Integration
+# Spring REST Docs API specification Integration
 
 ![](https://img.shields.io/github/license/ePages-de/restdocs-openapi.svg)
 [![Release](https://jitpack.io/v/ePages-de/restdocs-openapi.svg)](https://jitpack.io/#ePages-de/restdocs-openapi)
@@ -6,8 +6,14 @@
 [![Coverage Status](https://coveralls.io/repos/github/ePages-de/restdocs-openapi/badge.svg?branch=master)](https://coveralls.io/github/ePages-de/restdocs-openapi?branch=master)
 [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/restdocs-openapi/Lobby)
 
-This is an extension that adds [OpenAPI](https://www.openapis.org) as an output format to [Spring REST Docs](https://projects.spring.io/spring-restdocs/). 
-It currently can output [OpenAPI 2.0](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md) in `json` and `yaml`
+This is an extension that adds API specifications as an output format to [Spring REST Docs](https://projects.spring.io/spring-restdocs/). 
+It currently supports:
+- [OpenAPI 2.0](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md) in `json` and `yaml`
+
+We plan to add support for:
+- [RAML](https://raml.org)
+- [OpenAPI 3.0.1](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md)
+- [Postman Collections](https://schema.getpostman.com/json/collection/v2.1.0/docs/index.html)
 
 ## Motivation
 
@@ -18,13 +24,13 @@ We especially like its test-driven approach and this is the main reason why we c
 It offers support for AsciiDoc and Markdown. This is great for generating simple HTML-based documentation. 
 But both are markup languages and thus it is hard to get any further than statically generated HTML. 
 
-OpenAPI is a lot more flexible. 
-With OpenAPI you get a machine-readable description of your API. There is a rich ecosystem around it that contains tools to:
+API specifications like OpenAPI are a lot more flexible. 
+With e.g. OpenAPI you get a machine-readable description of your API. There is a rich ecosystem around it that contains tools to:
 - generate a HTML representation of your API - [ReDoc](https://github.com/Rebilly/ReDoc)
 - generate an interactive API reference - e.g. using services like [stoplight.io](https://stoplight.io) or [readme.io](https://readme.io)
 
-Also, OpenAPI is supported by many REST clients like [Postman](https://www.getpostman.com) and [Paw](https://paw.cloud). 
-Thus having a OpenAPI representation of an API is a great plus when starting to work with it.
+Also, API specifications like OpenAPI are supported by many REST clients like [Postman](https://www.getpostman.com) and [Paw](https://paw.cloud). 
+Thus having an API specification for a REST API is a great plus when starting to work with it.
 
 The most common use case to generate an OpenAPI specification is code introspection and adding documentation related annotations to your code.
 We do not like enriching our production code with this information and clutter it with even more annotations.
@@ -42,10 +48,12 @@ This is why we came up with this project.
     - [Usage with Spring REST Docs](#usage-with-spring-rest-docs)
     - [Documenting Bean Validation constraints](#documenting-bean-validation-constraints)
     - [Migrate existing Spring REST Docs tests](#migrate-existing-spring-rest-docs-tests)
-    - [Security Definitions](#security-definitions)
+    - [Security Definitions in OpenAPI](#security-definitions-in-openapi)
     - [Running the gradle plugin](#running-the-gradle-plugin)
+        - [OpenAPI 2.0](#openapi-20)
     - [Gradle plugin configuration](#gradle-plugin-configuration)
-- [Generate an HTML-based API reference](#generate-an-html-based-api-reference)
+        - [OpenAPI 2.0](#openapi-20-1)
+- [Generate an HTML-based API reference from OpenAPI](#generate-an-html-based-api-reference-from-openapi)
 - [RAML](#raml)
 - [Limitations](#limitations)
     - [Rest Assured](#rest-assured)
@@ -58,10 +66,10 @@ This is why we came up with this project.
 
 The project consists of two components:
 
-- [restdocs-openapi](restdocs-openapi) - contains the actual Spring REST Docs extension. 
+- [restdocs-api-spec](restdocs-api-spec) - contains the actual Spring REST Docs extension. 
 This is most importantly the [ResourceDocumentation](restdocs-openapi/src/main/kotlin/com/epages/restdocs/openapi/ResourceDocumentation.kt) which is the entrypoint to use the extension in your tests. 
-The [ResourceSnippet](restdocs-openapi/src/main/kotlin/com/epages/restdocs/openapi/ResourceSnippet.kt) is the snippet a json file `resource.json` containing all the details about the documented resource. 
-- [restdocs-openapi-gradle-plugin](restdocs-openapi-gradle-plugin) - adds a gradle plugin that aggregates the `resource.json` files produced  by `ResourceSnippet` into one `OpenAPI` file for the whole project.
+The [ResourceSnippet](restdocs-openapi/src/main/kotlin/com/epages/restdocs/openapi/ResourceSnippet.kt) is the snippet used to produce a json file `resource.json` containing all the details about the documented resource. 
+- [restdocs-api-spec-gradle-plugin](restdocs-api-spec-gradle-plugin) - adds a gradle plugin that aggregates the `resource.json` files produced  by `ResourceSnippet` into an API specification file for the whole project.
 
 ### Build configuration
 
@@ -71,15 +79,15 @@ The [ResourceSnippet](restdocs-openapi/src/main/kotlin/com/epages/restdocs/opena
 buildscript {
     repositories {
     //..
-            maven { url = uri("https://jitpack.io") } //1
+        maven { url = uri("https://jitpack.io") } //1
     }
     dependencies {
         //..
-        classpath("com.github.epages-de.restdocs-openapi:restdocs-openapi-gradle-plugin:0.4.2") //2
+        classpath("com.github.epages-de.restdocs-api-spec:restdocs-api-spec-gradle-plugin:0.4.2") //2
     }
 }
 //..
-apply plugin: 'com.epages.restdocs-openapi' //3
+apply plugin: 'com.epages.restdocs-api-spec' //3
 
 repositories { //4
     maven { url 'https://jitpack.io' }
@@ -89,7 +97,7 @@ repositories { //4
 
 dependencies {
     //..
-    testCompile 'com.github.epages-de.restdocs-openapi:restdocs-openapi:0.4.2' //5
+    testCompile 'com.github.epages-de.restdocs-api-spec:restdocs-api-spec:0.4.2' //5
     testCompile 'org.json:json:20170516' //6 spring boot 1 only
 }
 
@@ -102,24 +110,24 @@ openapi { //7
 }
 ```
 
-1. add [jitpack](https://jitpack.io) repository to `buildscript` to resolve the `restdocs-openapi-gradle-plugin`
-2. add the dependency to `restdocs-openapi-gradle-plugin`
-3. apply `restdocs-openapi-gradle-plugin`
+1. add [jitpack](https://jitpack.io) repository to `buildscript` to resolve the `restdocs-api-spec-gradle-plugin`
+2. add the dependency to `restdocs-api-spec-openapi-gradle-plugin`
+3. apply `restdocs-api-spec-openapi-gradle-plugin`
 4. add repositories used for dependency resolution. We use [jitpack](https://jitpack.io) here.
-5. add the actual `restdocs-openapi` dependency to the test scope
+5. add the actual `restdocs-api-spec` dependency to the test scope
 6. Only needed if you are using `spring-boot 1.x`. `Spring-boot` specifies an old version of `org.json:json`. We use [everit-org/json-schema](https://github.com/everit-org/json-schema) to generate json schema files. This project depends on a newer version of `org.json:json`. As versions from BOM always override transitive versions coming in through maven dependencies, you need to add an explicit dependency to `org.json:json:20170516`
-7. add configuration options for restdocs-openapi-gradle-plugin`. See [Gradle plugin configuration](#gradle-plugin-configuration)
+7. add configuration options for restdocs-api-spec-gradle-plugin`. See [Gradle plugin configuration](#gradle-plugin-configuration)
 
 See the [build.gradle](samples/restdocs-openapi-sample/build.gradle) for the setup used in the sample project.
 
 #### Maven
 
-The root project does not provide a gradle plugin.
-But you can find a maven plugin that works with `restdocs-openapi` at [BerkleyTechnologyServices/restdocs-spec](https://github.com/BerkleyTechnologyServices/restdocs-spec).
+The root project does not provide a maven plugin.
+But you can find a plugin that works with `restdocs-api-spec` at [BerkleyTechnologyServices/restdocs-spec](https://github.com/BerkleyTechnologyServices/restdocs-spec).
 
 ### Usage with Spring REST Docs
 
-The class [ResourceDocumentation](restdocs-openapi/src/main/kotlin/com/epages/restdocs/openapi/ResourceDocumentation.kt) contains the entry point for using the [ResourceSnippet](restdocs-openapi/src/main/kotlin/com/epages/restdocs/openapi/ResourceSnippet.kt).
+The class [ResourceDocumentation](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apispec/ResourceDocumentation.kt) contains the entry point for using the [ResourceSnippet](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apispec/ResourceSnippet.kt).
 
 The most basic form does not take any parameters:
 
@@ -131,7 +139,7 @@ mockMvc
 
 This test will produce the `resource.json` file in the snippets directory. 
 This file just contains all the information that we can collect about the resource.
-The format of this file is OpenAPI agnostic.
+The format of this file is not specific to an API specification.
 
 ```json
 {
@@ -161,7 +169,7 @@ The format of this file is OpenAPI agnostic.
 }
 ```
 
-Just like you are used to do with Spring REST Docs we can also describe request fields, response fields, path variables, parameters, headers, and links.
+Just like with Spring REST Docs we can also describe request fields, response fields, path variables, parameters, headers, and links.
 Furthermore you can add a text description and a summary for your resource.
 The extension also discovers `JWT` tokens in the `Authorization` header and will document the required scopes from it.
 
@@ -191,7 +199,7 @@ mockMvc.perform(get("/carts/{id}", cartId)
     .build())));
 ```
 
-Please see the [CartIntegrationTest](samples/restdocs-openapi-sample/src/test/java/com/epages/restdocs/openapi/sample/CartIntegrationTest.java) in the sample application for a detailed example.
+Please see the [CartIntegrationTest](samples/restdocs-api-spec-sample/src/test/java/com/epages/restdocs/api-spec/sample/CartIntegrationTest.java) in the sample application for a detailed example.
 
 **:warning: Use `template URIs` to refer to path variables in your request**
 
@@ -204,20 +212,20 @@ mockMvc.perform(get("/carts/{id}", cartId)
 
 ### Documenting Bean Validation constraints 
 
-Similar to the way Spring REST Docs allows to use [bean validation constraints](https://docs.spring.io/spring-restdocs/docs/current/reference/html5/#documenting-your-api-constraints) to enhance your documentation, you can also use the constraints from your model classes to let `restdocs-openapi` enrich the generated JsonSchemas. 
-`restdocs-openapi` provides the class [com.epages.restdocs.openapi.ConstrainedFields](restdocs-openapi/src/main/kotlin/com/epages/restdocs/openapi/ConstrainedFields.kt) to generate `FieldDescriptor`s that contain information about the constraints on this field. 
+Similar to the way Spring REST Docs allows to use [bean validation constraints](https://docs.spring.io/spring-restdocs/docs/current/reference/html5/#documenting-your-api-constraints) to enhance your documentation, you can also use the constraints from your model classes to let `restdocs-api-spec` enrich the generated JsonSchemas. 
+`restdocs-api-spec` provides the class [com.epages.restdocs.apispec.ConstrainedFields](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apispec/ConstrainedFields.kt) to generate `FieldDescriptor`s that contain information about the constraints on this field. 
 
-Currently the following constraints are considered when generating JsonSchema from `FieldDescriptor`s that have been created via `com.epages.restdocs.openapi.ConstrainedFields`
+Currently the following constraints are considered when generating JsonSchema from `FieldDescriptor`s that have been created via `com.epages.restdocs.apispec.ConstrainedFields`
 - `NotNull`, `NotEmpty`, and `NotBlank` annotated fields become required fields in the JsonSchema
 - for String fields annotated with `NotEmpty`, and `NotBlank` the `minLength` constraint in JsonSchema is set to 1
 - for String fields annotated with `Length` the `minLength` and `maxLength` constraints in JsonSchema are set to the value of the corresponding attribute of the annotation
 
-If you already have your own `ConstraintFields` implementation you can also add the logic from `com.epages.restdocs.openapi.ConstrainedFields` to your own class. 
+If you already have your own `ConstraintFields` implementation you can also add the logic from `com.epages.restdocs.apispec.ConstrainedFields` to your own class. 
 Here it is important to add the constraints under the key `validationConstraints` into the attributes map if the `FieldDescriptor`.
 
 ### Migrate existing Spring REST Docs tests
 
-For convenience when applying `restdocs-openapi` to an existing project that uses Spring REST Docs, we introduced [com.epages.restdocs.openapi.MockMvcRestDocumentationWrapper](restdocs-openapi/src/main/kotlin/com/epages/restdocs/openapi/MockMvcRestDocumentationWrapper.kt).
+For convenience when applying `restdocs-api-spec` to an existing project that uses Spring REST Docs, we introduced [com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apispec/MockMvcRestDocumentationWrapper.kt).
 
 In your tests you can just replace calls to `MockMvcRestDocumentation.document` with the corresponding variant of `MockMvcRestDocumentationWrapper.document`.
 
@@ -242,35 +250,39 @@ resultActions
 );
 ```
 
-This will do exactly the same as using `MockMvcRestDocumentation.document` without `restdocs-openapi`.
+This will do exactly the same as using `MockMvcRestDocumentation.document` without `restdocs-api-spec`.
 Additionally it will add a `ResourceSnippet` with the descriptors you provided in the `RequestFieldsSnippet`, `ResponseFieldsSnippet`, and `LinksSnippet`.
 
-### Security Definitions
+### Security Definitions in OpenAPI
 
-The project has limited suport for describing security requirements of an API. 
-Currently we only suppert Oauth2 with [JWT](https://jwt.io/) tokens.
+The project has limited support for describing security requirements of an API. 
+Currently we only support Oauth2 with [JWT](https://jwt.io/) tokens and HTTP Basic Auth.
 
-`restdocs-openapi` inspects the `AUTHORIZATION` header of a request for a `JWT` token. 
+`restdocs-api-spec` inspects the `AUTHORIZATION` header of a request for a `JWT` token. 
 If such a token is found the scopes are extracted and added to the `resource.json` snippet.
 
-The `restdocs-openapi-gradle-plugin` will consider this information if the `oauth2SecuritySchemeDefinition` configuration option is set (see [Gradle plugin configuration](#gradle-plugin-configuration)). 
+The `restdocs-api-spec-gradle-plugin` will consider this information if the `oauth2SecuritySchemeDefinition` configuration option is set (see [Gradle plugin configuration](#gradle-plugin-configuration)). 
 This will result in a top-level `securityDefinitions` in the OpenAPI definition. 
 Additionally the required scopes will be added in the `security` section of an `operation`.
 
 ### Running the gradle plugin
 
-`restdocs-openapi-gradle-plugin` is responsible for picking up the generated `resource.json` files and aggregate them into an OpenAPI specification (at the moment we support 2.0 only).
-For this purpose we use the `openapi` task:
+`restdocs-api-spec-gradle-plugin` is responsible for picking up the generated `resource.json` files and aggregate them into an API specification.
+
+#### OpenAPI 2.0
+In order to generate an OpenAPI 2.0 specification we use the `openapi` task:
 
 ```
 ./gradlew openapi
 ```
 
-For our [sample project](samples/restdocs-openapi-sample) this creates a `openapi.json` file in the output directory (`build/openapi`).
+For our [sample project](samples/restdocs-api-spec-sample) this creates a `openapi.yaml` file in the output directory (`build/openapi`).
 
 ### Gradle plugin configuration
 
-The `restdocs-openapi-gradle-plugin` takes the following configuration options - all are optional.
+#### OpenAPI 2.0
+
+The `restdocs-api-spec-gradle-plugin` takes the following configuration options for OpenAPI 2.0 - all are optional.
 
 Name | Description | Default value
 ---- | ----------- | -------------
@@ -316,7 +328,7 @@ The `scopeDescriptionsPropertiesFile` is supposed to be a yaml file:
 scope-name: A description
 ```
 
-## Generate an HTML-based API reference
+## Generate an HTML-based API reference from OpenAPI
 
 We can use [redoc](https://github.com/Rebilly/ReDoc) to generate an HTML API reference from our OpenAPI specification.
 
@@ -329,24 +341,25 @@ redoc-cli serve build/openapi/openapi.json
 ## RAML
 
 This project supersedes [restdocs-raml](https://github.com/ePages-de/restdocs-raml). 
-So if you are coming from `restdocs-raml` you might want to switch to `restdocs-openapi`. 
+So if you are coming from `restdocs-raml` you might want to switch to `restdocs-api-spec`. 
 
 The API of both projects is fairly similar and it is easy to migrate.
 
-Also there are several ways to convert an OpenAPI specification to RAML.
+We plan to support RAML in the future. 
+In the meantime you can use one of several ways to convert an OpenAPI specification to RAML.
 There are converters around that can help you to achieve this conversion.
 
 - [oas-raml-converter](https://github.com/mulesoft/oas-raml-converter) - an npm project that provides a CLI to convert between OpenAPI and RAML - it also provides an [online converter](https://mulesoft.github.io/oas-raml-converter/)
 - [api-matic](https://apimatic.io/transformer) - an online converter capable of converting between many api specifications
 
-In the [sample project](samples/restdocs-openapi-sample) you find a build configuration that uses the [oas-raml-converter-docker](https://hub.docker.com/r/zaddo/oas-raml-converter-docker/) docker image and the [gradle-docker-plugin](https://github.com/bmuschko/gradle-docker-plugin) to leverage the `oas-raml-converter` to convert the output of the `openapi` task to RAML. 
+In the [sample project](samples/restdocs-api-spec-sample) you find a build configuration that uses the [oas-raml-converter-docker](https://hub.docker.com/r/zaddo/oas-raml-converter-docker/) docker image and the [gradle-docker-plugin](https://github.com/bmuschko/gradle-docker-plugin) to leverage the `oas-raml-converter` to convert the output of the `openapi` task to RAML. 
 Using this approach your gradle build can still output a RAML specification.
 
-See [openapi2raml.gradle](samples/restdocs-openapi-sample/openapi2raml.gradle).
+See [openapi2raml.gradle](samples/restdocs-api-spec-sample/openapi2raml.gradle).
 
 ```
-./gradlew restdocs-openapi-sample:openapi
-./gradlew -b samples/restdocs-openapi-sample/openapi2raml.gradle openapi2raml
+./gradlew restdocs-api-spec-sample:openapi
+./gradlew -b samples/restdocs-api-spec-sample/openapi2raml.gradle openapi2raml
 ```
 
 ## Limitations
