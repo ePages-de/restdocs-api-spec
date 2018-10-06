@@ -23,6 +23,9 @@ gradlePlugin {
     }
 }
 
+val jacksonVersion: String by extra
+val junitVersion: String by extra
+
 dependencies {
     compileOnly(gradleKotlinDsl())
 
@@ -31,10 +34,10 @@ dependencies {
 
     implementation(project(":restdocs-openapi-model"))
     implementation(project(":restdocs-openapi-generator"))
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.9.5")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.9.5")
+    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
 
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.2.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
     testImplementation("org.assertj:assertj-core:3.10.0")
 
     testImplementation("com.jayway.jsonpath:json-path:2.4.0")

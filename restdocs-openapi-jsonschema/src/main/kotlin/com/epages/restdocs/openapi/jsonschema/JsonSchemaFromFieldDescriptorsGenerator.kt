@@ -1,8 +1,8 @@
-package com.epages.restdocs.openapi.generator.schema
+package com.epages.restdocs.openapi.jsonschema
 
-import com.epages.restdocs.openapi.generator.schema.ConstraintResolver.isRequired
-import com.epages.restdocs.openapi.generator.schema.ConstraintResolver.maxLengthString
-import com.epages.restdocs.openapi.generator.schema.ConstraintResolver.minLengthString
+import com.epages.restdocs.openapi.jsonschema.ConstraintResolver.isRequired
+import com.epages.restdocs.openapi.jsonschema.ConstraintResolver.maxLengthString
+import com.epages.restdocs.openapi.jsonschema.ConstraintResolver.minLengthString
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.everit.json.schema.ArraySchema
@@ -20,11 +20,11 @@ import java.util.ArrayList
 import java.util.Collections.emptyList
 import java.util.function.Predicate
 
-internal class JsonSchemaFromFieldDescriptorsGenerator {
+class JsonSchemaFromFieldDescriptorsGenerator {
 
-    internal fun generateSchema(fieldDescriptors: List<com.epages.restdocs.openapi.model.FieldDescriptor>, title: String? = null): String {
+    fun generateSchema(fieldDescriptors: List<com.epages.restdocs.openapi.model.FieldDescriptor>, title: String? = null): String {
         val jsonFieldPaths = reduceFieldDescriptors(fieldDescriptors)
-            .map { com.epages.restdocs.openapi.generator.schema.JsonFieldPath.compile(it) }
+            .map { JsonFieldPath.compile(it) }
 
         val schema = traverse(emptyList(), jsonFieldPaths, ObjectSchema.builder().title(title) as ObjectSchema.Builder)
 
@@ -48,7 +48,7 @@ internal class JsonSchemaFromFieldDescriptorsGenerator {
             }
     }
 
-    private fun unWrapRootArray(jsonFieldPaths: List<com.epages.restdocs.openapi.generator.schema.JsonFieldPath>, schema: Schema): Schema {
+    private fun unWrapRootArray(jsonFieldPaths: List<JsonFieldPath>, schema: Schema): Schema {
         if (schema is ObjectSchema) {
             val groups = groupFieldsByFirstRemainingPathSegment(emptyList(), jsonFieldPaths)
             if (groups.keys.size == 1 && groups.keys.contains("[]")) {
@@ -68,7 +68,7 @@ internal class JsonSchemaFromFieldDescriptorsGenerator {
 
     private fun traverse(
         traversedSegments: List<String>,
-        jsonFieldPaths: List<com.epages.restdocs.openapi.generator.schema.JsonFieldPath>,
+        jsonFieldPaths: List<JsonFieldPath>,
         builder: ObjectSchema.Builder
     ): Schema {
 
@@ -102,18 +102,18 @@ internal class JsonSchemaFromFieldDescriptorsGenerator {
         return builder.build()
     }
 
-    private fun isDirectMatch(traversedSegments: List<String>): Predicate<com.epages.restdocs.openapi.generator.schema.JsonFieldPath> {
+    private fun isDirectMatch(traversedSegments: List<String>): Predicate<JsonFieldPath> {
         // we have a direct match when there are no remaining segments or when the only following element is an array
         return Predicate { jsonFieldPath ->
             val remainingSegments = jsonFieldPath.remainingSegments(traversedSegments)
-            remainingSegments.isEmpty() || remainingSegments.size == 1 && com.epages.restdocs.openapi.generator.schema.JsonFieldPath.isArraySegment(remainingSegments[0])
+            remainingSegments.isEmpty() || remainingSegments.size == 1 && JsonFieldPath.isArraySegment(remainingSegments[0])
         }
     }
 
     private fun groupFieldsByFirstRemainingPathSegment(
         traversedSegments: List<String>,
-        jsonFieldPaths: List<com.epages.restdocs.openapi.generator.schema.JsonFieldPath>
-    ): Map<String, List<com.epages.restdocs.openapi.generator.schema.JsonFieldPath>> {
+        jsonFieldPaths: List<JsonFieldPath>
+    ): Map<String, List<JsonFieldPath>> {
         return jsonFieldPaths.groupBy { it.remainingSegments(traversedSegments)[0] }
     }
 
@@ -121,11 +121,11 @@ internal class JsonSchemaFromFieldDescriptorsGenerator {
         builder: ObjectSchema.Builder,
         propertyName: String,
         traversedSegments: MutableList<String>,
-        fields: List<com.epages.restdocs.openapi.generator.schema.JsonFieldPath>,
+        fields: List<JsonFieldPath>,
         description: String?
     ) {
         val remainingSegments = fields[0].remainingSegments(traversedSegments)
-        if (remainingSegments.isNotEmpty() && com.epages.restdocs.openapi.generator.schema.JsonFieldPath.isArraySegment(remainingSegments[0])) {
+        if (remainingSegments.isNotEmpty() && JsonFieldPath.isArraySegment(remainingSegments[0])) {
             traversedSegments.add(remainingSegments[0])
             builder.addPropertySchema(
                 propertyName, ArraySchema.builder()
@@ -221,7 +221,7 @@ internal class JsonSchemaFromFieldDescriptorsGenerator {
                 else -> throw IllegalArgumentException("unknown field type $type")
             }
 
-        fun equalsOnPathAndType(f: JsonSchemaFromFieldDescriptorsGenerator.FieldDescriptorWithSchemaType): Boolean =
+        fun equalsOnPathAndType(f: FieldDescriptorWithSchemaType): Boolean =
             (this.path == f.path &&
                 this.type == f.type)
 
