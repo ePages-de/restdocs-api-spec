@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jetbrains.kotlin.serialization.js.DynamicTypeDeserializer.id
 
 repositories {
     mavenCentral()
