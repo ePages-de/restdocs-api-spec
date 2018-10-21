@@ -3,23 +3,18 @@ package com.epages.restdocs.apispec.openapi3
 import io.swagger.v3.core.util.Json
 import io.swagger.v3.core.util.Yaml
 import io.swagger.v3.oas.models.OpenAPI
-import java.io.File
 
-object ApiSpecificationWriter {
+internal object ApiSpecificationWriter {
 
     private val yamlFormats = setOf("yaml", "yml")
     private val jsonFormats = setOf("json")
 
-    fun write(format: String, outputDirectory: File, outputFilenamePrefix: String, apiSpecification: OpenAPI) {
-        outputDirectory.mkdir()
+    fun serialize(format: String, openApi: OpenAPI): String {
         validateFormat(format)
-        val target = File(outputDirectory, "$outputFilenamePrefix.${outputFileExtension(
-            format
-        )}")
-        if (yamlFormats.contains(format)) {
-            Yaml.pretty().writeValue(target, apiSpecification)
+        return if (yamlFormats.contains(format)) {
+            Yaml.pretty().writeValueAsString(openApi)
         } else {
-            Json.pretty().writeValue(target, apiSpecification)
+            Json.pretty().writeValueAsString(openApi)
         }
     }
 
@@ -28,10 +23,4 @@ object ApiSpecificationWriter {
     fun validateFormat(format: String) {
         if (!supportedFormats().contains(format)) throw IllegalArgumentException("Format '$format' is invalid - supported formats are '${supportedFormats()}'")
     }
-
-    private fun outputFileExtension(format: String) =
-        if (yamlFormats.contains(format))
-            "yaml"
-        else
-            "json"
 }

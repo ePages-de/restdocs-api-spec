@@ -17,7 +17,7 @@ gradlePlugin {
     plugins {
         register("com.epages.restdocs-openapi") {
             id = "com.epages.restdocs-openapi"
-            implementationClass = "com.epages.restdocs.apispec.gradle.RestdocsOpenApiPlugin"
+            implementationClass = "com.epages.restdocs.apispec.gradle.RestdocsApiSpecPlugin"
         }
     }
 }
@@ -31,8 +31,8 @@ dependencies {
     compile(kotlin("gradle-plugin"))
     compile(kotlin("stdlib-jdk8"))
 
-    implementation(project(":restdocs-api-spec-model"))
     implementation(project(":restdocs-api-spec-openapi-generator"))
+    implementation(project(":restdocs-api-spec-openapi3-generator"))
     implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
 

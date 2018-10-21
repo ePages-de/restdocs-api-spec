@@ -41,7 +41,7 @@ import java.util.Comparator.comparingInt
 
 object OpenApi3Generator {
 
-    fun generate(
+    internal fun generate(
         resources: List<ResourceModel>,
         servers: List<Server>,
         title: String = "API",
@@ -63,6 +63,23 @@ object OpenApi3Generator {
             addSecurityDefinitions(oauth2SecuritySchemeDefinition)
         }
     }
+
+    fun generateAndSerialize(
+        resources: List<ResourceModel>,
+        servers: List<Server>,
+        title: String = "API",
+        version: String = "1.0.0",
+        oauth2SecuritySchemeDefinition: Oauth2Configuration? = null,
+        format: String
+    ) =
+        ApiSpecificationWriter.serialize(format,
+            generate(
+                resources = resources,
+                servers = servers,
+                title = title,
+                version = version,
+                oauth2SecuritySchemeDefinition = oauth2SecuritySchemeDefinition
+            ))
 
     private fun OpenAPI.extractDefinitions() {
         val schemasToKeys = HashMap<Schema<Any>, String>()

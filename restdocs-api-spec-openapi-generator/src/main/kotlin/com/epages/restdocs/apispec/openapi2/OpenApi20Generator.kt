@@ -37,7 +37,7 @@ object OpenApi20Generator {
 
     private const val API_KEY_SECURITY_NAME = "api_key"
     private const val BASIC_SECURITY_NAME = "basic"
-    fun generate(
+    internal fun generate(
         resources: List<ResourceModel>,
         basePath: String? = null,
         host: String = "localhost",
@@ -67,6 +67,20 @@ object OpenApi20Generator {
                 oauth2SecuritySchemeDefinition
             )
         }
+    }
+
+    fun generateAndSerialize(
+        resources: List<ResourceModel>,
+        basePath: String? = null,
+        host: String = "localhost",
+        schemes: List<String> = listOf("http"),
+        title: String = "API",
+        version: String = "1.0.0",
+        oauth2SecuritySchemeDefinition: Oauth2Configuration? = null,
+        format: String
+    ): String {
+        val specification = generate(resources, basePath, host, schemes, title, version, oauth2SecuritySchemeDefinition)
+        return ApiSpecificationWriter.serialize(format, specification)
     }
 
     private fun extractDefinitions(swagger: Swagger): Swagger {

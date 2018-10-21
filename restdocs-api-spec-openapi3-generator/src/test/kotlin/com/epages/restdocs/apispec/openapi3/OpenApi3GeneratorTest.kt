@@ -16,8 +16,6 @@ import com.jayway.jsonpath.JsonPath
 import com.jayway.jsonpath.Option
 import io.swagger.parser.OpenAPIParser
 import io.swagger.parser.models.ParseOptions
-import io.swagger.util.Json
-import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.servers.Server
 import org.assertj.core.api.BDDAssertions.then
 import org.junit.jupiter.api.Test
@@ -25,7 +23,6 @@ import org.junit.jupiter.api.Test
 class OpenApi3GeneratorTest {
 
     lateinit var resources: List<ResourceModel>
-    lateinit var openApiSpec: OpenAPI
     lateinit var openApiSpecJsonString: String
     lateinit var openApiJsonPathContext: DocumentContext
 
@@ -169,17 +166,17 @@ class OpenApi3GeneratorTest {
     }
 
     private fun whenOpenApiObjectGenerated() {
-        openApiSpec = OpenApi3Generator.generate(
+        openApiSpecJsonString = OpenApi3Generator.generateAndSerialize(
             resources = resources,
             servers = listOf(Server().apply { url = "https://localhost/api" }),
             oauth2SecuritySchemeDefinition = Oauth2Configuration(
                 "http://example.com/token",
                 "http://example.com/authorize",
                 arrayOf("clientCredentials", "authorizationCode")
-            )
+            ),
+            format = "json"
         )
 
-        openApiSpecJsonString = Json.pretty().writeValueAsString(openApiSpec)
         println(openApiSpecJsonString)
         openApiJsonPathContext = JsonPath.parse(openApiSpecJsonString, Configuration.defaultConfiguration().addOptions(
             Option.SUPPRESS_EXCEPTIONS))
