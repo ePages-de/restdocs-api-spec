@@ -1,6 +1,5 @@
 package com.epages.restdocs.apispec.gradle
 
-import com.epages.restdocs.apispec.gradle.junit.TemporaryFolder
 import com.jayway.jsonpath.DocumentContext
 import com.jayway.jsonpath.JsonPath
 import org.assertj.core.api.BDDAssertions.then
@@ -9,17 +8,21 @@ import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junitpioneer.jupiter.TempDirectory.TempDir
 import java.io.File
 import java.nio.file.Files
+import java.nio.file.Path
 import kotlin.streams.toList
 
-abstract class RestdocsOpenApiTaskTestBase(val testProjectDir: TemporaryFolder) {
+abstract class RestdocsOpenApiTaskTestBase {
 
     lateinit var snippetsFolder: File
     lateinit var outputFolder: File
     lateinit var buildFile: File
 
     lateinit var result: BuildResult
+
+    lateinit var testProjectDir: Path
 
     var host: String = "localhost"
     var basePath: String = ""
@@ -37,11 +40,13 @@ abstract class RestdocsOpenApiTaskTestBase(val testProjectDir: TemporaryFolder) 
     abstract val taskName: String
 
     @BeforeEach
-    fun init() {
-        buildFile = testProjectDir.newFile("build.gradle")
-
-        snippetsFolder = testProjectDir.newFolder("build", "generated-snippets")
-        outputFolder = File(testProjectDir.root, "build/openapi")
+    fun init(@TempDir tempDir: Path) {
+        with(tempDir) {
+            testProjectDir = tempDir
+            buildFile = resolve("build.gradle").toFile()
+            snippetsFolder = resolve("build/generated-snippets").toFile().apply { mkdirs() }
+            outputFolder = resolve("build/openapi").toFile()
+        }
     }
 
     @Test
@@ -110,7 +115,7 @@ abstract class RestdocsOpenApiTaskTestBase(val testProjectDir: TemporaryFolder) 
     abstract fun thenSecurityDefinitionsFoundInOutputFile()
 
     private fun givenScopeTextFile() {
-        File(testProjectDir.root, "scopeDescriptions.yaml").writeText(
+        testProjectDir.resolve("scopeDescriptions.yaml").toFile().writeText(
                 """
                     "prod:r": "Some text"
                 """.trimIndent()
@@ -231,7 +236,7 @@ abstract class RestdocsOpenApiTaskTestBase(val testProjectDir: TemporaryFolder) 
 
     protected fun whenPluginExecuted() {
         result = GradleRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir.toFile())
             .withArguments("--info", "--stacktrace", taskName)
             .withPluginClasspath()
             .withDebug(true)

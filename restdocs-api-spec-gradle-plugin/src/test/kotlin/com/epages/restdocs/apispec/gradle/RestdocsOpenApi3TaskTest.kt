@@ -1,14 +1,13 @@
 package com.epages.restdocs.apispec.gradle
 
-import com.epages.restdocs.apispec.gradle.junit.TemporaryFolder
-import com.epages.restdocs.apispec.gradle.junit.TemporaryFolderExtension
 import com.jayway.jsonpath.JsonPath
 import org.assertj.core.api.BDDAssertions.then
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junitpioneer.jupiter.TempDirectory
 
-@ExtendWith(TemporaryFolderExtension::class)
-class RestdocsOpenApi3TaskTest(testProjectDir: TemporaryFolder) : RestdocsOpenApiTaskTestBase(testProjectDir) {
+@ExtendWith(TempDirectory::class)
+class RestdocsOpenApi3TaskTest : RestdocsOpenApiTaskTestBase() {
 
     override val taskName = "openapi3"
 

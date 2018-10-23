@@ -24,6 +24,7 @@ dependencies {
         exclude("junit")
     }
     testCompile("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
+    testImplementation("org.junit-pioneer:junit-pioneer:0.2.2")
     testCompile("org.springframework.boot:spring-boot-starter-hateoas:$springBootVersion")
     testCompile("org.hibernate.validator:hibernate-validator:6.0.10.Final")
     testCompile("org.assertj:assertj-core:3.10.0")

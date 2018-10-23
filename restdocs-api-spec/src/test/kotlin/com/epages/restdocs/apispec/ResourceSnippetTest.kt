@@ -1,15 +1,15 @@
 package com.epages.restdocs.apispec
 
-import com.epages.restdocs.apispec.junit.TemporaryFolderExtension
 import com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName
 import com.epages.restdocs.apispec.ResourceDocumentation.resource
-import com.epages.restdocs.apispec.junit.TemporaryFolder
 import com.jayway.jsonpath.DocumentContext
 import com.jayway.jsonpath.JsonPath
 import org.assertj.core.api.BDDAssertions.then
 import org.assertj.core.api.BDDAssertions.thenThrownBy
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junitpioneer.jupiter.TempDirectory
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.http.HttpHeaders.CONTENT_TYPE
 import org.springframework.http.HttpStatus
@@ -22,9 +22,10 @@ import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import java.io.File
 import java.io.IOException
+import java.nio.file.Path
 
-@ExtendWith(TemporaryFolderExtension::class)
-class ResourceSnippetTest(private val temporaryFolder: TemporaryFolder) {
+@ExtendWith(TempDirectory::class)
+class ResourceSnippetTest {
 
     lateinit var operation: Operation
 
@@ -33,11 +34,14 @@ class ResourceSnippetTest(private val temporaryFolder: TemporaryFolder) {
     private val operationName: String
         get() = OPERATION_NAME
 
-    private val rootOutputDirectory: File
-        get() = temporaryFolder.root
+    private lateinit var rootOutputDirectory: File
 
     private lateinit var resourceSnippetJson: DocumentContext
 
+    @BeforeEach
+    fun init(@TempDirectory.TempDir tempDir: Path) {
+        rootOutputDirectory = tempDir.toFile()
+    }
     @Test
     fun should_generate_resource_snippet_for_operation_with_request_body() {
         givenOperationWithRequestBody()
@@ -206,7 +210,7 @@ class ResourceSnippetTest(private val temporaryFolder: TemporaryFolder) {
     private fun generatedSnippetFile(operationName: String) = File(rootOutputDirectory, "$operationName/resource.json")
 
     private fun givenOperationWithoutBody() {
-        val operationBuilder = OperationBuilder("test", temporaryFolder.root)
+        val operationBuilder = OperationBuilder("test", rootOutputDirectory)
             .attribute(ATTRIBUTE_NAME_URL_TEMPLATE, "http://localhost:8080/some/{id}")
         operationBuilder
             .request("http://localhost:8080/some/123")
@@ -218,7 +222,7 @@ class ResourceSnippetTest(private val temporaryFolder: TemporaryFolder) {
     }
 
     private fun givenOperationWithoutUrlTemplate() {
-        val operationBuilder = OperationBuilder("test", temporaryFolder.root)
+        val operationBuilder = OperationBuilder("test", rootOutputDirectory)
         operationBuilder
             .request("http://localhost:8080/some/123")
             .method("POST")
@@ -229,7 +233,7 @@ class ResourceSnippetTest(private val temporaryFolder: TemporaryFolder) {
     }
 
     private fun givenOperationWithNamePlaceholders() {
-        operation = OperationBuilder("{class-name}/{method-name}", temporaryFolder.root)
+        operation = OperationBuilder("{class-name}/{method-name}", rootOutputDirectory)
                 .attribute(ATTRIBUTE_NAME_URL_TEMPLATE, "http://localhost:8080/some/{id}")
                 .testClass(ResourceSnippetTest::class.java)
                 .testMethodName("getSomeById")
@@ -241,7 +245,7 @@ class ResourceSnippetTest(private val temporaryFolder: TemporaryFolder) {
     }
 
     private fun givenOperationWithRequestBody() {
-        operation = OperationBuilder("test", temporaryFolder.root)
+        operation = OperationBuilder("test", rootOutputDirectory)
             .attribute(ATTRIBUTE_NAME_URL_TEMPLATE, "http://localhost:8080/some/{id}")
             .request("http://localhost:8080/some/123")
             .method("POST")
@@ -251,7 +255,7 @@ class ResourceSnippetTest(private val temporaryFolder: TemporaryFolder) {
     }
 
     private fun givenOperationWithRequestBodyAndIgnoredRequestField() {
-        val operationBuilder = OperationBuilder("test", temporaryFolder.root)
+        val operationBuilder = OperationBuilder("test", rootOutputDirectory)
 
         operationBuilder
             .attribute(ATTRIBUTE_NAME_URL_TEMPLATE, "http://localhost:8080/some/{id}")
@@ -289,7 +293,7 @@ class ResourceSnippetTest(private val temporaryFolder: TemporaryFolder) {
     }
 
     private fun givenOperationWithRequestAndResponseBody() {
-        val operationBuilder = OperationBuilder("test", temporaryFolder.root)
+        val operationBuilder = OperationBuilder("test", rootOutputDirectory)
             .attribute(ATTRIBUTE_NAME_URL_TEMPLATE, "http://localhost:8080/some/{id}")
         val content = "{\"comment\": \"some\"}"
         operationBuilder
