@@ -14,8 +14,8 @@ plugins {
 }
 
 gradlePlugin {
-    plugins {
-        register("com.epages.restdocs-openapi") {
+    (plugins) {
+        "com.epages.restdocs-openapi" {
             id = "com.epages.restdocs-openapi"
             implementationClass = "com.epages.restdocs.apispec.gradle.RestdocsApiSpecPlugin"
         }

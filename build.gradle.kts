@@ -9,7 +9,7 @@ import org.gradle.api.tasks.bundling.Jar
 
 plugins {
     java
-    kotlin("jvm") version "1.2.60" apply false
+    kotlin("jvm") version "1.2.51" apply false
     id("pl.allegro.tech.build.axion-release") version "1.9.2"
     jacoco
     `maven-publish`
@@ -86,12 +86,12 @@ subprojects {
 
         val sourcesJar by tasks.creating(Jar::class) {
             classifier = "sources"
-            from(sourceSets["main"].allSource)
+            from(java.sourceSets["main"].allSource)
         }
 
         publishing {
-            publications {
-                register("mavenJava", MavenPublication::class) {
+            (publications) { 
+                "mavenJava"(MavenPublication::class) {
                     from(components["java"])
                     artifact(sourcesJar)
                 }
@@ -102,7 +102,7 @@ subprojects {
 
 //coverall multi module plugin configuration starts here
 configure<CoverallsPluginExtension> {
-    sourceDirs = nonSampleProjects.flatMap { it.sourceSets["main"].allSource.srcDirs }.filter { it.exists() }.map { it.path }
+    sourceDirs = nonSampleProjects.flatMap { it.java.sourceSets["main"].allSource.srcDirs }.filter { it.exists() }.map { it.path }
     jacocoReportPath = "$buildDir/reports/jacoco/jacocoRootReport/jacocoRootReport.xml"
 }
 
@@ -122,8 +122,8 @@ tasks {
         description = "Generates an aggregate report from all subprojects"
         group = "Coverage reports"
         dependsOn(jacocoMerge)
-        sourceDirectories = files(nonSampleProjects.flatMap { it.sourceSets["main"].allSource.srcDirs.filter { it.exists() } } )
-        classDirectories = files(nonSampleProjects.flatMap { it.sourceSets["main"].output } )
+        sourceDirectories = files(nonSampleProjects.flatMap { it.java.sourceSets["main"].allSource.srcDirs.filter { it.exists() } } )
+        classDirectories = files(nonSampleProjects.flatMap { it.java.sourceSets["main"].output } )
         executionData(jacocoMerge.destinationFile)
         reports {
             html.isEnabled = true
