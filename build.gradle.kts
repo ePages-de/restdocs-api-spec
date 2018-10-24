@@ -1,3 +1,6 @@
+import com.jfrog.bintray.gradle.BintrayExtension
+import com.jfrog.bintray.gradle.BintrayExtension.PackageConfig
+import com.jfrog.bintray.gradle.tasks.BintrayUploadTask
 import org.gradle.internal.impldep.org.eclipse.jgit.lib.ObjectChecker.tag
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.kt3k.gradle.plugin.CoverallsPluginExtension
@@ -15,6 +18,7 @@ plugins {
     `maven-publish`
     id("org.jmailen.kotlinter") version "1.17.0" apply false
     id("com.github.kt3k.coveralls") version "2.8.2"
+    id("com.jfrog.bintray") version "1.8.4" apply false
 }
 
 repositories {
@@ -52,6 +56,7 @@ allprojects {
         apply(plugin = "jacoco")
         apply(plugin = "maven-publish")
         apply(plugin = "org.jmailen.kotlinter")
+
     }
 }
 
@@ -76,6 +81,7 @@ subprojects {
     }
 
     if (!isSampleProject()) {
+
         tasks.withType<JacocoReport> {
             dependsOn("test")
             reports {
@@ -96,6 +102,18 @@ subprojects {
                     artifact(sourcesJar)
                 }
             }
+        }
+        apply(plugin = "com.jfrog.bintray")
+        configure<BintrayExtension> {
+            user = project.findProperty("bintrayUser") as String? ?: System.getenv("BINTRAY_USER")
+            key = project.findProperty("bintrayApiKey") as String? ?: System.getenv("BINTRAY_API_KEY")
+            publish = true
+            setPublications("mavenJava")
+            pkg(closureOf<PackageConfig> {
+                repo = "maven"
+                name = "restdocs-api-spec"
+                userOrg = "epages"
+            })
         }
     }
 }
