@@ -35,7 +35,7 @@ abstract class RestdocsOpenApiTaskTestBase {
 
     var separatePublicApi: Boolean = false
 
-    var outputFileNamePrefix = "openapi"
+    open var outputFileNamePrefix = "openapi"
 
     abstract val taskName: String
 
@@ -229,7 +229,7 @@ abstract class RestdocsOpenApiTaskTestBase {
     fun baseBuildFile() = """
         plugins {
             id 'java'
-            id 'com.epages.restdocs-openapi'
+            id 'com.epages.restdocs-api-spec'
         }
 
         """.trimIndent()
@@ -239,7 +239,7 @@ abstract class RestdocsOpenApiTaskTestBase {
             .withProjectDir(testProjectDir.toFile())
             .withArguments("--info", "--stacktrace", taskName)
             .withPluginClasspath()
-            .withDebug(true)
+            .withDebug(false)
             .build()
     }
 

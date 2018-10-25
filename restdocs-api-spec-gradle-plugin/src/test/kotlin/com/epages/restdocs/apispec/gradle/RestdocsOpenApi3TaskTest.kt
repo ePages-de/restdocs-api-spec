@@ -11,6 +11,7 @@ class RestdocsOpenApi3TaskTest : RestdocsOpenApiTaskTestBase() {
 
     override val taskName = "openapi3"
 
+    override var outputFileNamePrefix = "openapi3"
     @Test
     override fun `should run openapi task`() {
         super.`should run openapi task`()
