@@ -1,18 +1,8 @@
 package com.epages.restdocs.apispec.sample;
 
-import com.epages.restdocs.openapi.ResourceSnippetParameters;
-import lombok.SneakyThrows;
-import lombok.experimental.FieldDefaults;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import static com.epages.restdocs.openapi.MockMvcRestDocumentationWrapper.document;
-import static com.epages.restdocs.openapi.ResourceDocumentation.parameterWithName;
-import static com.epages.restdocs.openapi.ResourceDocumentation.resource;
+import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
+import static com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName;
+import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
 import static lombok.AccessLevel.PRIVATE;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.data.rest.webmvc.RestMediaTypes.HAL_JSON;
@@ -26,6 +16,16 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.subsecti
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.epages.restdocs.apispec.ResourceSnippetParameters;
+import lombok.SneakyThrows;
+import lombok.experimental.FieldDefaults;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs

@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.serialization.js.DynamicTypeDeserializer.id
 
 repositories {
     mavenCentral()
@@ -15,8 +16,8 @@ plugins {
 
 gradlePlugin {
     (plugins) {
-        "com.epages.restdocs-openapi" {
-            id = "com.epages.restdocs-openapi"
+        "com.epages.restdocs-api-spec" {
+            id = "com.epages.restdocs-api-spec"
             implementationClass = "com.epages.restdocs.apispec.gradle.RestdocsApiSpecPlugin"
         }
     }

@@ -14,8 +14,6 @@ abstract class OpenApiBaseExtension(project: Project) : ApiSpecExtension(project
 
     private val objectMapper = ObjectMapper(YAMLFactory())
 
-    override var outputFileNamePrefix = "openapi"
-
     var title = "API documentation"
     var version = project.version as? String ?: "1.0.0"
 
@@ -43,6 +41,8 @@ class PluginOauth2Configuration(
 
 open class OpenApiExtension(project: Project) : OpenApiBaseExtension(project) {
 
+    override var outputFileNamePrefix = "openapi"
+
     var host: String = "localhost"
     var basePath: String? = null
     var schemes: Array<String> = arrayOf("http")
@@ -53,6 +53,8 @@ open class OpenApiExtension(project: Project) : OpenApiBaseExtension(project) {
 }
 
 open class OpenApi3Extension(project: Project) : OpenApiBaseExtension(project) {
+
+    override var outputFileNamePrefix = "openapi3"
 
     private var _servers: List<Server> = mutableListOf(Server().apply { url = "http://localhost" })
 
