@@ -1,8 +1,8 @@
 package com.epages.restdocs.apispec.openapi2
 
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter
 import io.swagger.models.Swagger
 import io.swagger.util.Json
-import io.swagger.util.Yaml
 
 object ApiSpecificationWriter {
 
@@ -12,11 +12,14 @@ object ApiSpecificationWriter {
     fun serialize(format: String, apiSpecification: Swagger): String {
         validateFormat(format)
         return if (yamlFormats.contains(format)) {
-            Yaml.pretty().writeValueAsString(apiSpecification)
+            optimizedYaml().writeValueAsString(apiSpecification)
         } else {
             Json.pretty().writeValueAsString(apiSpecification)
         }
     }
+
+    private fun optimizedYaml() =
+        OptimizedYamlSerializationObjectMapperFactory.createYaml().writer(DefaultPrettyPrinter())
 
     fun supportedFormats() = yamlFormats + jsonFormats
 

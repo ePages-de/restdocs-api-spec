@@ -145,7 +145,7 @@ class OpenApi20GeneratorTest {
             )
         )
 
-        println(Json.pretty().writeValueAsString(openapi))
+        println(ApiSpecificationWriter.serialize("yaml", openapi))
         return openapi
     }
 
