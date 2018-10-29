@@ -26,6 +26,8 @@ gradlePlugin {
 val jacksonVersion: String by extra
 val junitVersion: String by extra
 
+val jacocoRuntime by configurations.creating
+
 dependencies {
     compileOnly(gradleKotlinDsl())
 
@@ -44,4 +46,20 @@ dependencies {
     testImplementation("com.jayway.jsonpath:json-path:2.4.0")
 
     testCompile(gradleTestKit())
+
+    jacocoRuntime("org.jacoco:org.jacoco.agent:0.8.2:runtime")
 }
+
+val createTestKitFiles by tasks.creating {
+    val outputDir = project.file("$buildDir/testkitFiles")
+
+    inputs.files(jacocoRuntime)
+    outputs.dir(outputDir)
+
+    doLast {
+        outputDir.mkdirs()
+        file("$outputDir/testkit-gradle.properties").writeText("org.gradle.jvmargs=-javaagent:${jacocoRuntime.asPath}=destfile=$buildDir/jacoco/test.exec")
+    }
+}
+
+tasks["test"].dependsOn(createTestKitFiles)

@@ -56,10 +56,8 @@ allprojects {
         apply(plugin = "jacoco")
         apply(plugin = "maven-publish")
         apply(plugin = "org.jmailen.kotlinter")
-
     }
 }
-
 
 
 subprojects {
