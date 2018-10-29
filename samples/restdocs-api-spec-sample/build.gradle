@@ -10,7 +10,7 @@ buildscript {
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-		classpath("com.epages:restdocs-api-spec-gradle-plugin:0.0.6")
+		classpath("com.epages:restdocs-api-spec-gradle-plugin:0.5.0")
 	}
 }
 
@@ -42,7 +42,7 @@ dependencies {
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	testCompile('org.springframework.restdocs:spring-restdocs-mockmvc')
 
-	testCompile('com.epages:restdocs-api-spec:0.0.6')
+	testCompile('com.epages:restdocs-api-spec:0.5.0')
 	//testCompile project(':restdocs-api-spec') //enable for depending on the submodule directly
 	testCompile('com.google.guava:guava:23.0')
 }
