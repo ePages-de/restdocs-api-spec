@@ -1,8 +1,9 @@
-rootProject.name = 'restdocs-openapi-parent'
-include 'restdocs-openapi'
-include 'restdocs-openapi-model'
-include 'restdocs-openapi-jsonschema'
-include 'restdocs-openapi-generator'
-include 'restdocs-openapi-gradle-plugin'
-include 'restdocs-openapi-sample'
-project(':restdocs-openapi-sample').projectDir = file('samples/restdocs-openapi-sample')
+rootProject.name = 'restdocs-api-spec-parent'
+include 'restdocs-api-spec'
+include 'restdocs-api-spec-model'
+include 'restdocs-api-spec-jsonschema'
+include 'restdocs-api-spec-openapi-generator'
+include 'restdocs-api-spec-openapi3-generator'
+include 'restdocs-api-spec-gradle-plugin'
+include 'restdocs-api-spec-sample'
+project(':restdocs-api-spec-sample').projectDir = file('samples/restdocs-api-spec-sample')
