@@ -50,8 +50,10 @@ dependencies {
     jacocoRuntime("org.jacoco:org.jacoco.agent:0.8.2:runtime")
 }
 
+// generate gradle properties file with jacoco agent configured
+// see https://discuss.gradle.org/t/testkit-jacoco-coverage/18792
 val createTestKitFiles by tasks.creating {
-    val outputDir = project.file("$buildDir/testkitFiles")
+    val outputDir = project.file("$buildDir/testkit")
 
     inputs.files(jacocoRuntime)
     outputs.dir(outputDir)

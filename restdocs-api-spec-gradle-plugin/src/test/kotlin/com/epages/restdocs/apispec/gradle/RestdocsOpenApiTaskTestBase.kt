@@ -46,6 +46,8 @@ abstract class RestdocsOpenApiTaskTestBase {
             buildFile = resolve("build.gradle").toFile()
             snippetsFolder = resolve("build/generated-snippets").toFile().apply { mkdirs() }
             outputFolder = resolve("build/openapi").toFile()
+
+            initializeGradleProperties()
         }
     }
 
@@ -245,4 +247,10 @@ abstract class RestdocsOpenApiTaskTestBase {
 
     protected fun outputFileContext(): DocumentContext =
         JsonPath.parse(outputFolder.resolve("$outputFileNamePrefix.$format").readText().also { println(it) })
+
+    private fun Path.initializeGradleProperties() {
+        // jacoco agent configuration
+        resolve("gradle.properties").toFile()
+            .writeText(File("build/testkit/testkit-gradle.properties").readText())
+    }
 }
