@@ -4,7 +4,7 @@
 [ ![Download](https://api.bintray.com/packages/epages/maven/restdocs-api-spec/images/download.svg) ](https://bintray.com/epages/maven/restdocs-api-spec/_latestVersion)
 [![Build Status](https://travis-ci.org/ePages-de/restdocs-api-spec.svg?branch=master)](https://travis-ci.org/ePages-de/restdocs-api-spec)
 [![Coverage Status](https://coveralls.io/repos/github/ePages-de/restdocs-api-spec/badge.svg?branch=master)](https://coveralls.io/github/ePages-de/restdocs-api-spec?branch=master)
-[![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/restdocs-openapi/Lobby)
+[![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/restdocs-api-spec/Lobby)
 
 This is an extension that adds API specifications as an output format to [Spring REST Docs](https://projects.spring.io/spring-restdocs/). 
 It currently supports:
