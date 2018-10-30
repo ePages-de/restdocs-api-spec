@@ -4,7 +4,7 @@ buildscript {
 	}
 	repositories {
 		mavenCentral()
-		maven { url "https://dl.bintray.com/epages/maven" }
+		jcenter()
 		maven { url "https://jitpack.io" }
 		maven { url "https://plugins.gradle.org/m2/" }
 	}
@@ -24,7 +24,6 @@ sourceCompatibility = 1.8
 repositories {
 	mavenCentral()
     jcenter()
-	maven { url = "https://dl.bintray.com/epages/maven" }
 }
 
 ext {
