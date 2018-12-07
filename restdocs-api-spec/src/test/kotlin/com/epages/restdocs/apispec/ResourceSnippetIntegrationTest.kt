@@ -12,6 +12,7 @@ import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.hateoas.Link
 import org.springframework.hateoas.MediaTypes.HAL_JSON
 import org.springframework.hateoas.Resource
@@ -97,43 +98,7 @@ open class ResourceSnippetIntegrationTest(@Autowired private val mockMvc: MockMv
             .andDo(document(operationName, buildFullResourceSnippet()))
     }
 
-    protected fun buildFullResourceSnippet(): ResourceSnippet {
-        return resource(
-            ResourceSnippetParameters.builder()
-                .description("description")
-                .summary("summary")
-                .deprecated(true)
-                .privateResource(true)
-                .requestFields(fieldDescriptors())
-                .responseFields(fieldDescriptors().and(fieldWithPath("id").description("id")))
-                .requestHeaders(
-                    headerWithName("X-Custom-Header").description("A custom header"),
-                    headerWithName(ACCEPT).description("Accept")
-                )
-                .responseHeaders(
-                    headerWithName("X-Custom-Header").description("A custom header"),
-                    headerWithName(CONTENT_TYPE).description("ContentType")
-                )
-                .pathParameters(
-                    parameterWithName("someId").description("some id"),
-                    parameterWithName("otherId").description("otherId id").type(SimpleType.INTEGER)
-                )
-                .links(
-                    linkWithRel("self").description("some"),
-                    linkWithRel("multiple").description("multiple")
-                )
-                .build()
-        )
-    }
 
-    protected fun fieldDescriptors(): FieldDescriptors {
-        val fields = ConstrainedFields(TestDataHolder::class.java)
-        return ResourceDocumentation.fields(
-            fields.withPath("comment").description("the comment").optional(),
-            fields.withPath("flag").description("the flag"),
-            fields.withMappedPath("count", "count").description("the count")
-        )
-    }
 
     protected fun givenEndpointInvoked(flagValue: String = "true") {
         resultActions = mockMvc.perform(
@@ -162,8 +127,9 @@ open class ResourceSnippetIntegrationTest(@Autowired private val mockMvc: MockMv
 
     @SpringBootApplication
     internal open class TestApplication {
+        lateinit var applicaitonContext : ConfigurableApplicationContext
         fun main(args: Array<String>) {
-            SpringApplication.run(TestApplication::class.java, *args)
+            applicaitonContext = SpringApplication.run(TestApplication::class.java, *args)
         }
 
         @RestController
@@ -199,3 +165,43 @@ open class ResourceSnippetIntegrationTest(@Autowired private val mockMvc: MockMv
         val id: String? = null
     )
 }
+
+
+fun fieldDescriptors(): FieldDescriptors {
+    val fields = ConstrainedFields(ResourceSnippetIntegrationTest.TestDataHolder::class.java)
+    return ResourceDocumentation.fields(
+            fields.withPath("comment").description("the comment").optional(),
+            fields.withPath("flag").description("the flag"),
+            fields.withMappedPath("count", "count").description("the count")
+    )
+}
+
+fun buildFullResourceSnippet(): ResourceSnippet {
+    return resource(
+            ResourceSnippetParameters.builder()
+                    .description("description")
+                    .summary("summary")
+                    .deprecated(true)
+                    .privateResource(true)
+                    .requestFields(fieldDescriptors())
+                    .responseFields(fieldDescriptors().and(fieldWithPath("id").description("id")))
+                    .requestHeaders(
+                            headerWithName("X-Custom-Header").description("A custom header"),
+                            headerWithName(ACCEPT).description("Accept")
+                    )
+                    .responseHeaders(
+                            headerWithName("X-Custom-Header").description("A custom header"),
+                            headerWithName(CONTENT_TYPE).description("ContentType")
+                    )
+                    .pathParameters(
+                            parameterWithName("someId").description("some id"),
+                            parameterWithName("otherId").description("otherId id").type(SimpleType.INTEGER)
+                    )
+                    .links(
+                            linkWithRel("self").description("some"),
+                            linkWithRel("multiple").description("multiple")
+                    )
+                    .build()
+    )
+}
+

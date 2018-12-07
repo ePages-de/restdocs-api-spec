@@ -18,6 +18,7 @@ dependencies {
     compile(kotlin("reflect"))
 
     compile("org.springframework.restdocs:spring-restdocs-mockmvc:$springRestDocsVersion")
+    compile("org.springframework.restdocs:spring-restdocs-restassured:$springRestDocsVersion")
     compile("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
     compile("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
 
