@@ -98,8 +98,6 @@ open class ResourceSnippetIntegrationTest(@Autowired private val mockMvc: MockMv
             .andDo(document(operationName, buildFullResourceSnippet()))
     }
 
-
-
     protected fun givenEndpointInvoked(flagValue: String = "true") {
         resultActions = mockMvc.perform(
             post("/some/{someId}/other/{otherId}", "id", 1)
@@ -127,9 +125,9 @@ open class ResourceSnippetIntegrationTest(@Autowired private val mockMvc: MockMv
 
     @SpringBootApplication
     internal open class TestApplication {
-        lateinit var applicaitonContext : ConfigurableApplicationContext
+        lateinit var applicationContext: ConfigurableApplicationContext
         fun main(args: Array<String>) {
-            applicaitonContext = SpringApplication.run(TestApplication::class.java, *args)
+            applicationContext = SpringApplication.run(TestApplication::class.java, *args)
         }
 
         @RestController
@@ -165,7 +163,6 @@ open class ResourceSnippetIntegrationTest(@Autowired private val mockMvc: MockMv
         val id: String? = null
     )
 }
-
 
 fun fieldDescriptors(): FieldDescriptors {
     val fields = ConstrainedFields(ResourceSnippetIntegrationTest.TestDataHolder::class.java)
@@ -204,4 +201,3 @@ fun buildFullResourceSnippet(): ResourceSnippet {
                     .build()
     )
 }
-

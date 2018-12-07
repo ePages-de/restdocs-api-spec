@@ -14,11 +14,16 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.hateoas.MediaTypes
 import org.springframework.restdocs.RestDocumentationContextProvider
 import org.springframework.restdocs.RestDocumentationExtension
-import org.springframework.restdocs.headers.HeaderDocumentation.*
+import org.springframework.restdocs.headers.HeaderDocumentation.headerWithName
+import org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders
+import org.springframework.restdocs.headers.HeaderDocumentation.responseHeaders
 import org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel
 import org.springframework.restdocs.hypermedia.HypermediaDocumentation.links
 import org.springframework.restdocs.operation.preprocess.OperationRequestPreprocessor
-import org.springframework.restdocs.payload.PayloadDocumentation.*
+import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
+import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
+import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
+import org.springframework.restdocs.payload.PayloadDocumentation.subsectionWithPath
 import org.springframework.restdocs.request.RequestDocumentation.parameterWithName
 import org.springframework.restdocs.request.RequestDocumentation.pathParameters
 import org.springframework.restdocs.restassured3.RestAssuredRestDocumentation
@@ -45,12 +50,12 @@ class RestAssuredRestDocumentationWrapperIntegrationTest() {
     fun startSpringApplication() {
         app = ResourceSnippetIntegrationTest.TestApplication()
         app.main(arrayOf("--server.port=0"))
-        serverPort = app.applicaitonContext.environment.getProperty("local.server.port")?.toInt()
+        serverPort = app.applicationContext.environment.getProperty("local.server.port")?.toInt()
     }
 
     @AfterEach
     fun tearDown() {
-        app.applicaitonContext.close()
+        app.applicationContext.close()
     }
 
     fun givenEndpointInvoked(documentationFilter: Filter, flagValue: String = "true") {
