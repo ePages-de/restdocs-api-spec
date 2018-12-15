@@ -229,7 +229,14 @@ class JsonSchemaFromFieldDescriptorsGenerator {
                 "null" -> NullSchema.builder()
                 "empty" -> EmptySchema.builder()
                 "object" -> ObjectSchema.builder()
-                "array" -> ArraySchema.builder()
+                "array" -> ArraySchema.builder().allItemSchema(CombinedSchema.oneOf(
+                        listOf(
+                                ObjectSchema.builder().build(),
+                                BooleanSchema.builder().build(),
+                                StringSchema.builder().build(),
+                                NumberSchema.builder().build()
+                        )
+                ).build())
                 "boolean" -> BooleanSchema.builder()
                 "number" -> NumberSchema.builder()
                 "string" -> StringSchema.builder()

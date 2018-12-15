@@ -183,6 +183,17 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
         then(JsonPath.read<String>(schemaString, "properties.id.description")).isNotEmpty()
     }
 
+    @Test
+    fun should_generate_schema_for_unspecified_array_contents() {
+        givenFieldDescriptorUnspecifiedArrayItems()
+
+        whenSchemaGenerated()
+
+        then(schema).isInstanceOf(ObjectSchema::class.java)
+        thenSchemaIsValid()
+        thenSchemaValidatesJson("""{ some: [ { "a": "b" } ] }""")
+    }
+
     private fun thenSchemaIsValid() {
 
         val report = JsonSchemaFactory.byDefault()
@@ -211,6 +222,10 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
 
     private fun givenFieldDescriptorWithTopLevelArrayOfArrayOfAny() {
         fieldDescriptors = listOf(FieldDescriptor("[][]", "some", "ARRAY"))
+    }
+
+    private fun givenFieldDescriptorUnspecifiedArrayItems() {
+        fieldDescriptors = listOf(FieldDescriptor("some[]", "some", "ARRAY"))
     }
 
     private fun givenFieldDescriptorWithInvalidType() {
