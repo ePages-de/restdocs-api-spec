@@ -1,7 +1,5 @@
 package com.epages.restdocs.apispec.sample;
 
-import lombok.SneakyThrows;
-import lombok.experimental.FieldDefaults;
 import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityLinks;
@@ -9,11 +7,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-import static lombok.AccessLevel.PROTECTED;
 import static org.springframework.http.HttpHeaders.LOCATION;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 
-@FieldDefaults(level = PROTECTED)
 class BaseIntegrationTest {
 
     @Autowired MockMvc mockMvc;
@@ -47,18 +43,17 @@ class BaseIntegrationTest {
                 "}", name, price);
     }
 
-    protected void givenProduct() {
+    protected void givenProduct() throws Exception {
         givenProductPayload();
         whenProductIsCreated();
     }
 
-    protected void givenProduct(String name, String price) {
+    protected void givenProduct(String name, String price) throws Exception {
         givenProductPayload(name, price);
         whenProductIsCreated();
     }
 
-    @SneakyThrows
-    protected void whenProductIsCreated() {
+    protected void whenProductIsCreated() throws Exception {
         resultActions = mockMvc.perform(post("/products")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json));

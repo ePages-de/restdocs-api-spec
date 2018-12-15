@@ -3,7 +3,6 @@ package com.epages.restdocs.apispec.sample;
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
 import static com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
-import static lombok.AccessLevel.PRIVATE;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.data.rest.webmvc.RestMediaTypes.HAL_JSON;
 import static org.springframework.data.rest.webmvc.RestMediaTypes.TEXT_URI_LIST;
@@ -18,8 +17,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
-import lombok.SneakyThrows;
-import lombok.experimental.FieldDefaults;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
@@ -30,15 +27,13 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs
 @SpringBootTest
-@FieldDefaults(level = PRIVATE)
 @ExtendWith(SpringExtension.class)
 public class CartIntegrationTest extends BaseIntegrationTest {
 
     String cartId;
 
     @Test
-    @SneakyThrows
-    public void should_create_cart() {
+    public void should_create_cart() throws Exception {
 
         whenCartIsCreated();
 
@@ -49,8 +44,7 @@ public class CartIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    @SneakyThrows
-    public void should_add_product_to_cart() {
+    public void should_add_product_to_cart() throws Exception {
         givenCart();
         givenProduct();
 
@@ -64,8 +58,7 @@ public class CartIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    @SneakyThrows
-    public void should_get_cart() {
+    public void should_get_cart() throws Exception {
         givenCartWithProduct();
 
         whenCartIsRetrieved();
@@ -98,8 +91,7 @@ public class CartIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    @SneakyThrows
-    public void should_order_cart() {
+    public void should_order_cart() throws Exception {
         givenCartWithProduct();
 
         whenCartIsOrdered();
@@ -110,42 +102,36 @@ public class CartIntegrationTest extends BaseIntegrationTest {
         ;
     }
 
-    @SneakyThrows
-    private void whenProductIsAddedToCart() {
+    private void whenProductIsAddedToCart() throws Exception {
         resultActions = mockMvc.perform(post("/carts/{id}/products", cartId)
                 .contentType(TEXT_URI_LIST)
                 .content(entityLinks.linkForSingleResource(Product.class, productId).toUri().toString()));
     }
 
-    @SneakyThrows
-    private void whenCartIsCreated() {
+    private void whenCartIsCreated() throws Exception {
         resultActions = mockMvc.perform(post("/carts"));
 
         String location = resultActions.andReturn().getResponse().getHeader(LOCATION);
         cartId = location.substring(location.lastIndexOf("/") + 1);
     }
 
-    @SneakyThrows
-    private void whenCartIsRetrieved() {
+    private void whenCartIsRetrieved() throws Exception {
         resultActions = mockMvc.perform(get("/carts/{id}", cartId)
                 .accept(HAL_JSON))
                 .andDo(print());
     }
 
-    @SneakyThrows
-    private void whenCartIsOrdered() {
+    private void whenCartIsOrdered() throws Exception {
         resultActions = mockMvc.perform(post("/carts/{id}/order", cartId));
     }
 
 
-    @SneakyThrows
-    private void givenCart() {
+    private void givenCart() throws Exception {
         whenCartIsCreated();
         resultActions.andExpect(status().isCreated());
     }
 
-    @SneakyThrows
-    private void givenCartWithProduct() {
+    private void givenCartWithProduct() throws Exception {
         givenCart();
         givenProduct();
         whenProductIsAddedToCart();

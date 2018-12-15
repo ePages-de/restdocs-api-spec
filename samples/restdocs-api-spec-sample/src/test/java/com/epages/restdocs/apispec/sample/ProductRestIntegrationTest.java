@@ -1,6 +1,5 @@
 package com.epages.restdocs.apispec.sample;
 
-import static lombok.AccessLevel.PRIVATE;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.data.rest.webmvc.RestMediaTypes.JSON_PATCH_JSON;
@@ -18,11 +17,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.epages.restdocs.apispec.ConstrainedFields;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import lombok.SneakyThrows;
-import lombok.experimental.FieldDefaults;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +31,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
-@FieldDefaults(level = PRIVATE)
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs
 public class ProductRestIntegrationTest extends BaseIntegrationTest {
@@ -42,9 +39,9 @@ public class ProductRestIntegrationTest extends BaseIntegrationTest {
     private ObjectMapper objectMapper;
 
     private ConstrainedFields fields = new ConstrainedFields(Product.class);
+
     @Test
-    @SneakyThrows
-    public void should_get_products() {
+    public void should_get_products() throws Exception {
         givenProduct();
         givenProduct("Fancy Shirt", "15.10");
         givenProduct("Fancy Shoes", "75.95");
@@ -80,8 +77,7 @@ public class ProductRestIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    @SneakyThrows
-    public void should_get_product() {
+    public void should_get_product() throws Exception {
         givenProduct();
 
         whenProductIsRetrieved();
@@ -99,8 +95,7 @@ public class ProductRestIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    @SneakyThrows
-    public void should_create_product() {
+    public void should_create_product() throws Exception {
         givenProductPayload();
 
         whenProductIsCreated();
@@ -115,8 +110,7 @@ public class ProductRestIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    @SneakyThrows
-    public void should_update_product() {
+    public void should_update_product() throws Exception {
         givenProduct();
         givenProductPayload("Updated name", "12.12");
 
@@ -132,8 +126,7 @@ public class ProductRestIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    @SneakyThrows
-    public void should_fail_to_update_product_with_negative_price() {
+    public void should_fail_to_update_product_with_negative_price() throws Exception {
         givenProduct();
         givenProductPayload("Updated name", "-12.12");
 
@@ -146,8 +139,7 @@ public class ProductRestIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    @SneakyThrows
-    public void should_partially_update_product() {
+    public void should_partially_update_product() throws Exception {
         givenProduct();
         givenPatchPayload();
 
@@ -163,8 +155,7 @@ public class ProductRestIntegrationTest extends BaseIntegrationTest {
         ;
     }
 
-    @SneakyThrows
-    private void givenPatchPayload() {
+    private void givenPatchPayload() throws JsonProcessingException {
         json = objectMapper.writeValueAsString(
                 ImmutableList.of(
                         ImmutableMap.of(
@@ -176,29 +167,25 @@ public class ProductRestIntegrationTest extends BaseIntegrationTest {
         );
     }
 
-    @SneakyThrows
-    private void whenProductIsRetrieved() {
+    private void whenProductIsRetrieved() throws Exception {
         resultActions = mockMvc.perform(get("/products/{id}", productId));
     }
 
-    @SneakyThrows
-    private void whenProductIsPatched() {
+    private void whenProductIsPatched() throws Exception {
         resultActions = mockMvc.perform(patch("/products/{id}", productId)
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .content(json));
     }
 
-    @SneakyThrows
-    private void whenProductIsPatchedJsonPatch() {
+    private void whenProductIsPatchedJsonPatch() throws Exception {
         resultActions = mockMvc.perform(patch("/products/{id}", productId)
                 .contentType(JSON_PATCH_JSON)
                 .accept(APPLICATION_JSON)
                 .content(json));
     }
 
-    @SneakyThrows
-    private void whenProductsAreRetrieved() {
+    private void whenProductsAreRetrieved() throws Exception {
         resultActions = mockMvc.perform(get("/products")
                 .param("page", "0")
                 .param("size", "2")
