@@ -103,7 +103,7 @@ subprojects {
                 }
             }
         }
-        
+
         apply(plugin = "com.jfrog.bintray")
         configure<BintrayExtension> {
             user = project.findProperty("bintrayUser") as String? ?: System.getenv("BINTRAY_USER")
