@@ -1,8 +1,5 @@
 package com.epages.restdocs.apispec.sample;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.EntityLinks;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.ResourceSupport;
@@ -29,14 +26,13 @@ public class CartResourceResourceAssembler extends ResourceAssemblerSupport<Cart
 
     @Override
     protected CartResource instantiateResource(Cart cart) {
-        return CartResource.builder()
-                .products(cart.getProducts().stream()
+        return new CartResource(
+                cart.getProducts().stream()
                         .collect(Collectors.groupingBy(Product::getId)).values().stream()
                         .map(products -> new ProductLineItem(products.size(), products.get(0)))
                         .map(this::toProductLineItemResource)
-                        .collect(Collectors.toList()))
-                .total(cart.getTotal())
-                .build();
+                        .collect(Collectors.toList())
+                ,cart.getTotal());
     }
 
     private Resource<ProductLineItem> toProductLineItemResource(ProductLineItem pli) {
@@ -56,19 +52,41 @@ public class CartResourceResourceAssembler extends ResourceAssemblerSupport<Cart
         return resource;
     }
 
-    @Builder
-    @Getter
     static class CartResource extends ResourceSupport {
+
+        public CartResource(List<Resource<ProductLineItem>> products, BigDecimal total) {
+            this.total = total;
+            this.products = products;
+        }
 
         private final BigDecimal total;
         private final List<Resource<ProductLineItem>> products;
+
+        public BigDecimal getTotal() {
+            return this.total;
+        }
+
+        public List<Resource<ProductLineItem>> getProducts() {
+            return this.products;
+        }
     }
 
-    @RequiredArgsConstructor
-    @Getter
     static class ProductLineItem extends ResourceSupport {
+        public ProductLineItem(int quantity, @NotNull Product product) {
+            this.quantity = quantity;
+            this.product = product;
+        }
+
         private final int quantity;
         @NotNull
         private final Product product;
+
+        public int getQuantity() {
+            return quantity;
+        }
+
+        public Product getProduct() {
+            return product;
+        }
     }
 }

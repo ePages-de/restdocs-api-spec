@@ -1,7 +1,5 @@
 package com.epages.restdocs.apispec.sample;
 
-import com.epages.restdocs.apispec.sample.CartResourceResourceAssembler.CartResource;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.hateoas.EntityLinks;
 import org.springframework.hateoas.Resources;
@@ -14,7 +12,6 @@ import static org.springframework.data.rest.webmvc.RestMediaTypes.TEXT_URI_LIST_
 
 @RepositoryRestController
 @RequestMapping("/carts")
-@RequiredArgsConstructor
 public class CartController {
 
     private final CartRepository cartRepository;
@@ -24,6 +21,13 @@ public class CartController {
     private final EntityLinks entityLinks;
 
     private final CartResourceResourceAssembler cartResourceResourceAssembler;
+
+    public CartController(CartRepository cartRepository, ProductRepository productRepository, EntityLinks entityLinks, CartResourceResourceAssembler cartResourceResourceAssembler) {
+        this.cartRepository = cartRepository;
+        this.productRepository = productRepository;
+        this.entityLinks = entityLinks;
+        this.cartResourceResourceAssembler = cartResourceResourceAssembler;
+    }
 
     @PostMapping
     public ResponseEntity<CartResourceResourceAssembler.CartResource> create() {

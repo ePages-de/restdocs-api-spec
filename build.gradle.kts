@@ -12,11 +12,11 @@ import org.gradle.api.tasks.bundling.Jar
 
 plugins {
     java
-    kotlin("jvm") version "1.2.51" apply false
+    kotlin("jvm") version "1.3.10" apply false
     id("pl.allegro.tech.build.axion-release") version "1.9.2"
     jacoco
     `maven-publish`
-    id("org.jmailen.kotlinter") version "1.17.0" apply false
+    id("org.jmailen.kotlinter") version "1.20.1" apply false
     id("com.github.kt3k.coveralls") version "2.8.2"
     id("com.jfrog.bintray") version "1.8.4" apply false
 }
@@ -63,9 +63,9 @@ allprojects {
 subprojects {
 
     val jacksonVersion by extra { "2.9.5" }
-    val springBootVersion by extra { "2.0.5.RELEASE" }
-    val springRestDocsVersion by extra { "2.0.2.RELEASE" }
-    val junitVersion by extra { "5.3.1" }
+    val springBootVersion by extra { "2.1.1.RELEASE" }
+    val springRestDocsVersion by extra { "2.0.3.RELEASE" }
+    val junitVersion by extra { "5.3.2" }
 
     tasks.withType<KotlinCompile> {
         kotlinOptions.jvmTarget = "1.8"
@@ -90,17 +90,20 @@ subprojects {
 
         val sourcesJar by tasks.creating(Jar::class) {
             classifier = "sources"
-            from(java.sourceSets["main"].allSource)
+            from(sourceSets["main"].allSource)
         }
 
         publishing {
-            (publications) { 
-                "mavenJava"(MavenPublication::class) {
-                    from(components["java"])
-                    artifact(sourcesJar)
+            publications {
+                (publications) {
+                    register("mavenJava", MavenPublication::class) {
+                        from(components["java"])
+                        artifact(sourcesJar)
+                    }
                 }
             }
         }
+        
         apply(plugin = "com.jfrog.bintray")
         configure<BintrayExtension> {
             user = project.findProperty("bintrayUser") as String? ?: System.getenv("BINTRAY_USER")
@@ -118,7 +121,7 @@ subprojects {
 
 //coverall multi module plugin configuration starts here
 configure<CoverallsPluginExtension> {
-    sourceDirs = nonSampleProjects.flatMap { it.java.sourceSets["main"].allSource.srcDirs }.filter { it.exists() }.map { it.path }
+    sourceDirs = nonSampleProjects.flatMap { it.sourceSets["main"].allSource.srcDirs }.filter { it.exists() }.map { it.path }
     jacocoReportPath = "$buildDir/reports/jacoco/jacocoRootReport/jacocoRootReport.xml"
 }
 
@@ -130,7 +133,7 @@ tasks {
         }
     }
 
-    val jacocoTestReport = tasks["jacocoTestReport"]
+    val jacocoTestReport = this.getByName("jacocoTestReport")
     jacocoTestReport.dependsOn(nonSampleProjects.map { it.tasks["jacocoTestReport"] })
     jacocoMerge.dependsOn(jacocoTestReport)
 
@@ -138,13 +141,13 @@ tasks {
         description = "Generates an aggregate report from all subprojects"
         group = "Coverage reports"
         dependsOn(jacocoMerge)
-        sourceDirectories = files(nonSampleProjects.flatMap { it.java.sourceSets["main"].allSource.srcDirs.filter { it.exists() } } )
-        classDirectories = files(nonSampleProjects.flatMap { it.java.sourceSets["main"].output } )
+        setSourceDirectories(files(nonSampleProjects.flatMap { it.sourceSets["main"].allSource.srcDirs.filter { it.exists() } } ))
+        setClassDirectories(files(nonSampleProjects.flatMap { it.sourceSets["main"].output } ))
         executionData(jacocoMerge.destinationFile)
         reports {
             html.isEnabled = true
             xml.isEnabled = true
         }
     }
-    tasks["coveralls"].dependsOn(jacocoRootReport)
+    getByName("coveralls").dependsOn(jacocoRootReport)
 }

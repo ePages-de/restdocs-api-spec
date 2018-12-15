@@ -165,28 +165,28 @@ open class ResourceSnippetIntegrationTest(@Autowired private val mockMvc: MockMv
         fun main(args: Array<String>) {
             SpringApplication.run(TestApplication::class.java, *args)
         }
-    }
 
-    @RestController
-    internal open class TestController {
+        @RestController
+        internal open class TestController {
 
-        @PostMapping(path = ["/some/{someId}/other/{otherId}"])
-        fun doSomething(
-            @PathVariable someId: String,
-            @PathVariable otherId: Int?,
-            @RequestHeader("X-Custom-Header") customHeader: String,
-            @RequestBody testDataHolder: TestDataHolder
-        ): ResponseEntity<Resource<TestDataHolder>> {
-            val resource = Resource(testDataHolder.copy(id = UUID.randomUUID().toString()))
-            val link = BasicLinkBuilder.linkToCurrentMapping().slash("some").slash(someId).slash("other").slash(otherId).toUri().toString()
-            resource.add(Link(link, Link.REL_SELF))
-            resource.add(Link(link, "multiple"))
-            resource.add(Link(link, "multiple"))
+            @PostMapping(path = ["/some/{someId}/other/{otherId}"])
+            fun doSomething(
+                @PathVariable someId: String,
+                @PathVariable otherId: Int?,
+                @RequestHeader("X-Custom-Header") customHeader: String,
+                @RequestBody testDataHolder: TestDataHolder
+            ): ResponseEntity<Resource<TestDataHolder>> {
+                val resource = Resource(testDataHolder.copy(id = UUID.randomUUID().toString()))
+                val link = BasicLinkBuilder.linkToCurrentMapping().slash("some").slash(someId).slash("other").slash(otherId).toUri().toString()
+                resource.add(Link(link, Link.REL_SELF))
+                resource.add(Link(link, "multiple"))
+                resource.add(Link(link, "multiple"))
 
-            return ResponseEntity
-                .ok()
-                .header("X-Custom-Header", customHeader)
-                .body<Resource<TestDataHolder>>(resource)
+                return ResponseEntity
+                        .ok()
+                        .header("X-Custom-Header", customHeader)
+                        .body<Resource<TestDataHolder>>(resource)
+            }
         }
     }
 

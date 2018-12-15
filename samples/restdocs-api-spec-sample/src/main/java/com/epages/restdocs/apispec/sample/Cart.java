@@ -1,8 +1,6 @@
 package com.epages.restdocs.apispec.sample;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.hateoas.Identifiable;
 
 import javax.persistence.Entity;
@@ -17,7 +15,6 @@ import static java.math.BigDecimal.ZERO;
 import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
-@Getter
 public class Cart implements Identifiable<Long> {
 
     @Id
@@ -28,13 +25,29 @@ public class Cart implements Identifiable<Long> {
     private List<Product> products = new ArrayList<>();
 
     @JsonIgnore
-    @Setter
     private boolean ordered;
+
+    @Override
+    public Long getId() {
+        return id;
+    }
+
+    public List<Product> getProducts() {
+        return products;
+    }
+
+    public boolean isOrdered() {
+        return ordered;
+    }
 
     public BigDecimal getTotal() {
         return products.stream()
                 .map(Product::getPrice)
                 .reduce(BigDecimal::add)
                 .orElse(ZERO);
+    }
+
+    public void setOrdered(boolean ordered) {
+        this.ordered = ordered;
     }
 }

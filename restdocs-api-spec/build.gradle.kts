@@ -15,6 +15,7 @@ val junitVersion: String by extra
 
 dependencies {
     compile(kotlin("stdlib-jdk8"))
+    compile(kotlin("reflect"))
 
     compile("org.springframework.restdocs:spring-restdocs-mockmvc:$springRestDocsVersion")
     compile("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
