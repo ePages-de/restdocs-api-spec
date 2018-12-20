@@ -39,8 +39,8 @@ dependencies {
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	testCompile('org.springframework.restdocs:spring-restdocs-mockmvc')
 
-	//testCompile('com.epages:restdocs-api-spec:0.5.0')
-	testCompile project(':restdocs-api-spec') //enable for depending on the submodule directly
+//	testCompile('com.epages:restdocs-api-spec-mockmvc:0.5.0')
+	testCompile project(':restdocs-api-spec-mockmvc') //enable for depending on the submodule directly
 	testCompile('com.google.guava:guava:23.0')
 }
 
