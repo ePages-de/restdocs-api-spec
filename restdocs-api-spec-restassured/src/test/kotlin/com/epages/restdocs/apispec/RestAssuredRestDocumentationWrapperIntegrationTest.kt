@@ -31,8 +31,7 @@ import org.springframework.restdocs.restassured3.RestDocumentationFilter
 import java.io.File
 
 @ExtendWith(RestDocumentationExtension::class)
-class RestAssuredRestDocumentationWrapperIntegrationTest() {
-    val operationName = "test-${System.currentTimeMillis()}"
+class RestAssuredRestDocumentationWrapperIntegrationTest : ResourceSnippetIntegrationTest() {
 
     private lateinit var app: ResourceSnippetIntegrationTest.TestApplication
     private var serverPort: Int? = null
@@ -238,7 +237,7 @@ class RestAssuredRestDocumentationWrapperIntegrationTest() {
         val operationRequestPreprocessor = OperationRequestPreprocessor { r -> r }
         return RestAssuredRestDocumentationWrapper.document(
                 identifier = operationName,
-                resourceDetails = MockMvcRestDocumentationWrapper.resourceDetails()
+                resourceDetails = RestAssuredRestDocumentationWrapper.resourceDetails()
                         .description("The Resource")
                         .privateResource(true)
                         .tag("some-tag"),

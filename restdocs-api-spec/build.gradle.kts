@@ -17,8 +17,7 @@ dependencies {
     compile(kotlin("stdlib-jdk8"))
     compile(kotlin("reflect"))
 
-    compile("org.springframework.restdocs:spring-restdocs-mockmvc:$springRestDocsVersion")
-    compile("org.springframework.restdocs:spring-restdocs-restassured:$springRestDocsVersion")
+    compile("org.springframework.restdocs:spring-restdocs-core:$springRestDocsVersion")
     compile("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
     compile("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
 
@@ -35,5 +34,14 @@ dependencies {
     testImplementation("com.github.java-json-tools:json-schema-validator:2.2.10")
     testImplementation("com.github.everit-org.json-schema:org.everit.json.schema:1.9.1")
 }
+
+
+// build testJar for test classes dependency of MockMvc & RestAssured modules
+val testConf by configurations.creating { }
+val testJar by tasks.creating(Jar::class) {
+    classifier = "testJar"
+    from(java.sourceSets["test"].output)
+}
+artifacts.add("testConf", testJar)
 
 

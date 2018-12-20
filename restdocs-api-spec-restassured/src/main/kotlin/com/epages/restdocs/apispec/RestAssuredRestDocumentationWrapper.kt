@@ -1,17 +1,17 @@
 package com.epages.restdocs.apispec
 
-import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation
-import org.springframework.restdocs.mockmvc.RestDocumentationResultHandler
 import org.springframework.restdocs.operation.preprocess.OperationRequestPreprocessor
 import org.springframework.restdocs.operation.preprocess.OperationResponsePreprocessor
+import org.springframework.restdocs.restassured3.RestAssuredRestDocumentation
+import org.springframework.restdocs.restassured3.RestDocumentationFilter
 import org.springframework.restdocs.snippet.Snippet
 import java.util.function.Function
 
 /**
  * Convenience class to migrate to restdocs-openapi in a non-invasive way.
- * It it a wrapper and replacement for MockMvcRestDocumentation that transparently adds a ResourceSnippet with the descriptors provided in the given snippets.
+ * It is a wrapper and replacement for RestAssuredRestDocumentation that transparently adds a ResourceSnippet with the descriptors provided in the given snippets.
  */
-object MockMvcRestDocumentationWrapper : RestDocumentationWrapper() {
+object RestAssuredRestDocumentationWrapper : RestDocumentationWrapper() {
 
     @JvmOverloads @JvmStatic
     fun document(
@@ -21,7 +21,7 @@ object MockMvcRestDocumentationWrapper : RestDocumentationWrapper() {
         responsePreprocessor: OperationResponsePreprocessor? = null,
         snippetFilter: Function<List<Snippet>, List<Snippet>> = Function.identity(),
         vararg snippets: Snippet
-    ): RestDocumentationResultHandler {
+    ): RestDocumentationFilter {
 
         val enhancedSnippets =
                 enhanceSnippetsWithResourceSnippet(
@@ -31,19 +31,19 @@ object MockMvcRestDocumentationWrapper : RestDocumentationWrapper() {
                 )
 
         if (requestPreprocessor != null && responsePreprocessor != null) {
-            return MockMvcRestDocumentation.document(
+            return RestAssuredRestDocumentation.document(
                     identifier,
                     requestPreprocessor,
                     responsePreprocessor,
                     *enhancedSnippets
             )
         } else if (requestPreprocessor != null) {
-            return MockMvcRestDocumentation.document(identifier, requestPreprocessor, *enhancedSnippets)
+            return RestAssuredRestDocumentation.document(identifier, requestPreprocessor, *enhancedSnippets)
         } else if (responsePreprocessor != null) {
-            return MockMvcRestDocumentation.document(identifier, responsePreprocessor, *enhancedSnippets)
+            return RestAssuredRestDocumentation.document(identifier, responsePreprocessor, *enhancedSnippets)
         }
 
-        return MockMvcRestDocumentation.document(identifier, *enhancedSnippets)
+        return RestAssuredRestDocumentation.document(identifier, *enhancedSnippets)
     }
 
     @JvmOverloads @JvmStatic
@@ -57,7 +57,7 @@ object MockMvcRestDocumentationWrapper : RestDocumentationWrapper() {
         responsePreprocessor: OperationResponsePreprocessor? = null,
         snippetFilter: Function<List<Snippet>, List<Snippet>> = Function.identity(),
         vararg snippets: Snippet
-    ): RestDocumentationResultHandler {
+    ): RestDocumentationFilter {
         return document(
                 identifier = identifier,
                 resourceDetails = ResourceSnippetParametersBuilder()
@@ -77,7 +77,7 @@ object MockMvcRestDocumentationWrapper : RestDocumentationWrapper() {
         identifier: String,
         requestPreprocessor: OperationRequestPreprocessor,
         vararg snippets: Snippet
-    ): RestDocumentationResultHandler {
+    ): RestDocumentationFilter {
         return document(identifier, null, null, false, false, requestPreprocessor, snippets = *snippets)
     }
 
@@ -87,7 +87,7 @@ object MockMvcRestDocumentationWrapper : RestDocumentationWrapper() {
         description: String,
         privateResource: Boolean,
         vararg snippets: Snippet
-    ): RestDocumentationResultHandler {
+    ): RestDocumentationFilter {
         return document(identifier, description, null, privateResource, snippets = *snippets)
     }
 

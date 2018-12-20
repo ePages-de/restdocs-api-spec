@@ -16,7 +16,7 @@ import java.util.function.Function
 
 abstract class RestDocumentationWrapper {
 
-    internal fun enhanceSnippetsWithResourceSnippet(
+    protected fun enhanceSnippetsWithResourceSnippet(
         resourceDetails: ResourceSnippetDetails,
         snippetFilter: Function<List<Snippet>, List<Snippet>>,
         vararg snippets: Snippet
