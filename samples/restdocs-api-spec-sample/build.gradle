@@ -33,6 +33,7 @@ ext {
 dependencies {
 	compile('org.springframework.boot:spring-boot-starter-data-jpa')
 	compile('org.springframework.boot:spring-boot-starter-data-rest')
+	compile('javax.xml.bind:jaxb-api:2.3.1')
 	runtime('com.h2database:h2')
 	testCompile('org.junit.jupiter:junit-jupiter-engine:5.3.2')
 
