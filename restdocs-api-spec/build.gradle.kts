@@ -40,7 +40,7 @@ dependencies {
 val testConf by configurations.creating { }
 val testJar by tasks.creating(Jar::class) {
     classifier = "testJar"
-    from(java.sourceSets["test"].output)
+    from(sourceSets["test"].output)
 }
 artifacts.add("testConf", testJar)
 
