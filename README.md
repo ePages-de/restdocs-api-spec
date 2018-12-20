@@ -68,11 +68,13 @@ This is why we came up with this project.
 
 ### Project structure
 
-The project consists of two components:
+The project consists of the following main components:
 
 - [restdocs-api-spec](restdocs-api-spec) - contains the actual Spring REST Docs extension. 
 This is most importantly the [ResourceDocumentation](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apispec/ResourceDocumentation.kt) which is the entrypoint to use the extension in your tests. 
 The [ResourceSnippet](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apispec/ResourceSnippet.kt) is the snippet used to produce a json file `resource.json` containing all the details about the documented resource. 
+- [restdocs-api-spec-restassured](restdocs-api-spec-mockmvc) - contains a wrapper for `MockMvcRestDocumentation` for easier migration to `restdocs-api-spec` from MockMvc tests using plain `spring-rest-docs-mockmvc`.
+- [restdocs-api-spec-restassured](restdocs-api-spec-restassured) - contains a wrapper for `RestAssuredRestDocumentation` for easier migration to `restdocs-api-spec` from RestAssured tests using plain `spring-rest-docs-restassured`.
 - [restdocs-api-spec-gradle-plugin](restdocs-api-spec-gradle-plugin) - adds a gradle plugin that aggregates the `resource.json` files produced  by `ResourceSnippet` into an API specification file for the whole project.
 
 ### Build configuration
@@ -102,7 +104,7 @@ repositories { //4
 
 dependencies {
     //..
-    testCompile('com.epages:restdocs-api-spec:0.5.0') //5
+    testCompile('com.epages:restdocs-api-spec-mockmvc:0.5.0') //5
 }
 
 openapi { //6
@@ -125,7 +127,7 @@ openapi3 {
 2. add the dependency to `restdocs-api-spec-gradle-plugin`
 3. apply `restdocs-api-spec-gradle-plugin`
 4. add the `jcenter` repository used to resolve the `com.epages:restdocs-api-spec` module of the project.
-5. add the actual `restdocs-api-spec` dependency to the test scope
+5. add the actual `restdocs-api-spec-mockmvc` dependency to the test scope. Use `restdocs-api-spec-restassured` if you use `RestAssured` instead of `MockMvc`.
 6. add configuration options for restdocs-api-spec-gradle-plugin`. See [Gradle plugin configuration](#gradle-plugin-configuration)
 
 See the [build.gradle](samples/restdocs-api-spec-sample/build.gradle) for the setup used in the sample project.
