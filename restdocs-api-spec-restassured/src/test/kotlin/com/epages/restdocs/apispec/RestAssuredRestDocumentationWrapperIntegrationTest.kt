@@ -7,7 +7,6 @@ import io.restassured.http.ContentType
 import io.restassured.specification.RequestSpecification
 import org.assertj.core.api.Assertions.assertThatCode
 import org.assertj.core.api.BDDAssertions.then
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -33,31 +32,16 @@ import java.io.File
 @ExtendWith(RestDocumentationExtension::class)
 class RestAssuredRestDocumentationWrapperIntegrationTest : ResourceSnippetIntegrationTest() {
 
-    private lateinit var app: ResourceSnippetIntegrationTest.TestApplication
-    private var serverPort: Int? = null
-
     private lateinit var spec: RequestSpecification
 
     @BeforeEach
-    fun setUp(restDocumentation: RestDocumentationContextProvider) {
-        startSpringApplication()
+    fun setUpSpec(restDocumentation: RestDocumentationContextProvider) {
         spec = RequestSpecBuilder()
                 .addFilter(RestAssuredRestDocumentation.documentationConfiguration(restDocumentation))
                 .build()
     }
 
-    fun startSpringApplication() {
-        app = ResourceSnippetIntegrationTest.TestApplication()
-        app.main(arrayOf("--server.port=0"))
-        serverPort = app.applicationContext.environment.getProperty("local.server.port")?.toInt()
-    }
-
-    @AfterEach
-    fun tearDown() {
-        app.applicationContext.close()
-    }
-
-    fun givenEndpointInvoked(documentationFilter: Filter, flagValue: String = "true") {
+    private fun givenEndpointInvoked(documentationFilter: Filter, flagValue: String = "true") {
         RestAssured.given(spec)
                 .filter(documentationFilter)
                 .baseUri("http://localhost")

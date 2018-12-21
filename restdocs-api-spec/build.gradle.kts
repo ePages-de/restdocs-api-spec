@@ -36,12 +36,3 @@ dependencies {
 }
 
 
-// build testJar for test classes dependency of MockMvc & RestAssured modules
-val testConf by configurations.creating { }
-val testJar by tasks.creating(Jar::class) {
-    classifier = "testJar"
-    from(sourceSets["test"].output)
-}
-artifacts.add("testConf", testJar)
-
-

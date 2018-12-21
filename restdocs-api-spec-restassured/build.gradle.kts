@@ -18,7 +18,6 @@ dependencies {
     compile(project(":restdocs-api-spec"))
     compile("org.springframework.restdocs:spring-restdocs-restassured:$springRestDocsVersion")
 
-    testCompile(project(":restdocs-api-spec", "testConf"))
     testCompile("org.springframework.boot:spring-boot-starter-test:$springBootVersion") {
         exclude("junit")
     }
