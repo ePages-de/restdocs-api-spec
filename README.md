@@ -223,6 +223,25 @@ mockMvc.perform(get("/carts/{id}", cartId)
 ### Usage with Spring REST Docs - REST Assured
 The usage for REST Assured is similar to MockMVC, except that [com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apispec/RestAssuredRestDocumentationWrapper.kt) is used instead of [com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apispec/MockMvcRestDocumentationWrapper.kt).
 
+To use the ``RestAssuredRestDocumentationWrapper``, you have to add a dependency to [restdocs-api-spec-restassured](restdocs-api-spec-restassured) to your build.
+```java
+RestAssured.given(this.spec)
+        .filter(RestAssuredRestDocumentationWrapper.document("{method-name}",
+                "The API description",
+                requestParameters(
+                        parameterWithName("param").description("the param")
+                ),
+                responseFields(
+                        fieldWithPath("doc.timestamp").description("Creation timestamp")
+                )
+        ))
+        .when()
+        .queryParam("param", "foo")
+        .get("/restAssuredExample")
+        .then()
+        .statusCode(200);
+```
+
 ### Documenting Bean Validation constraints 
 
 Similar to the way Spring REST Docs allows to use [bean validation constraints](https://docs.spring.io/spring-restdocs/docs/current/reference/html5/#documenting-your-api-constraints) to enhance your documentation, you can also use the constraints from your model classes to let `restdocs-api-spec` enrich the generated JsonSchemas. 
