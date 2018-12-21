@@ -1,10 +1,14 @@
 package com.epages.restdocs.apispec
 
+import com.epages.restdocs.apispec.ResourceDocumentation.resource
 import org.assertj.core.api.Assertions.assertThatCode
+import org.assertj.core.api.BDDAssertions.then
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.hateoas.MediaTypes.HAL_JSON
+import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.restdocs.headers.HeaderDocumentation.headerWithName
 import org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders
 import org.springframework.restdocs.headers.HeaderDocumentation.responseHeaders
@@ -20,10 +24,14 @@ import org.springframework.restdocs.request.RequestDocumentation.pathParameters
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
+import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.io.File
 
 @ExtendWith(SpringExtension::class)
 @WebMvcTest
-class MockMvcRestDocumentationWrapperIntegrationTest(@Autowired mockMvc: MockMvc) : ResourceSnippetIntegrationTest(mockMvc) {
+class MockMvcRestDocumentationWrapperIntegrationTest(@Autowired private val mockMvc: MockMvc) : ResourceSnippetIntegrationTest() {
 
     @Test
     fun should_document_both_restdocs_and_resource() {
@@ -67,6 +75,81 @@ class MockMvcRestDocumentationWrapperIntegrationTest(@Autowired mockMvc: MockMvc
 
         thenSnippetFileExists()
     }
+
+    @Test
+    fun should_document_request() {
+        givenEndpointInvoked()
+
+        whenResourceSnippetDocumentedWithoutParameters()
+
+        thenSnippetFileExists()
+    }
+
+    @Test
+    fun should_document_request_with_description() {
+        givenEndpointInvoked()
+
+        whenResourceSnippetDocumentedWithDescription()
+
+        thenSnippetFileExists()
+    }
+
+    @Test
+    fun should_document_request_with_fields() {
+        givenEndpointInvoked()
+
+        whenResourceSnippetDocumentedWithRequestAndResponseFields()
+
+        thenSnippetFileExists()
+    }
+
+    @Test
+    fun should_document_request_with_null_field() {
+        givenEndpointInvoked("null")
+
+        assertThatCode { this.whenResourceSnippetDocumentedWithRequestAndResponseFields() }
+                .doesNotThrowAnyException()
+    }
+
+    private fun whenResourceSnippetDocumentedWithoutParameters() {
+        resultActions
+                .andDo(document(operationName, resource()))
+    }
+
+    private fun whenResourceSnippetDocumentedWithDescription() {
+        resultActions
+                .andDo(document(operationName, resource("A description")))
+    }
+
+    private fun whenResourceSnippetDocumentedWithRequestAndResponseFields() {
+        resultActions
+                .andDo(document(operationName, buildFullResourceSnippet()))
+    }
+
+    private fun givenEndpointInvoked(flagValue: String = "true") {
+        resultActions = mockMvc.perform(
+                post("/some/{someId}/other/{otherId}", "id", 1)
+                        .contentType(APPLICATION_JSON)
+                        .header("X-Custom-Header", "test")
+                        .accept(HAL_JSON)
+                        .content("""{
+                            "comment": "some",
+                            "flag": $flagValue,
+                            "count": 1
+                        }""".trimIndent()
+                        )
+        ).andExpect(status().isOk)
+    }
+
+    private fun thenSnippetFileExists() {
+        with(generatedSnippetFile()) {
+            then(this).exists()
+            val contents = readText()
+            then(contents).isNotEmpty()
+        }
+    }
+
+    private fun generatedSnippetFile() = File("build/generated-snippets", "$operationName/resource.json")
 
     @Throws(Exception::class)
     private fun whenDocumentedWithRestdocsAndResource() {

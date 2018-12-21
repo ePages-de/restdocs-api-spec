@@ -45,7 +45,8 @@ This is why we came up with this project.
     - [Build configuration](#build-configuration)
         - [Gradle](#gradle)
         - [Maven](#maven)
-    - [Usage with Spring REST Docs](#usage-with-spring-rest-docs)
+    - [Usage with Spring REST Docs - MockMvc](#usage-with-spring-rest-docs---mockmvc)
+    - [Usage with Spring REST Docs - RestAssured](#usage-with-spring-rest-docs---rest-assured)
     - [Documenting Bean Validation constraints](#documenting-bean-validation-constraints)
     - [Migrate existing Spring REST Docs tests](#migrate-existing-spring-rest-docs-tests)
     - [Security Definitions in OpenAPI](#security-definitions-in-openapi)
@@ -134,7 +135,7 @@ See the [build.gradle](samples/restdocs-api-spec-sample/build.gradle) for the se
 The root project does not provide a maven plugin.
 But you can find a plugin that works with `restdocs-api-spec` at [BerkleyTechnologyServices/restdocs-spec](https://github.com/BerkleyTechnologyServices/restdocs-spec).
 
-### Usage with Spring REST Docs
+### Usage with Spring REST Docs - MockMvc
 
 The class [ResourceDocumentation](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apispec/ResourceDocumentation.kt) contains the entry point for using the [ResourceSnippet](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apispec/ResourceSnippet.kt).
 
@@ -218,6 +219,28 @@ This makes the `urlTemplate` available in the snippet and we can depend on the n
  ```java
 mockMvc.perform(get("/carts/{id}", cartId)
  ```
+
+### Usage with Spring REST Docs - REST Assured
+The usage for REST Assured is similar to MockMVC, except that [com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apispec/RestAssuredRestDocumentationWrapper.kt) is used instead of [com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apispec/MockMvcRestDocumentationWrapper.kt).
+
+To use the ``RestAssuredRestDocumentationWrapper``, you have to add a dependency to [restdocs-api-spec-restassured](restdocs-api-spec-restassured) to your build.
+```java
+RestAssured.given(this.spec)
+        .filter(RestAssuredRestDocumentationWrapper.document("{method-name}",
+                "The API description",
+                requestParameters(
+                        parameterWithName("param").description("the param")
+                ),
+                responseFields(
+                        fieldWithPath("doc.timestamp").description("Creation timestamp")
+                )
+        ))
+        .when()
+        .queryParam("param", "foo")
+        .get("/restAssuredExample")
+        .then()
+        .statusCode(200);
+```
 
 ### Documenting Bean Validation constraints 
 
@@ -438,8 +461,3 @@ See [openapi2raml.gradle](samples/restdocs-api-spec-sample/openapi2raml.gradle).
 ./gradlew -b samples/restdocs-api-spec-sample/openapi2raml.gradle openapi2raml
 ```
 
-## Limitations
-
-### Rest Assured
-
-Spring REST Docs also supports REST Assured to write tests that produce documentation. We currently have not tried REST Assured with our project.
