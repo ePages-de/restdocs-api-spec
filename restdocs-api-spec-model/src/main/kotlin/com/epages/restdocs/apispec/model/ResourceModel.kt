@@ -1,5 +1,7 @@
 package com.epages.restdocs.apispec.model
 
+import java.util.Comparator
+
 data class ResourceModel(
     val operationId: String,
     val summary: String? = null,
@@ -10,6 +12,17 @@ data class ResourceModel(
     val request: RequestModel,
     val response: ResponseModel
 )
+
+fun List<ResourceModel>.groupByPath(): Map<String, List<ResourceModel>> {
+    return this.sortedWith(
+        // by first path segment, then path length, then path
+        Comparator.comparing<ResourceModel, String> {
+            it.request.path.split("/").firstOrNull { s -> s.isNotEmpty() }.orEmpty()
+        }
+            .thenComparing(Comparator.comparingInt<ResourceModel> { it.request.path.count { c -> c == '/' } })
+            .thenComparing(Comparator.comparing<ResourceModel, String> { it.request.path }))
+        .groupBy { it.request.path }
+}
 
 data class RequestModel(
     val path: String,
@@ -53,6 +66,7 @@ data class HeaderDescriptor(
     override val description: String,
     override val type: String,
     override val optional: Boolean,
+    val example: String? = null,
     override val attributes: Attributes = Attributes()
 ) : AbstractParameterDescriptor
 

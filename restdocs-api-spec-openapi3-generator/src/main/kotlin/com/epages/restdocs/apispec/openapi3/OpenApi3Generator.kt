@@ -10,6 +10,7 @@ import com.epages.restdocs.apispec.model.RequestModel
 import com.epages.restdocs.apispec.model.ResourceModel
 import com.epages.restdocs.apispec.model.ResponseModel
 import com.epages.restdocs.apispec.model.SimpleType
+import com.epages.restdocs.apispec.model.groupByPath
 import com.epages.restdocs.apispec.openapi3.SecuritySchemeGenerator.addSecurityDefinitions
 import com.epages.restdocs.apispec.openapi3.SecuritySchemeGenerator.addSecurityItemFromSecurityRequirements
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -162,7 +163,7 @@ object OpenApi3Generator {
         resources: List<ResourceModel>,
         oauth2SecuritySchemeDefinition: Oauth2Configuration?
     ): Paths {
-        return groupByPath(resources).entries
+        return resources.groupByPath().entries
             .map { it.key to resourceModels2PathItem(
                 it.value,
                 oauth2SecuritySchemeDefinition
@@ -170,15 +171,6 @@ object OpenApi3Generator {
             }
             .let { pathAndPathItem ->
                 Paths().apply { pathAndPathItem.forEach { addPathItem(it.first, it.second) } } }
-    }
-
-    private fun groupByPath(resources: List<ResourceModel>): Map<String, List<ResourceModel>> {
-        return resources.sortedWith(
-            // by first path segment, then path length, then path
-            comparing<ResourceModel, String> { it.request.path.split("/").firstOrNull { s -> s.isNotEmpty() }.orEmpty() }
-                .thenComparing(comparingInt<ResourceModel> { it.request.path.count { c -> c == '/' } })
-                .thenComparing(comparing<ResourceModel, String> { it.request.path }))
-            .groupBy { it.request.path }
     }
 
     private fun groupByHttpMethod(resources: List<ResourceModel>): Map<HTTPMethod, List<ResourceModel>> {

@@ -66,7 +66,7 @@ class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetPara
                 path = getUriPath(operation),
                 method = operation.request.method.name,
                 contentType = if (hasRequestBody) getContentTypeOrDefault(operation.request.headers) else null,
-                headers = resourceSnippetParameters.requestHeaders,
+                headers = resourceSnippetParameters.requestHeaders.withExampleValues(operation.request.headers),
                 pathParameters = resourceSnippetParameters.pathParameters,
                 requestParameters = resourceSnippetParameters.requestParameters,
                 requestFields = if (hasRequestBody) resourceSnippetParameters.requestFields.filter { !it.isIgnored } else emptyList(),
@@ -76,11 +76,21 @@ class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetPara
             response = ResponseModel(
                 status = operation.response.status.value(),
                 contentType = if (hasResponseBody) getContentTypeOrDefault(operation.response.headers) else null,
-                headers = resourceSnippetParameters.responseHeaders,
+                headers = resourceSnippetParameters.responseHeaders.withExampleValues(operation.response.headers),
                 responseFields = if (hasResponseBody) resourceSnippetParameters.responseFields.filter { !it.isIgnored } else emptyList(),
                 example = if (hasResponseBody) operation.response.contentAsString else null
             )
         )
+    }
+
+    private fun List<HeaderDescriptorWithType>.withExampleValues(headers: HttpHeaders): List<HeaderDescriptorWithType> {
+        this.map { it.withExample(headers) }
+        return this
+    }
+
+    private fun HeaderDescriptorWithType.withExample(headers: HttpHeaders): HeaderDescriptorWithType {
+        headers.getFirst(name)?.also { example = it }
+        return this
     }
 
     private fun getUriComponents(operation: Operation) =

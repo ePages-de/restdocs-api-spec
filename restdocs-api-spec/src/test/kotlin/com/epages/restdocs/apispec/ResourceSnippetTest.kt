@@ -82,6 +82,7 @@ class ResourceSnippetTest {
         then(resourceSnippetJson.read<String>("request.headers[0].description")).isNotEmpty()
         then(resourceSnippetJson.read<String>("request.headers[0].type")).isNotEmpty()
         then(resourceSnippetJson.read<Boolean>("request.headers[0].optional")).isFalse()
+        then(resourceSnippetJson.read<String>("request.headers[0].example")).isNotEmpty()
 
         then(resourceSnippetJson.read<List<*>>("request.pathParameters")).hasSize(1)
         then(resourceSnippetJson.read<String>("request.pathParameters[0].name")).isNotEmpty()
@@ -110,6 +111,7 @@ class ResourceSnippetTest {
         then(resourceSnippetJson.read<String>("response.headers[0].description")).isNotEmpty()
         then(resourceSnippetJson.read<String>("response.headers[0].type")).isNotEmpty()
         then(resourceSnippetJson.read<Boolean>("response.headers[0].optional")).isFalse()
+        then(resourceSnippetJson.read<String>("response.headers[0].example")).isNotEmpty()
     }
 
     @Test
