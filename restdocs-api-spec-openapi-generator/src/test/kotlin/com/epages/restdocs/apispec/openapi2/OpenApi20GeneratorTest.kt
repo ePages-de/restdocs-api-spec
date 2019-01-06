@@ -142,7 +142,8 @@ class OpenApi20GeneratorTest {
                 "http://example.com/token",
                 "http://example.com/authorize",
                 arrayOf("application", "accessCode")
-            )
+            ),
+        description = "API description"
         )
 
         println(ApiSpecificationWriter.serialize("yaml", openapi))

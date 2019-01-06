@@ -43,6 +43,7 @@ object OpenApi20Generator {
         host: String = "localhost",
         schemes: List<String> = listOf("http"),
         title: String = "API",
+        description: String? = null,
         version: String = "1.0.0",
         oauth2SecuritySchemeDefinition: Oauth2Configuration? = null
     ): Swagger {
@@ -53,6 +54,7 @@ object OpenApi20Generator {
             this.schemes(schemes.map { Scheme.forValue(it) })
             info = Info().apply {
                 this.title = title
+                this.description = description
                 this.version = version
             }
             paths = generatePaths(
@@ -75,11 +77,12 @@ object OpenApi20Generator {
         host: String = "localhost",
         schemes: List<String> = listOf("http"),
         title: String = "API",
+        description: String? = null,
         version: String = "1.0.0",
         oauth2SecuritySchemeDefinition: Oauth2Configuration? = null,
         format: String
     ): String {
-        val specification = generate(resources, basePath, host, schemes, title, version, oauth2SecuritySchemeDefinition)
+        val specification = generate(resources, basePath, host, schemes, title, description, version, oauth2SecuritySchemeDefinition)
         return ApiSpecificationWriter.serialize(format, specification)
     }
 

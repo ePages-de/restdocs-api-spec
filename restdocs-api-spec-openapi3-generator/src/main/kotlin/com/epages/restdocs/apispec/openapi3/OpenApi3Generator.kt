@@ -45,6 +45,7 @@ object OpenApi3Generator {
         resources: List<ResourceModel>,
         servers: List<Server>,
         title: String = "API",
+        description: String? = null,
         version: String = "1.0.0",
         oauth2SecuritySchemeDefinition: Oauth2Configuration? = null
     ): OpenAPI {
@@ -53,6 +54,7 @@ object OpenApi3Generator {
             this.servers = servers
             info = Info().apply {
                 this.title = title
+                this.description = description
                 this.version = version
             }
             paths = generatePaths(
@@ -68,6 +70,7 @@ object OpenApi3Generator {
         resources: List<ResourceModel>,
         servers: List<Server>,
         title: String = "API",
+        description: String? = null,
         version: String = "1.0.0",
         oauth2SecuritySchemeDefinition: Oauth2Configuration? = null,
         format: String
@@ -77,6 +80,7 @@ object OpenApi3Generator {
                 resources = resources,
                 servers = servers,
                 title = title,
+                description = description,
                 version = version,
                 oauth2SecuritySchemeDefinition = oauth2SecuritySchemeDefinition
             ))

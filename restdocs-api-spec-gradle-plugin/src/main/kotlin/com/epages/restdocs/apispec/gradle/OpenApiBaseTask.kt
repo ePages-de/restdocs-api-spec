@@ -10,6 +10,10 @@ abstract class OpenApiBaseTask : ApiSpecTask() {
 
     @Input
     @Optional
+    var apiDescription: String? = null
+
+    @Input
+    @Optional
     lateinit var apiVersion: String
 
     @Input
@@ -26,6 +30,7 @@ abstract class OpenApiBaseTask : ApiSpecTask() {
         format = extension.format
         oauth2SecuritySchemeDefinition = extension.oauth2SecuritySchemeDefinition
         title = extension.title
+        apiDescription = extension.description
         apiVersion = extension.version
     }
 }
