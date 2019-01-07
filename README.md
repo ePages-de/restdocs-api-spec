@@ -37,7 +37,6 @@ We do not like enriching our production code with this information and clutter i
 We agree with Spring REST Docs that the test-driven way to produce accurate API documentation is the way to go.
 This is why we came up with this project.
 
-<!-- TOC depthFrom:2 -->
 
 - [Motivation](#motivation)
 - [Getting started](#getting-started)
@@ -45,10 +44,11 @@ This is why we came up with this project.
     - [Build configuration](#build-configuration)
         - [Gradle](#gradle)
         - [Maven](#maven)
-    - [Usage with Spring REST Docs - MockMvc](#usage-with-spring-rest-docs---mockmvc)
-    - [Usage with Spring REST Docs - RestAssured](#usage-with-spring-rest-docs---rest-assured)
+    - [Usage with Spring REST Docs](#usage-with-spring-rest-docs)
     - [Documenting Bean Validation constraints](#documenting-bean-validation-constraints)
     - [Migrate existing Spring REST Docs tests](#migrate-existing-spring-rest-docs-tests)
+        - [MockMvc based tests](#mockmvc-based-tests)
+        - [REST Assured based tests](#rest-assured-based-tests)
     - [Security Definitions in OpenAPI](#security-definitions-in-openapi)
     - [Running the gradle plugin](#running-the-gradle-plugin)
         - [OpenAPI 2.0](#openapi-20)
@@ -59,10 +59,6 @@ This is why we came up with this project.
         - [OpenAPI 3.0.1](#openapi-301-1)
 - [Generate an HTML-based API reference from OpenAPI](#generate-an-html-based-api-reference-from-openapi)
 - [RAML](#raml)
-- [Limitations](#limitations)
-    - [Rest Assured](#rest-assured)
-
-<!-- /TOC -->
 
 ## Getting started
 
@@ -70,9 +66,9 @@ This is why we came up with this project.
 
 The project consists of the following main components:
 
-- [restdocs-api-spec](restdocs-api-spec) - contains the actual Spring REST Docs extension. 
-This is most importantly the [ResourceDocumentation](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apispec/ResourceDocumentation.kt) which is the entrypoint to use the extension in your tests. 
-The [ResourceSnippet](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apispec/ResourceSnippet.kt) is the snippet used to produce a json file `resource.json` containing all the details about the documented resource. 
+- [restdocs-api-spec](restdocs-api-spec) - contains the actual Spring REST Docs extension.
+This is most importantly the [ResourceDocumentation](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apispec/ResourceDocumentation.kt) which is the entrypoint to use the extension in your tests.
+The [ResourceSnippet](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apispec/ResourceSnippet.kt) is the snippet used to produce a json file `resource.json` containing all the details about the documented resource.
 - [restdocs-api-spec-mockmvc](restdocs-api-spec-mockmvc) - contains a wrapper for `MockMvcRestDocumentation` for easier migration to `restdocs-api-spec` from MockMvc tests using plain `spring-rest-docs-mockmvc`.
 - [restdocs-api-spec-restassured](restdocs-api-spec-restassured) - contains a wrapper for `RestAssuredRestDocumentation` for easier migration to `restdocs-api-spec` from RestAssured tests using plain `spring-rest-docs-restassured`.
 - [restdocs-api-spec-gradle-plugin](restdocs-api-spec-gradle-plugin) - adds a gradle plugin that aggregates the `resource.json` files produced  by `ResourceSnippet` into an API specification file for the whole project.
@@ -139,7 +135,7 @@ See the [build.gradle](samples/restdocs-api-spec-sample/build.gradle) for the se
 The root project does not provide a maven plugin.
 But you can find a plugin that works with `restdocs-api-spec` at [BerkleyTechnologyServices/restdocs-spec](https://github.com/BerkleyTechnologyServices/restdocs-spec).
 
-### Usage with Spring REST Docs - MockMvc
+### Usage with Spring REST Docs
 
 The class [ResourceDocumentation](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apispec/ResourceDocumentation.kt) contains the entry point for using the [ResourceSnippet](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apispec/ResourceSnippet.kt).
 
@@ -151,7 +147,7 @@ mockMvc
   .andDo(document("carts-create", resource("Create a cart")));
 ```
 
-This test will produce the `resource.json` file in the snippets directory. 
+This test will produce the `resource.json` file in the snippets directory.
 This file just contains all the information that we can collect about the resource.
 The format of this file is not specific to an API specification.
 
@@ -217,49 +213,29 @@ Please see the [CartIntegrationTest](samples/restdocs-api-spec-sample/src/test/j
 
 **:warning: Use `template URIs` to refer to path variables in your request**
 
-Note how we use the `urlTemplate` to build the request with [`RestDocumentationRequestBuilders`](https://docs.spring.io/spring-restdocs/docs/current/api/org/springframework/restdocs/mockmvc/RestDocumentationRequestBuilders.html#get-java.lang.String-java.lang.Object...-). 
-This makes the `urlTemplate` available in the snippet and we can depend on the non-expanded template when generating the OpenAPI file. 
+Note how we use the `urlTemplate` to build the request with [`RestDocumentationRequestBuilders`](https://docs.spring.io/spring-restdocs/docs/current/api/org/springframework/restdocs/mockmvc/RestDocumentationRequestBuilders.html#get-java.lang.String-java.lang.Object...-).
+This makes the `urlTemplate` available in the snippet and we can depend on the non-expanded template when generating the OpenAPI file.
 
  ```java
 mockMvc.perform(get("/carts/{id}", cartId)
  ```
 
-### Usage with Spring REST Docs - REST Assured
-The usage for REST Assured is similar to MockMVC, except that [com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apispec/RestAssuredRestDocumentationWrapper.kt) is used instead of [com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apispec/MockMvcRestDocumentationWrapper.kt).
+### Documenting Bean Validation constraints
 
-To use the ``RestAssuredRestDocumentationWrapper``, you have to add a dependency to [restdocs-api-spec-restassured](restdocs-api-spec-restassured) to your build.
-```java
-RestAssured.given(this.spec)
-        .filter(RestAssuredRestDocumentationWrapper.document("{method-name}",
-                "The API description",
-                requestParameters(
-                        parameterWithName("param").description("the param")
-                ),
-                responseFields(
-                        fieldWithPath("doc.timestamp").description("Creation timestamp")
-                )
-        ))
-        .when()
-        .queryParam("param", "foo")
-        .get("/restAssuredExample")
-        .then()
-        .statusCode(200);
-```
-
-### Documenting Bean Validation constraints 
-
-Similar to the way Spring REST Docs allows to use [bean validation constraints](https://docs.spring.io/spring-restdocs/docs/current/reference/html5/#documenting-your-api-constraints) to enhance your documentation, you can also use the constraints from your model classes to let `restdocs-api-spec` enrich the generated JsonSchemas. 
-`restdocs-api-spec` provides the class [com.epages.restdocs.apispec.ConstrainedFields](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apispec/ConstrainedFields.kt) to generate `FieldDescriptor`s that contain information about the constraints on this field. 
+Similar to the way Spring REST Docs allows to use [bean validation constraints](https://docs.spring.io/spring-restdocs/docs/current/reference/html5/#documenting-your-api-constraints) to enhance your documentation, you can also use the constraints from your model classes to let `restdocs-api-spec` enrich the generated JsonSchemas.
+`restdocs-api-spec` provides the class [com.epages.restdocs.apispec.ConstrainedFields](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apispec/ConstrainedFields.kt) to generate `FieldDescriptor`s that contain information about the constraints on this field.
 
 Currently the following constraints are considered when generating JsonSchema from `FieldDescriptor`s that have been created via `com.epages.restdocs.apispec.ConstrainedFields`
 - `NotNull`, `NotEmpty`, and `NotBlank` annotated fields become required fields in the JsonSchema
 - for String fields annotated with `NotEmpty`, and `NotBlank` the `minLength` constraint in JsonSchema is set to 1
 - for String fields annotated with `Length` the `minLength` and `maxLength` constraints in JsonSchema are set to the value of the corresponding attribute of the annotation
 
-If you already have your own `ConstraintFields` implementation you can also add the logic from `com.epages.restdocs.apispec.ConstrainedFields` to your own class. 
+If you already have your own `ConstraintFields` implementation you can also add the logic from `com.epages.restdocs.apispec.ConstrainedFields` to your own class.
 Here it is important to add the constraints under the key `validationConstraints` into the attributes map if the `FieldDescriptor`.
 
 ### Migrate existing Spring REST Docs tests
+
+#### MockMvc based tests
 
 For convenience when applying `restdocs-api-spec` to an existing project that uses Spring REST Docs, we introduced [com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apispec/MockMvcRestDocumentationWrapper.kt).
 
@@ -288,6 +264,30 @@ resultActions
 
 This will do exactly what `MockMvcRestDocumentation.document` does.
 Additionally it will add a `ResourceSnippet` with the descriptors you provided in the `RequestFieldsSnippet`, `ResponseFieldsSnippet`, and `LinksSnippet`.
+
+#### REST Assured based tests
+
+Also for REST Assured we offer a convenience wrapper similar to `MockMvcRestDocumentationWrapper`.
+The usage for REST Assured is also similar to MockMVC, except that [com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apispec/RestAssuredRestDocumentationWrapper.kt) is used instead of [com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apispec/MockMvcRestDocumentationWrapper.kt).
+
+To use the `RestAssuredRestDocumentationWrapper`, you have to add a dependency to [restdocs-api-spec-restassured](restdocs-api-spec-restassured) to your build.
+```java
+RestAssured.given(this.spec)
+        .filter(RestAssuredRestDocumentationWrapper.document("{method-name}",
+                "The API description",
+                requestParameters(
+                        parameterWithName("param").description("the param")
+                ),
+                responseFields(
+                        fieldWithPath("doc.timestamp").description("Creation timestamp")
+                )
+        ))
+        .when()
+        .queryParam("param", "foo")
+        .get("/restAssuredExample")
+        .then()
+        .statusCode(200);
+```
 
 ### Security Definitions in OpenAPI
 
