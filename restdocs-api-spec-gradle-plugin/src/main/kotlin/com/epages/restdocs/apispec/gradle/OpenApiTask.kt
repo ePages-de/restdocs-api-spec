@@ -31,6 +31,7 @@ open class OpenApiTask : OpenApiBaseTask() {
             host = host,
             schemes = schemes.toList(),
             title = title,
+            description = apiDescription,
             version = apiVersion,
             oauth2SecuritySchemeDefinition = oauth2SecuritySchemeDefinition,
             format = format

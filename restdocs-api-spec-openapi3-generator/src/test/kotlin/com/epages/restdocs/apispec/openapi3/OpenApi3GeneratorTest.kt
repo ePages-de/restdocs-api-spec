@@ -152,6 +152,7 @@ class OpenApi3GeneratorTest {
 
     private fun thenInfoFieldsPresent() {
         then(openApiJsonPathContext.read<String>("info.title")).isEqualTo("API")
+        then(openApiJsonPathContext.read<String>("info.description")).isEqualTo("API Description")
         then(openApiJsonPathContext.read<String>("info.version")).isEqualTo("1.0.0")
     }
 
@@ -174,7 +175,8 @@ class OpenApi3GeneratorTest {
                 "http://example.com/authorize",
                 arrayOf("clientCredentials", "authorizationCode")
             ),
-            format = "json"
+            format = "json",
+            description = "API Description"
         )
 
         println(openApiSpecJsonString)

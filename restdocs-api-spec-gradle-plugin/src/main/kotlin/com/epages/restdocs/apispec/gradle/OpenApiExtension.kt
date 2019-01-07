@@ -16,6 +16,7 @@ abstract class OpenApiBaseExtension(project: Project) : ApiSpecExtension(project
 
     var title = "API documentation"
     var version = project.version as? String ?: "1.0.0"
+    var description: String? = null
 
     var format = "json"
 

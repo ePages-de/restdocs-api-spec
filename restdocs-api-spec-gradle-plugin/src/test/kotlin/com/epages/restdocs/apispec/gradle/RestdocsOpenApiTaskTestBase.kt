@@ -29,6 +29,7 @@ abstract class RestdocsOpenApiTaskTestBase {
     var schemes: Array<String> = arrayOf("http")
 
     var title = "API documentation"
+    var description = "the description for the API"
     var version = "1.0.0"
 
     var format = "json"

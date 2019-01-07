@@ -17,6 +17,7 @@ class RestdocsOpenApiTaskTest : RestdocsOpenApiTaskTestBase() {
                 basePath = '$basePath'
                 schemes = ${schemes.joinToString(",", "['", "']")}
                 title = '$title'
+                description = '$description'
                 version = '$version'
                 format = '$format'
                 separatePublicApi = $separatePublicApi
