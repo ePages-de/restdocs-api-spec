@@ -69,8 +69,8 @@ The project consists of the following main components:
 - [restdocs-api-spec](restdocs-api-spec) - contains the actual Spring REST Docs extension.
 This is most importantly the [ResourceDocumentation](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apispec/ResourceDocumentation.kt) which is the entrypoint to use the extension in your tests.
 The [ResourceSnippet](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apispec/ResourceSnippet.kt) is the snippet used to produce a json file `resource.json` containing all the details about the documented resource.
-- [restdocs-api-spec-mockmvc](restdocs-api-spec-mockmvc) - contains a wrapper for `MockMvcRestDocumentation` for easier migration to `restdocs-api-spec` from MockMvc tests using plain `spring-rest-docs-mockmvc`.
-- [restdocs-api-spec-restassured](restdocs-api-spec-restassured) - contains a wrapper for `RestAssuredRestDocumentation` for easier migration to `restdocs-api-spec` from RestAssured tests using plain `spring-rest-docs-restassured`.
+- [restdocs-api-spec-mockmvc](restdocs-api-spec-mockmvc) - contains a wrapper for `MockMvcRestDocumentation` for easier migration to `restdocs-api-spec` from MockMvc tests that use plain `spring-rest-docs-mockmvc`.
+- [restdocs-api-spec-restassured](restdocs-api-spec-restassured) - contains a wrapper for `MockMvcRestDocumentation` for easier migration to `restdocs-api-spec` from [Rest Assured](http://rest-assured.io) tests that use plain `spring-rest-docs-restassured`.
 - [restdocs-api-spec-gradle-plugin](restdocs-api-spec-gradle-plugin) - adds a gradle plugin that aggregates the `resource.json` files produced  by `ResourceSnippet` into an API specification file for the whole project.
 
 ### Build configuration
