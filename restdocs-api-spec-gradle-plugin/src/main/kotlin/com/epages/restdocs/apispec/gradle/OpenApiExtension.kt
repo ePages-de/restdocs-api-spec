@@ -17,6 +17,7 @@ abstract class OpenApiBaseExtension(project: Project) : ApiSpecExtension(project
     var title = "API documentation"
     var version = project.version as? String ?: "1.0.0"
     var description: String? = null
+    var tagDescriptionsPropertiesFile: String? = null
 
     var format = "json"
 
@@ -29,6 +30,10 @@ abstract class OpenApiBaseExtension(project: Project) : ApiSpecExtension(project
                 scopes = scopeDescriptionSource(project.file(scopeDescriptionsPropertiesFile!!))
             }
         }
+    }
+
+    fun tagDescriptions(): Map<String, String> {
+        return tagDescriptionsPropertiesFile?.let { objectMapper.readValue(project.file(it)) } ?: emptyMap()
     }
 
     private fun scopeDescriptionSource(scopeDescriptionsPropertiesFile: File): Map<String, String> {

@@ -35,6 +35,7 @@ class OpenApi3GeneratorTest {
         thenGetProductByIdOperationIsValid()
         thenSecuritySchemesPresent()
         thenInfoFieldsPresent()
+        thenTagFieldsPresent()
         thenServersPresent()
         thenOpenApiSpecIsValid()
     }
@@ -156,6 +157,13 @@ class OpenApi3GeneratorTest {
         then(openApiJsonPathContext.read<String>("info.version")).isEqualTo("1.0.0")
     }
 
+    private fun thenTagFieldsPresent() {
+        then(openApiJsonPathContext.read<String>("tags[0].name")).isEqualTo("tag1")
+        then(openApiJsonPathContext.read<String>("tags[0].description")).isEqualTo("tag1 description")
+        then(openApiJsonPathContext.read<String>("tags[1].name")).isEqualTo("tag2")
+        then(openApiJsonPathContext.read<String>("tags[1].description")).isEqualTo("tag2 description")
+    }
+
     private fun thenSecuritySchemesPresent() {
         then(openApiJsonPathContext.read<String>("components.securitySchemes.oauth2.type")).isEqualTo("oauth2")
         then(openApiJsonPathContext.read<Map<String, Any>>("components.securitySchemes.oauth2.flows"))
@@ -176,7 +184,8 @@ class OpenApi3GeneratorTest {
                 arrayOf("clientCredentials", "authorizationCode")
             ),
             format = "json",
-            description = "API Description"
+            description = "API Description",
+            tags = mapOf("tag1" to "tag1 description", "tag2" to "tag2 description")
         )
 
         println(openApiSpecJsonString)

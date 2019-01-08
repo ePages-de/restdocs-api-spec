@@ -55,6 +55,7 @@ abstract class RestdocsOpenApiTaskTestBase {
     @Test
     open fun `should run openapi task`() {
         givenBuildFileWithOpenApiClosure()
+        givenTagsTextFile()
         givenResourceSnippet()
 
         whenPluginExecuted()
@@ -80,6 +81,7 @@ abstract class RestdocsOpenApiTaskTestBase {
     fun `should run openapi task with yaml format`() {
         format = "yaml"
         givenBuildFileWithOpenApiClosure()
+        givenTagsTextFile()
         givenResourceSnippet()
 
         whenPluginExecuted()
@@ -92,6 +94,7 @@ abstract class RestdocsOpenApiTaskTestBase {
     fun `should generate separate public api specification`() {
         separatePublicApi = true
         givenBuildFileWithOpenApiClosure()
+        givenTagsTextFile()
         givenResourceSnippet()
         givenPrivateResourceSnippet()
 
@@ -105,6 +108,7 @@ abstract class RestdocsOpenApiTaskTestBase {
     @Test
     fun `should consider security definitions`() {
         givenBuildFileWithOpenApiClosureAndSecurityDefinitions()
+        givenTagsTextFile()
         givenResourceSnippet()
         givenScopeTextFile()
 
@@ -124,7 +128,14 @@ abstract class RestdocsOpenApiTaskTestBase {
                 """.trimIndent()
             )
     }
-
+    private fun givenTagsTextFile() {
+        testProjectDir.resolve("tagDescriptions.yaml").toFile().writeText(
+                """
+                    "tag1": "tag1 description"
+                    "tag2": "tag2 description"
+                """.trimIndent()
+        )
+    }
     protected fun thenOpenApiTaskSuccessful() {
         then(result.task(":$taskName")!!.outcome).isEqualTo(TaskOutcome.SUCCESS)
     }
