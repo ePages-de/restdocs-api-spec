@@ -216,21 +216,27 @@ object OpenApi3Generator {
         val firstModelForPathAndMethod = modelsWithSamePathAndMethod.first()
         return Operation().apply {
             operationId = firstModelForPathAndMethod.operationId
-            summary = firstModelForPathAndMethod.summary
-            description = firstModelForPathAndMethod.description
+            summary = modelsWithSamePathAndMethod.map { it.summary }.find { !it.isNullOrBlank() }
+            description = modelsWithSamePathAndMethod.map { it.description }.find { !it.isNullOrBlank() }
             tags = modelsWithSamePathAndMethod.flatMap { it.tags }.distinct().nullIfEmpty()
             deprecated = if (modelsWithSamePathAndMethod.all { it.deprecated }) true else null
             parameters =
                     extractPathParameters(
-                        firstModelForPathAndMethod
+                        modelsWithSamePathAndMethod
                     ).plus(
-                        firstModelForPathAndMethod.request.requestParameters.map {
-                            requestParameterDescriptor2Parameter(
-                                it
-                            )
+                        modelsWithSamePathAndMethod
+                                .flatMap { it.request.requestParameters }
+                                .distinct()
+                                .map { requestParameterDescriptor2Parameter(
+                                        it
+                                )
                     }).plus(
-                        firstModelForPathAndMethod.request.headers.map {
-                            header2Parameter(it)
+                        modelsWithSamePathAndMethod
+                                .flatMap { it.request.headers }
+                                .distinct()
+                                .map { header2Parameter(
+                                        it
+                                )
                         }
                     ).nullIfEmpty()
             requestBody = resourceModelsToRequestBody(
@@ -337,14 +343,15 @@ object OpenApi3Generator {
             .examples(examplesWithOperationId.map { it.key to Example().apply { value(it.value) } }.toMap().nullIfEmpty())
     }
 
-    private fun extractPathParameters(resourceModel: ResourceModel): List<PathParameter> {
-        val pathParameterNames = resourceModel.request.path
-            .split("/")
+    private fun extractPathParameters(resourceModels: List<ResourceModel>): List<PathParameter> {
+        val pathParameterNames = resourceModels.map { it.request.path }
+            .flatMap { it.split("/") }
             .filter { it.startsWith("{") && it.endsWith("}") }
             .map { it.removePrefix("{").removeSuffix("}") }
+            .distinct()
 
         return pathParameterNames.map { parameterName ->
-            resourceModel.request.pathParameters
+            resourceModels.flatMap { it.request.pathParameters }
                 .firstOrNull { it.name == parameterName }
                 ?.let { pathParameterDescriptor2Parameter(it) }
                 ?: parameterName2PathParameter(parameterName)
