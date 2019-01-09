@@ -227,16 +227,12 @@ object OpenApi3Generator {
                         modelsWithSamePathAndMethod
                                 .flatMap { it.request.requestParameters }
                                 .distinct()
-                                .map { requestParameterDescriptor2Parameter(
-                                        it
-                                )
+                                .map { requestParameterDescriptor2Parameter(it)
                     }).plus(
                         modelsWithSamePathAndMethod
                                 .flatMap { it.request.headers }
                                 .distinct()
-                                .map { header2Parameter(
-                                        it
-                                )
+                                .map { header2Parameter(it)
                         }
                     ).nullIfEmpty()
             requestBody = resourceModelsToRequestBody(

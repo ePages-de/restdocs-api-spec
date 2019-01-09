@@ -135,6 +135,23 @@ class OpenApi20GeneratorTest {
         thenValidateOpenApi(openapi)
     }
 
+    @Test
+    fun `should aggregate requests with same path and method but different parameters`() {
+        val api = givenResourcesWithSamePathAndContentTypeAndDifferentParameters()
+
+        val openapi = whenOpenApiObjectGenerated(api)
+
+        val params = openapi.getPath("/products/{id}").get.parameters
+
+        then(params).anyMatch { it.name == "id" }
+        then(params).anyMatch { it.name == "locale" }
+        then(params).anyMatch { it.name == "color" }
+        then(params).anyMatch { it.name == "Authorization" }
+        then(params).hasSize(4) // should not contain duplicated parameter descriptions
+
+        thenValidateOpenApi(openapi)
+    }
+
     private fun whenOpenApiObjectGenerated(api: List<ResourceModel>): Swagger {
         val openapi = OpenApi20Generator.generate(
             resources = api,
@@ -404,6 +421,41 @@ class OpenApi20GeneratorTest {
         )
     }
 
+    private fun givenResourcesWithSamePathAndContentTypeAndDifferentParameters(): List<ResourceModel> {
+        return listOf(
+                ResourceModel(
+                        operationId = "test",
+                        summary = "summary",
+                        description = "description",
+                        privateResource = false,
+                        deprecated = false,
+                        tags = setOf("tag1", "tag2"),
+                        request = getProductRequest(),
+                        response = getProduct200Response(getProductPayloadExample())
+                ),
+                ResourceModel(
+                        operationId = "test",
+                        summary = "summary",
+                        description = "description",
+                        privateResource = false,
+                        deprecated = false,
+                        tags = setOf("tag1", "tag2"),
+                        request = getProductRequest(),
+                        response = getProduct200Response(getProductPayloadExample())
+                ),
+                ResourceModel(
+                        operationId = "test-1",
+                        summary = "summary 1",
+                        description = "description 1",
+                        privateResource = false,
+                        deprecated = false,
+                        tags = setOf("tag1", "tag2"),
+                        request = getProductRequestWithDifferentParameter(),
+                        response = getProduct200Response(getProductPayloadExample())
+                )
+        )
+    }
+
     private fun postProduct200Response(example: String): ResponseModel {
         return ResponseModel(
             status = 200,
@@ -534,6 +586,18 @@ class OpenApi20GeneratorTest {
             ),
             requestFields = listOf()
         )
+    }
+
+    private fun getProductRequestWithDifferentParameter(): RequestModel {
+        return getProductRequest().copy(requestParameters = listOf(
+                ParameterDescriptor(
+                        name = "color",
+                        description = "Changes the color of the product",
+                        type = "STRING",
+                        optional = true,
+                        ignored = false
+                )
+        ))
     }
 
     private fun getProductRequestWithBasicSecurity(): RequestModel {

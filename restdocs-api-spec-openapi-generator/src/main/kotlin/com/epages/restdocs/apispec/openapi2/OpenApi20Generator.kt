@@ -267,16 +267,18 @@ object OpenApi20Generator {
             produces = modelsWithSamePathAndMethod.map { it.response.contentType }.distinct().filterNotNull().nullIfEmpty()
             parameters =
                     extractPathParameters(
-                        firstModelForPathAndMethod
+                        modelsWithSamePathAndMethod
                     ).plus(
-                        firstModelForPathAndMethod.request.requestParameters.map {
-                            requestParameterDescriptor2Parameter(
-                                it
-                            )
-                    }).plus(
-                        firstModelForPathAndMethod.request.headers.map {
-                            header2Parameter(it)
-                        }
+                        modelsWithSamePathAndMethod
+                                .flatMap { it.request.requestParameters }
+                                .distinct()
+                                .map { requestParameterDescriptor2Parameter(it)
+                                }).plus(
+                        modelsWithSamePathAndMethod
+                                .flatMap { it.request.headers }
+                                .distinct()
+                                .map { header2Parameter(it)
+                            }
                     ).plus(
                         listOfNotNull<Parameter>(
                             requestFieldDescriptor2Parameter(
@@ -310,14 +312,16 @@ object OpenApi20Generator {
         }
     }
 
-    private fun extractPathParameters(resourceModel: ResourceModel): List<PathParameter> {
-        val pathParameterNames = resourceModel.request.path
-            .split("/")
+    private fun extractPathParameters(resourceModel: List<ResourceModel>): List<PathParameter> {
+        val pathParameterNames = resourceModel
+            .map { it.request.path }
+            .flatMap { it.split("/") }
             .filter { it.startsWith("{") && it.endsWith("}") }
             .map { it.removePrefix("{").removeSuffix("}") }
+            .distinct()
 
         return pathParameterNames.map { parameterName ->
-            resourceModel.request.pathParameters
+            resourceModel.flatMap { it.request.pathParameters }
                 .firstOrNull { it.name == parameterName }
                 ?.let { pathParameterDescriptor2Parameter(it) }
                 ?: parameterName2PathParameter(parameterName)
