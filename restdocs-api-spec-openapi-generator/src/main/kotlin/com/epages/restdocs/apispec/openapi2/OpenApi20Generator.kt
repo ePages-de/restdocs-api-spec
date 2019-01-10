@@ -267,7 +267,7 @@ object OpenApi20Generator {
             produces = modelsWithSamePathAndMethod.map { it.response.contentType }.distinct().filterNotNull().nullIfEmpty()
             parameters =
                     extractPathParameters(
-                        modelsWithSamePathAndMethod
+                        firstModelForPathAndMethod
                     ).plus(
                         modelsWithSamePathAndMethod
                                 .flatMap { it.request.requestParameters }
@@ -312,16 +312,14 @@ object OpenApi20Generator {
         }
     }
 
-    private fun extractPathParameters(resourceModel: List<ResourceModel>): List<PathParameter> {
-        val pathParameterNames = resourceModel
-            .map { it.request.path }
-            .flatMap { it.split("/") }
+    private fun extractPathParameters(resourceModel: ResourceModel): List<PathParameter> {
+        val pathParameterNames = resourceModel.request.path
+            .split("/")
             .filter { it.startsWith("{") && it.endsWith("}") }
             .map { it.removePrefix("{").removeSuffix("}") }
-            .distinct()
 
         return pathParameterNames.map { parameterName ->
-            resourceModel.flatMap { it.request.pathParameters }
+            resourceModel.request.pathParameters
                 .firstOrNull { it.name == parameterName }
                 ?.let { pathParameterDescriptor2Parameter(it) }
                 ?: parameterName2PathParameter(parameterName)

@@ -222,7 +222,7 @@ object OpenApi3Generator {
             deprecated = if (modelsWithSamePathAndMethod.all { it.deprecated }) true else null
             parameters =
                     extractPathParameters(
-                        modelsWithSamePathAndMethod
+                        firstModelForPathAndMethod
                     ).plus(
                         modelsWithSamePathAndMethod
                                 .flatMap { it.request.requestParameters }
@@ -339,15 +339,14 @@ object OpenApi3Generator {
             .examples(examplesWithOperationId.map { it.key to Example().apply { value(it.value) } }.toMap().nullIfEmpty())
     }
 
-    private fun extractPathParameters(resourceModels: List<ResourceModel>): List<PathParameter> {
-        val pathParameterNames = resourceModels.map { it.request.path }
-            .flatMap { it.split("/") }
+    private fun extractPathParameters(resourceModel: ResourceModel): List<PathParameter> {
+        val pathParameterNames = resourceModel.request.path
+            .split("/")
             .filter { it.startsWith("{") && it.endsWith("}") }
             .map { it.removePrefix("{").removeSuffix("}") }
-            .distinct()
 
         return pathParameterNames.map { parameterName ->
-            resourceModels.flatMap { it.request.pathParameters }
+            resourceModel.request.pathParameters
                 .firstOrNull { it.name == parameterName }
                 ?.let { pathParameterDescriptor2Parameter(it) }
                 ?: parameterName2PathParameter(parameterName)
