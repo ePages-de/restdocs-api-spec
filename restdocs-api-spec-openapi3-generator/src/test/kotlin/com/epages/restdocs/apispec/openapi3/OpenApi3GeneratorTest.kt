@@ -128,7 +128,7 @@ class OpenApi3GeneratorTest {
 
         then(params).anyMatch { it["name"] == "id" }
         then(params).anyMatch { it["name"] == "locale" }
-        then(params).anyMatch { it["name"] == "color" }
+        then(params).anyMatch { it["name"] == "color" && it["description"] == "Changes the color of the product" }
         then(params).anyMatch { it["name"] == "Authorization" }
         then(params).hasSize(4) // should not contain duplicated parameter descriptions
 
@@ -280,7 +280,17 @@ class OpenApi3GeneratorTest {
                         privateResource = false,
                         deprecated = false,
                         tags = setOf("tag1", "tag2"),
-                        request = getProductRequestWithDifferentParameter(),
+                        request = getProductRequestWithDifferentParameter("color", "Changes the color of the product"),
+                        response = getProductResponse()
+                ),
+                ResourceModel(
+                        operationId = "test-1",
+                        summary = "summary 1",
+                        description = "description 1",
+                        privateResource = false,
+                        deprecated = false,
+                        tags = setOf("tag1", "tag2"),
+                        request = getProductRequestWithDifferentParameter("color", "Modifies the color of the product"),
                         response = getProductResponse()
                 )
         )
@@ -552,11 +562,11 @@ class OpenApi3GeneratorTest {
         )
     }
 
-    private fun getProductRequestWithDifferentParameter(): RequestModel {
+    private fun getProductRequestWithDifferentParameter(name: String, description: String): RequestModel {
         return getProductRequest().copy(requestParameters = listOf(
                 ParameterDescriptor(
-                        name = "color",
-                        description = "Changes the color of the product",
+                        name = name,
+                        description = description,
                         type = "STRING",
                         optional = true,
                         ignored = false

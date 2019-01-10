@@ -226,12 +226,12 @@ object OpenApi3Generator {
                     ).plus(
                         modelsWithSamePathAndMethod
                                 .flatMap { it.request.requestParameters }
-                                .distinct()
+                                .distinctBy { it.name }
                                 .map { requestParameterDescriptor2Parameter(it)
                     }).plus(
                         modelsWithSamePathAndMethod
                                 .flatMap { it.request.headers }
-                                .distinct()
+                                .distinctBy { it.name }
                                 .map { header2Parameter(it)
                         }
                     ).nullIfEmpty()
