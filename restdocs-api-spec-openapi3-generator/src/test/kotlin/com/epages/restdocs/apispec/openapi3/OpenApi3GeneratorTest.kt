@@ -185,7 +185,7 @@ class OpenApi3GeneratorTest {
             ),
             format = "json",
             description = "API Description",
-            tags = mapOf("tag1" to "tag1 description", "tag2" to "tag2 description")
+            tagDescriptions = mapOf("tag1" to "tag1 description", "tag2" to "tag2 description")
         )
 
         println(openApiSpecJsonString)

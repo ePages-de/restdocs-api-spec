@@ -45,7 +45,7 @@ object OpenApi20Generator {
         schemes: List<String> = listOf("http"),
         title: String = "API",
         description: String? = null,
-        tags: Map<String, String> = emptyMap(),
+        tagDescriptions: Map<String, String> = emptyMap(),
         version: String = "1.0.0",
         oauth2SecuritySchemeDefinition: Oauth2Configuration? = null
     ): Swagger {
@@ -59,7 +59,7 @@ object OpenApi20Generator {
                 this.description = description
                 this.version = version
             }
-            this.tags(tags.map { Tag().apply {
+            this.tags(tagDescriptions.map { Tag().apply {
                 this.name = it.key
                 this.description = it.value
             } })
@@ -84,12 +84,12 @@ object OpenApi20Generator {
         schemes: List<String> = listOf("http"),
         title: String = "API",
         description: String? = null,
-        tags: Map<String, String> = emptyMap(),
+        tagDescriptions: Map<String, String> = emptyMap(),
         version: String = "1.0.0",
         oauth2SecuritySchemeDefinition: Oauth2Configuration? = null,
         format: String
     ): String {
-        val specification = generate(resources, basePath, host, schemes, title, description, tags, version, oauth2SecuritySchemeDefinition)
+        val specification = generate(resources, basePath, host, schemes, title, description, tagDescriptions, version, oauth2SecuritySchemeDefinition)
         return ApiSpecificationWriter.serialize(format, specification)
     }
 

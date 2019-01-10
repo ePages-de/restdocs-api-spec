@@ -160,7 +160,7 @@ class OpenApi20GeneratorTest {
                 arrayOf("application", "accessCode")
             ),
         description = "API description",
-        tags = mapOf("tag1" to "tag1 description", "tag2" to "tag2 description")
+        tagDescriptions = mapOf("tag1" to "tag1 description", "tag2" to "tag2 description")
         )
 
         println(ApiSpecificationWriter.serialize("yaml", openapi))

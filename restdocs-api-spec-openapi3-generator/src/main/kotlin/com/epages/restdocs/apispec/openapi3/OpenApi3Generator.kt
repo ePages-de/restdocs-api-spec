@@ -47,7 +47,7 @@ object OpenApi3Generator {
         servers: List<Server>,
         title: String = "API",
         description: String? = null,
-        tags: Map<String, String> = emptyMap(),
+        tagDescriptions: Map<String, String> = emptyMap(),
         version: String = "1.0.0",
         oauth2SecuritySchemeDefinition: Oauth2Configuration? = null
     ): OpenAPI {
@@ -59,7 +59,7 @@ object OpenApi3Generator {
                 this.description = description
                 this.version = version
             }
-            this.tags(tags.map { Tag().apply {
+            this.tags(tagDescriptions.map { Tag().apply {
                 this.name = it.key
                 this.description = it.value
             } })
@@ -77,7 +77,7 @@ object OpenApi3Generator {
         servers: List<Server>,
         title: String = "API",
         description: String? = null,
-        tags: Map<String, String> = emptyMap(),
+        tagDescriptions: Map<String, String> = emptyMap(),
         version: String = "1.0.0",
         oauth2SecuritySchemeDefinition: Oauth2Configuration? = null,
         format: String
@@ -88,7 +88,7 @@ object OpenApi3Generator {
                 servers = servers,
                 title = title,
                 description = description,
-                tags = tags,
+                tagDescriptions = tagDescriptions,
                 version = version,
                 oauth2SecuritySchemeDefinition = oauth2SecuritySchemeDefinition
             ))
