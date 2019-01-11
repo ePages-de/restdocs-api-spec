@@ -32,6 +32,7 @@ open class OpenApiTask : OpenApiBaseTask() {
             schemes = schemes.toList(),
             title = title,
             description = apiDescription,
+            tagDescriptions = tagDescriptions,
             version = apiVersion,
             oauth2SecuritySchemeDefinition = oauth2SecuritySchemeDefinition,
             format = format

@@ -23,12 +23,28 @@ import io.swagger.models.parameters.Parameter
 import io.swagger.models.parameters.PathParameter
 import io.swagger.parser.Swagger20Parser
 import io.swagger.util.Json
+import org.assertj.core.api.Assertions.tuple
 import org.assertj.core.api.BDDAssertions.then
 import org.junit.jupiter.api.Test
 
 private const val SCHEMA_JSONPATH_PREFIX = "#/definitions/"
 
 class OpenApi20GeneratorTest {
+
+    @Test
+    fun `should have parent tags generated for openapi`() {
+        val api = givenGetProductResourceModel()
+
+        val openapi = whenOpenApiObjectGenerated(api)
+
+        with(openapi) {
+            then(this.tags).extracting("name", "description")
+                    .containsExactly(
+                            tuple("tag1", "tag1 description"),
+                            tuple("tag2", "tag2 description")
+                    )
+        }
+    }
 
     @Test
     fun `should convert single resource model to openapi`() {
@@ -143,7 +159,8 @@ class OpenApi20GeneratorTest {
                 "http://example.com/authorize",
                 arrayOf("application", "accessCode")
             ),
-        description = "API description"
+        description = "API description",
+        tagDescriptions = mapOf("tag1" to "tag1 description", "tag2" to "tag2 description")
         )
 
         println(ApiSpecificationWriter.serialize("yaml", openapi))

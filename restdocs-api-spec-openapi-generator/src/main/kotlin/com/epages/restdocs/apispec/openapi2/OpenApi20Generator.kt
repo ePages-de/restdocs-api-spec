@@ -20,6 +20,7 @@ import io.swagger.models.RefModel
 import io.swagger.models.Response
 import io.swagger.models.Scheme
 import io.swagger.models.Swagger
+import io.swagger.models.Tag
 import io.swagger.models.auth.ApiKeyAuthDefinition
 import io.swagger.models.auth.BasicAuthDefinition
 import io.swagger.models.auth.OAuth2Definition
@@ -44,6 +45,7 @@ object OpenApi20Generator {
         schemes: List<String> = listOf("http"),
         title: String = "API",
         description: String? = null,
+        tagDescriptions: Map<String, String> = emptyMap(),
         version: String = "1.0.0",
         oauth2SecuritySchemeDefinition: Oauth2Configuration? = null
     ): Swagger {
@@ -57,6 +59,10 @@ object OpenApi20Generator {
                 this.description = description
                 this.version = version
             }
+            this.tags(tagDescriptions.map { Tag().apply {
+                this.name = it.key
+                this.description = it.value
+            } })
             paths = generatePaths(
                 resources,
                 oauth2SecuritySchemeDefinition
@@ -78,11 +84,12 @@ object OpenApi20Generator {
         schemes: List<String> = listOf("http"),
         title: String = "API",
         description: String? = null,
+        tagDescriptions: Map<String, String> = emptyMap(),
         version: String = "1.0.0",
         oauth2SecuritySchemeDefinition: Oauth2Configuration? = null,
         format: String
     ): String {
-        val specification = generate(resources, basePath, host, schemes, title, description, version, oauth2SecuritySchemeDefinition)
+        val specification = generate(resources, basePath, host, schemes, title, description, tagDescriptions, version, oauth2SecuritySchemeDefinition)
         return ApiSpecificationWriter.serialize(format, specification)
     }
 

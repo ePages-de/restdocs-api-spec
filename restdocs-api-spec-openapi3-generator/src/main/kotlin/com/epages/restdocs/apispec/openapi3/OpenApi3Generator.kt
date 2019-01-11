@@ -36,6 +36,7 @@ import io.swagger.v3.oas.models.parameters.RequestBody
 import io.swagger.v3.oas.models.responses.ApiResponse
 import io.swagger.v3.oas.models.responses.ApiResponses
 import io.swagger.v3.oas.models.servers.Server
+import io.swagger.v3.oas.models.tags.Tag
 import java.util.Comparator.comparing
 import java.util.Comparator.comparingInt
 
@@ -46,6 +47,7 @@ object OpenApi3Generator {
         servers: List<Server>,
         title: String = "API",
         description: String? = null,
+        tagDescriptions: Map<String, String> = emptyMap(),
         version: String = "1.0.0",
         oauth2SecuritySchemeDefinition: Oauth2Configuration? = null
     ): OpenAPI {
@@ -57,6 +59,10 @@ object OpenApi3Generator {
                 this.description = description
                 this.version = version
             }
+            this.tags(tagDescriptions.map { Tag().apply {
+                this.name = it.key
+                this.description = it.value
+            } })
             paths = generatePaths(
                 resources,
                 oauth2SecuritySchemeDefinition
@@ -71,6 +77,7 @@ object OpenApi3Generator {
         servers: List<Server>,
         title: String = "API",
         description: String? = null,
+        tagDescriptions: Map<String, String> = emptyMap(),
         version: String = "1.0.0",
         oauth2SecuritySchemeDefinition: Oauth2Configuration? = null,
         format: String
@@ -81,6 +88,7 @@ object OpenApi3Generator {
                 servers = servers,
                 title = title,
                 description = description,
+                tagDescriptions = tagDescriptions,
                 version = version,
                 oauth2SecuritySchemeDefinition = oauth2SecuritySchemeDefinition
             ))

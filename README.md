@@ -108,6 +108,7 @@ openapi { //6
     basePath = '/api'
     title = 'My API'
     description = 'My API description'
+    tagDescriptionsPropertiesFile = 'src/docs/tag-descriptions.yaml'
     version = '1.0.0'
     format = 'json'
 }
@@ -116,6 +117,7 @@ openapi3 {
 	server = 'https://localhost:8080'
 	title = 'My API'
 	description = 'My API description'
+	tagDescriptionsPropertiesFile = 'src/docs/tag-descriptions.yaml'
 	version = '0.1.0'
 	format = 'yaml'
 }
@@ -334,6 +336,7 @@ title | The title of the application. Used for the `title` attribute in the [Inf
 description | A description of the application. Used for the `description` attribute in the [Info object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#info-object) | empty
 version | The version of the api. Used for the `version` attribute in the [Info object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#info-object) | project version
 format | The format of the output OpenAPI file - supported values are `json` and `yaml` | `json`
+tagDescriptionsPropertiesFile | A yaml file mapping tag names to descriptions. These are populated into the top level ` [Tags attribute](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#tag-object) | no default - if not provided no tags created.
 separatePublicApi | Should the plugin generate an additional OpenAPI specification file that does not contain the resources marked as private | `false`
 outputDirectory | The output directory | `build/openapi`
 snippetsDirectory | The directory Spring REST Docs generated the snippets to | `build/generated-snippets`

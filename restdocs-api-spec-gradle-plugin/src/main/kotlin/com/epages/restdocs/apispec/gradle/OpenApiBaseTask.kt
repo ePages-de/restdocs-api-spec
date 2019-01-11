@@ -20,6 +20,10 @@ abstract class OpenApiBaseTask : ApiSpecTask() {
     @Optional
     lateinit var format: String
 
+    @Input
+    @Optional
+    lateinit var tagDescriptions: Map<String, String>
+
     @Input @Optional
     var oauth2SecuritySchemeDefinition: PluginOauth2Configuration? = null
 
@@ -31,6 +35,7 @@ abstract class OpenApiBaseTask : ApiSpecTask() {
         oauth2SecuritySchemeDefinition = extension.oauth2SecuritySchemeDefinition
         title = extension.title
         apiDescription = extension.description
+        tagDescriptions = extension.tagDescriptions()
         apiVersion = extension.version
     }
 }

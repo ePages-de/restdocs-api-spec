@@ -23,6 +23,7 @@ open class OpenApi3Task : OpenApiBaseTask() {
             servers = servers,
             title = title,
             description = apiDescription,
+            tagDescriptions = tagDescriptions,
             version = apiVersion,
             oauth2SecuritySchemeDefinition = oauth2SecuritySchemeDefinition,
             format = format

@@ -109,6 +109,7 @@ class RestdocsOpenApi3TaskTest : RestdocsOpenApiTaskTestBase() {
                 servers = [ { url = "http://some.api" } ]
                 title = '$title'
                 description = '$description'
+                tagDescriptionsPropertiesFile = "tagDescriptions.yaml"
                 version = '$version'
                 format = '$format'
                 separatePublicApi = $separatePublicApi
