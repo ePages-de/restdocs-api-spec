@@ -86,7 +86,7 @@ buildscript {
     }
     dependencies {
         //..
-        classpath("com.epages:restdocs-api-spec-gradle-plugin:0.6.0") //2
+        classpath("com.epages:restdocs-api-spec-gradle-plugin:0.7.1") //2
     }
 }
 //..
@@ -100,7 +100,7 @@ repositories { //4
 
 dependencies {
     //..
-    testCompile('com.epages:restdocs-api-spec-mockmvc:0.6.0') //5
+    testCompile('com.epages:restdocs-api-spec-mockmvc:0.7.1') //5
 }
 
 openapi { //6
