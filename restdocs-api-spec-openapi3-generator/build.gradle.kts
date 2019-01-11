@@ -19,7 +19,7 @@ dependencies {
     compile(project(":restdocs-api-spec-model"))
     compile(project(":restdocs-api-spec-jsonschema"))
 
-    compile("io.swagger.core.v3:swagger-core:2.0.5")
+    compile("io.swagger.core.v3:swagger-core:2.0.6")
     compile("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
     compile("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
 
