@@ -119,6 +119,23 @@ class OpenApi3GeneratorTest {
         thenOpenApiSpecIsValid()
     }
 
+    @Test
+    fun `should aggregate requests with same path and method but different parameters`() {
+        givenResourcesWithSamePathAndContentTypeAndDifferentParameters()
+
+        whenOpenApiObjectGenerated()
+
+        val params = openApiJsonPathContext.read<List<Map<String, String>>>("paths./products/{id}.get.parameters.*")
+
+        then(params).anyMatch { it["name"] == "id" }
+        then(params).anyMatch { it["name"] == "locale" }
+        then(params).anyMatch { it["name"] == "color" && it["description"] == "Changes the color of the product" }
+        then(params).anyMatch { it["name"] == "Authorization" }
+        then(params).hasSize(4) // should not contain duplicated parameter descriptions
+
+        thenOpenApiSpecIsValid()
+    }
+
     fun thenGetProductByIdOperationIsValid() {
         val productGetByIdPath = "paths./products/{id}.get"
         then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.tags")).isNotNull()
@@ -240,6 +257,51 @@ class OpenApi3GeneratorTest {
                 request = getProductRequest(),
                 response = getProductErrorResponse()
             )
+        )
+    }
+
+    private fun givenResourcesWithSamePathAndContentTypeAndDifferentParameters() {
+        resources = listOf(
+                ResourceModel(
+                        operationId = "test",
+                        summary = "summary",
+                        description = "description",
+                        privateResource = false,
+                        deprecated = false,
+                        tags = setOf("tag1", "tag2"),
+                        request = getProductRequest(),
+                        response = getProductResponse()
+                ),
+                ResourceModel(
+                        operationId = "test",
+                        summary = "summary",
+                        description = "description",
+                        privateResource = false,
+                        deprecated = false,
+                        tags = setOf("tag1", "tag2"),
+                        request = getProductRequest(),
+                        response = getProductResponse()
+                ),
+                ResourceModel(
+                        operationId = "test-1",
+                        summary = "summary 1",
+                        description = "description 1",
+                        privateResource = false,
+                        deprecated = false,
+                        tags = setOf("tag1", "tag2"),
+                        request = getProductRequestWithDifferentParameter("color", "Changes the color of the product"),
+                        response = getProductResponse()
+                ),
+                ResourceModel(
+                        operationId = "test-1",
+                        summary = "summary 1",
+                        description = "description 1",
+                        privateResource = false,
+                        deprecated = false,
+                        tags = setOf("tag1", "tag2"),
+                        request = getProductRequestWithDifferentParameter("color", "Modifies the color of the product"),
+                        response = getProductResponse()
+                )
         )
     }
 
@@ -507,6 +569,18 @@ class OpenApi3GeneratorTest {
                 ),
                 requestFields = listOf()
         )
+    }
+
+    private fun getProductRequestWithDifferentParameter(name: String, description: String): RequestModel {
+        return getProductRequest().copy(requestParameters = listOf(
+                ParameterDescriptor(
+                        name = name,
+                        description = description,
+                        type = "STRING",
+                        optional = true,
+                        ignored = false
+                )
+        ))
     }
 
     private fun thenOpenApiSpecIsValid() {

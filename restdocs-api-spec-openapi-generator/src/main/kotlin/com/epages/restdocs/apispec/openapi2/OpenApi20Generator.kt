@@ -276,14 +276,16 @@ object OpenApi20Generator {
                     extractPathParameters(
                         firstModelForPathAndMethod
                     ).plus(
-                        firstModelForPathAndMethod.request.requestParameters.map {
-                            requestParameterDescriptor2Parameter(
-                                it
-                            )
-                    }).plus(
-                        firstModelForPathAndMethod.request.headers.map {
-                            header2Parameter(it)
-                        }
+                        modelsWithSamePathAndMethod
+                                .flatMap { it.request.requestParameters }
+                                .distinctBy { it.name }
+                                .map { requestParameterDescriptor2Parameter(it)
+                                }).plus(
+                        modelsWithSamePathAndMethod
+                                .flatMap { it.request.headers }
+                                .distinctBy { it.name }
+                                .map { header2Parameter(it)
+                            }
                     ).plus(
                         listOfNotNull<Parameter>(
                             requestFieldDescriptor2Parameter(

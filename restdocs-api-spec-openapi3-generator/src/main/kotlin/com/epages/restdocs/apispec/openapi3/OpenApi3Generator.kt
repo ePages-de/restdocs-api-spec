@@ -224,21 +224,23 @@ object OpenApi3Generator {
         val firstModelForPathAndMethod = modelsWithSamePathAndMethod.first()
         return Operation().apply {
             operationId = firstModelForPathAndMethod.operationId
-            summary = firstModelForPathAndMethod.summary
-            description = firstModelForPathAndMethod.description
+            summary = modelsWithSamePathAndMethod.map { it.summary }.find { !it.isNullOrBlank() }
+            description = modelsWithSamePathAndMethod.map { it.description }.find { !it.isNullOrBlank() }
             tags = modelsWithSamePathAndMethod.flatMap { it.tags }.distinct().nullIfEmpty()
             deprecated = if (modelsWithSamePathAndMethod.all { it.deprecated }) true else null
             parameters =
                     extractPathParameters(
                         firstModelForPathAndMethod
                     ).plus(
-                        firstModelForPathAndMethod.request.requestParameters.map {
-                            requestParameterDescriptor2Parameter(
-                                it
-                            )
+                        modelsWithSamePathAndMethod
+                                .flatMap { it.request.requestParameters }
+                                .distinctBy { it.name }
+                                .map { requestParameterDescriptor2Parameter(it)
                     }).plus(
-                        firstModelForPathAndMethod.request.headers.map {
-                            header2Parameter(it)
+                        modelsWithSamePathAndMethod
+                                .flatMap { it.request.headers }
+                                .distinctBy { it.name }
+                                .map { header2Parameter(it)
                         }
                     ).nullIfEmpty()
             requestBody = resourceModelsToRequestBody(
