@@ -8,6 +8,7 @@ import pl.allegro.tech.build.axion.release.domain.TagNameSerializationConfig
 import pl.allegro.tech.build.axion.release.domain.VersionConfig
 import pl.allegro.tech.build.axion.release.domain.hooks.HooksConfig
 import org.gradle.api.tasks.bundling.Jar
+import org.jetbrains.kotlin.js.inline.util.getCallerQualifier
 
 
 plugins {
@@ -141,8 +142,8 @@ tasks {
         description = "Generates an aggregate report from all subprojects"
         group = "Coverage reports"
         dependsOn(jacocoMerge)
-        setSourceDirectories(files(nonSampleProjects.flatMap { it.sourceSets["main"].allSource.srcDirs.filter { it.exists() } } ))
-        setClassDirectories(files(nonSampleProjects.flatMap { it.sourceSets["main"].output } ))
+        sourceDirectories.setFrom(files(nonSampleProjects.flatMap { it.sourceSets["main"].allSource.srcDirs.filter { it.exists() && !it.path.endsWith("restdocs-api-spec-postman-generator/src/main/java") } } ))
+        classDirectories.setFrom(files(nonSampleProjects.flatMap { it.sourceSets["main"].output }.filter { !it.path.endsWith("restdocs-api-spec-postman-generator/build/classes/java/main") } ))
         executionData(jacocoMerge.destinationFile)
         reports {
             html.isEnabled = true
