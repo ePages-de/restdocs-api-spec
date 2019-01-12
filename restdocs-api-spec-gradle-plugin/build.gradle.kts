@@ -36,6 +36,7 @@ dependencies {
 
     implementation(project(":restdocs-api-spec-openapi-generator"))
     implementation(project(":restdocs-api-spec-openapi3-generator"))
+    implementation(project(":restdocs-api-spec-postman-generator"))
     implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
 

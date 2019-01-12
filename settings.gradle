@@ -9,3 +9,4 @@ include 'restdocs-api-spec-sample'
 project(':restdocs-api-spec-sample').projectDir = file('samples/restdocs-api-spec-sample')
 include 'restdocs-api-spec-mockmvc'
 include 'restdocs-api-spec-restassured'
+include 'restdocs-api-spec-postman-generator'

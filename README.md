@@ -10,10 +10,10 @@ This is an extension that adds API specifications as an output format to [Spring
 It currently supports:
 - [OpenAPI 2.0](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md) in `json` and `yaml`
 - [OpenAPI 3.0.1](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md) in `json` and `yaml`
+- [Postman Collections 2.1.0](https://schema.getpostman.com/json/collection/v2.1.0/docs/index.html)
 
 We plan to add support for:
 - [RAML](https://raml.org)
-- [Postman Collections](https://schema.getpostman.com/json/collection/v2.1.0/docs/index.html)
 
 ## Motivation
 
@@ -53,10 +53,13 @@ This is why we came up with this project.
     - [Running the gradle plugin](#running-the-gradle-plugin)
         - [OpenAPI 2.0](#openapi-20)
         - [OpenAPI 3.0.1](#openapi-301)
+        - [Postman](#postman)
     - [Gradle plugin configuration](#gradle-plugin-configuration)
+        - [Common configuration for all formats](#common-configuration-for-all-formats)
         - [Common OpenAPI configuration](#common-openapi-configuration)
         - [OpenAPI 2.0](#openapi-20-1)
         - [OpenAPI 3.0.1](#openapi-301-1)
+        - [Postman](#postman-1)
 - [Generate an HTML-based API reference from OpenAPI](#generate-an-html-based-api-reference-from-openapi)
 - [RAML](#raml)
 
@@ -322,9 +325,27 @@ In order to generate an OpenAPI 3.0.1 specification we use the `openapi3` task:
 ./gradlew openapi3
 ```
 
-For our [sample project](samples/restdocs-api-spec-sample) this creates a `openapi3.yaml` file in the output directory (`build/openapi`).
+For our [sample project](samples/restdocs-api-spec-sample) this creates a `openapi3.yaml` file in the output directory (`build/api-spec`).
+
+### Postman
+
+In order to generate a [Postman collection](https://www.getpostman.com/collection) we use the `postman` task:
+
+```
+./gradlew postman
+```
+
+For our [sample project](samples/restdocs-api-spec-sample) this creates a `postman-collection.json` file in the output directory (`build/api-spec`).
 
 ### Gradle plugin configuration
+
+#### Common configuration for all formats
+
+Name | Description | Default value
+---- | ----------- | -------------
+separatePublicApi | Should the plugin generate additional API specification files which do **not** contain the resources marked as private | `false`
+outputDirectory | The output directory for the API specification files | `build/api-spec`
+snippetsDirectory | The directory Spring REST Docs generated the snippets to | `build/generated-snippets`
 
 #### Common OpenAPI configuration 
 
@@ -337,9 +358,6 @@ description | A description of the application. Used for the `description` attri
 version | The version of the api. Used for the `version` attribute in the [Info object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#info-object) | project version
 format | The format of the output OpenAPI file - supported values are `json` and `yaml` | `json`
 tagDescriptionsPropertiesFile | A yaml file mapping tag names to descriptions. These are populated into the top level ` [Tags attribute](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#tag-object) | no default - if not provided no tags created.
-separatePublicApi | Should the plugin generate an additional OpenAPI specification file that does not contain the resources marked as private | `false`
-outputDirectory | The output directory | `build/openapi`
-snippetsDirectory | The directory Spring REST Docs generated the snippets to | `build/generated-snippets`
 oauth2SecuritySchemeDefinition | Closure containing information to generate the [securityDefinitions](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#securityDefinitionsObject) object in the `OpenAPI` specification. | empty
 oauth2SecuritySchemeDefinition.flows | The Oauth2 flows the API supports. Use valid values from the [securityDefinitions](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#securityDefinitionsObject) specification. | no default - required if `oauth2SecuritySchemeDefinition` is set.
 oauth2SecuritySchemeDefinition.tokenUrl | The Oauth2 tokenUrl | no default - required for the flows `password`, `application`, `accessCode`.
@@ -400,8 +418,8 @@ openapi3 {
     title = 'My API title'
     version = '1.0.1'
     format = 'yaml'
-    separatePublicApi = $separatePublicApi
-    outputFileNamePrefix = '$outputFileNamePrefix'
+    separatePublicApi = true
+    outputFileNamePrefix = 'my-api-spec'
     oauth2SecuritySchemeDefinition = {
         flows = ['authorizationCode']
         tokenUrl = 'http://example.com/token'
@@ -435,6 +453,27 @@ A single server can also be specified using a plain string:
 server = 'http://some.api/api'
 ```
 
+#### Postman 
+
+The `restdocs-api-spec-gradle-plugin` takes the following configuration options for Postman collections - all are optional.
+
+Name | Description | Default value
+---- | ----------- | -------------
+title | The title of the application. Used for the `name` attribute of the `Information` object of the collection | `API documentation`
+version | The version of the api. Used for the `version` attribute in the `Information` object | project version if specified - otherwise `1.0.0`
+baseUrl | The baseUrl of the application. e.g. `https://myapi.example.com:8080/api` | `http://localhost`
+
+Example configuration closure:
+```
+postman {
+    title = 'Beyond REST API'
+    version = '1.0.1'
+    baseUrl = 'https://api-shop.beyondshop.cloud/api'
+    separatePublicApi = true
+    outputFileNamePrefix = 'my-postman-collection'
+}
+```
+
 ## Generate an HTML-based API reference from OpenAPI
 
 We can use [redoc](https://github.com/Rebilly/ReDoc) to generate an HTML API reference from our OpenAPI specification.
@@ -442,7 +481,7 @@ We can use [redoc](https://github.com/Rebilly/ReDoc) to generate an HTML API ref
 The [redoc-cli](https://www.npmjs.com/package/redoc-cli) can be used to serve this API reference
 ```
 npm install -g redoc-cli
-redoc-cli serve build/openapi/openapi.json
+redoc-cli serve build/api-spec/openapi.json
 ```
 
 ## RAML
