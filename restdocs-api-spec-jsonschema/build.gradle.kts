@@ -16,7 +16,7 @@ val junitVersion: String by extra
 dependencies {
     compile(kotlin("stdlib-jdk8"))
     compile(project(":restdocs-api-spec-model"))
-    compile("com.github.everit-org.json-schema:org.everit.json.schema:1.10.0")
+    compile("com.github.everit-org.json-schema:org.everit.json.schema:1.9.1")
     compile("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
     compile("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
 

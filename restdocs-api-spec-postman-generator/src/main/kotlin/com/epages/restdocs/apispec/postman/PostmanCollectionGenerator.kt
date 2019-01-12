@@ -17,7 +17,7 @@ import java.net.URI
 
 object PostmanCollectionGenerator {
 
-    internal fun generate(
+    fun generate(
             resources: List<ResourceModel>,
             title: String = "API",
             version: String = "1.0.0",
@@ -86,8 +86,11 @@ object PostmanCollectionGenerator {
         return Url().apply {
             protocol = baseUri.scheme
             host = baseUri.host
-            port = baseUri.port.toString()
-            path = modelsWithSamePathAndMethod.first().request.path.replace(Regex("\\{[^/]+}")) {
+            port = when(baseUri.port) {
+                    -1 -> null
+                    else -> baseUri.port.toString()
+            }
+            path = baseUri.path + modelsWithSamePathAndMethod.first().request.path.replace(Regex("\\{[^/]+}")) {
                 it.value.replace('{', ':').removeSuffix("}")
             }
             variable = modelsWithSamePathAndMethod

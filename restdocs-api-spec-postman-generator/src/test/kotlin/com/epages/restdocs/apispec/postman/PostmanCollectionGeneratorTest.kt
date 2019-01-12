@@ -25,6 +25,7 @@ internal class PostmanCollectionGeneratorTest {
     lateinit var postmanCollectionJsonString: String
     lateinit var postmanCollectionJsonPathContext: DocumentContext
 
+    var baseUrl = "http://localhost:8080"
     val objectMapper = jacksonObjectMapper().enable(INDENT_OUTPUT)
     val collectionSchema: JsonSchema = JsonSchemaFactory
             .byDefault()
@@ -75,6 +76,19 @@ internal class PostmanCollectionGeneratorTest {
     }
 
     @Test
+    fun `should omit port when default`() {
+        givenGetProductResourceModel()
+
+        baseUrl = "http://localhost"
+
+        whenPostmanCollectionGenerated()
+
+        thenPostmanSpecIsValid()
+
+        then(postmanCollectionJsonPathContext.read<String>("item[0].request.url.port")).isNull()
+    }
+
+    @Test
     fun `should convert single delete resource model to postman`() {
         givenDeleteProductResourceModel()
 
@@ -105,7 +119,7 @@ internal class PostmanCollectionGeneratorTest {
     private fun whenPostmanCollectionGenerated() {
         postmanCollectionJsonString = objectMapper.writeValueAsString(PostmanCollectionGenerator.generate(
                 resources = resources,
-                baseUrl = "http://localhost:8080",
+                baseUrl = baseUrl,
                 title = "my postman collection",
                 version = "1.0.0"
         ))

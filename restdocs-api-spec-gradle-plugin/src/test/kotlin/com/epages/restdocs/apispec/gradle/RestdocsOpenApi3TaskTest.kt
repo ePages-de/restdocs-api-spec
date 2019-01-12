@@ -31,7 +31,7 @@ class RestdocsOpenApi3TaskTest : RestdocsOpenApiTaskTestBase() {
 
         whenPluginExecuted()
 
-        thenOpenApiTaskSuccessful()
+        thenApiSpecTaskSuccessful()
         thenOutputFileFound()
         thenSingleServerContainedInOutput()
     }
@@ -43,7 +43,7 @@ class RestdocsOpenApi3TaskTest : RestdocsOpenApiTaskTestBase() {
 
         whenPluginExecuted()
 
-        thenOpenApiTaskSuccessful()
+        thenApiSpecTaskSuccessful()
         thenOutputFileFound()
         thenSingleServerContainedInOutput()
     }

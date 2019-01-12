@@ -10,12 +10,12 @@ import org.gradle.api.Project
 import java.io.File
 
 abstract class OpenApiBaseExtension(project: Project) : ApiSpecExtension(project) {
-    override var outputDirectory = "build/openapi"
+    override var outputDirectory = "build/api-spec"
 
     private val objectMapper = ObjectMapper(YAMLFactory())
 
     var title = "API documentation"
-    var version = project.version as? String ?: "1.0.0"
+    var version = (project.version as? String)?.let { if (it == "unspecified") null else it } ?: "1.0.0"
     var description: String? = null
     var tagDescriptionsPropertiesFile: String? = null
 
