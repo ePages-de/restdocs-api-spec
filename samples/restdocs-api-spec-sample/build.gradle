@@ -10,7 +10,7 @@ buildscript {
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-		classpath("com.epages:restdocs-api-spec-gradle-plugin:0.7.1")
+		classpath("com.epages:restdocs-api-spec-gradle-plugin:0.8.0")
 	}
 }
 
@@ -39,7 +39,7 @@ dependencies {
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	testCompile('org.springframework.restdocs:spring-restdocs-mockmvc')
 
-	testCompile('com.epages:restdocs-api-spec-mockmvc:0.7.1')
+	testCompile('com.epages:restdocs-api-spec-mockmvc:0.8.0')
 //	testCompile project(':restdocs-api-spec-mockmvc') //enable for depending on the submodule directly
 	testCompile('com.google.guava:guava:23.0')
 }
@@ -64,4 +64,10 @@ openapi3 {
 	version = '0.1.0'
 	format = 'yaml'
 	tagDescriptionsPropertiesFile = "src/test/resources/tags.yaml"
+}
+
+postman {
+	title = 'My API'
+	version = '0.1.0'
+	baseUrl = 'https://localhost:8080'
 }
