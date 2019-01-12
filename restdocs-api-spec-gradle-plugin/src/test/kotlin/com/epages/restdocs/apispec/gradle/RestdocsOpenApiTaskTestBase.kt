@@ -2,7 +2,7 @@ package com.epages.restdocs.apispec.gradle
 
 import org.junit.jupiter.api.Test
 
-abstract class RestdocsOpenApiTaskTestBase: ApiSpecTaskTest() {
+abstract class RestdocsOpenApiTaskTestBase : ApiSpecTaskTest() {
 
     var host: String = "localhost"
     var basePath: String = ""

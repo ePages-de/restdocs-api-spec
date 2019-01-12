@@ -38,8 +38,6 @@ import io.swagger.v3.oas.models.responses.ApiResponse
 import io.swagger.v3.oas.models.responses.ApiResponses
 import io.swagger.v3.oas.models.servers.Server
 import io.swagger.v3.oas.models.tags.Tag
-import java.util.Comparator.comparing
-import java.util.Comparator.comparingInt
 
 object OpenApi3Generator {
 

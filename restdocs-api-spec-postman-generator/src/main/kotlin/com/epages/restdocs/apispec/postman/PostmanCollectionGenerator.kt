@@ -18,10 +18,10 @@ import java.net.URI
 object PostmanCollectionGenerator {
 
     fun generate(
-            resources: List<ResourceModel>,
-            title: String = "API",
-            version: String = "1.0.0",
-            baseUrl: String = "http://localhost"
+        resources: List<ResourceModel>,
+        title: String = "API",
+        version: String = "1.0.0",
+        baseUrl: String = "http://localhost"
     ): Collection {
         return Collection().apply {
             info = Info().apply {
@@ -70,7 +70,6 @@ object PostmanCollectionGenerator {
                 Body().apply {
                     raw = it
                     mode = Body.Mode.RAW
-
                 }
             }
             header = modelsWithSamePathAndMethod
@@ -86,7 +85,7 @@ object PostmanCollectionGenerator {
         return Url().apply {
             protocol = baseUri.scheme
             host = baseUri.host
-            port = when(baseUri.port) {
+            port = when (baseUri.port) {
                     -1 -> null
                     else -> baseUri.port.toString()
             }
@@ -128,8 +127,5 @@ object PostmanCollectionGenerator {
             else it
         }
     }
-
-
 }
 typealias Url = Src
-

@@ -7,7 +7,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
-open class PostmanTask: ApiSpecTask() {
+open class PostmanTask : ApiSpecTask() {
 
     @Input
     @Optional
@@ -39,5 +39,4 @@ open class PostmanTask: ApiSpecTask() {
         apiVersion = extension.version
         baseUrl = extension.baseUrl
     }
-
 }

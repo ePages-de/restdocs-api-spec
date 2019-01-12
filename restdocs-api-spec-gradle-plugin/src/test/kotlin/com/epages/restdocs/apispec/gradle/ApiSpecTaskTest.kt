@@ -86,7 +86,6 @@ abstract class ApiSpecTaskTest {
 
         """.trimIndent()
 
-
     protected fun givenResourceSnippet() {
         val operationDir = File(snippetsFolder, "some-operation").apply { mkdir() }
         File(operationDir, "resource.json").writeText(
@@ -122,7 +121,6 @@ abstract class ApiSpecTaskTest {
             """.trimIndent()
         )
     }
-
 
     protected fun givenPrivateResourceSnippet() {
         val operationDir = File(snippetsFolder, "some-private-operation").apply { mkdir() }

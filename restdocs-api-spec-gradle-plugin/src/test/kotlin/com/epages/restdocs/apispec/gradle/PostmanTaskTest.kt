@@ -6,7 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.junitpioneer.jupiter.TempDirectory
 
 @ExtendWith(TempDirectory::class)
-class PostmanTaskTest: ApiSpecTaskTest() {
+class PostmanTaskTest : ApiSpecTaskTest() {
 
     override val taskName = "postman"
 
