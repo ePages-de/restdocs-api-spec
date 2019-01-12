@@ -420,6 +420,12 @@ openapi3 {
     format = 'yaml'
     separatePublicApi = true
     outputFileNamePrefix = 'my-api-spec'
+    oauth2SecuritySchemeDefinition = {
+        flows = ['authorizationCode']
+        tokenUrl = 'http://example.com/token'
+        authorizationUrl = 'http://example.com/authorize'
+        scopeDescriptionsPropertiesFile = "scopeDescriptions.yaml"
+    }
 }
 ```
 
