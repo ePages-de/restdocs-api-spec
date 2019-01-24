@@ -1,0 +1,48 @@
+{
+  "sku" : "123456789-001",
+  "name" : "Rioja Castillo de Puerto (2013)",
+  "description" : "Spain\nRioja Tempranillo",
+  "manufacturer" : "Grape Vineyard",
+  "essentialFeatures" : "Dry. 12% alcohol. Best vine variety.",
+  "tags" : [ "Bestseller", "Red Wine", "Sale" ],
+  "productIdentifiers" : [ {
+    "type" : "EAN",
+    "value" : "9780134308135"
+  } ],
+  "salesPrice" : {
+    "taxModel" : "NET",
+    "amount" : 8.7,
+    "currency" : "EUR"
+  },
+  "listPrice" : {
+    "taxModel" : "NET",
+    "amount" : 10.95,
+    "currency" : "EUR"
+  },
+  "manufacturerPrice" : {
+    "taxModel" : "NET",
+    "amount" : 99.95,
+    "currency" : "EUR"
+  },
+  "onSale" : true,
+  "visible" : true,
+  "taxClass" : "REGULAR",
+  "shippingWeight" : 100,
+  "maxOrderQuantity" : 6,
+  "shippingDimension" : {
+    "length" : 1500,
+    "width" : 1000,
+    "height" : 2000
+  },
+  "refPrice" : {
+    "refQuantity" : 1,
+    "unit" : "LITER",
+    "quantity" : 0.75,
+    "price" : null
+  },
+  "shippingPeriod" : {
+    "minDays" : 2,
+    "maxDays" : 4,
+    "displayUnit" : "WEEKS"
+  }
+}

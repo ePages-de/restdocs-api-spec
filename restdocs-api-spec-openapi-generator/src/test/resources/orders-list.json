@@ -1,0 +1,104 @@
+{
+  "_embedded" : {
+    "orders" : [ {
+      "_id" : "b84debed-95b8-483c-a0f1-978b0894b804",
+      "createdAt" : "2019-01-14T16:11:46.991",
+      "testOrder" : false,
+      "termsAndConditionsExplicitlyAccepted" : false,
+      "paymentLineItem" : {
+        "taxClass" : "REGULAR",
+        "paymentMethod" : {
+          "name" : "PayPal",
+          "description" : "Pay with PayPal",
+          "discountOrFee" : {
+            "type" : "ABSOLUTE",
+            "absoluteValue" : {
+              "taxModel" : "GROSS",
+              "currency" : "EUR",
+              "amount" : 0
+            },
+            "percentageValue" : null
+          },
+          "onlinePayment" : false
+        },
+        "lineItemTaxes" : [ {
+          "taxClass" : "REGULAR",
+          "taxRate" : 0.19,
+          "currency" : "EUR",
+          "amount" : 0
+        } ]
+      },
+      "initialNetTotal" : {
+        "currency" : "EUR",
+        "amount" : 68.2687
+      },
+      "initialTaxTotal" : {
+        "currency" : "EUR",
+        "amount" : 9.1713
+      },
+      "taxes" : [ {
+        "taxClass" : "REGULAR",
+        "taxRate" : 0.19,
+        "currency" : "EUR",
+        "amount" : 9.1713
+      } ],
+      "shippingAddress" : {
+        "salutation" : "Mrs",
+        "houseNumber" : "2",
+        "street2" : "Erdgeschoss",
+        "addressExtension" : "Hinterhof",
+        "postalCode" : "20999",
+        "dependentLocality" : "Seevetal",
+        "doorCode" : "456",
+        "displayAddressLines" : [ "Astrid Alster GmbH", "Astrid Agnes Alster", "Alsterwasserweg 2", "Erdgeschoss", "Hinterhof", "Seevetal", "20999 Alsterwasser", "GERMANY" ]
+      },
+      "paymentStatus" : "PENDING",
+      "shippingStatus" : "UNSHIPPED",
+      "paymentNote" : "Please transfer the money using the reference ABC123XYZ to the bank account IBAN!",
+      "entryDate" : "2019-01-14T16:11:46.991",
+      "totalReceived" : {
+        "currency" : "EUR",
+        "amount" : 0
+      },
+      "totalRefunded" : {
+        "currency" : "EUR",
+        "amount" : 0
+      },
+      "openAmount" : {
+        "currency" : "EUR",
+        "amount" : 77.44
+      },
+      "marketingChannel" : "Google shopping",
+      "marketingSubchannel" : "Some category",
+      "salesChannel" : "Storefront",
+      "_links" : {
+        "self" : {
+          "href" : "https://yourshop.api.urn/orders/b84debed-95b8-483c-a0f1-978b0894b804"
+        },
+        "order" : {
+          "href" : "https://yourshop.api.urn/orders/b84debed-95b8-483c-a0f1-978b0894b804"
+        },
+        "create-invoice" : {
+          "href" : "https://yourshop.api.urn/orders/b84debed-95b8-483c-a0f1-978b0894b804/create-invoice"
+        },
+        "right-of-withdrawal-pdf" : {
+          "href" : "https://yourshop.api.urn/pdf-storage/attachments/some.pdf?hash=23213"
+        },
+        "terms-and-conditions-pdf" : {
+          "href" : "https://yourshop.api.urn/pdf-storage/attachments/some.pdf?hash=23213"
+        }
+      }
+    } ]
+  },
+  "_links" : {
+    "self" : {
+      "href" : "https://yourshop.api.urn/orders?page=0&size=20&sort=createdAt,desc"
+    }
+  },
+  "page" : {
+    "size" : 20,
+    "totalElements" : 1,
+    "totalPages" : 1,
+    "number" : 0
+  }
+}
