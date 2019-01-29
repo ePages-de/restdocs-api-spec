@@ -1,5 +1,6 @@
 package com.epages.restdocs.apispec.openapi2
 
+import com.epages.restdocs.apispec.jsonschema.JsonSchemaFromFieldDescriptorsGenerator
 import com.epages.restdocs.apispec.model.AbstractParameterDescriptor
 import com.epages.restdocs.apispec.model.FieldDescriptor
 import com.epages.restdocs.apispec.model.HTTPMethod
@@ -12,6 +13,7 @@ import com.epages.restdocs.apispec.model.ResponseModel
 import com.epages.restdocs.apispec.model.SecurityRequirements
 import com.epages.restdocs.apispec.model.SecurityType.BASIC
 import com.epages.restdocs.apispec.model.SecurityType.OAUTH2
+import com.fasterxml.jackson.module.kotlin.readValue
 import io.swagger.models.Model
 import io.swagger.models.Path
 import io.swagger.models.Response
@@ -166,6 +168,43 @@ class OpenApi20GeneratorTest {
         then(params).hasSize(4) // should not contain duplicated parameter descriptions
 
         thenValidateOpenApi(openapi)
+    }
+
+    @Test
+    fun `should generate different schema names for different schema attributes`(){
+        //given
+        val ordersFieldDescriptors =  givenFieldDescriptors("_embedded.orders[]")
+        val shopsFieldDescriptors =  givenFieldDescriptors("_embedded.shops[]")
+
+        val ordersSchema: Model  = givenModel(ordersFieldDescriptors)
+        val shopsSchema: Model  = givenModel(shopsFieldDescriptors)
+
+        val schemaNameAndSchemaMap = HashMap<String, Model>()
+
+        //when
+        whenExtractOrFindSchema(schemaNameAndSchemaMap, ordersSchema, shopsSchema)
+
+        //then
+        then(schemaNameAndSchemaMap.size).isEqualTo(2)
+
+    }
+
+    private fun whenExtractOrFindSchema(schemaNameAndSchemaMap: HashMap<String, Model>, ordersSchema: Model, shopsSchema: Model) {
+        OpenApi20Generator.extractOrFindSchema(schemaNameAndSchemaMap, ordersSchema, OpenApi20Generator.generateSchemaName("/orders"))
+        OpenApi20Generator.extractOrFindSchema(schemaNameAndSchemaMap, shopsSchema, OpenApi20Generator.generateSchemaName("/shops"))
+    }
+
+    private fun givenModel(fieldDescriptors: List<FieldDescriptor>): Model =
+        Json.mapper().readValue(JsonSchemaFromFieldDescriptorsGenerator().generateSchema(fieldDescriptors = fieldDescriptors))
+
+    private fun givenFieldDescriptors(attributePath: String): List<FieldDescriptor> {
+        return listOf(
+            FieldDescriptor(
+                path = attributePath,
+                description = "",
+                type = "ARRAY"
+            )
+        )
     }
 
     private fun whenOpenApiObjectGenerated(api: List<ResourceModel>): Swagger {

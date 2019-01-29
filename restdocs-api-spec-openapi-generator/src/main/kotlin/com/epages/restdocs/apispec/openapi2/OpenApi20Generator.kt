@@ -146,14 +146,14 @@ object OpenApi20Generator {
             ?.firstOrNull()
     }
 
-    private fun extractOrFindSchema(schemaNameToModel: HashMap<String, Model>, schema: Model, schemaNameGenerator: (Model) -> String): Model {
+    internal fun extractOrFindSchema(schemaNameToModel: HashMap<String, Model>, schema: Model, schemaNameGenerator: (Model) -> String): Model {
         val schemaName = schemaNameGenerator(schema)
         schemaNameToModel[schemaName] = schema
 
         return RefModel("#/definitions/$schemaName")
     }
 
-    private fun generateSchemaName(path: String): (Model) -> String {
+    internal fun generateSchemaName(path: String): (Model) -> String {
         return { schema -> path
             .replaceFirst("/", "")
             .replace("/", "_")
