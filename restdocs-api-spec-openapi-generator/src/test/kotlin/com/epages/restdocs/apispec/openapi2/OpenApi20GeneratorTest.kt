@@ -171,22 +171,21 @@ class OpenApi20GeneratorTest {
     }
 
     @Test
-    fun `should generate different schema names for different schema attributes`(){
-        //given
-        val ordersFieldDescriptors =  givenFieldDescriptors("_embedded.orders[]")
-        val shopsFieldDescriptors =  givenFieldDescriptors("_embedded.shops[]")
+    fun `should generate different schema names for different schema attributes`() {
+        // given
+        val ordersFieldDescriptors = givenFieldDescriptors("_embedded.orders[]")
+        val shopsFieldDescriptors = givenFieldDescriptors("_embedded.shops[]")
 
-        val ordersSchema: Model  = givenModel(ordersFieldDescriptors)
-        val shopsSchema: Model  = givenModel(shopsFieldDescriptors)
+        val ordersSchema: Model = givenModel(ordersFieldDescriptors)
+        val shopsSchema: Model = givenModel(shopsFieldDescriptors)
 
         val schemaNameAndSchemaMap = HashMap<String, Model>()
 
-        //when
+        // when
         whenExtractOrFindSchema(schemaNameAndSchemaMap, ordersSchema, shopsSchema)
 
-        //then
+        // then
         then(schemaNameAndSchemaMap.size).isEqualTo(2)
-
     }
 
     private fun whenExtractOrFindSchema(schemaNameAndSchemaMap: HashMap<String, Model>, ordersSchema: Model, shopsSchema: Model) {
