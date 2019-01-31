@@ -94,7 +94,7 @@ object OpenApi20Generator {
     }
 
     private fun extractDefinitions(swagger: Swagger): Swagger {
-        val schemasToKeys = HashMap<Model, String>()
+        val schemaNameToModel = HashMap<String, Model>()
         val operationToPathKey = HashMap<Operation, String>()
 
         swagger.paths
@@ -114,7 +114,7 @@ object OpenApi20Generator {
                 ?.let {
                     it.schema(
                         extractOrFindSchema(
-                            schemasToKeys,
+                            schemaNameToModel,
                             it.schema,
                             generateSchemaName(pathKey)
                         )
@@ -126,7 +126,7 @@ object OpenApi20Generator {
                 .forEach {
                     it.responseSchema(
                         extractOrFindSchema(
-                            schemasToKeys,
+                            schemaNameToModel,
                             it.responseSchema,
                             generateSchemaName(pathKey)
                         )
@@ -134,10 +134,7 @@ object OpenApi20Generator {
                 }
         }
 
-        swagger.definitions =
-            schemasToKeys.keys.map {
-                schemasToKeys.getValue(it) to it
-            }.toMap()
+        swagger.definitions = schemaNameToModel
 
         return swagger
     }
@@ -149,18 +146,14 @@ object OpenApi20Generator {
             ?.firstOrNull()
     }
 
-    private fun extractOrFindSchema(schemasToKeys: HashMap<Model, String>, schema: Model, schemaNameGenerator: (Model) -> String): Model {
-        val schemaKey = if (schemasToKeys.containsKey(schema)) {
-            schemasToKeys[schema]!!
-        } else {
-            val name = schemaNameGenerator(schema)
-            schemasToKeys[schema] = name
-            name
-        }
-        return RefModel("#/definitions/$schemaKey")
+    internal fun extractOrFindSchema(schemaNameToModel: HashMap<String, Model>, schema: Model, schemaNameGenerator: (Model) -> String): Model {
+        val schemaName = schemaNameGenerator(schema)
+        schemaNameToModel[schemaName] = schema
+
+        return RefModel("#/definitions/$schemaName")
     }
 
-    private fun generateSchemaName(path: String): (Model) -> String {
+    internal fun generateSchemaName(path: String): (Model) -> String {
         return { schema -> path
             .replaceFirst("/", "")
             .replace("/", "_")
