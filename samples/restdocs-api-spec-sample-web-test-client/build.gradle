@@ -19,33 +19,26 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 apply plugin: 'com.epages.restdocs-api-spec'
 
-sourceCompatibility = 1.8
-
 repositories {
 	mavenCentral()
-    jcenter()
+	jcenter()
 }
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 ext {
 	snippetsDir = file('build/generated-snippets')
 }
 
 dependencies {
-	compile('org.springframework.boot:spring-boot-starter-data-jpa')
-	compile('org.springframework.boot:spring-boot-starter-data-rest')
-	runtime('com.h2database:h2')
-	testCompile('org.junit.jupiter:junit-jupiter-engine:5.3.2')
+	implementation('org.springframework.boot:spring-boot-starter-webflux')
 
-	testCompile('org.springframework.boot:spring-boot-starter-test')
-	testCompile('org.springframework.restdocs:spring-restdocs-mockmvc')
-
-	testCompile('com.epages:restdocs-api-spec-mockmvc:0.8.1')
-//	testCompile project(':restdocs-api-spec-mockmvc') //enable for depending on the submodule directly
-	testCompile('com.google.guava:guava:23.0')
-}
-
-configurations.all {
-    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+	testImplementation('org.junit.jupiter:junit-jupiter-engine:5.3.2')
+	testImplementation('org.springframework.boot:spring-boot-starter-test')
+	testImplementation('org.springframework.restdocs:spring-restdocs-webtestclient')
+	testImplementation('io.projectreactor:reactor-test')
+	testImplementation('com.epages:restdocs-api-spec:0.8.1')
 }
 
 openapi {
@@ -63,7 +56,6 @@ openapi3 {
 	description = 'An ecommerce sample demonstrating restdocs-api-spec'
 	version = '0.1.0'
 	format = 'yaml'
-	tagDescriptionsPropertiesFile = "src/test/resources/tags.yaml"
 }
 
 postman {
@@ -71,3 +63,4 @@ postman {
 	version = '0.1.0'
 	baseUrl = 'https://localhost:8080'
 }
+
