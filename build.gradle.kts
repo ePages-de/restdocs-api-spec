@@ -1,23 +1,19 @@
+
 import com.jfrog.bintray.gradle.BintrayExtension
 import com.jfrog.bintray.gradle.BintrayExtension.PackageConfig
-import com.jfrog.bintray.gradle.tasks.BintrayUploadTask
-import org.gradle.internal.impldep.org.eclipse.jgit.lib.ObjectChecker.tag
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.kt3k.gradle.plugin.CoverallsPluginExtension
 import pl.allegro.tech.build.axion.release.domain.TagNameSerializationConfig
-import pl.allegro.tech.build.axion.release.domain.VersionConfig
 import pl.allegro.tech.build.axion.release.domain.hooks.HooksConfig
-import org.gradle.api.tasks.bundling.Jar
-import org.jetbrains.kotlin.js.inline.util.getCallerQualifier
 
 
 plugins {
     java
-    kotlin("jvm") version "1.3.10" apply false
+    kotlin("jvm") version "1.3.20" apply false
     id("pl.allegro.tech.build.axion-release") version "1.9.2"
     jacoco
     `maven-publish`
-    id("org.jmailen.kotlinter") version "1.20.1" apply false
+    id("org.jmailen.kotlinter") version "1.21.0" apply false
     id("com.github.kt3k.coveralls") version "2.8.2"
     id("com.jfrog.bintray") version "1.8.4" apply false
 }
