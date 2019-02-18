@@ -179,7 +179,7 @@ class OpenApi20GeneratorTest {
         val ordersSchema: Model = givenModel(ordersFieldDescriptors)
         val shopsSchema: Model = givenModel(shopsFieldDescriptors)
 
-        val schemaNameAndSchemaMap = HashMap<String, Model>()
+        val schemaNameAndSchemaMap: MutableMap<Model, String> = mutableMapOf()
 
         // when
         whenExtractOrFindSchema(schemaNameAndSchemaMap, ordersSchema, shopsSchema)
@@ -188,7 +188,7 @@ class OpenApi20GeneratorTest {
         then(schemaNameAndSchemaMap.size).isEqualTo(2)
     }
 
-    private fun whenExtractOrFindSchema(schemaNameAndSchemaMap: HashMap<String, Model>, ordersSchema: Model, shopsSchema: Model) {
+    private fun whenExtractOrFindSchema(schemaNameAndSchemaMap: MutableMap<Model, String>, ordersSchema: Model, shopsSchema: Model) {
         OpenApi20Generator.extractOrFindSchema(schemaNameAndSchemaMap, ordersSchema, OpenApi20Generator.generateSchemaName("/orders"))
         OpenApi20Generator.extractOrFindSchema(schemaNameAndSchemaMap, shopsSchema, OpenApi20Generator.generateSchemaName("/shops"))
     }
