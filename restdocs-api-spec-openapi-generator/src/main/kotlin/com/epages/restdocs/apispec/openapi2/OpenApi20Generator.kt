@@ -94,7 +94,7 @@ object OpenApi20Generator {
     }
 
     private fun extractDefinitions(swagger: Swagger): Swagger {
-        val schemaNameToModel = HashMap<String, Model>()
+        val schemasToKeys = HashMap<Model, String>()
         val operationToPathKey = HashMap<Operation, String>()
 
         swagger.paths
@@ -114,7 +114,7 @@ object OpenApi20Generator {
                 ?.let {
                     it.schema(
                         extractOrFindSchema(
-                            schemaNameToModel,
+                            schemasToKeys,
                             it.schema,
                             generateSchemaName(pathKey)
                         )
@@ -126,7 +126,7 @@ object OpenApi20Generator {
                 .forEach {
                     it.responseSchema(
                         extractOrFindSchema(
-                            schemaNameToModel,
+                            schemasToKeys,
                             it.responseSchema,
                             generateSchemaName(pathKey)
                         )
@@ -134,7 +134,10 @@ object OpenApi20Generator {
                 }
         }
 
-        swagger.definitions = schemaNameToModel
+        swagger.definitions =
+            schemasToKeys.keys.map {
+                schemasToKeys.getValue(it) to it
+            }.toMap()
 
         return swagger
     }
@@ -146,11 +149,15 @@ object OpenApi20Generator {
             ?.firstOrNull()
     }
 
-    internal fun extractOrFindSchema(schemaNameToModel: HashMap<String, Model>, schema: Model, schemaNameGenerator: (Model) -> String): Model {
-        val schemaName = schemaNameGenerator(schema)
-        schemaNameToModel[schemaName] = schema
-
-        return RefModel("#/definitions/$schemaName")
+    internal fun extractOrFindSchema(schemasToKeys: MutableMap<Model, String>, schema: Model, schemaNameGenerator: (Model) -> String): Model {
+        val schemaKey = if (schemasToKeys.containsKey(schema)) {
+            schemasToKeys[schema]!!
+        } else {
+            val name = schemaNameGenerator(schema)
+            schemasToKeys[schema] = name
+            name
+        }
+        return RefModel("#/definitions/$schemaKey")
     }
 
     internal fun generateSchemaName(path: String): (Model) -> String {
@@ -192,8 +199,8 @@ object OpenApi20Generator {
 
     private fun responsesByStatusCode(resources: List<ResourceModel>): Map<String, ResponseModel> {
         return resources.groupBy { it.response.status }
-                .mapKeys { it.key.toString() }
-                .mapValues { it.value[0].response }
+            .mapKeys { it.key.toString() }
+            .mapValues { it.value[0].response }
     }
 
     private fun resourceModels2Path(
@@ -266,34 +273,34 @@ object OpenApi20Generator {
             consumes = modelsWithSamePathAndMethod.map { it.request.contentType }.distinct().filterNotNull().nullIfEmpty()
             produces = modelsWithSamePathAndMethod.map { it.response.contentType }.distinct().filterNotNull().nullIfEmpty()
             parameters =
-                    extractPathParameters(
-                        firstModelForPathAndMethod
-                    ).plus(
-                        modelsWithSamePathAndMethod
-                                .flatMap { it.request.requestParameters }
-                                .distinctBy { it.name }
-                                .map { requestParameterDescriptor2Parameter(it)
-                                }).plus(
-                        modelsWithSamePathAndMethod
-                                .flatMap { it.request.headers }
-                                .distinctBy { it.name }
-                                .map { header2Parameter(it)
-                            }
-                    ).plus(
-                        listOfNotNull<Parameter>(
-                            requestFieldDescriptor2Parameter(
-                                modelsWithSamePathAndMethod.flatMap { it.request.requestFields },
-                                modelsWithSamePathAndMethod
-                                    .filter { it.request.contentType != null && it.request.example != null }
-                                    .map { it.request.contentType!! to it.request.example!! }
-                                    .toMap())
-                        )
-                    ).nullIfEmpty()
+                extractPathParameters(
+                    firstModelForPathAndMethod
+                ).plus(
+                    modelsWithSamePathAndMethod
+                        .flatMap { it.request.requestParameters }
+                        .distinctBy { it.name }
+                        .map { requestParameterDescriptor2Parameter(it)
+                        }).plus(
+                    modelsWithSamePathAndMethod
+                        .flatMap { it.request.headers }
+                        .distinctBy { it.name }
+                        .map { header2Parameter(it)
+                        }
+                ).plus(
+                    listOfNotNull<Parameter>(
+                        requestFieldDescriptor2Parameter(
+                            modelsWithSamePathAndMethod.flatMap { it.request.requestFields },
+                            modelsWithSamePathAndMethod
+                                .filter { it.request.contentType != null && it.request.example != null }
+                                .map { it.request.contentType!! to it.request.example!! }
+                                .toMap())
+                    )
+                ).nullIfEmpty()
             responses = responsesByStatusCode(
                 modelsWithSamePathAndMethod
             )
-                    .mapValues { responseModel2Response(it.value) }
-                    .nullIfEmpty()
+                .mapValues { responseModel2Response(it.value) }
+                .nullIfEmpty()
         }.apply {
             val securityRequirements = firstModelForPathAndMethod.request.securityRequirements
             if (securityRequirements != null) {
