@@ -5,7 +5,6 @@ plugins {
 }
 repositories {
     mavenCentral()
-    maven { url = uri("https://jitpack.io") }
 }
 
 val jacksonVersion: String by extra
@@ -32,7 +31,7 @@ dependencies {
     testCompile("com.jayway.jsonpath:json-path:2.3.0")
 
     testImplementation("com.github.java-json-tools:json-schema-validator:2.2.10")
-    testImplementation("com.github.everit-org.json-schema:org.everit.json.schema:1.9.1")
+    testImplementation("com.github.erosb:everit-json-schema:1.11.0")
 }
 
 

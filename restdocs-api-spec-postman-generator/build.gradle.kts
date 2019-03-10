@@ -7,7 +7,6 @@ plugins {
 repositories {
     mavenCentral()
     jcenter()
-    maven { url = uri("https://jitpack.io") }
 }
 
 val junitVersion: String by extra

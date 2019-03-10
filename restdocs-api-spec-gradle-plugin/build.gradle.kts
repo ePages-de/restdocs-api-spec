@@ -4,7 +4,6 @@ import org.jetbrains.kotlin.serialization.js.DynamicTypeDeserializer.id
 repositories {
     mavenCentral()
     jcenter()
-    maven { url = uri("https://jitpack.io") }
 }
 
 
