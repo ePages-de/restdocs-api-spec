@@ -85,11 +85,10 @@ buildscript {
     repositories {
     //..
         jcenter() //1
-        maven { url = uri("https://jitpack.io") } //1
     }
     dependencies {
         //..
-        classpath("com.epages:restdocs-api-spec-gradle-plugin:0.8.1") //2
+        classpath("com.epages:restdocs-api-spec-gradle-plugin:0.9.0") //2
     }
 }
 //..
@@ -103,7 +102,7 @@ repositories { //4
 
 dependencies {
     //..
-    testCompile('com.epages:restdocs-api-spec-mockmvc:0.8.1') //5
+    testCompile('com.epages:restdocs-api-spec-mockmvc:0.9.0') //5
 }
 
 openapi { //6
@@ -132,7 +131,7 @@ postman {
 }
 ```
 
-1. add `jcenter` and [jitpack](https://jitpack.io) repositories to `buildscript`. The first is used to resolve the `restdocs-api-spec-gradle-plugin`, the latter is needed for a dependency of the project.
+1. add `jcenter` repositories to `buildscript` to resolve the `restdocs-api-spec-gradle-plugin`.
 2. add the dependency to `restdocs-api-spec-gradle-plugin`
 3. apply `restdocs-api-spec-gradle-plugin`
 4. add the `jcenter` repository used to resolve the `com.epages:restdocs-api-spec` module of the project.
