@@ -13,10 +13,14 @@ cache:
 install: true
 script: "./gradlew clean build coveralls"
 deploy:
-  provider: script
-  script: "./gradlew binTrayUpload"
-  on:
-    tags: true
+  - provider: script
+    script: "./gradlew binTrayUpload"
+    on:
+      tags: true
+  - provider: script
+    script: "./gradlew publishPlugins -p restdocs-api-spec-gradle-plugin"
+    on:
+      tags: true
 env:
   global:
   - CI_NAME=travis-ci

@@ -84,63 +84,71 @@ The [ResourceSnippet](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apis
 
 #### Gradle
 
-```groovy
-buildscript {
-    repositories {
-    //..
-        jcenter() //1
+1. Add the plugin
+    * Using the [plugins DSL](https://docs.gradle.org/current/userguide/plugins.html#sec:plugins_block):
+        ```groovy
+        plugins {
+            id 'com.epages.restdocs-api-spec' version '0.9.5'
+        }
+        ```
+        Examples with Kotlin are also available [here](https://plugins.gradle.org/plugin/com.epages.restdocs-api-spec)
+    * __OR__ Using [legacy plugin application](https://docs.gradle.org/current/userguide/plugins.html#sec:old_plugin_application):
+        * *1.1* Use of `buildscript` requires you to add `jcenter` repositories to `buildscript` to resolve the `restdocs-api-spec-gradle-plugin`.
+        * *1.2* add the dependency to `restdocs-api-spec-gradle-plugin`
+        * *1.3* apply `restdocs-api-spec-gradle-plugin`
+        ```groovy
+        buildscript {
+            repositories {
+                jcenter() //1.1
+            }
+            dependencies {
+                classpath('com.epages:restdocs-api-spec-gradle-plugin:0.9.5') //1.2
+            }
+        }
+  
+        apply plugin: 'com.epages.restdocs-api-spec' //1.3
+        
+        ```
+2. Add required dependencies to your tests
+    * *2.1* add the `jcenter` repository used to resolve the `com.epages:restdocs-api-spec` module of the project.
+    * *2.2* add the actual `restdocs-api-spec-mockmvc` dependency to the test scope. Use `restdocs-api-spec-restassured` if you use `RestAssured` instead of `MockMvc`.
+    * *2.3* add configuration options for restdocs-api-spec-gradle-plugin`. See [Gradle plugin configuration](#gradle-plugin-configuration) 
+    ```groovy
+    
+    repositories { //2.1
+        jcenter()
     }
+    
     dependencies {
         //..
-        classpath("com.epages:restdocs-api-spec-gradle-plugin:0.9.5") //2
+        testCompile('com.epages:restdocs-api-spec-mockmvc:0.9.5') //2.2
     }
-}
-//..
-apply plugin: 'com.epages.restdocs-api-spec' //3
-
-repositories { //4
-    jcenter()
-}
-
-//..
-
-dependencies {
-    //..
-    testCompile('com.epages:restdocs-api-spec-mockmvc:0.9.5') //5
-}
-
-openapi { //6
-    host = 'localhost:8080'
-    basePath = '/api'
-    title = 'My API'
-    description = 'My API description'
-    tagDescriptionsPropertiesFile = 'src/docs/tag-descriptions.yaml'
-    version = '1.0.0'
-    format = 'json'
-}
-
-openapi3 {
-	server = 'https://localhost:8080'
-	title = 'My API'
-	description = 'My API description'
-	tagDescriptionsPropertiesFile = 'src/docs/tag-descriptions.yaml'
-	version = '0.1.0'
-	format = 'yaml'
-}
-
-postman {
-    title = 'My API'
-    version = '0.1.0'
-    baseUrl = 'https://localhost:8080'
-}
-```
-
-1. add `jcenter` repositories to `buildscript` to resolve the `restdocs-api-spec-gradle-plugin`.
-2. add the dependency to `restdocs-api-spec-gradle-plugin`
-3. apply `restdocs-api-spec-gradle-plugin`
-4. add the `jcenter` repository used to resolve the `com.epages:restdocs-api-spec` module of the project.
-5. add the actual `restdocs-api-spec-mockmvc` dependency to the test scope. Use `restdocs-api-spec-restassured` if you use `RestAssured` instead of `MockMvc`.
-6. add configuration options for restdocs-api-spec-gradle-plugin`. See [Gradle plugin configuration](#gradle-plugin-configuration)
+    
+    openapi { //2.3
+        host = 'localhost:8080'
+        basePath = '/api'
+        title = 'My API'
+        description = 'My API description'
+        tagDescriptionsPropertiesFile = 'src/docs/tag-descriptions.yaml'
+        version = '1.0.0'
+        format = 'json'
+    }
+    
+    openapi3 {
+        server = 'https://localhost:8080'
+        title = 'My API'
+        description = 'My API description'
+        tagDescriptionsPropertiesFile = 'src/docs/tag-descriptions.yaml'
+        version = '0.1.0'
+        format = 'yaml'
+    }
+    
+    postman {
+        title = 'My API'
+        version = '0.1.0'
+        baseUrl = 'https://localhost:8080'
+    }
+    ```
 
 See the [build.gradle](samples/restdocs-api-spec-sample/build.gradle) for the setup used in the sample project.
 
