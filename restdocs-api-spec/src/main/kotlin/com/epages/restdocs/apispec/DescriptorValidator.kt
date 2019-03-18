@@ -83,7 +83,7 @@ internal object DescriptorValidator {
     private fun toParameterDescriptors(parameters: List<ParameterDescriptorWithType>) =
         parameters.map { p -> parameterWithName(p.name).description(p.description)
             .apply { if (p.optional) optional() }
-            .apply { if (p.isIgnored) optional() }
+            .apply { if (p.isIgnored) ignored() }
         }
 
     private fun toHeaderDescriptors(requestHeaders: List<HeaderDescriptorWithType>) =
