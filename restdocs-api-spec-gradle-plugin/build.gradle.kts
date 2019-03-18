@@ -22,13 +22,13 @@ gradlePlugin {
 
 pluginBundle {
     website = "https://github.com/ePages-de/restdocs-api-spec"
-    vcsUrl = "git@github.com:ePages-de/restdocs-api-spec.git"
-    tags = listOf("ePages", "Spring", "RestDocs", "Gradle", "plugin", "openapi", "openapi3", "postman", "api", "specification")
+    vcsUrl = "https://github.com/ePages-de/restdocs-api-spec"
+    tags = listOf("spring", "restdocs", "openapi", "openapi3", "postman", "api", "specification")
     description = "Extends Spring REST Docs with API specifications in OpenAPI2, OpenAPI3 and Postman Collections formats"
 
     (plugins) {
         "com.epages.restdocs-api-spec" {
-            displayName = "ePages Spring RestDocs API Spec Gradle Plugin"
+            displayName = "restdocs-api-spec gradle plugin"
         }
     }
 
