@@ -137,6 +137,18 @@ class ResourceSnippetTest {
     }
 
     @Test
+    fun should_filter_ignored_parameters() {
+        givenOperationWithRequestParameters()
+        givenIgnoredAndNotIgnoredRequestParameterDescriptors()
+
+        whenResourceSnippetInvoked()
+
+        thenSnippetFileExists()
+        then(resourceSnippetJson.read<List<*>>("request.requestParameters")).hasSize(1)
+        then(resourceSnippetJson.read<String>("request.requestParameters[0].name")).isEqualTo("describedParameter")
+    }
+
+    @Test
     fun should_fail_on_missing_url_template() {
         givenOperationWithoutUrlTemplate()
 
@@ -274,6 +286,23 @@ class ResourceSnippetTest {
         operation = operationBuilder.build()
     }
 
+    private fun givenOperationWithRequestParameters() {
+        val operationBuilder = OperationBuilder("test", rootOutputDirectory)
+
+        operationBuilder
+            .attribute(ATTRIBUTE_NAME_URL_TEMPLATE, "http://localhost:8080/some/{id}")
+            .request("http://localhost:8080/some/123")
+            .param("describedParameter", "will", "be", "documented")
+            .param("obviousParameter", "wont", "be", "documented")
+            .method("GET")
+
+        operationBuilder
+            .response()
+            .status(204)
+
+        operation = operationBuilder.build()
+    }
+
     private fun givenRequestFieldDescriptors() {
         parametersBuilder.requestFields(fieldWithPath("comment").description("description"))
     }
@@ -292,6 +321,12 @@ class ResourceSnippetTest {
         parametersBuilder.responseFields(
             fieldWithPath("comment").description("description"),
             fieldWithPath("ignored").description("description").ignored())
+    }
+
+    private fun givenIgnoredAndNotIgnoredRequestParameterDescriptors() {
+        parametersBuilder.requestParameters(
+            parameterWithName("describedParameter").description("description"),
+            parameterWithName("obviousParameter").description("needs no documentation, too obvious").ignored())
     }
 
     private fun givenOperationWithRequestAndResponseBody() {
