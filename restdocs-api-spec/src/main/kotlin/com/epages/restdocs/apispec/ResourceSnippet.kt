@@ -67,8 +67,8 @@ class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetPara
                 method = operation.request.method.name,
                 contentType = if (hasRequestBody) getContentTypeOrDefault(operation.request.headers) else null,
                 headers = resourceSnippetParameters.requestHeaders.withExampleValues(operation.request.headers),
-                pathParameters = resourceSnippetParameters.pathParameters,
-                requestParameters = resourceSnippetParameters.requestParameters,
+                pathParameters = resourceSnippetParameters.pathParameters.filter { !it.isIgnored },
+                requestParameters = resourceSnippetParameters.requestParameters.filter { !it.isIgnored },
                 requestFields = if (hasRequestBody) resourceSnippetParameters.requestFields.filter { !it.isIgnored } else emptyList(),
                 example = if (hasRequestBody) operation.request.contentAsString else null,
                 securityRequirements = securityRequirements
