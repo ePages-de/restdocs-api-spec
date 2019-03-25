@@ -14,13 +14,22 @@ class JwtSecurityHandlerTest {
     private lateinit var operation: Operation
 
     @Test
-    fun should_add_scope_list() {
-        givenRequestWithJwtInAuthorizationHeader()
+    fun `should add scope list when oauth2 jwt is found in Authorization header`() {
+        givenRequestWithOAuth2JwtInAuthorizationHeader()
 
         whenSecurityRequirementsExtracted(operation)
 
         then(securityRequirement).isNotNull
         then((securityRequirement as Oauth2).requiredScopes).containsExactly("scope1", "scope2")
+    }
+
+    @Test
+    fun `should return SecurityType of JWTBearer when non oauth2 jwt is found in Authorization header`() {
+        givenRequestWithNonOAuth2JwtInAuthorizationHeader()
+
+        whenSecurityRequirementsExtracted(operation)
+
+        then(securityRequirement).isEqualTo(JWTBearer)
     }
 
     @Test
@@ -54,11 +63,20 @@ class JwtSecurityHandlerTest {
         securityRequirement = jwtSecurityHandler.extractSecurityRequirements(operation)
     }
 
-    private fun givenRequestWithJwtInAuthorizationHeader() {
+    private fun givenRequestWithOAuth2JwtInAuthorizationHeader() {
         operation = OperationBuilder().request("/some")
             .header(
                 AUTHORIZATION,
                 "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzY29wZSI6WyJzY29wZTEiLCJzY29wZTIiXSwiZXhwIjoxNTA3NzU4NDk4LCJpYXQiOjE1MDc3MTUyOTgsImp0aSI6IjQyYTBhOTFhLWQ2ZWQtNDBjYy1iMTA2LWU5MGNkYWU0M2Q2ZCJ9.eWGo7Y124_Hdrr-bKX08d_oCfdgtlGXo9csz-hvRhRORJi_ZK7PIwM0ChqoLa4AhR-dJ86npid75GB9IxCW2f5E24FyZW2p5swpOpfkEAA4oFuj7jxHiaiqL_HFKKCRsVNAN3hGiSp9Hn3fde0-LlABqMaihdzZzHL-xm8-CqbXT-qBfuscDImZrZQZqhizpSEV4idbEMzZykggLASGoOIL0t0ycfe3yeuQkMUhzZmXuu08VM7zXwWnqfXCa-RmA6wC7ZnWqiJoi0vBr4BrlLR067YoUrT6pgRfiy2HZ0vEE_XY5SBtA-qI2QnlJb7eTk7pgFtoGkYdeOZ86k6GDVw"
+            )
+            .build()
+    }
+
+    private fun givenRequestWithNonOAuth2JwtInAuthorizationHeader() {
+        operation = OperationBuilder().request("/some")
+            .header(
+                AUTHORIZATION,
+                "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
             )
             .build()
     }

@@ -14,19 +14,44 @@ import java.util.Collections.emptyList
 internal class JwtSecurityHandler : SecurityRequirementsExtractor {
 
     override fun extractSecurityRequirements(operation: Operation): SecurityRequirements? {
+        if (!hasJWTBearer(operation)) return null
+
         val scopes = extractScopes(operation)
         return if (scopes.isNotEmpty()) {
             Oauth2(scopes)
-        } else null
+        } else JWTBearer
+    }
+
+    private fun hasJWTBearer(operation: Operation): Boolean {
+        return getJWT(operation)
+                .any { isJWT(it) }
+    }
+
+    private fun getJWT(operation: Operation) = operation.request.headers
+            .filterKeys { it == HttpHeaders.AUTHORIZATION }
+            .flatMap { it.value }
+            .filter { it.startsWith("Bearer ") }
+            .map { it.replace("Bearer ", "") }
+
+    private fun isJWT(jwt: String): Boolean {
+        val jwtParts = jwt.split("\\.".toRegex()).dropLastWhile { it.isEmpty() }
+        if (jwtParts.size >= 2) { // JWT = header, payload, signature; at least the first two should be there
+            val jwtHeader = jwtParts[0]
+            val decodedJwtHeader = String(Base64.getDecoder().decode(jwtHeader))
+            try {
+                val jwtMap = ObjectMapper().readValue<Map<String, Any>>(decodedJwtHeader)
+                return jwtMap["typ"] == "JWT"
+
+            } catch (e: IOException) {
+                // probably not JWT
+            }
+        }
+        return false
     }
 
     private fun extractScopes(operation: Operation): List<String> {
-        return operation.request.headers
-            .filterKeys { it == HttpHeaders.AUTHORIZATION }
-            .flatMap { it.value }
-            .filter { it.contains("Bearer ") }
-            .map { it.replace("Bearer ", "") }
-            .flatMap { jwt2scopes(it) }
+        return getJWT(operation)
+                .flatMap { jwt2scopes(it) }
     }
 
     @Suppress("UNCHECKED_CAST")

@@ -49,8 +49,13 @@ internal object Basic : SecurityRequirements {
     override val type = SecurityType.BASIC
 }
 
+internal object JWTBearer : SecurityRequirements {
+    override val type = SecurityType.JWT_BEARER
+}
+
 internal enum class SecurityType {
     OAUTH2,
     BASIC,
-    API_KEY
+    API_KEY,
+    JWT_BEARER
 }
