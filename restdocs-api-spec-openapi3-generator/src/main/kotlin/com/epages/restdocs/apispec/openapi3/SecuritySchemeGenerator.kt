@@ -5,16 +5,13 @@ import com.epages.restdocs.apispec.model.SecurityRequirements
 import com.epages.restdocs.apispec.model.SecurityType
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.Operation
-import io.swagger.v3.oas.models.security.OAuthFlow
-import io.swagger.v3.oas.models.security.OAuthFlows
-import io.swagger.v3.oas.models.security.Scopes
-import io.swagger.v3.oas.models.security.SecurityRequirement
-import io.swagger.v3.oas.models.security.SecurityScheme
+import io.swagger.v3.oas.models.security.*
 
 internal object SecuritySchemeGenerator {
 
     private const val API_KEY_SECURITY_NAME = "api_key"
     private const val BASIC_SECURITY_NAME = "basic"
+    private const val JWT_BEARER_SECURITY_NAME = "bearerAuthJWT"
 
     fun OpenAPI.addSecurityDefinitions(oauth2SecuritySchemeDefinition: Oauth2Configuration?) {
         if (oauth2SecuritySchemeDefinition?.flows?.isNotEmpty() == true) {
@@ -63,6 +60,14 @@ internal object SecuritySchemeGenerator {
                 name = "Authorization"
             })
         }
+
+        if (hasAnyOperationWithSecurityName(this, JWT_BEARER_SECURITY_NAME)) {
+            components.addSecuritySchemes(JWT_BEARER_SECURITY_NAME, SecurityScheme().apply {
+                type = SecurityScheme.Type.HTTP
+                scheme = "bearer"
+                bearerFormat = "JWT"
+            })
+        }
     }
 
     fun Operation.addSecurityItemFromSecurityRequirements(securityRequirements: SecurityRequirements?, oauth2SecuritySchemeDefinition: Oauth2Configuration?) {
@@ -77,6 +82,7 @@ internal object SecuritySchemeGenerator {
                 }
                 SecurityType.BASIC -> addSecurityItem(SecurityRequirement().addList(BASIC_SECURITY_NAME))
                 SecurityType.API_KEY -> addSecurityItem(SecurityRequirement().addList(API_KEY_SECURITY_NAME))
+                SecurityType.JWT_BEARER -> addSecurityItem(SecurityRequirement().addList(JWT_BEARER_SECURITY_NAME))
             }
         }
     }

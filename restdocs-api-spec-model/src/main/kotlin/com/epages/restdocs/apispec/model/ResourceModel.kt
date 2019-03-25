@@ -1,6 +1,6 @@
 package com.epages.restdocs.apispec.model
 
-import java.util.Comparator
+import java.util.*
 
 data class ResourceModel(
     val operationId: String,
@@ -105,7 +105,8 @@ data class SecurityRequirements(
 enum class SecurityType {
     OAUTH2,
     BASIC,
-    API_KEY
+    API_KEY,
+    JWT_BEARER
 }
 
 enum class HTTPMethod {
