@@ -7,7 +7,7 @@ internal class SecurityRequirementsHandler {
 
     private val handlers = listOf(
             BasicSecurityHandler(),
-            JwtScopeHandler()
+            JwtSecurityHandler()
     )
 
     fun extractSecurityRequirements(operation: Operation): SecurityRequirements? {

@@ -11,7 +11,7 @@ import java.util.Collections.emptyList
 /**
  * Extract a list of scopes from a JWT token
  */
-internal class JwtScopeHandler : SecurityRequirementsExtractor {
+internal class JwtSecurityHandler : SecurityRequirementsExtractor {
 
     override fun extractSecurityRequirements(operation: Operation): SecurityRequirements? {
         val scopes = extractScopes(operation)
@@ -20,7 +20,7 @@ internal class JwtScopeHandler : SecurityRequirementsExtractor {
         } else null
     }
 
-    fun extractScopes(operation: Operation): List<String> {
+    private fun extractScopes(operation: Operation): List<String> {
         return operation.request.headers
             .filterKeys { it == HttpHeaders.AUTHORIZATION }
             .flatMap { it.value }

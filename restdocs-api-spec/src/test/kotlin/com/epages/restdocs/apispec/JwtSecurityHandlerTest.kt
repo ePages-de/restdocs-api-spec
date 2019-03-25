@@ -5,11 +5,11 @@ import org.junit.jupiter.api.Test
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.restdocs.operation.Operation
 
-class JwtScopeHandlerTest {
+class JwtSecurityHandlerTest {
 
-    private val jwtScopeHandler = JwtScopeHandler()
+    private val jwtSecurityHandler = JwtSecurityHandler()
 
-    private lateinit var scopes: List<String>
+    private var securityRequirement: SecurityRequirements? = null
 
     private lateinit var operation: Operation
 
@@ -17,40 +17,41 @@ class JwtScopeHandlerTest {
     fun should_add_scope_list() {
         givenRequestWithJwtInAuthorizationHeader()
 
-        whenModelGenerated(operation)
+        whenSecurityRequirementsExtracted(operation)
 
-        then(scopes).containsExactly("scope1", "scope2")
+        then(securityRequirement).isNotNull
+        then((securityRequirement as Oauth2).requiredScopes).containsExactly("scope1", "scope2")
     }
 
     @Test
     fun should_do_nothing_when_authorization_header_missing() {
         givenRequestWithoutAuthorizationHeader()
 
-        whenModelGenerated(operation)
+        whenSecurityRequirementsExtracted(operation)
 
-        then(scopes).isEmpty()
+        then(securityRequirement).isNull()
     }
 
     @Test
     fun should_do_nothing_when_token_not_jwt() {
         givenRequestWithNonJwtInAuthorizationHeader()
 
-        whenModelGenerated(operation)
+        whenSecurityRequirementsExtracted(operation)
 
-        then(scopes).isEmpty()
+        then(securityRequirement).isNull()
     }
 
     @Test
     fun should_do_nothing_when_authorization_header_does_not_contain_jwt() {
         givenRequestWithBasicAuthHeader()
 
-        whenModelGenerated(operation)
+        whenSecurityRequirementsExtracted(operation)
 
-        then(scopes).isEmpty()
+        then(securityRequirement).isNull()
     }
 
-    private fun whenModelGenerated(operation: Operation) {
-        scopes = jwtScopeHandler.extractScopes(operation)
+    private fun whenSecurityRequirementsExtracted(operation: Operation) {
+        securityRequirement = jwtSecurityHandler.extractSecurityRequirements(operation)
     }
 
     private fun givenRequestWithJwtInAuthorizationHeader() {
