@@ -1,6 +1,6 @@
 package com.epages.restdocs.apispec.model
 
-import java.util.*
+import java.util.Comparator
 
 data class ResourceModel(
     val operationId: String,

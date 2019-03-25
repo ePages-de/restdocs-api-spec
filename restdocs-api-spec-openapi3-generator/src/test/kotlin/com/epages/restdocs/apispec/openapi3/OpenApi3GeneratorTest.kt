@@ -1,6 +1,15 @@
 package com.epages.restdocs.apispec.openapi3
 
-import com.epages.restdocs.apispec.model.*
+import com.epages.restdocs.apispec.model.FieldDescriptor
+import com.epages.restdocs.apispec.model.HTTPMethod
+import com.epages.restdocs.apispec.model.HeaderDescriptor
+import com.epages.restdocs.apispec.model.Oauth2Configuration
+import com.epages.restdocs.apispec.model.ParameterDescriptor
+import com.epages.restdocs.apispec.model.RequestModel
+import com.epages.restdocs.apispec.model.ResourceModel
+import com.epages.restdocs.apispec.model.ResponseModel
+import com.epages.restdocs.apispec.model.SecurityRequirements
+import com.epages.restdocs.apispec.model.SecurityType
 import com.jayway.jsonpath.Configuration
 import com.jayway.jsonpath.DocumentContext
 import com.jayway.jsonpath.JsonPath
