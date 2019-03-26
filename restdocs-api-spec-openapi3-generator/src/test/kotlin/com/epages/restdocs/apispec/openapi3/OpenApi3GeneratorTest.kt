@@ -33,11 +33,20 @@ class OpenApi3GeneratorTest {
         whenOpenApiObjectGenerated()
 
         thenGetProductByIdOperationIsValid()
-        thenSecuritySchemesPresent()
+        thenOAuth2SecuritySchemesPresent()
         thenInfoFieldsPresent()
         thenTagFieldsPresent()
         thenServersPresent()
         thenOpenApiSpecIsValid()
+    }
+
+    @Test
+    fun `should convert resource model with JWT Bearer SecurityRequirements to openapi`() {
+        givenGetProductResourceModelWithJWTSecurityRequirement()
+
+        whenOpenApiObjectGeneratedWithoutOAuth2()
+
+        thenJWTSecuritySchemesPresent()
     }
 
     @Test
@@ -181,7 +190,7 @@ class OpenApi3GeneratorTest {
         then(openApiJsonPathContext.read<String>("tags[1].description")).isEqualTo("tag2 description")
     }
 
-    private fun thenSecuritySchemesPresent() {
+    private fun thenOAuth2SecuritySchemesPresent() {
         then(openApiJsonPathContext.read<String>("components.securitySchemes.oauth2.type")).isEqualTo("oauth2")
         then(openApiJsonPathContext.read<Map<String, Any>>("components.securitySchemes.oauth2.flows"))
             .containsKeys("clientCredentials", "authorizationCode")
@@ -189,6 +198,12 @@ class OpenApi3GeneratorTest {
             .containsKeys("prod:r")
         then(openApiJsonPathContext.read<Map<String, Any>>("components.securitySchemes.oauth2.flows.authorizationCode.scopes"))
             .containsKeys("prod:r")
+    }
+
+    private fun thenJWTSecuritySchemesPresent() {
+        then(openApiJsonPathContext.read<String>("components.securitySchemes.bearerAuthJWT.type")).isEqualTo("http")
+        then(openApiJsonPathContext.read<String>("components.securitySchemes.bearerAuthJWT.scheme")).isEqualTo("bearer")
+        then(openApiJsonPathContext.read<String>("components.securitySchemes.bearerAuthJWT.bearerFormat")).isEqualTo("JWT")
     }
 
     private fun whenOpenApiObjectGenerated() {
@@ -208,6 +223,20 @@ class OpenApi3GeneratorTest {
         println(openApiSpecJsonString)
         openApiJsonPathContext = JsonPath.parse(openApiSpecJsonString, Configuration.defaultConfiguration().addOptions(
             Option.SUPPRESS_EXCEPTIONS))
+    }
+
+    private fun whenOpenApiObjectGeneratedWithoutOAuth2() {
+        openApiSpecJsonString = OpenApi3Generator.generateAndSerialize(
+                resources = resources,
+                servers = listOf(Server().apply { url = "https://localhost/api" }),
+                format = "json",
+                description = "API Description",
+                tagDescriptions = mapOf("tag1" to "tag1 description", "tag2" to "tag2 description")
+        )
+
+        println(openApiSpecJsonString)
+        openApiJsonPathContext = JsonPath.parse(openApiSpecJsonString, Configuration.defaultConfiguration().addOptions(
+                Option.SUPPRESS_EXCEPTIONS))
     }
 
     private fun givenResourcesWithSamePathAndContentType() {
@@ -397,6 +426,21 @@ class OpenApi3GeneratorTest {
         )
     }
 
+    private fun givenGetProductResourceModelWithJWTSecurityRequirement() {
+        resources = listOf(
+                ResourceModel(
+                        operationId = "test",
+                        summary = "summary",
+                        description = "description",
+                        privateResource = false,
+                        deprecated = false,
+                        tags = setOf("tag1", "tag2"),
+                        request = getProductRequest(::getJWTSecurityRequirement),
+                        response = getProductResponse()
+                )
+        )
+    }
+
     private fun getProductErrorResponse(): ResponseModel {
         return ResponseModel(
             status = 400,
@@ -533,14 +577,11 @@ class OpenApi3GeneratorTest {
         )
     }
 
-    private fun getProductRequest(): RequestModel {
+    private fun getProductRequest(getSecurityRequirement: () -> SecurityRequirements = ::getOAuth2SecurityRequirement): RequestModel {
         return RequestModel(
                 path = "/products/{id}",
                 method = HTTPMethod.GET,
-                securityRequirements = SecurityRequirements(
-                        type = SecurityType.OAUTH2,
-                        requiredScopes = listOf("prod:r")
-                ),
+                securityRequirements = getSecurityRequirement(),
                 headers = listOf(
                     HeaderDescriptor(
                         name = "Authorization",
@@ -570,6 +611,15 @@ class OpenApi3GeneratorTest {
                 requestFields = listOf()
         )
     }
+
+    private fun getOAuth2SecurityRequirement() = SecurityRequirements(
+            type = SecurityType.OAUTH2,
+            requiredScopes = listOf("prod:r")
+    )
+
+    private fun getJWTSecurityRequirement() = SecurityRequirements(
+            type = SecurityType.JWT_BEARER
+    )
 
     private fun getProductRequestWithDifferentParameter(name: String, description: String): RequestModel {
         return getProductRequest().copy(requestParameters = listOf(

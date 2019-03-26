@@ -105,7 +105,8 @@ data class SecurityRequirements(
 enum class SecurityType {
     OAUTH2,
     BASIC,
-    API_KEY
+    API_KEY,
+    JWT_BEARER
 }
 
 enum class HTTPMethod {

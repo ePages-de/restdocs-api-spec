@@ -15,6 +15,7 @@ internal object SecuritySchemeGenerator {
 
     private const val API_KEY_SECURITY_NAME = "api_key"
     private const val BASIC_SECURITY_NAME = "basic"
+    private const val JWT_BEARER_SECURITY_NAME = "bearerAuthJWT"
 
     fun OpenAPI.addSecurityDefinitions(oauth2SecuritySchemeDefinition: Oauth2Configuration?) {
         if (oauth2SecuritySchemeDefinition?.flows?.isNotEmpty() == true) {
@@ -63,6 +64,14 @@ internal object SecuritySchemeGenerator {
                 name = "Authorization"
             })
         }
+
+        if (hasAnyOperationWithSecurityName(this, JWT_BEARER_SECURITY_NAME)) {
+            components.addSecuritySchemes(JWT_BEARER_SECURITY_NAME, SecurityScheme().apply {
+                type = SecurityScheme.Type.HTTP
+                scheme = "bearer"
+                bearerFormat = "JWT"
+            })
+        }
     }
 
     fun Operation.addSecurityItemFromSecurityRequirements(securityRequirements: SecurityRequirements?, oauth2SecuritySchemeDefinition: Oauth2Configuration?) {
@@ -77,6 +86,7 @@ internal object SecuritySchemeGenerator {
                 }
                 SecurityType.BASIC -> addSecurityItem(SecurityRequirement().addList(BASIC_SECURITY_NAME))
                 SecurityType.API_KEY -> addSecurityItem(SecurityRequirement().addList(API_KEY_SECURITY_NAME))
+                SecurityType.JWT_BEARER -> addSecurityItem(SecurityRequirement().addList(JWT_BEARER_SECURITY_NAME))
             }
         }
     }
