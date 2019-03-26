@@ -160,6 +160,7 @@ class OpenApi3GeneratorTest {
         then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'locale')].schema.type")).containsOnly("string")
         then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'Authorization')].in")).containsOnly("header")
         then(openApiJsonPathContext.read<List<Boolean>>("$productGetByIdPath.parameters[?(@.name == 'Authorization')].required")).containsOnly(true)
+        then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'Authorization')].example")).containsOnly("some example")
         then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'Authorization')].schema.type")).containsOnly("string")
 
         then(openApiJsonPathContext.read<String>("$productGetByIdPath.requestBody")).isNull()
@@ -583,11 +584,12 @@ class OpenApi3GeneratorTest {
                 method = HTTPMethod.GET,
                 securityRequirements = getSecurityRequirement(),
                 headers = listOf(
-                    HeaderDescriptor(
-                        name = "Authorization",
-                        description = "Access token",
-                        type = "string",
-                        optional = false
+                        HeaderDescriptor(
+                                name = "Authorization",
+                                description = "Access token",
+                                type = "string",
+                                optional = false,
+                                example = "some example"
                     )
                 ),
                 pathParameters = listOf(
