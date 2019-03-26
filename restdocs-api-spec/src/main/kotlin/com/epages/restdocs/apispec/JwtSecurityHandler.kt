@@ -39,8 +39,8 @@ internal class JwtSecurityHandler : SecurityRequirementsExtractor {
             val jwtHeader = jwtParts[0]
             val decodedJwtHeader = String(Base64.getDecoder().decode(jwtHeader))
             try {
-                val jwtMap = ObjectMapper().readValue<Map<String, Any>>(decodedJwtHeader)
-                return jwtMap["typ"] == "JWT"
+                return ObjectMapper().readValue<Map<String, Any>>(decodedJwtHeader)
+                        .containsKey("alg")
             } catch (e: IOException) {
                 // probably not JWT
             }
