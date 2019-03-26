@@ -16,8 +16,11 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.springframework.data.rest.webmvc.RestMediaTypes.HAL_JSON;
 import static org.springframework.data.rest.webmvc.RestMediaTypes.JSON_PATCH_JSON;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
+import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
@@ -61,6 +64,7 @@ public class ProductRestIntegrationTest extends BaseIntegrationTest {
                         fieldWithPath("page.number").description("The current page number."),
                         fieldWithPath("page").description("Paging information"),
                         subsectionWithPath("_links").description("Links section")),
+
                         links(
                                 linkWithRel("first").description("Link to the first page"),
                                 linkWithRel("next").description("Link to the next page"),
@@ -68,6 +72,7 @@ public class ProductRestIntegrationTest extends BaseIntegrationTest {
                                 linkWithRel("self").ignored(),
                                 linkWithRel("profile").ignored()
                         ),
+                        requestHeaders(headerWithName("accept").description("accept header")),
                         requestParameters(
                                 parameterWithName("page").description("The page to be requested."),
                                 parameterWithName("size").description("Parameter determining the size of the requested page."),
@@ -187,6 +192,7 @@ public class ProductRestIntegrationTest extends BaseIntegrationTest {
 
     private void whenProductsAreRetrieved() throws Exception {
         resultActions = mockMvc.perform(get("/products")
+                .header("accept", HAL_JSON)
                 .param("page", "0")
                 .param("size", "2")
                 .param("sort", "name asc"))
