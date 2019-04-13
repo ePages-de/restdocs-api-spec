@@ -49,6 +49,7 @@ This is why we came up with this project.
     - [Migrate existing Spring REST Docs tests](#migrate-existing-spring-rest-docs-tests)
         - [MockMvc based tests](#mockmvc-based-tests)
         - [REST Assured based tests](#rest-assured-based-tests)
+        - [WebTestClient based tests](#webtestclient-based-tests)
     - [Security Definitions in OpenAPI](#security-definitions-in-openapi)
     - [Running the gradle plugin](#running-the-gradle-plugin)
         - [OpenAPI 2.0](#openapi-20)
@@ -297,6 +298,82 @@ RestAssured.given(this.spec)
         .get("/restAssuredExample")
         .then()
         .statusCode(200);
+```
+
+#### WebTestClient based tests
+
+We've now added a convenience wrapper similar to `MockMvcRestDocumentationWrapper` for WebTestClient.
+The usage is similar to MockMVC, except that [com.epages.restdocs.apispec.WebTestClientRestDocumentationWrapper](restdocs-api-spec-webtestclient/src/main/kotlin/com/epages/restdocs/apispec/WebTestClientRestDocumentationWrapper.kt) is used instead of [com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apispec/MockMvcRestDocumentationWrapper.kt).
+
+To use the `WebTestClientRestDocumentationWrapper`, you will have to add a dependency to [restdocs-api-spec-webtestclient](restdocs-api-spec-webtestclient) to your build.
+```
+    import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
+    import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+    import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+    import static org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation.documentationConfiguration;
+    
+    import org.junit.jupiter.api.BeforeEach;
+    import org.junit.jupiter.api.Test;
+    import org.junit.jupiter.api.extension.ExtendWith;
+    import org.springframework.boot.test.context.SpringBootTest;
+    import org.springframework.context.ApplicationContext;
+    import org.springframework.http.HttpHeaders;
+    import org.springframework.http.MediaType;
+    import org.springframework.restdocs.RestDocumentationContextProvider;
+    import org.springframework.restdocs.RestDocumentationExtension;
+    import org.springframework.restdocs.headers.HeaderDocumentation;
+    import org.springframework.restdocs.payload.JsonFieldType;
+    import org.springframework.restdocs.payload.PayloadDocumentation;
+    import org.springframework.restdocs.request.RequestDocumentation;
+    import org.springframework.test.context.junit.jupiter.SpringExtension;
+    import org.springframework.test.web.reactive.server.WebTestClient;
+    
+    import com.epages.restdocs.apispec.WebTestClientRestDocumentationWrapper;
+    
+    @SpringBootTest
+    @ExtendWith({SpringExtension.class, RestDocumentationExtension.class})
+    public class SampleTest {
+    
+      private WebTestClient webTestClient;
+    
+      @BeforeEach
+      void setUp(RestDocumentationContextProvider restDocumentation,
+          ApplicationContext context) {
+        this.webTestClient = WebTestClient.bindToApplicationContext(context)
+            .configureClient()
+            .filter(documentationConfiguration(restDocumentation))
+            .build();
+      }
+    
+      @Test
+      void sample() {
+        this.webTestClient.get().uri("/sample/{id}?queryParam=something", "1024").exchange()
+            .expectStatus().isOk().expectBody()
+            .consumeWith(
+                WebTestClientRestDocumentationWrapper
+                    .document("sample",
+                        RequestDocumentation.pathParameters(
+                            parameterWithName("id").description(
+                                "description of the path parameter")
+                        ),
+                        RequestDocumentation.requestParameters(
+                            parameterWithName("queryParam").description(
+                                "description of the query parameter")
+                        ),
+                        HeaderDocumentation.responseHeaders(
+                            headerWithName(HttpHeaders.CONTENT_TYPE)
+                                .description(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                        ),
+                        responseFields(
+                            PayloadDocumentation.fieldWithPath("field1").type(JsonFieldType.STRING)
+                                .description("description of field1"),
+                            PayloadDocumentation.fieldWithPath("field2").type(JsonFieldType.STRING)
+                                .description("description of field2")
+                        )
+                    )
+            );
+      }
+    }
 ```
 
 ### Security Definitions in OpenAPI
