@@ -150,7 +150,6 @@ class WebTestClientRestDocumentationWrapperIntegrationTest(@Autowired val webTes
 
     private fun generatedSnippetFile() = File("build/generated-snippets", "$operationName/resource.json")
 
-    @Throws(Exception::class)
     private fun whenDocumentedWithRestdocsAndResource() {
         bodyContentSpec
                 .consumeWith { print(it) }
@@ -185,7 +184,6 @@ class WebTestClientRestDocumentationWrapperIntegrationTest(@Autowired val webTes
                 )
     }
 
-    @Throws(Exception::class)
     private fun whenDocumentedWithRamlSnippet() {
         bodyContentSpec
                 .consumeWith(
