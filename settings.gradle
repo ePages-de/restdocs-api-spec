@@ -12,3 +12,4 @@ project(':restdocs-api-spec-sample-web-test-client').projectDir = file('samples/
 include 'restdocs-api-spec-mockmvc'
 include 'restdocs-api-spec-restassured'
 include 'restdocs-api-spec-postman-generator'
+include 'restdocs-api-spec-webtestclient'

@@ -49,6 +49,7 @@ This is why we came up with this project.
     - [Migrate existing Spring REST Docs tests](#migrate-existing-spring-rest-docs-tests)
         - [MockMvc based tests](#mockmvc-based-tests)
         - [REST Assured based tests](#rest-assured-based-tests)
+        - [WebTestClient based tests](#webtestclient-based-tests)
     - [Security Definitions in OpenAPI](#security-definitions-in-openapi)
     - [Running the gradle plugin](#running-the-gradle-plugin)
         - [OpenAPI 2.0](#openapi-20)
@@ -297,6 +298,41 @@ RestAssured.given(this.spec)
         .get("/restAssuredExample")
         .then()
         .statusCode(200);
+```
+
+#### WebTestClient based tests
+
+We also offer a convenience wrapper for `WebTestClient` which works similar to `MockMvcRestDocumentationWrapper`.
+The usage is similar to MockMVC, except that [com.epages.restdocs.apispec.WebTestClientRestDocumentationWrapper](restdocs-api-spec-webtestclient/src/main/kotlin/com/epages/restdocs/apispec/WebTestClientRestDocumentationWrapper.kt) is used instead of [com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apispec/MockMvcRestDocumentationWrapper.kt).
+
+To use the `WebTestClientRestDocumentationWrapper`, you will have to add a dependency to [restdocs-api-spec-webtestclient](restdocs-api-spec-webtestclient) to your build.
+
+```
+webTestClient.get().uri("/sample/{id}?queryParam=something", "1024").exchange()
+    .expectStatus().isOk().expectBody()
+    .consumeWith(
+        WebTestClientRestDocumentationWrapper
+            .document("sample",
+                RequestDocumentation.pathParameters(
+                    parameterWithName("id").description(
+                        "description of the path parameter")
+                ),
+                RequestDocumentation.requestParameters(
+                    parameterWithName("queryParam").description(
+                        "description of the query parameter")
+                ),
+                HeaderDocumentation.responseHeaders(
+                    headerWithName(HttpHeaders.CONTENT_TYPE)
+                        .description(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                ),
+                responseFields(
+                    PayloadDocumentation.fieldWithPath("field1").type(JsonFieldType.STRING)
+                        .description("description of field1"),
+                    PayloadDocumentation.fieldWithPath("field2").type(JsonFieldType.STRING)
+                        .description("description of field2")
+                )
+            )
+    );
 ```
 
 ### Security Definitions in OpenAPI
