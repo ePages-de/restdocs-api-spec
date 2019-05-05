@@ -21,13 +21,13 @@ import org.assertj.core.api.BDDAssertions.then
 import org.junit.jupiter.api.Test
 
 internal class PostmanCollectionGeneratorTest {
-    lateinit var resources: List<ResourceModel>
+    private lateinit var resources: List<ResourceModel>
     lateinit var postmanCollectionJsonString: String
     lateinit var postmanCollectionJsonPathContext: DocumentContext
 
     var baseUrl = "http://localhost:8080"
-    val objectMapper = jacksonObjectMapper().enable(INDENT_OUTPUT)
-    val collectionSchema: JsonSchema = JsonSchemaFactory
+    private val objectMapper = jacksonObjectMapper().enable(INDENT_OUTPUT)
+    private val collectionSchema: JsonSchema = JsonSchemaFactory
             .byDefault()
             .getJsonSchema(objectMapper.readTree(this.javaClass.classLoader.getResourceAsStream("collection-schema.json")))
 
@@ -86,6 +86,50 @@ internal class PostmanCollectionGeneratorTest {
         thenPostmanSpecIsValid()
 
         then(postmanCollectionJsonPathContext.read<String>("item[0].request.url.port")).isNull()
+    }
+
+    @Test
+    fun `should allow postman variable as host in url`() {
+        givenGetProductResourceModel()
+
+        baseUrl = "http://{{url}}:8080"
+
+        whenPostmanCollectionGenerated()
+
+        thenPostmanSpecIsValid()
+
+        then(postmanCollectionJsonPathContext.read<String>("item[0].request.url.host")).isEqualTo("{{url}}")
+        then(postmanCollectionJsonPathContext.read<String>("item[0].request.url.port")).isEqualTo("8080")
+        then(postmanCollectionJsonPathContext.read<String>("item[0].request.url.protocol")).isEqualTo("http")
+    }
+
+    @Test
+    fun `should allow postman variable as complete url`() {
+        givenGetProductResourceModel()
+
+        baseUrl = "{{url}}/{{somePath}}"
+
+        whenPostmanCollectionGenerated()
+
+        thenPostmanSpecIsValid()
+
+        then(postmanCollectionJsonPathContext.read<String>("item[0].request.url.host")).isEqualTo("{{url}}")
+        then(postmanCollectionJsonPathContext.read<String>("item[0].request.url.path")).startsWith("/{{somePath}}")
+        then(postmanCollectionJsonPathContext.read<String>("item[0].request.url.port")).isNull()
+        then(postmanCollectionJsonPathContext.read<String>("item[0].request.url.protocol")).isNull()
+    }
+
+    @Test
+    fun `should allow postman variable as part of the path`() {
+        givenGetProductWithVariableInPathResourceModel()
+
+        baseUrl = "{{url}}"
+
+        whenPostmanCollectionGenerated()
+
+        thenPostmanSpecIsValid()
+
+        then(postmanCollectionJsonPathContext.read<String>("item[0].request.url.path")).isEqualTo("/{{path}}/:id")
     }
 
     @Test
@@ -193,6 +237,21 @@ internal class PostmanCollectionGeneratorTest {
                         request = getProductRequest(),
                         response = getProductResponse()
                 )
+        )
+    }
+
+    private fun givenGetProductWithVariableInPathResourceModel() {
+        resources = listOf(
+            ResourceModel(
+                operationId = "test",
+                summary = "summary",
+                description = "description",
+                privateResource = false,
+                deprecated = false,
+                tags = setOf("tag1", "tag2"),
+                request = getProductRequestWithVariableInPath(),
+                response = getProductResponse()
+            )
         )
     }
 
@@ -353,6 +412,8 @@ internal class PostmanCollectionGeneratorTest {
                 requestFields = listOf()
         )
     }
+
+    private fun getProductRequestWithVariableInPath() = getProductRequest().copy(path = "/{{path}}/{id}")
 
     private fun thenPostmanSpecIsValid() {
         val validationReport = collectionSchema.validate(objectMapper.readTree(postmanCollectionJsonString))
