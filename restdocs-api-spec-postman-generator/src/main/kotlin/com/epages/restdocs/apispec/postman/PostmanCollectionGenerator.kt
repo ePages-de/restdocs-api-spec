@@ -13,7 +13,7 @@ import com.epages.restdocs.apispec.postman.model.Request
 import com.epages.restdocs.apispec.postman.model.Response
 import com.epages.restdocs.apispec.postman.model.Src
 import com.epages.restdocs.apispec.postman.model.Variable
-import java.net.URI
+import java.net.URL
 
 object PostmanCollectionGenerator {
 
@@ -40,24 +40,24 @@ object PostmanCollectionGenerator {
         return resourceModels.groupByPath().values
             .flatMap { it.groupBy { models -> models.request.method }.values }
             .map { modelsWithSamePathAndMethod ->
-                    val firstModel = modelsWithSamePathAndMethod.first()
-                    Item().apply {
-                        id = firstModel.operationId
-                        name = firstModel.request.path
-                        description = firstModel.description
-                        request = toRequest(modelsWithSamePathAndMethod, url)
-                        response = modelsWithSamePathAndMethod.map {
-                            Response().apply {
-                                id = it.operationId
-                                name = "${it.response.status}-${it.response.contentType}"
-                                originalRequest = toRequest(listOf(it), url)
-                                code = it.response.status
-                                body = it.response.example
-                                header = it.response.headers.toItemHeader(it.response.contentType)
-                                        .ifEmpty { null }
-                            }
+                val firstModel = modelsWithSamePathAndMethod.first()
+                Item().apply {
+                    id = firstModel.operationId
+                    name = firstModel.request.path
+                    description = firstModel.description
+                    request = toRequest(modelsWithSamePathAndMethod, url)
+                    response = modelsWithSamePathAndMethod.map {
+                        Response().apply {
+                            id = it.operationId
+                            name = "${it.response.status}-${it.response.contentType}"
+                            originalRequest = toRequest(listOf(it), url)
+                            code = it.response.status
+                            body = it.response.example
+                            header = it.response.headers.toItemHeader(it.response.contentType)
+                                .ifEmpty { null }
                         }
                     }
+                }
             }
     }
 
@@ -73,41 +73,53 @@ object PostmanCollectionGenerator {
                 }
             }
             header = modelsWithSamePathAndMethod
-                    .flatMap { it.request.headers }
-                    .distinctBy { it.name }
-                    .toItemHeader(modelsWithSamePathAndMethod.map { it.request.contentType }.firstOrNull())
-                    .ifEmpty { null }
+                .flatMap { it.request.headers }
+                .distinctBy { it.name }
+                .toItemHeader(modelsWithSamePathAndMethod.map { it.request.contentType }.firstOrNull())
+                .ifEmpty { null }
         }
     }
 
     private fun toUrl(modelsWithSamePathAndMethod: List<ResourceModel>, url: String): Url {
-        val baseUri = URI(url)
+        val urlStartWithVariable = url.startsWith("{{")
+        val baseUrl = when (urlStartWithVariable) {
+            true -> URL("http://$url")
+            else -> URL(url)
+        }
+
         return Url().apply {
-            protocol = baseUri.scheme
-            host = baseUri.host
-            port = when (baseUri.port) {
-                    -1 -> null
-                    else -> baseUri.port.toString()
+            protocol = when (urlStartWithVariable) {
+                true -> null
+                else -> baseUrl.protocol
             }
-            path = baseUri.path + modelsWithSamePathAndMethod.first().request.path.replace(Regex("\\{[^/]+}")) {
+            host = baseUrl.host
+            port = when (baseUrl.port) {
+                -1 -> null
+                else -> baseUrl.port.toString()
+            }
+            path = baseUrl.path + modelsWithSamePathAndMethod.first().request.path.replace(Regex("(?<!\\{)\\{([^}]+)\\}(?!\\})")) {
                 it.value.replace('{', ':').removeSuffix("}")
             }
             variable = modelsWithSamePathAndMethod
-                    .flatMap { it.request.pathParameters }
-                    .distinctBy { it.name }
-                    .map { Variable().apply {
+                .flatMap { it.request.pathParameters }
+                .distinctBy { it.name }
+                .map {
+                    Variable().apply {
                         key = it.name
                         description = it.description
-                    } }
-                    .ifEmpty { null }
+                    }
+                }
+                .ifEmpty { null }
             query = modelsWithSamePathAndMethod
-                    .flatMap { it.request.requestParameters }
-                    .distinctBy { it.name }
-                    .map { Query().apply {
+                .flatMap { it.request.requestParameters }
+                .distinctBy { it.name }
+                .map {
+                    Query().apply {
                         key = it.name
                         description = it.description
-                    } }
-                    .ifEmpty { null }
+                    }
+                }
+                .ifEmpty { null }
         }
     }
 
