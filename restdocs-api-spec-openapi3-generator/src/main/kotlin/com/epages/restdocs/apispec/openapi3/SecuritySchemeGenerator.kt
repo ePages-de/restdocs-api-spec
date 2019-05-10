@@ -53,7 +53,7 @@ internal object SecuritySchemeGenerator {
         if (hasAnyOperationWithSecurityName(this, BASIC_SECURITY_NAME)) {
             components.addSecuritySchemes(BASIC_SECURITY_NAME, SecurityScheme().apply {
                 type = SecurityScheme.Type.HTTP
-                scheme = "Basic"
+                scheme = "basic"
             })
         }
 
