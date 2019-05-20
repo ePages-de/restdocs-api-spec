@@ -1,11 +1,12 @@
 
 import com.jfrog.bintray.gradle.BintrayExtension
+import com.jfrog.bintray.gradle.BintrayExtension.GpgConfig
 import com.jfrog.bintray.gradle.BintrayExtension.PackageConfig
+import com.jfrog.bintray.gradle.BintrayExtension.VersionConfig
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.kt3k.gradle.plugin.CoverallsPluginExtension
 import pl.allegro.tech.build.axion.release.domain.TagNameSerializationConfig
 import pl.allegro.tech.build.axion.release.domain.hooks.HooksConfig
-import java.io.File
 
 
 plugins {
@@ -112,6 +113,11 @@ subprojects {
                 repo = "maven"
                 name = "restdocs-api-spec"
                 userOrg = "epages"
+                version(closureOf<VersionConfig> {
+                    gpg(closureOf<GpgConfig> {
+                        sign = true
+                    })
+                })
             })
         }
     }
