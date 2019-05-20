@@ -5,6 +5,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.kt3k.gradle.plugin.CoverallsPluginExtension
 import pl.allegro.tech.build.axion.release.domain.TagNameSerializationConfig
 import pl.allegro.tech.build.axion.release.domain.hooks.HooksConfig
+import java.io.File
 
 
 plugins {
@@ -124,7 +125,7 @@ configure<CoverallsPluginExtension> {
 
 tasks {
     val jacocoMerge by creating(JacocoMerge::class) {
-        executionData = files(nonSampleProjects.map { File(it.buildDir, "/jacoco/test.exec")})
+        executionData = files(nonSampleProjects.map { File(it.buildDir, "/jacoco/test.exec") })
         doFirst {
             executionData = files(executionData.filter { it.exists() })
         }
