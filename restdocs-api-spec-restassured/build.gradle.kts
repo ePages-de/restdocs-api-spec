@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     kotlin("jvm")
 }
@@ -21,7 +19,7 @@ dependencies {
         exclude("junit")
     }
     testCompile("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
-    testImplementation("org.junit-pioneer:junit-pioneer:0.2.2")
+    testImplementation("org.junit-pioneer:junit-pioneer:0.3.0")
     testCompile("org.springframework.boot:spring-boot-starter-hateoas:$springBootVersion")
 }
 

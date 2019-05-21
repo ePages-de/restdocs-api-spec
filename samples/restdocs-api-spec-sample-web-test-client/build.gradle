@@ -1,6 +1,6 @@
 buildscript {
 	ext {
-		springBootVersion = '2.1.2.RELEASE'
+		springBootVersion = '2.1.5.RELEASE'
 	}
 	repositories {
 		mavenCentral()
@@ -33,7 +33,7 @@ ext {
 dependencies {
 	implementation('org.springframework.boot:spring-boot-starter-webflux')
 
-	testImplementation('org.junit.jupiter:junit-jupiter-engine:5.3.2')
+	testImplementation('org.junit.jupiter:junit-jupiter-engine:5.4.2')
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
 	testImplementation('org.springframework.restdocs:spring-restdocs-webtestclient')
 	testImplementation('io.projectreactor:reactor-test')

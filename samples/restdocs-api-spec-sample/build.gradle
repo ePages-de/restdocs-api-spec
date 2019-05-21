@@ -1,6 +1,6 @@
 buildscript {
 	ext {
-		springBootVersion = '2.1.2.RELEASE'
+		springBootVersion = '2.1.5.RELEASE'
 	}
 	repositories {
 		mavenCentral()
@@ -33,7 +33,7 @@ dependencies {
 	compile('org.springframework.boot:spring-boot-starter-data-jpa')
 	compile('org.springframework.boot:spring-boot-starter-data-rest')
 	runtime('com.h2database:h2')
-	testCompile('org.junit.jupiter:junit-jupiter-engine:5.3.2')
+	testCompile('org.junit.jupiter:junit-jupiter-engine:5.4.2')
 
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	testCompile('org.springframework.restdocs:spring-restdocs-mockmvc')

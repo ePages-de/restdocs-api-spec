@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     kotlin("jvm")
 }
@@ -18,7 +16,7 @@ dependencies {
     compile(project(":restdocs-api-spec-model"))
     compile(project(":restdocs-api-spec-jsonschema"))
 
-    compile("io.swagger.core.v3:swagger-core:2.0.6")
+    compile("io.swagger.core.v3:swagger-core:2.0.8")
     compile("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
     compile("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
 

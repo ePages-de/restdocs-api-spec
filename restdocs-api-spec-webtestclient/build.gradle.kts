@@ -22,7 +22,7 @@ dependencies {
         exclude("junit")
     }
     testCompile("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
-    testImplementation("org.junit-pioneer:junit-pioneer:0.2.2")
+    testImplementation("org.junit-pioneer:junit-pioneer:0.3.0")
     testImplementation("org.springframework.boot:spring-boot-starter-web:$springBootVersion")
     testCompile("org.springframework.boot:spring-boot-starter-hateoas:$springBootVersion")
     testImplementation("io.projectreactor:reactor-core:3.2.8.RELEASE")

@@ -11,11 +11,11 @@ import pl.allegro.tech.build.axion.release.domain.hooks.HooksConfig
 
 plugins {
     java
-    kotlin("jvm") version "1.3.20" apply false
+    kotlin("jvm") version "1.3.21" apply false
     id("pl.allegro.tech.build.axion-release") version "1.9.2"
     jacoco
     `maven-publish`
-    id("org.jmailen.kotlinter") version "1.21.0" apply false
+    id("org.jmailen.kotlinter") version "1.25.2" apply false
     id("com.github.kt3k.coveralls") version "2.8.2"
     id("com.jfrog.bintray") version "1.8.4" apply false
 }
@@ -61,10 +61,10 @@ allprojects {
 
 subprojects {
 
-    val jacksonVersion by extra { "2.9.5" }
-    val springBootVersion by extra { "2.1.1.RELEASE" }
+    val jacksonVersion by extra { "2.9.9" }
+    val springBootVersion by extra { "2.1.5.RELEASE" }
     val springRestDocsVersion by extra { "2.0.3.RELEASE" }
-    val junitVersion by extra { "5.3.2" }
+    val junitVersion by extra { "5.4.2" }
 
     tasks.withType<KotlinCompile> {
         kotlinOptions.jvmTarget = "1.8"
