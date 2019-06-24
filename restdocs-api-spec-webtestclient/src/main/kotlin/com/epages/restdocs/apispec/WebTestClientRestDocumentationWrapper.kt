@@ -91,6 +91,25 @@ object WebTestClientRestDocumentationWrapper : RestDocumentationWrapper() {
     }
 
     @JvmStatic
+    fun <T> document(
+        identifier: String,
+        responsePreprocessor: OperationResponsePreprocessor,
+        vararg snippets: Snippet
+    ): Consumer<EntityExchangeResult<T>> {
+        return document(identifier, null, null, false, false, responsePreprocessor = responsePreprocessor, snippets = *snippets)
+    }
+
+    @JvmStatic
+    fun <T> document(
+        identifier: String,
+        requestPreprocessor: OperationRequestPreprocessor,
+        responsePreprocessor: OperationResponsePreprocessor,
+        vararg snippets: Snippet
+    ): Consumer<EntityExchangeResult<T>> {
+        return document(identifier, null, null, false, false, requestPreprocessor, responsePreprocessor, snippets = *snippets)
+    }
+
+    @JvmStatic
     fun resourceDetails(): ResourceSnippetDetails {
         return ResourceSnippetParametersBuilder()
     }
