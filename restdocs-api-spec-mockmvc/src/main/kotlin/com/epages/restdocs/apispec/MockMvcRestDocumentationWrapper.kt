@@ -91,7 +91,6 @@ object MockMvcRestDocumentationWrapper : RestDocumentationWrapper() {
         return document(identifier, description, null, privateResource, snippets = *snippets)
     }
 
-
     @JvmStatic
     fun document(
         identifier: String,
