@@ -92,6 +92,25 @@ object MockMvcRestDocumentationWrapper : RestDocumentationWrapper() {
     }
 
     @JvmStatic
+    fun document(
+        identifier: String,
+        responsePreprocessor: OperationResponsePreprocessor,
+        vararg snippets: Snippet
+    ): RestDocumentationResultHandler {
+        return document(identifier, null, null, false, false, responsePreprocessor = responsePreprocessor, snippets = *snippets)
+    }
+
+    @JvmStatic
+    fun document(
+        identifier: String,
+        requestPreprocessor: OperationRequestPreprocessor,
+        responsePreprocessor: OperationResponsePreprocessor,
+        vararg snippets: Snippet
+    ): RestDocumentationResultHandler {
+        return document(identifier, null, null, false, false, requestPreprocessor, responsePreprocessor, snippets = *snippets)
+    }
+
+    @JvmStatic
     fun resourceDetails(): ResourceSnippetDetails {
         return ResourceSnippetParametersBuilder()
     }
