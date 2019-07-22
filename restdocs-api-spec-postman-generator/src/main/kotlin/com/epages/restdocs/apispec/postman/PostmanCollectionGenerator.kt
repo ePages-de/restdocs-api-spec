@@ -49,7 +49,7 @@ object PostmanCollectionGenerator {
                     response = modelsWithSamePathAndMethod.map {
                         Response().apply {
                             id = it.operationId
-                            name = "${it.response.status}-${it.response.contentType}"
+                            name = it.operationId
                             originalRequest = toRequest(listOf(it), url)
                             code = it.response.status
                             body = it.response.example
