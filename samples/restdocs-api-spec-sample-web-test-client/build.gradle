@@ -9,7 +9,7 @@ buildscript {
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-		classpath("com.epages:restdocs-api-spec-gradle-plugin:0.9.0")
+		classpath("com.epages:restdocs-api-spec-gradle-plugin:0.9.5")
 	}
 }
 
@@ -37,7 +37,7 @@ dependencies {
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
 	testImplementation('org.springframework.restdocs:spring-restdocs-webtestclient')
 	testImplementation('io.projectreactor:reactor-test')
-	testImplementation('com.epages:restdocs-api-spec:0.9.3')
+	testImplementation('com.epages:restdocs-api-spec:0.9.5')
 }
 
 openapi {

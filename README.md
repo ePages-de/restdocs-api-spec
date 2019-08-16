@@ -6,7 +6,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/ePages-de/restdocs-api-spec/badge.svg?branch=master)](https://coveralls.io/github/ePages-de/restdocs-api-spec?branch=master)
 [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/restdocs-api-spec/Lobby)
 
-This is an extension that adds API specifications as an output format to [Spring REST Docs](https://projects.spring.io/spring-restdocs/). 
+This is an extension that adds API specifications as an output format to [Spring REST Docs](https://projects.spring.io/spring-restdocs/).
 It currently supports:
 - [OpenAPI 2.0](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md) in `json` and `yaml`
 - [OpenAPI 3.0.1](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md) in `json` and `yaml`
@@ -21,15 +21,15 @@ We plan to add support for:
 
 We especially like its test-driven approach and this is the main reason why we chose it.
 
-It offers support for AsciiDoc and Markdown. This is great for generating simple HTML-based documentation. 
-But both are markup languages and thus it is hard to get any further than statically generated HTML. 
+It offers support for AsciiDoc and Markdown. This is great for generating simple HTML-based documentation.
+But both are markup languages and thus it is hard to get any further than statically generated HTML.
 
-API specifications like OpenAPI are a lot more flexible. 
+API specifications like OpenAPI are a lot more flexible.
 With e.g. OpenAPI you get a machine-readable description of your API. There is a rich ecosystem around it that contains tools to:
 - generate a HTML representation of your API - [ReDoc](https://github.com/Rebilly/ReDoc)
 - generate an interactive API reference - e.g. using services like [stoplight.io](https://stoplight.io) or [readme.io](https://readme.io)
 
-Also, API specifications like OpenAPI are supported by many REST clients like [Postman](https://www.getpostman.com) and [Paw](https://paw.cloud). 
+Also, API specifications like OpenAPI are supported by many REST clients like [Postman](https://www.getpostman.com) and [Paw](https://paw.cloud).
 Thus having an API specification for a REST API is a great plus when starting to work with it.
 
 The most common use case to generate an OpenAPI specification is code introspection and adding documentation related annotations to your code.
@@ -89,7 +89,7 @@ buildscript {
     }
     dependencies {
         //..
-        classpath("com.epages:restdocs-api-spec-gradle-plugin:0.9.3") //2
+        classpath("com.epages:restdocs-api-spec-gradle-plugin:0.9.5") //2
     }
 }
 //..
@@ -103,7 +103,7 @@ repositories { //4
 
 dependencies {
     //..
-    testCompile('com.epages:restdocs-api-spec-mockmvc:0.9.3') //5
+    testCompile('com.epages:restdocs-api-spec-mockmvc:0.9.5') //5
 }
 
 openapi { //6
@@ -337,15 +337,15 @@ webTestClient.get().uri("/sample/{id}?queryParam=something", "1024").exchange()
 
 ### Security Definitions in OpenAPI
 
-The project has limited support for describing security requirements of an API. 
+The project has limited support for describing security requirements of an API.
 Currently we only support Oauth2 with [JWT](https://jwt.io/) tokens and HTTP Basic Auth.
 
-`restdocs-api-spec` inspects the `AUTHORIZATION` header of a request for a `JWT` token. 
+`restdocs-api-spec` inspects the `AUTHORIZATION` header of a request for a `JWT` token.
 Also the a HTTP basic authorization header is discovered and documented.
-If such a token is found the scopes are extracted and added to the `resource.json` snippet. 
+If such a token is found the scopes are extracted and added to the `resource.json` snippet.
 
-The `restdocs-api-spec-gradle-plugin` will consider this information if the `oauth2SecuritySchemeDefinition` configuration option is set (see [Gradle plugin configuration](#gradle-plugin-configuration)). 
-This will result in a top-level `securityDefinitions` in the OpenAPI definition. 
+The `restdocs-api-spec-gradle-plugin` will consider this information if the `oauth2SecuritySchemeDefinition` configuration option is set (see [Gradle plugin configuration](#gradle-plugin-configuration)).
+This will result in a top-level `securityDefinitions` in the OpenAPI definition.
 Additionally the required scopes will be added in the `security` section of an `operation`.
 
 ### Running the gradle plugin
@@ -388,7 +388,7 @@ separatePublicApi | Should the plugin generate additional API specification file
 outputDirectory | The output directory for the API specification files | `build/api-spec`
 snippetsDirectory | The directory Spring REST Docs generated the snippets to | `build/generated-snippets`
 
-#### Common OpenAPI configuration 
+#### Common OpenAPI configuration
 
 The `restdocs-api-spec-gradle-plugin` takes the following configuration options for OpenAPI 2.0 and OpenAPI 3.0.1 - all are optional.
 
@@ -487,14 +487,14 @@ servers = [ {
 } ]
 ```
 
-The same structure applies to `server`. 
+The same structure applies to `server`.
 A single server can also be specified using a plain string:
 
 ```
 server = 'http://some.api/api'
 ```
 
-#### Postman 
+#### Postman
 
 The `restdocs-api-spec-gradle-plugin` takes the following configuration options for Postman collections - all are optional.
 
@@ -527,19 +527,19 @@ redoc-cli serve build/api-spec/openapi.json
 
 ## RAML
 
-This project supersedes [restdocs-raml](https://github.com/ePages-de/restdocs-raml). 
-So if you are coming from `restdocs-raml` you might want to switch to `restdocs-api-spec`. 
+This project supersedes [restdocs-raml](https://github.com/ePages-de/restdocs-raml).
+So if you are coming from `restdocs-raml` you might want to switch to `restdocs-api-spec`.
 
 The API of both projects is fairly similar and it is easy to migrate.
 
-We plan to support RAML in the future. 
+We plan to support RAML in the future.
 In the meantime you can use one of several ways to convert an OpenAPI specification to RAML.
 There are converters around that can help you to achieve this conversion.
 
 - [oas-raml-converter](https://github.com/mulesoft/oas-raml-converter) - an npm project that provides a CLI to convert between OpenAPI and RAML - it also provides an [online converter](https://mulesoft.github.io/oas-raml-converter/)
 - [api-matic](https://apimatic.io/transformer) - an online converter capable of converting between many api specifications
 
-In the [sample project](samples/restdocs-api-spec-sample) you find a build configuration that uses the [oas-raml-converter-docker](https://hub.docker.com/r/zaddo/oas-raml-converter-docker/) docker image and the [gradle-docker-plugin](https://github.com/bmuschko/gradle-docker-plugin) to leverage the `oas-raml-converter` to convert the output of the `openapi` task to RAML. 
+In the [sample project](samples/restdocs-api-spec-sample) you find a build configuration that uses the [oas-raml-converter-docker](https://hub.docker.com/r/zaddo/oas-raml-converter-docker/) docker image and the [gradle-docker-plugin](https://github.com/bmuschko/gradle-docker-plugin) to leverage the `oas-raml-converter` to convert the output of the `openapi` task to RAML.
 Using this approach your gradle build can still output a RAML specification.
 
 See [openapi2raml.gradle](samples/restdocs-api-spec-sample/openapi2raml.gradle).
