@@ -11,7 +11,7 @@ import pl.allegro.tech.build.axion.release.domain.hooks.HooksConfig
 
 plugins {
     java
-    kotlin("jvm") version "1.3.21" apply false
+    kotlin("jvm") version "1.3.41" apply false
     id("pl.allegro.tech.build.axion-release") version "1.9.2"
     jacoco
     `maven-publish`
@@ -62,8 +62,8 @@ allprojects {
 subprojects {
 
     val jacksonVersion by extra { "2.9.9" }
-    val springBootVersion by extra { "2.1.5.RELEASE" }
-    val springRestDocsVersion by extra { "2.0.3.RELEASE" }
+    val springBootVersion by extra { "2.1.9.RELEASE" }
+    val springRestDocsVersion by extra { "2.0.4.RELEASE" }
     val junitVersion by extra { "5.4.2" }
 
     tasks.withType<KotlinCompile> {
