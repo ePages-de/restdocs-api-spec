@@ -470,6 +470,18 @@ openapi3 {
 }
 ```
 
+Example `build.gradle.kts` configuration closure (by [axkb](https://github.com/axkb), [#112](https://github.com/ePages-de/restdocs-api-spec/issues/112)):
+```
+configure<com.epages.restdocs.apispec.gradle.OpenApi3Extension> {
+    setServer("http://$apiHost:$apiPort")
+    title = "Your title"
+    description = "Your description"
+    version = "0.1.0"
+    format = "json"
+    tagDescriptionsPropertiesFile = "src/test/resources/tags.yaml"
+}
+```
+
 The `servers` and `server` property can also contain variables. Is this case the` property can be specified like this:
 
 This configuration follows the same semantics as the ['Servers Object'](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#server-object) in the OpenAPI specification
