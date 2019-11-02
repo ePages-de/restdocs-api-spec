@@ -50,6 +50,7 @@ object MockMvcRestDocumentationWrapper : RestDocumentationWrapper() {
     fun document(
         identifier: String,
         description: String? = null,
+        statusDescription: String? = null,
         summary: String? = null,
         privateResource: Boolean = false,
         deprecated: Boolean = false,
@@ -62,6 +63,7 @@ object MockMvcRestDocumentationWrapper : RestDocumentationWrapper() {
                 identifier = identifier,
                 resourceDetails = ResourceSnippetParametersBuilder()
                         .description(description)
+                        .statusDescription(statusDescription)
                         .summary(summary)
                         .privateResource(privateResource)
                         .deprecated(deprecated),
@@ -78,17 +80,22 @@ object MockMvcRestDocumentationWrapper : RestDocumentationWrapper() {
         requestPreprocessor: OperationRequestPreprocessor,
         vararg snippets: Snippet
     ): RestDocumentationResultHandler {
-        return document(identifier, null, null, false, false, requestPreprocessor, snippets = *snippets)
+        return document(identifier, null, null, null, false, false, requestPreprocessor, snippets = *snippets)
     }
 
     @JvmStatic
     fun document(
         identifier: String,
         description: String,
+        statusDescription: String?,
         privateResource: Boolean,
         vararg snippets: Snippet
     ): RestDocumentationResultHandler {
-        return document(identifier, description, null, privateResource, snippets = *snippets)
+        return document(identifier = identifier,
+                description = description,
+                statusDescription = statusDescription,
+                privateResource = privateResource,
+                snippets = *snippets)
     }
 
     @JvmStatic
@@ -97,7 +104,7 @@ object MockMvcRestDocumentationWrapper : RestDocumentationWrapper() {
         responsePreprocessor: OperationResponsePreprocessor,
         vararg snippets: Snippet
     ): RestDocumentationResultHandler {
-        return document(identifier, null, null, false, false, responsePreprocessor = responsePreprocessor, snippets = *snippets)
+        return document(identifier, null, null, null, false, false, responsePreprocessor = responsePreprocessor, snippets = *snippets)
     }
 
     @JvmStatic
@@ -107,7 +114,14 @@ object MockMvcRestDocumentationWrapper : RestDocumentationWrapper() {
         responsePreprocessor: OperationResponsePreprocessor,
         vararg snippets: Snippet
     ): RestDocumentationResultHandler {
-        return document(identifier, null, null, false, false, requestPreprocessor, responsePreprocessor, snippets = *snippets)
+        return document(identifier = identifier,
+                description = null,
+                statusDescription = null,
+                privateResource = false,
+                deprecated = false,
+                requestPreprocessor = requestPreprocessor,
+                responsePreprocessor = responsePreprocessor,
+                snippets = *snippets)
     }
 
     @JvmStatic

@@ -299,7 +299,7 @@ object OpenApi3Generator {
             .groupBy { it.response.contentType!! }
 
         val apiResponse = ApiResponse().apply {
-            description = responseModelsSameStatus.first().response.status.toString()
+            description = responseModelsSameStatus.first().response.statusDescription ?: responseModelsSameStatus.first().response.status.toString()
             headers = responseModelsSameStatus.flatMap { it.response.headers }
                 .map { it.name to Header().apply {
                     description(it.description)

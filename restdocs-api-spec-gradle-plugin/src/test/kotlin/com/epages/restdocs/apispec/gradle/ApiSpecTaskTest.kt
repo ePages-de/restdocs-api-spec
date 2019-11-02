@@ -112,6 +112,7 @@ abstract class ApiSpecTaskTest {
   },
   "response" : {
     "status" : 200,
+    "statusDescription" : "my status descr",
     "contentType" : "application/hal+json",
     "headers" : [ ],
     "responseFields" : [ ],

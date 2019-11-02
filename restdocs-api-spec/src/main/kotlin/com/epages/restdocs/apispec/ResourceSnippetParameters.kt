@@ -17,6 +17,7 @@ import java.util.Optional
 data class ResourceSnippetParameters @JvmOverloads constructor(
     val summary: String? = null,
     val description: String? = null,
+    val statusDescription: String? = null,
     val privateResource: Boolean = false,
     val deprecated: Boolean = false,
     val requestFields: List<FieldDescriptor> = emptyList(),
@@ -141,6 +142,8 @@ abstract class ResourceSnippetDetails {
         protected set
     var description: String? = null
         protected set
+    var statusDescription: String? = null
+        protected set
     var privateResource: Boolean = false
         protected set
     var deprecated: Boolean = false
@@ -150,6 +153,7 @@ abstract class ResourceSnippetDetails {
 
     abstract fun summary(summary: String?): ResourceSnippetDetails
     abstract fun description(description: String?): ResourceSnippetDetails
+    abstract fun statusDescription(statusDescription: String?): ResourceSnippetDetails
     abstract fun privateResource(privateResource: Boolean): ResourceSnippetDetails
     abstract fun deprecated(deprecated: Boolean): ResourceSnippetDetails
     abstract fun tag(tag: String): ResourceSnippetDetails
@@ -174,6 +178,7 @@ class ResourceSnippetParametersBuilder : ResourceSnippetDetails() {
 
     override fun summary(summary: String?) = apply { this.summary = summary }
     override fun description(description: String?) = apply { this.description = description }
+    override fun statusDescription(statusDescription: String?) = apply { this.statusDescription = statusDescription }
     override fun privateResource(privateResource: Boolean) = apply { this.privateResource = privateResource }
     override fun deprecated(deprecated: Boolean) = apply { this.deprecated = deprecated }
 
@@ -218,6 +223,7 @@ class ResourceSnippetParametersBuilder : ResourceSnippetDetails() {
     fun build() = ResourceSnippetParameters(
         summary,
         description,
+        statusDescription,
         privateResource,
         deprecated,
         requestFields,
