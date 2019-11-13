@@ -140,7 +140,7 @@ object OpenApi3Generator {
         val schemaKey = if (schemasToKeys.containsKey(schema)) {
             schemasToKeys[schema]!!
         } else {
-            val name = schemaNameGenerator(schema)
+            val name = if (schema.name != null) schema.name else schemaNameGenerator(schema)
             schemasToKeys[schema] = name
             name
         }
@@ -263,7 +263,8 @@ object OpenApi3Generator {
                 toMediaType(
                     requestFields = requests.flatMap { it.request.requestFields },
                     examplesWithOperationId = requests.filter { it.request.example != null }.map { it.operationId to it.request.example!! }.toMap(),
-                    contentType = contentType
+                    contentType = contentType,
+                    schemaName = requests.first().request.schema
                 )
             }.toMap()
             .let { contentTypeToMediaType ->
@@ -312,7 +313,8 @@ object OpenApi3Generator {
                 toMediaType(
                     requestFields = requests.flatMap { it.response.responseFields },
                     examplesWithOperationId = requests.map { it.operationId to it.response.example!! }.toMap(),
-                    contentType = contentType
+                    contentType = contentType,
+                    schemaName = responseModelsSameStatus.first().response.schema
                 )
             }.toMap()
             .let { contentTypeToMediaType ->
@@ -328,10 +330,14 @@ object OpenApi3Generator {
     private fun toMediaType(
         requestFields: List<FieldDescriptor>,
         examplesWithOperationId: Map<String, String>,
-        contentType: String
+        contentType: String,
+        schemaName: String? = null
     ): Pair<String, MediaType> {
-        val schema = JsonSchemaFromFieldDescriptorsGenerator().generateSchema(requestFields)
+        val schema = JsonSchemaFromFieldDescriptorsGenerator().generateSchema(requestFields, schemaName)
             .let { Json.mapper().readValue<Schema<Any>>(it) }
+
+        if (schemaName != null) schema.name = schemaName
+
         return contentType to MediaType()
             .schema(schema)
             .examples(examplesWithOperationId.map { it.key to Example().apply { value(it.value) } }.toMap().nullIfEmpty())

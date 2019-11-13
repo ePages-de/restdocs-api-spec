@@ -69,6 +69,7 @@ class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetPara
                 headers = resourceSnippetParameters.requestHeaders.withExampleValues(operation.request.headers),
                 pathParameters = resourceSnippetParameters.pathParameters.filter { !it.isIgnored },
                 requestParameters = resourceSnippetParameters.requestParameters.filter { !it.isIgnored },
+                schema = resourceSnippetParameters.requestSchemaName,
                 requestFields = if (hasRequestBody) resourceSnippetParameters.requestFields.filter { !it.isIgnored } else emptyList(),
                 example = if (hasRequestBody) operation.request.contentAsString else null,
                 securityRequirements = securityRequirements
@@ -78,6 +79,7 @@ class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetPara
                 statusDescription = resourceSnippetParameters.statusDescription,
                 contentType = if (hasResponseBody) getContentTypeOrDefault(operation.response.headers) else null,
                 headers = resourceSnippetParameters.responseHeaders.withExampleValues(operation.response.headers),
+                schema = resourceSnippetParameters.responseSchemaName,
                 responseFields = if (hasResponseBody) resourceSnippetParameters.responseFields.filter { !it.isIgnored } else emptyList(),
                 example = if (hasResponseBody) operation.response.contentAsString else null
             )
@@ -128,6 +130,7 @@ class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetPara
         val path: String,
         val method: String,
         val contentType: String?,
+        val schema: String? = null,
         val headers: List<HeaderDescriptorWithType>,
         val pathParameters: List<ParameterDescriptorWithType>,
         val requestParameters: List<ParameterDescriptorWithType>,
@@ -140,6 +143,7 @@ class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetPara
         val status: Int,
         val statusDescription: String?,
         val contentType: String?,
+        val schema: String? = null,
         val headers: List<HeaderDescriptorWithType>,
         val responseFields: List<FieldDescriptor>,
         val example: String?

@@ -97,6 +97,8 @@ abstract class RestDocumentationWrapper {
             else -> ResourceSnippetParametersBuilder()
                     .description(resourceDetails.description)
                     .statusDescription(resourceDetails.statusDescription)
+                    .requestSchemaName(resourceDetails.requestSchemaName)
+                    .responseSchemaName(resourceDetails.responseSchemaName)
                     .summary(resourceDetails.summary)
                     .privateResource(resourceDetails.privateResource)
                     .deprecated(resourceDetails.deprecated)
