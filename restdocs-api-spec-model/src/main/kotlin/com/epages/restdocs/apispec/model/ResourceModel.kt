@@ -39,7 +39,7 @@ data class RequestModel(
 
 data class ResponseModel(
     val status: Int,
-    val statusDescription: String?,
+    val statusDescription: String? = null,
     val contentType: String?,
     val headers: List<HeaderDescriptor>,
     val responseFields: List<FieldDescriptor>,
