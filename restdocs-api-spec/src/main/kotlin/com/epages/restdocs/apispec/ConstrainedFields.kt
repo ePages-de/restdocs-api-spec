@@ -18,7 +18,7 @@ class ConstrainedFields(private val classHoldingConstraints: Class<*>) {
      * @param path json path of the field
      */
     fun withPath(path: String): FieldDescriptor =
-        withMappedPath(path, path)
+        withMappedPath(path, beanPropertyNameFromPath(path))
 
     /**
      *
@@ -38,7 +38,10 @@ class ConstrainedFields(private val classHoldingConstraints: Class<*>) {
                 .value(this.validatorConstraintResolver.resolveForProperty(beanPropertyName, classHoldingConstraints))
         )
 
+    private fun beanPropertyNameFromPath(jsonPath: String) = jsonPath.substringAfter(DOT_NOTATION_DELIMITER)
+
     companion object {
         private const val CONSTRAINTS_KEY = "validationConstraints"
+        private const val DOT_NOTATION_DELIMITER = "."
     }
 }
