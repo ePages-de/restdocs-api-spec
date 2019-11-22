@@ -7,7 +7,6 @@ import javax.validation.constraints.NotEmpty
 
 internal class ConstrainedFieldsTest {
 
-
     @Test
     @Suppress("UNCHECKED_CAST")
     fun `should resolve constraints`() {
