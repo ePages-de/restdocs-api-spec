@@ -18,7 +18,6 @@ import org.everit.json.schema.Schema
 import org.everit.json.schema.StringSchema
 import org.everit.json.schema.internal.JSONPrinter
 import java.io.StringWriter
-import java.util.*
 import java.util.Collections.emptyList
 import java.util.function.Predicate
 
@@ -38,8 +37,8 @@ class JsonSchemaFromFieldDescriptorsGenerator {
 
         val schemaTitle = if (title.isNullOrEmpty()) rootElementName else title
         val schema = traverse(emptyList(),
-                              jsonFieldPaths,
-                              ObjectSchema.builder().title(schemaTitle) as ObjectSchema.Builder)
+            jsonFieldPaths,
+            ObjectSchema.builder().title(schemaTitle) as ObjectSchema.Builder)
 
         return toFormattedString(unWrapRootArray(jsonFieldPaths, schema))
     }
@@ -52,8 +51,7 @@ class JsonSchemaFromFieldDescriptorsGenerator {
         return ""
     }
 
-    private fun replaceRootElementAndSlashes(fieldDescriptors: List<FieldDescriptor>,
-                                             rootElementName: String): List<FieldDescriptor> {
+    private fun replaceRootElementAndSlashes(fieldDescriptors: List<FieldDescriptor>, rootElementName: String): List<FieldDescriptor> {
         return fieldDescriptors
                 .filter { fieldDescriptor -> fieldDescriptor.path != rootElementName }
                 .map { fieldDescriptor ->
@@ -64,7 +62,7 @@ class JsonSchemaFromFieldDescriptorsGenerator {
                             fieldDescriptor.optional,
                             fieldDescriptor.ignored,
                             fieldDescriptor.attributes
-                                   )
+                        )
                 }
     }
 

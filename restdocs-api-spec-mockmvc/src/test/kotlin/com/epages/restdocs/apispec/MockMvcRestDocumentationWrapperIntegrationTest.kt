@@ -154,7 +154,7 @@ class MockMvcRestDocumentationWrapperIntegrationTest(@Autowired private val mock
                             "count": 1
                         }""".trimIndent()
                                 )
-                                       ).andExpect(status().isOk)
+            ).andExpect(status().isOk)
     }
 
     private fun givenEndpointInvokedWithXml(flagValue: String = "true") {
@@ -173,7 +173,7 @@ class MockMvcRestDocumentationWrapperIntegrationTest(@Autowired private val mock
                                 """.trimIndent()
                                 )
                         .characterEncoding("UTF-8")
-                                       ).andExpect(status().isOk)
+            ).andExpect(status().isOk)
     }
 
     private fun thenSnippetFileExists() {

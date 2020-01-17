@@ -256,7 +256,7 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
                 FieldDescriptor("id", "some", "STRING"),
                 FieldDescriptor("id", "some", "NULL"),
                 FieldDescriptor("id", "some", "BOOLEAN")
-                                 )
+            )
     }
 
     private fun givenFieldDescriptorWithXpathDescriptors() {
@@ -265,7 +265,7 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
                 FieldDescriptor("root/a", "some a", "OBJECT"),
                 FieldDescriptor("root/a/suba", "some sub a", "STRING"),
                 FieldDescriptor("root/b", "some b", "STRING")
-                                 )
+            )
     }
 
     private fun givenFieldDescriptorsWithConstraints() {
@@ -275,8 +275,8 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
                                 Constraint(
                                         NotNull::class.java.name,
                                         emptyMap()
-                                          )
-                              )
+                                    )
+                            )
             )
 
         val constraintAttributeWithLength =

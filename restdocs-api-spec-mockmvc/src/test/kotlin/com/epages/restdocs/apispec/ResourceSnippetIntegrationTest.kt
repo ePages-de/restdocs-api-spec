@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RestController
-import java.util.*
+import java.util.UUID
 import javax.validation.constraints.NotEmpty
 
 @ExtendWith(SpringExtension::class)
@@ -52,11 +52,11 @@ open class ResourceSnippetIntegrationTest {
 
             @PostMapping(path = ["/some/{someId}/other/{otherId}"])
             fun doSomething(
-                    @PathVariable someId: String,
-                    @PathVariable otherId: Int?,
-                    @RequestHeader("X-Custom-Header") customHeader: String,
-                    @RequestBody testDataHolder: TestDataHolder
-                           ): ResponseEntity<Resource<TestDataHolder>> {
+                @PathVariable someId: String,
+                @PathVariable otherId: Int?,
+                @RequestHeader("X-Custom-Header") customHeader: String,
+                @RequestBody testDataHolder: TestDataHolder
+            ): ResponseEntity<Resource<TestDataHolder>> {
                 val resource = Resource(testDataHolder.copy(id = UUID.randomUUID().toString()))
                 val link = BasicLinkBuilder.linkToCurrentMapping().slash("some").slash(someId).slash("other").slash(
                         otherId).toUri().toString()
@@ -74,11 +74,11 @@ open class ResourceSnippetIntegrationTest {
                         consumes = [MediaType.APPLICATION_XML_VALUE],
                         produces = [MediaType.APPLICATION_XML_VALUE])
             fun doSomethingWithXml(
-                    @PathVariable someId: String,
-                    @PathVariable otherId: Int?,
-                    @RequestHeader("X-Custom-Header") customHeader: String,
-                    @RequestBody testDataHolder: TestDataHolder
-                                  ): ResponseEntity<Resource<TestDataHolder>> {
+                @PathVariable someId: String,
+                @PathVariable otherId: Int?,
+                @RequestHeader("X-Custom-Header") customHeader: String,
+                @RequestBody testDataHolder: TestDataHolder
+            ): ResponseEntity<Resource<TestDataHolder>> {
                 val resource = Resource(testDataHolder.copy(id = UUID.randomUUID().toString()))
                 val link = BasicLinkBuilder.linkToCurrentMapping().slash("some").slash(someId).slash("other").slash(
                         otherId).toUri().toString()
@@ -125,21 +125,21 @@ fun buildFullResourceSnippet(): ResourceSnippet {
                     .requestHeaders(
                             headerWithName("X-Custom-Header").description("A custom header"),
                             headerWithName(ACCEPT).description("Accept")
-                                   )
+                        )
                     .responseHeaders(
                             headerWithName("X-Custom-Header").description("A custom header"),
                             headerWithName(CONTENT_TYPE).description("ContentType")
-                                    )
+                        )
                     .pathParameters(
                             parameterWithName("someId").description("some id"),
                             parameterWithName("otherId").description("otherId id").type(SimpleType.INTEGER)
-                                   )
+                        )
                     .links(
                             linkWithRel("self").description("some"),
                             linkWithRel("multiple").description("multiple")
-                          )
+                        )
                     .build()
-                   )
+        )
 }
 
 fun fieldDescriptorsForXmlRequest(): FieldDescriptors {
@@ -149,7 +149,7 @@ fun fieldDescriptorsForXmlRequest(): FieldDescriptors {
             fields.withPath("testDataHolder/comment").type(JsonFieldType.STRING).description("the comment").optional(),
             fields.withPath("testDataHolder/flag").type(JsonFieldType.BOOLEAN).description("the flag"),
             fields.withPath("testDataHolder/count").type(JsonFieldType.NUMBER).description("the count")
-                                       )
+        )
 }
 
 fun fieldDescriptorsForXmlResponse(): FieldDescriptors {
@@ -170,7 +170,7 @@ fun fieldDescriptorsForXmlResponse(): FieldDescriptors {
             fields.withPath("Resource/links/links/title").type(JsonFieldType.STRING).description("title of link"),
             fields.withPath("Resource/links/links/type").type(JsonFieldType.STRING).description("type of link"),
             fields.withPath("Resource/links/links/deprecation").type(JsonFieldType.STRING).description("deprecation of link")
-                                       )
+        )
 }
 
 fun buildFullResourceSnippetWithXml(): ResourceSnippet {
@@ -185,15 +185,15 @@ fun buildFullResourceSnippetWithXml(): ResourceSnippet {
                     .requestHeaders(
                             headerWithName("X-Custom-Header").description("A custom header"),
                             headerWithName(ACCEPT).description("Accept")
-                                   )
+                        )
                     .responseHeaders(
                             headerWithName("X-Custom-Header").description("A custom header"),
                             headerWithName(CONTENT_TYPE).description("ContentType")
-                                    )
+                        )
                     .pathParameters(
                             parameterWithName("someId").description("some id"),
                             parameterWithName("otherId").description("otherId id").type(SimpleType.INTEGER)
-                                   )
+                        )
                     /*
                     Can not be used, since spring framework expects links to be json, if we try this with xml it will fail
                     .links(
@@ -201,5 +201,5 @@ fun buildFullResourceSnippetWithXml(): ResourceSnippet {
                             linkWithRel("multiple").description("multiple")
                           )*/
                     .build()
-                   )
+        )
 }

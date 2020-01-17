@@ -130,7 +130,7 @@ object OpenApi3Generator {
                             schemasToKeys,
                             it.schema,
                             generateSchemaName(path)
-                                       )
+                        )
                 )
             }
     }

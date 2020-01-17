@@ -492,8 +492,8 @@ class OpenApi3GeneratorTest {
                         tags = setOf("tag1", "tag2"),
                         request = getProductRequest(),
                         response = getProductResponse()
-                             )
-                          )
+                    )
+            )
     }
 
     private fun givenGetProductResourceModelWithXmlResponse() {
@@ -507,8 +507,8 @@ class OpenApi3GeneratorTest {
                         tags = setOf("tag1", "tag2"),
                         request = getProductRequest(),
                         response = getProductXmlResponse()
-                             )
-                          )
+                    )
+            )
     }
 
     private fun givenGetProductResourceModelWithJWTSecurityRequirement() {
@@ -561,13 +561,13 @@ class OpenApi3GeneratorTest {
                                 path = "_id",
                                 description = "ID of the product",
                                 type = "STRING"
-                                       ),
+                            ),
                         FieldDescriptor(
                                 path = "description",
                                 description = "Product description, localized.",
                                 type = "STRING"
-                                       )
-                                       ),
+                            )
+                    ),
                 example = """{
                 "_id": "123",
                 "description": "Good stuff!"
@@ -592,13 +592,13 @@ class OpenApi3GeneratorTest {
                                 path = "TestDataHolder/_id",
                                 description = "ID of the product",
                                 type = "STRING"
-                                       ),
+                            ),
                         FieldDescriptor(
                                 path = "TestDataHolder/description",
                                 description = "Product description, localized.",
                                 type = "STRING"
-                                       )
-                                       ),
+                            )
+                    ),
                 example = """<?xml version="1.0" encoding="UTF-8"?><TestDataHolder><_id>123</_id><description>Good stuff!</description></TestDataHolder>""".trimMargin()
                             )
     }
