@@ -9,11 +9,15 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.hateoas.MediaTypes.HAL_JSON
 import org.springframework.http.MediaType.APPLICATION_JSON
+import org.springframework.http.MediaType.APPLICATION_XML
 import org.springframework.restdocs.headers.HeaderDocumentation.headerWithName
 import org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders
 import org.springframework.restdocs.headers.HeaderDocumentation.responseHeaders
 import org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel
 import org.springframework.restdocs.hypermedia.HypermediaDocumentation.links
+import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put
 import org.springframework.restdocs.operation.preprocess.OperationRequestPreprocessor
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
@@ -24,8 +28,6 @@ import org.springframework.restdocs.request.RequestDocumentation.pathParameters
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
-import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document
-import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.io.File
 
@@ -104,6 +106,15 @@ class MockMvcRestDocumentationWrapperIntegrationTest(@Autowired private val mock
     }
 
     @Test
+    fun should_document_request_with_fields_when_fields_are_xml() {
+        givenEndpointInvokedWithXml()
+
+        whenResourceSnippetDocumentedWithRequestAndResponseFieldsWithXml()
+
+        thenSnippetFileExists()
+    }
+
+    @Test
     fun should_document_request_with_null_field() {
         givenEndpointInvoked("null")
 
@@ -126,6 +137,11 @@ class MockMvcRestDocumentationWrapperIntegrationTest(@Autowired private val mock
                 .andDo(document(operationName, buildFullResourceSnippet()))
     }
 
+    private fun whenResourceSnippetDocumentedWithRequestAndResponseFieldsWithXml() {
+        resultActions
+                .andDo(document(operationName, buildFullResourceSnippetWithXml())) // XML
+    }
+
     private fun givenEndpointInvoked(flagValue: String = "true") {
         resultActions = mockMvc.perform(
                 post("/some/{someId}/other/{otherId}", "id", 1)
@@ -137,8 +153,27 @@ class MockMvcRestDocumentationWrapperIntegrationTest(@Autowired private val mock
                             "flag": $flagValue,
                             "count": 1
                         }""".trimIndent()
-                        )
-        ).andExpect(status().isOk)
+                                )
+                                       ).andExpect(status().isOk)
+    }
+
+    private fun givenEndpointInvokedWithXml(flagValue: String = "true") {
+        resultActions = mockMvc.perform(
+                put("/some/{someId}/other/{otherId}", "id", 1)
+                        .contentType(APPLICATION_XML)
+                        .header("X-Custom-Header", "test")
+                        .accept(APPLICATION_XML)
+                        .content("""
+                                <?xml version="1.0" encoding="UTF-8"?>
+                                <testDataHolder>
+                                    <comment>some</comment>
+                                    <flag>$flagValue</flag>
+                                    <count>1</count>
+                                </testDataHolder>
+                                """.trimIndent()
+                                )
+                        .characterEncoding("UTF-8")
+                                       ).andExpect(status().isOk)
     }
 
     private fun thenSnippetFileExists() {

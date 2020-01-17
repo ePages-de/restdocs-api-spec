@@ -22,5 +22,6 @@ dependencies {
     testCompile("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
     testImplementation("org.junit-pioneer:junit-pioneer:0.3.0")
     testCompile("org.springframework.boot:spring-boot-starter-hateoas:$springBootVersion")
+    testCompile("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.10.0")
 }
 
