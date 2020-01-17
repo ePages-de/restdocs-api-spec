@@ -121,6 +121,18 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
     }
 
     @Test
+    fun should_generate_schema_for_xpath_descriptors() {
+        givenFieldDescriptorWithXpathDescriptors()
+
+        whenSchemaGenerated()
+
+        then(schema).isInstanceOf(ObjectSchema::class.java)
+        thenSchemaIsValid()
+        then(schema?.title).isEqualTo("root")
+        thenSchemaValidatesJson("""{"a": {"suba":"some suba"}, "b": "some b"}""")
+    }
+
+    @Test
     fun should_generate_schema_for_top_level_array_of_any() {
         givenFieldDescriptorWithTopLevelArrayOfAny()
 
@@ -241,21 +253,30 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
 
     private fun givenDifferentFieldDescriptorsWithSamePathAndDifferentTypes() {
         fieldDescriptors = listOf(
-            FieldDescriptor("id", "some", "STRING"),
-            FieldDescriptor("id", "some", "NULL"),
-            FieldDescriptor("id", "some", "BOOLEAN")
-        )
+                FieldDescriptor("id", "some", "STRING"),
+                FieldDescriptor("id", "some", "NULL"),
+                FieldDescriptor("id", "some", "BOOLEAN")
+                                 )
+    }
+
+    private fun givenFieldDescriptorWithXpathDescriptors() {
+        fieldDescriptors = listOf(
+                FieldDescriptor("root", "some root", "OBJECT"),
+                FieldDescriptor("root/a", "some a", "OBJECT"),
+                FieldDescriptor("root/a/suba", "some sub a", "STRING"),
+                FieldDescriptor("root/b", "some b", "STRING")
+                                 )
     }
 
     private fun givenFieldDescriptorsWithConstraints() {
         val constraintAttributeWithNotNull =
-            Attributes(
-                listOf(
-                    Constraint(
-                        NotNull::class.java.name,
-                        emptyMap()
-                    )
-                )
+                Attributes(
+                        listOf(
+                                Constraint(
+                                        NotNull::class.java.name,
+                                        emptyMap()
+                                          )
+                              )
             )
 
         val constraintAttributeWithLength =

@@ -18,7 +18,7 @@ class ConstrainedFields(private val classHoldingConstraints: Class<*>) {
      * @param path json path or xpath of the field
      */
     fun withPath(path: String): FieldDescriptor =
-        withMappedPath(path, beanPropertyNameFromPath(path))
+            withMappedPath(path, beanPropertyNameFromPath(path))
 
     /**
      *
@@ -33,11 +33,9 @@ class ConstrainedFields(private val classHoldingConstraints: Class<*>) {
      * Add bean validation constraints for the field beanPropertyName to the descriptor
      */
     fun addConstraints(fieldDescriptor: FieldDescriptor, beanPropertyName: String): FieldDescriptor =
-            fieldDescriptor.attributes(
-                    key(CONSTRAINTS_KEY)
-                            .value(this.validatorConstraintResolver.resolveForProperty(beanPropertyName,
-                                                                                       classHoldingConstraints))
-                                      )
+            fieldDescriptor
+                    .attributes(key(CONSTRAINTS_KEY).value(this.validatorConstraintResolver.resolveForProperty(
+                            beanPropertyName, classHoldingConstraints)))
 
     private fun beanPropertyNameFromPath(path: String) =
             if (path.contains(SLASH_NOTATION_DELIMITER))

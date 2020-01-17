@@ -37,6 +37,22 @@ class OpenApi3GeneratorTest {
         thenInfoFieldsPresent()
         thenTagFieldsPresent()
         thenServersPresent()
+        thenSchemaPresentNamedLike("product")
+        thenOpenApiSpecIsValid()
+    }
+
+    @Test
+    fun `should convert single resource model to openapi with xml in response body`() {
+        givenGetProductResourceModelWithXmlResponse()
+
+        whenOpenApiObjectGenerated()
+
+        thenGetProductByIdOperationIsValidWithXml()
+        thenOAuth2SecuritySchemesPresent()
+        thenInfoFieldsPresent()
+        thenTagFieldsPresent()
+        thenServersPresent()
+        thenSchemaPresentNamedLike("TestDataHolder")
         thenOpenApiSpecIsValid()
     }
 
@@ -160,8 +176,10 @@ class OpenApi3GeneratorTest {
         then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'locale')].schema.type")).containsOnly("string")
         then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'Authorization')].in")).containsOnly("header")
         then(openApiJsonPathContext.read<List<Boolean>>("$productGetByIdPath.parameters[?(@.name == 'Authorization')].required")).containsOnly(true)
-        then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'Authorization')].example")).containsOnly("some example")
-        then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'Authorization')].schema.type")).containsOnly("string")
+        then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'Authorization')].example")).containsOnly(
+                "some example")
+        then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'Authorization')].schema.type")).containsOnly(
+                "string")
 
         then(openApiJsonPathContext.read<String>("$productGetByIdPath.requestBody")).isNull()
 
@@ -170,8 +188,50 @@ class OpenApi3GeneratorTest {
         then(openApiJsonPathContext.read<Any>("$productGetByIdPath.responses.200.content.application/json.schema.\$ref")).isNotNull()
         then(openApiJsonPathContext.read<Any>("$productGetByIdPath.responses.200.content.application/json.examples.test.value")).isNotNull()
 
-        then(openApiJsonPathContext.read<List<List<String>>>("$productGetByIdPath.security[*].oauth2_clientCredentials").flatMap { it }).containsOnly("prod:r")
-        then(openApiJsonPathContext.read<List<List<String>>>("$productGetByIdPath.security[*].oauth2_authorizationCode").flatMap { it }).containsOnly("prod:r")
+        then(openApiJsonPathContext.read<List<List<String>>>("$productGetByIdPath.security[*].oauth2_clientCredentials").flatMap { it }).containsOnly(
+                "prod:r")
+        then(openApiJsonPathContext.read<List<List<String>>>("$productGetByIdPath.security[*].oauth2_authorizationCode").flatMap { it }).containsOnly(
+                "prod:r")
+    }
+
+    fun thenGetProductByIdOperationIsValidWithXml() {
+        val productGetByIdPath = "paths./products/{id}.get"
+        then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.tags")).isNotNull()
+        then(openApiJsonPathContext.read<String>("$productGetByIdPath.operationId")).isNotNull()
+        then(openApiJsonPathContext.read<String>("$productGetByIdPath.summary")).isNotNull()
+        then(openApiJsonPathContext.read<String>("$productGetByIdPath.description")).isNotNull()
+        then(openApiJsonPathContext.read<Any>("$productGetByIdPath.deprecated")).isNull()
+
+        then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'id')].in")).containsOnly(
+                "path")
+        then(openApiJsonPathContext.read<List<Boolean>>("$productGetByIdPath.parameters[?(@.name == 'id')].required")).containsOnly(
+                true)
+        then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'locale')].in")).containsOnly(
+                "query")
+        then(openApiJsonPathContext.read<List<Boolean>>("$productGetByIdPath.parameters[?(@.name == 'locale')].required")).containsOnly(
+                false)
+        then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'locale')].schema.type")).containsOnly(
+                "string")
+        then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'Authorization')].in")).containsOnly(
+                "header")
+        then(openApiJsonPathContext.read<List<Boolean>>("$productGetByIdPath.parameters[?(@.name == 'Authorization')].required")).containsOnly(
+                true)
+        then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'Authorization')].example")).containsOnly(
+                "some example")
+        then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'Authorization')].schema.type")).containsOnly(
+                "string")
+
+        then(openApiJsonPathContext.read<String>("$productGetByIdPath.requestBody")).isNull()
+
+        then(openApiJsonPathContext.read<Any>("$productGetByIdPath.responses.200.description")).isNotNull()
+        then(openApiJsonPathContext.read<Any>("$productGetByIdPath.responses.200.headers.SIGNATURE.schema.type")).isNotNull()
+        then(openApiJsonPathContext.read<Any>("$productGetByIdPath.responses.200.content.application/xml.schema.\$ref")).isNotNull()
+        then(openApiJsonPathContext.read<Any>("$productGetByIdPath.responses.200.content.application/xml.examples.test.value")).isNotNull()
+
+        then(openApiJsonPathContext.read<List<List<String>>>("$productGetByIdPath.security[*].oauth2_clientCredentials").flatMap { it }).containsOnly(
+                "prod:r")
+        then(openApiJsonPathContext.read<List<List<String>>>("$productGetByIdPath.security[*].oauth2_authorizationCode").flatMap { it }).containsOnly(
+                "prod:r")
     }
 
     private fun thenServersPresent() {
@@ -191,14 +251,23 @@ class OpenApi3GeneratorTest {
         then(openApiJsonPathContext.read<String>("tags[1].description")).isEqualTo("tag2 description")
     }
 
+    private fun thenSchemaPresentNamedLike(desiredNamepart: String) {
+        val schemas = openApiJsonPathContext.read<Map<String, Any>>("components.schemas")
+        then(schemas).isNotEmpty()
+        val schemakey = schemas.filterKeys { key -> key.contains(desiredNamepart) }.keys
+        then(schemakey).hasSize(1)
+        then(openApiJsonPathContext.read<Map<String, Any>>("components.schemas." + schemakey.first() + ".properties")).hasSize(
+                2)
+    }
+
     private fun thenOAuth2SecuritySchemesPresent() {
         then(openApiJsonPathContext.read<String>("components.securitySchemes.oauth2.type")).isEqualTo("oauth2")
         then(openApiJsonPathContext.read<Map<String, Any>>("components.securitySchemes.oauth2.flows"))
-            .containsKeys("clientCredentials", "authorizationCode")
+                .containsKeys("clientCredentials", "authorizationCode")
         then(openApiJsonPathContext.read<Map<String, Any>>("components.securitySchemes.oauth2.flows.clientCredentials.scopes"))
-            .containsKeys("prod:r")
+                .containsKeys("prod:r")
         then(openApiJsonPathContext.read<Map<String, Any>>("components.securitySchemes.oauth2.flows.authorizationCode.scopes"))
-            .containsKeys("prod:r")
+                .containsKeys("prod:r")
     }
 
     private fun thenJWTSecuritySchemesPresent() {
@@ -414,17 +483,32 @@ class OpenApi3GeneratorTest {
 
     private fun givenGetProductResourceModel() {
         resources = listOf(
-            ResourceModel(
-                operationId = "test",
-                summary = "summary",
-                description = "description",
-                privateResource = false,
-                deprecated = false,
-                tags = setOf("tag1", "tag2"),
-                request = getProductRequest(),
-                response = getProductResponse()
-            )
-        )
+                ResourceModel(
+                        operationId = "test",
+                        summary = "summary",
+                        description = "description",
+                        privateResource = false,
+                        deprecated = false,
+                        tags = setOf("tag1", "tag2"),
+                        request = getProductRequest(),
+                        response = getProductResponse()
+                             )
+                          )
+    }
+
+    private fun givenGetProductResourceModelWithXmlResponse() {
+        resources = listOf(
+                ResourceModel(
+                        operationId = "test",
+                        summary = "summary",
+                        description = "description",
+                        privateResource = false,
+                        deprecated = false,
+                        tags = setOf("tag1", "tag2"),
+                        request = getProductRequest(),
+                        response = getProductXmlResponse()
+                             )
+                          )
     }
 
     private fun givenGetProductResourceModelWithJWTSecurityRequirement() {
@@ -462,44 +546,72 @@ class OpenApi3GeneratorTest {
 
     private fun getProductResponse(): ResponseModel {
         return ResponseModel(
-            status = 200,
-            contentType = "application/json",
-            headers = listOf(
-                HeaderDescriptor(
-                    name = "SIGNATURE",
-                    description = "This is some signature",
-                    type = "STRING",
-                    optional = false
-                )
-            ),
-            responseFields = listOf(
-                FieldDescriptor(
-                    path = "_id",
-                    description = "ID of the product",
-                    type = "STRING"
-                ),
-                FieldDescriptor(
-                    path = "description",
-                    description = "Product description, localized.",
-                    type = "STRING"
-                )
-            ),
-            example = """{
+                status = 200,
+                contentType = "application/json",
+                headers = listOf(
+                        HeaderDescriptor(
+                                name = "SIGNATURE",
+                                description = "This is some signature",
+                                type = "STRING",
+                                optional = false
+                                        )
+                                ),
+                responseFields = listOf(
+                        FieldDescriptor(
+                                path = "_id",
+                                description = "ID of the product",
+                                type = "STRING"
+                                       ),
+                        FieldDescriptor(
+                                path = "description",
+                                description = "Product description, localized.",
+                                type = "STRING"
+                                       )
+                                       ),
+                example = """{
                 "_id": "123",
                 "description": "Good stuff!"
             }"""
-        )
+                            )
+    }
+
+    private fun getProductXmlResponse(): ResponseModel {
+        return ResponseModel(
+                status = 200,
+                contentType = "application/xml",
+                headers = listOf(
+                        HeaderDescriptor(
+                                name = "SIGNATURE",
+                                description = "This is some signature",
+                                type = "STRING",
+                                optional = false
+                                        )
+                                ),
+                responseFields = listOf(
+                        FieldDescriptor(
+                                path = "TestDataHolder/_id",
+                                description = "ID of the product",
+                                type = "STRING"
+                                       ),
+                        FieldDescriptor(
+                                path = "TestDataHolder/description",
+                                description = "Product description, localized.",
+                                type = "STRING"
+                                       )
+                                       ),
+                example = """<?xml version="1.0" encoding="UTF-8"?><TestDataHolder><_id>123</_id><description>Good stuff!</description></TestDataHolder>""".trimMargin()
+                            )
     }
 
     private fun getProductHalResponse(): ResponseModel {
         return ResponseModel(
-            status = 200,
-            contentType = "application/hal+json",
-            responseFields = listOf(
-                FieldDescriptor(
-                    path = "_id",
-                    description = "ID of the product",
-                    type = "STRING"
+                status = 200,
+                contentType = "application/hal+json",
+                responseFields = listOf(
+                        FieldDescriptor(
+                                path = "_id",
+                                description = "ID of the product",
+                                type = "STRING"
                 ),
                 FieldDescriptor(
                     path = "description1",

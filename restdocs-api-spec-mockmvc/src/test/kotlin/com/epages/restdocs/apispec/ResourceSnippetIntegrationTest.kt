@@ -142,7 +142,6 @@ fun buildFullResourceSnippet(): ResourceSnippet {
                    )
 }
 
-
 fun fieldDescriptorsForXmlRequest(): FieldDescriptors {
     val fields = ConstrainedFields(ResourceSnippetIntegrationTest.TestDataHolder::class.java)
     return ResourceDocumentation.fields(
@@ -152,7 +151,6 @@ fun fieldDescriptorsForXmlRequest(): FieldDescriptors {
             fields.withPath("testDataHolder/count").type(JsonFieldType.NUMBER).description("the count")
                                        )
 }
-
 
 fun fieldDescriptorsForXmlResponse(): FieldDescriptors {
     val fields = ConstrainedFields(ResourceSnippetIntegrationTest.TestDataHolder::class.java)

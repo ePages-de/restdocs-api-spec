@@ -51,7 +51,6 @@ object OpenApi3Generator {
         oauth2SecuritySchemeDefinition: Oauth2Configuration? = null
     ): OpenAPI {
         return OpenAPI().apply {
-
             this.servers = servers
             info = Info().apply {
                 this.title = title
@@ -128,10 +127,10 @@ object OpenApi3Generator {
             .forEach {
                 it.schema(
                     extractOrFindSchema(
-                        schemasToKeys,
-                        it.schema,
-                        generateSchemaName(path)
-                    )
+                            schemasToKeys,
+                            it.schema,
+                            generateSchemaName(path)
+                                       )
                 )
             }
     }
@@ -140,7 +139,7 @@ object OpenApi3Generator {
         val schemaKey = if (schemasToKeys.containsKey(schema)) {
             schemasToKeys[schema]!!
         } else {
-            val name = schemaNameGenerator(schema)
+            val name = if (!schema.title.isNullOrEmpty()) schema.title else schemaNameGenerator(schema)
             schemasToKeys[schema] = name
             name
         }

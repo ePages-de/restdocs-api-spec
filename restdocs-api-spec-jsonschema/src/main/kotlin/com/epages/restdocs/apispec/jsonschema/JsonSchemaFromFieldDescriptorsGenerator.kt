@@ -18,19 +18,54 @@ import org.everit.json.schema.Schema
 import org.everit.json.schema.StringSchema
 import org.everit.json.schema.internal.JSONPrinter
 import java.io.StringWriter
-import java.util.ArrayList
+import java.util.*
 import java.util.Collections.emptyList
 import java.util.function.Predicate
 
 class JsonSchemaFromFieldDescriptorsGenerator {
 
     fun generateSchema(fieldDescriptors: List<FieldDescriptor>, title: String? = null): String {
-        val jsonFieldPaths = reduceFieldDescriptors(fieldDescriptors)
-            .map { JsonFieldPath.compile(it) }
+        var workingFieldDescriptors = fieldDescriptors
 
-        val schema = traverse(emptyList(), jsonFieldPaths, ObjectSchema.builder().title(title) as ObjectSchema.Builder)
+        var rootElementName = ""
+        if (fieldDescriptors.any { fieldDescriptor -> fieldDescriptor.path.contains('/') }) {
+            rootElementName = findRootElementName(fieldDescriptors)
+            workingFieldDescriptors = replaceRootElementAndSlashes(fieldDescriptors, rootElementName)
+        }
+
+        val jsonFieldPaths = reduceFieldDescriptors(workingFieldDescriptors)
+                .map { JsonFieldPath.compile(it) }
+
+        val schemaTitle = if (title.isNullOrEmpty()) rootElementName else title
+        val schema = traverse(emptyList(),
+                              jsonFieldPaths,
+                              ObjectSchema.builder().title(schemaTitle) as ObjectSchema.Builder)
 
         return toFormattedString(unWrapRootArray(jsonFieldPaths, schema))
+    }
+
+    private fun findRootElementName(fieldDescriptors: List<FieldDescriptor>): String {
+        val distinctStarters = fieldDescriptors.map { fieldDescriptor -> fieldDescriptor.path.split('/').first() }.distinct()
+        if (distinctStarters.size == 1) {
+            return distinctStarters.first()
+        }
+        return ""
+    }
+
+    private fun replaceRootElementAndSlashes(fieldDescriptors: List<FieldDescriptor>,
+                                             rootElementName: String): List<FieldDescriptor> {
+        return fieldDescriptors
+                .filter { fieldDescriptor -> fieldDescriptor.path != rootElementName }
+                .map { fieldDescriptor ->
+                    FieldDescriptor(
+                            fieldDescriptor.path.replace(rootElementName + "/", "").replace('/', '.'),
+                            fieldDescriptor.description,
+                            fieldDescriptor.type,
+                            fieldDescriptor.optional,
+                            fieldDescriptor.ignored,
+                            fieldDescriptor.attributes
+                                   )
+                }
     }
 
     /**
@@ -40,8 +75,8 @@ class JsonSchemaFromFieldDescriptorsGenerator {
      */
     private fun reduceFieldDescriptors(fieldDescriptors: List<FieldDescriptor>): List<FieldDescriptorWithSchemaType> {
         return fieldDescriptors
-            .map {
-                FieldDescriptorWithSchemaType.fromFieldDescriptor(
+                .map {
+                    FieldDescriptorWithSchemaType.fromFieldDescriptor(
                     it
                 )
             }
