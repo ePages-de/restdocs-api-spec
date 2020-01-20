@@ -32,7 +32,7 @@ class OpenApi3GeneratorTest {
 
         whenOpenApiObjectGenerated()
 
-        thenGetProductByIdOperationIsValid()
+        thenGetProductByIdOperationIsValid("application/json")
         thenOAuth2SecuritySchemesPresent()
         thenInfoFieldsPresent()
         thenTagFieldsPresent()
@@ -47,7 +47,7 @@ class OpenApi3GeneratorTest {
 
         whenOpenApiObjectGenerated()
 
-        thenGetProductByIdOperationIsValidWithXml()
+        thenGetProductByIdOperationIsValid("application/xml")
         thenOAuth2SecuritySchemesPresent()
         thenInfoFieldsPresent()
         thenTagFieldsPresent()
@@ -161,7 +161,7 @@ class OpenApi3GeneratorTest {
         thenOpenApiSpecIsValid()
     }
 
-    fun thenGetProductByIdOperationIsValid() {
+    fun thenGetProductByIdOperationIsValid(contentType: String) {
         val productGetByIdPath = "paths./products/{id}.get"
         then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.tags")).isNotNull()
         then(openApiJsonPathContext.read<String>("$productGetByIdPath.operationId")).isNotNull()
@@ -185,48 +185,8 @@ class OpenApi3GeneratorTest {
 
         then(openApiJsonPathContext.read<Any>("$productGetByIdPath.responses.200.description")).isNotNull()
         then(openApiJsonPathContext.read<Any>("$productGetByIdPath.responses.200.headers.SIGNATURE.schema.type")).isNotNull()
-        then(openApiJsonPathContext.read<Any>("$productGetByIdPath.responses.200.content.application/json.schema.\$ref")).isNotNull()
-        then(openApiJsonPathContext.read<Any>("$productGetByIdPath.responses.200.content.application/json.examples.test.value")).isNotNull()
-
-        then(openApiJsonPathContext.read<List<List<String>>>("$productGetByIdPath.security[*].oauth2_clientCredentials").flatMap { it }).containsOnly(
-                "prod:r")
-        then(openApiJsonPathContext.read<List<List<String>>>("$productGetByIdPath.security[*].oauth2_authorizationCode").flatMap { it }).containsOnly(
-                "prod:r")
-    }
-
-    fun thenGetProductByIdOperationIsValidWithXml() {
-        val productGetByIdPath = "paths./products/{id}.get"
-        then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.tags")).isNotNull()
-        then(openApiJsonPathContext.read<String>("$productGetByIdPath.operationId")).isNotNull()
-        then(openApiJsonPathContext.read<String>("$productGetByIdPath.summary")).isNotNull()
-        then(openApiJsonPathContext.read<String>("$productGetByIdPath.description")).isNotNull()
-        then(openApiJsonPathContext.read<Any>("$productGetByIdPath.deprecated")).isNull()
-
-        then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'id')].in")).containsOnly(
-                "path")
-        then(openApiJsonPathContext.read<List<Boolean>>("$productGetByIdPath.parameters[?(@.name == 'id')].required")).containsOnly(
-                true)
-        then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'locale')].in")).containsOnly(
-                "query")
-        then(openApiJsonPathContext.read<List<Boolean>>("$productGetByIdPath.parameters[?(@.name == 'locale')].required")).containsOnly(
-                false)
-        then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'locale')].schema.type")).containsOnly(
-                "string")
-        then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'Authorization')].in")).containsOnly(
-                "header")
-        then(openApiJsonPathContext.read<List<Boolean>>("$productGetByIdPath.parameters[?(@.name == 'Authorization')].required")).containsOnly(
-                true)
-        then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'Authorization')].example")).containsOnly(
-                "some example")
-        then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'Authorization')].schema.type")).containsOnly(
-                "string")
-
-        then(openApiJsonPathContext.read<String>("$productGetByIdPath.requestBody")).isNull()
-
-        then(openApiJsonPathContext.read<Any>("$productGetByIdPath.responses.200.description")).isNotNull()
-        then(openApiJsonPathContext.read<Any>("$productGetByIdPath.responses.200.headers.SIGNATURE.schema.type")).isNotNull()
-        then(openApiJsonPathContext.read<Any>("$productGetByIdPath.responses.200.content.application/xml.schema.\$ref")).isNotNull()
-        then(openApiJsonPathContext.read<Any>("$productGetByIdPath.responses.200.content.application/xml.examples.test.value")).isNotNull()
+        then(openApiJsonPathContext.read<Any>("$productGetByIdPath.responses.200.content.$contentType.schema.\$ref")).isNotNull()
+        then(openApiJsonPathContext.read<Any>("$productGetByIdPath.responses.200.content.$contentType.examples.test.value")).isNotNull()
 
         then(openApiJsonPathContext.read<List<List<String>>>("$productGetByIdPath.security[*].oauth2_clientCredentials").flatMap { it }).containsOnly(
                 "prod:r")
