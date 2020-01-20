@@ -26,7 +26,7 @@ class JsonSchemaFromFieldDescriptorsGenerator {
     fun generateSchema(fieldDescriptors: List<FieldDescriptor>, title: String? = null): String {
         var workingFieldDescriptors = fieldDescriptors
 
-        var rootElementName = ""
+        var rootElementName: String? = null
         if (fieldDescriptors.any { fieldDescriptor -> fieldDescriptor.path.contains('/') }) {
             rootElementName = findRootElementName(fieldDescriptors)
             workingFieldDescriptors = replaceRootElementAndSlashes(fieldDescriptors, rootElementName)
@@ -35,7 +35,7 @@ class JsonSchemaFromFieldDescriptorsGenerator {
         val jsonFieldPaths = reduceFieldDescriptors(workingFieldDescriptors)
                 .map { JsonFieldPath.compile(it) }
 
-        val schemaTitle = if (title.isNullOrEmpty()) rootElementName else title
+        val schemaTitle = if (!rootElementName.isNullOrEmpty()) rootElementName else title
         val schema = traverse(emptyList(),
             jsonFieldPaths,
             ObjectSchema.builder().title(schemaTitle) as ObjectSchema.Builder)
