@@ -15,6 +15,9 @@ It currently supports:
 We plan to add support for:
 - [RAML](https://raml.org)
 
+Please note that this extension was developed for JSON-based APIs.
+We do not expect this extension to build usable API specification for non-JSON request or response bodies.
+
 ## Motivation
 
 [Spring REST Docs](https://projects.spring.io/spring-restdocs/) is a great tool to produce documentation for your RESTful services that is accurate and readable.
@@ -560,4 +563,3 @@ See [openapi2raml.gradle](samples/restdocs-api-spec-sample/openapi2raml.gradle).
 ./gradlew restdocs-api-spec-sample:openapi
 ./gradlew -b samples/restdocs-api-spec-sample/openapi2raml.gradle openapi2raml
 ```
-
