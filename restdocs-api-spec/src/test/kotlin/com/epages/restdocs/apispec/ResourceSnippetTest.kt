@@ -79,7 +79,7 @@ class ResourceSnippetTest {
 
         then(resourceSnippetJson.read<List<*>>("tags")).hasSize(3)
 
-        then(resourceSnippetJson.read<String>("request.schemaName")).isNotEmpty()
+        then(resourceSnippetJson.read<String>("request.schema.name")).isNotEmpty()
 
         then(resourceSnippetJson.read<List<*>>("request.headers")).hasSize(1)
         then(resourceSnippetJson.read<String>("request.headers[0].name")).isNotEmpty()
@@ -110,7 +110,7 @@ class ResourceSnippetTest {
         then(resourceSnippetJson.read<Int>("response.status")).isEqualTo(HttpStatus.CREATED.value())
         then(resourceSnippetJson.read<String>("response.example")).isNotEmpty()
 
-        then(resourceSnippetJson.read<String>("response.schemaName")).isNotEmpty()
+        then(resourceSnippetJson.read<String>("response.schema.name")).isNotEmpty()
 
         then(resourceSnippetJson.read<List<*>>("response.headers")).hasSize(1)
         then(resourceSnippetJson.read<String>("response.headers[0].name")).isNotEmpty()
@@ -314,7 +314,7 @@ class ResourceSnippetTest {
     }
 
     private fun givenRequestSchemaName() {
-        parametersBuilder.requestSchemaName("RequestSchema");
+        parametersBuilder.requestSchema(Schema(name = "RequestSchema"));
     }
 
     private fun givenResponseFieldDescriptors() {
@@ -322,7 +322,7 @@ class ResourceSnippetTest {
     }
 
     private fun givenResponseSchemaName() {
-        parametersBuilder.responseSchemaName("ResponseSchema");
+        parametersBuilder.responseSchema(Schema(name = "ResponseSchema"));
     }
 
     private fun givenIgnoredAndNotIgnoredRequestFieldDescriptors() {
