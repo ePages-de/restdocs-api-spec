@@ -63,7 +63,9 @@ class ResourceSnippetTest {
     fun should_generate_resourcemodel_for_operation_with_request_and_response_body() {
         givenOperationWithRequestAndResponseBody()
         givenRequestFieldDescriptors()
+        givenRequestSchemaName()
         givenResponseFieldDescriptors()
+        givenResponseSchemaName()
         givenPathParameterDescriptors()
         givenRequestParameterDescriptors()
         givenRequestAndResponseHeaderDescriptors()
@@ -76,6 +78,8 @@ class ResourceSnippetTest {
         thenResourceSnippetContainsCommonRequestAttributes()
 
         then(resourceSnippetJson.read<List<*>>("tags")).hasSize(3)
+
+        then(resourceSnippetJson.read<String>("request.schemaName")).isNotEmpty()
 
         then(resourceSnippetJson.read<List<*>>("request.headers")).hasSize(1)
         then(resourceSnippetJson.read<String>("request.headers[0].name")).isNotEmpty()
@@ -105,6 +109,8 @@ class ResourceSnippetTest {
 
         then(resourceSnippetJson.read<Int>("response.status")).isEqualTo(HttpStatus.CREATED.value())
         then(resourceSnippetJson.read<String>("response.example")).isNotEmpty()
+
+        then(resourceSnippetJson.read<String>("response.schemaName")).isNotEmpty()
 
         then(resourceSnippetJson.read<List<*>>("response.headers")).hasSize(1)
         then(resourceSnippetJson.read<String>("response.headers[0].name")).isNotEmpty()
@@ -307,8 +313,16 @@ class ResourceSnippetTest {
         parametersBuilder.requestFields(fieldWithPath("comment").description("description"))
     }
 
+    private fun givenRequestSchemaName() {
+        parametersBuilder.requestSchemaName("RequestSchema");
+    }
+
     private fun givenResponseFieldDescriptors() {
         parametersBuilder.responseFields(fieldWithPath("comment").description("description"))
+    }
+
+    private fun givenResponseSchemaName() {
+        parametersBuilder.responseSchemaName("ResponseSchema");
     }
 
     private fun givenIgnoredAndNotIgnoredRequestFieldDescriptors() {
