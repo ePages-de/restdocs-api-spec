@@ -264,7 +264,7 @@ object OpenApi3Generator {
                     requestFields = requests.flatMap { it.request.requestFields },
                     examplesWithOperationId = requests.filter { it.request.example != null }.map { it.operationId to it.request.example!! }.toMap(),
                     contentType = contentType,
-                    schemaName = requests.first().request.schema
+                    schemaName = requests.first().request.schema?.name
                 )
             }.toMap()
             .let { contentTypeToMediaType ->
@@ -314,7 +314,7 @@ object OpenApi3Generator {
                     requestFields = requests.flatMap { it.response.responseFields },
                     examplesWithOperationId = requests.map { it.operationId to it.response.example!! }.toMap(),
                     contentType = contentType,
-                    schemaName = responseModelsSameStatus.first().response.schema
+                    schemaName = responseModelsSameStatus.first().response.schema?.name
                 )
             }.toMap()
             .let { contentTypeToMediaType ->
