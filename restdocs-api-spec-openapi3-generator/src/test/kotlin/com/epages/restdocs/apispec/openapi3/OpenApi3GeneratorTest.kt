@@ -142,7 +142,17 @@ class OpenApi3GeneratorTest {
 
         whenOpenApiObjectGenerated()
 
-        thenCustomSchemaNamesAreSet()
+        thenCustomSchemaNameOfSingleOperationAreSet()
+        thenOpenApiSpecIsValid()
+    }
+
+    @Test
+    fun `should not combine same schemas with custom schema name from multiple resource models`() {
+        givenMultiplePatchProductResourceModelsWithCustomSchemaNames()
+
+        whenOpenApiObjectGenerated()
+
+        thenCustomSchemaNameOfMultipleOperationsAreSet()
         thenOpenApiSpecIsValid()
     }
 
@@ -208,11 +218,20 @@ class OpenApi3GeneratorTest {
         then(openApiJsonPathContext.read<String>("components.securitySchemes.bearerAuthJWT.bearerFormat")).isEqualTo("JWT")
     }
 
-    private fun thenCustomSchemaNamesAreSet() {
+    private fun thenCustomSchemaNameOfSingleOperationAreSet() {
         val schemas = openApiJsonPathContext.read<Map<String, Any>>("components.schemas")
         then(schemas.keys).size().isEqualTo(2)
         then(schemas.keys).contains("ProductRequest")
         then(schemas.keys).contains("ProductResponse")
+    }
+
+    private fun thenCustomSchemaNameOfMultipleOperationsAreSet() {
+        val schemas = openApiJsonPathContext.read<Map<String, Any>>("components.schemas")
+        then(schemas.keys).size().isEqualTo(4)
+        then(schemas.keys).contains("ProductRequest1")
+        then(schemas.keys).contains("ProductResponse1")
+        then(schemas.keys).contains("ProductRequest2")
+        then(schemas.keys).contains("ProductResponse2")
     }
 
     private fun whenOpenApiObjectGenerated() {
@@ -465,6 +484,31 @@ class OpenApi3GeneratorTest {
         )
     }
 
+    private fun givenMultiplePatchProductResourceModelsWithCustomSchemaNames() {
+        resources = listOf(
+                ResourceModel(
+                        operationId = "test1",
+                        summary = "summary1",
+                        description = "description1",
+                        privateResource = false,
+                        deprecated = false,
+                        tags = setOf("tag1", "tag2"),
+                        request = getProductPatchRequest(schema = Schema("ProductRequest1"), path = "/products1/{id}"),
+                        response = getProductResponse(schema = Schema("ProductResponse1"))
+                ),
+                ResourceModel(
+                        operationId = "test2",
+                        summary = "summary2",
+                        description = "description2",
+                        privateResource = false,
+                        deprecated = false,
+                        tags = setOf("tag1", "tag2"),
+                        request = getProductPatchRequest(schema = Schema("ProductRequest2"), path = "/products2/{id}"),
+                        response = getProductResponse(schema = Schema("ProductResponse2"))
+                )
+        )
+    }
+
     private fun getProductErrorResponse(): ResponseModel {
         return ResponseModel(
             status = 400,
@@ -542,9 +586,9 @@ class OpenApi3GeneratorTest {
         )
     }
 
-    private fun getProductPatchRequest(schema: Schema? = null): RequestModel {
+    private fun getProductPatchRequest(schema: Schema? = null, path: String = "/products/{id}"): RequestModel {
         return RequestModel(
-            path = "/products/{id}",
+            path = path,
             method = HTTPMethod.PATCH,
             headers = listOf(),
             pathParameters = listOf(),
