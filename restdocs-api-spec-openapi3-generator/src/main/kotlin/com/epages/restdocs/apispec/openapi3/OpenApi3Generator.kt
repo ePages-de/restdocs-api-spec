@@ -140,7 +140,7 @@ object OpenApi3Generator {
         val schemaKey = if (schemasToKeys.containsKey(schema)) {
             schemasToKeys[schema]!!
         } else {
-            val name = if (schema.name != null) schema.name else schemaNameGenerator(schema)
+            val name = schema.name ?: schemaNameGenerator(schema)
             schemasToKeys[schema] = name
             name
         }
