@@ -1,34 +1,13 @@
 package com.epages.restdocs.apispec.openapi2
 
 import com.epages.restdocs.apispec.jsonschema.JsonSchemaFromFieldDescriptorsGenerator
-import com.epages.restdocs.apispec.model.FieldDescriptor
-import com.epages.restdocs.apispec.model.HTTPMethod
-import com.epages.restdocs.apispec.model.HeaderDescriptor
-import com.epages.restdocs.apispec.model.Oauth2Configuration
-import com.epages.restdocs.apispec.model.ParameterDescriptor
-import com.epages.restdocs.apispec.model.ResourceModel
-import com.epages.restdocs.apispec.model.ResponseModel
-import com.epages.restdocs.apispec.model.SecurityRequirements
-import com.epages.restdocs.apispec.model.SecurityType
+import com.epages.restdocs.apispec.model.*
 import com.fasterxml.jackson.module.kotlin.readValue
-import io.swagger.models.Info
-import io.swagger.models.Model
-import io.swagger.models.ModelImpl
-import io.swagger.models.Operation
-import io.swagger.models.Path
-import io.swagger.models.RefModel
-import io.swagger.models.Response
-import io.swagger.models.Scheme
-import io.swagger.models.Swagger
-import io.swagger.models.Tag
+import io.swagger.models.*
 import io.swagger.models.auth.ApiKeyAuthDefinition
 import io.swagger.models.auth.BasicAuthDefinition
 import io.swagger.models.auth.OAuth2Definition
-import io.swagger.models.parameters.BodyParameter
-import io.swagger.models.parameters.HeaderParameter
-import io.swagger.models.parameters.Parameter
-import io.swagger.models.parameters.PathParameter
-import io.swagger.models.parameters.QueryParameter
+import io.swagger.models.parameters.*
 import io.swagger.models.properties.PropertyBuilder
 import io.swagger.util.Json
 import java.util.Comparator.comparing
@@ -153,7 +132,7 @@ object OpenApi20Generator {
         val schemaKey = if (schemasToKeys.containsKey(schema)) {
             schemasToKeys[schema]!!
         } else {
-            val name = schemaNameGenerator(schema)
+            val name = schema.reference ?: schemaNameGenerator(schema)
             schemasToKeys[schema] = name
             name
         }
@@ -293,7 +272,8 @@ object OpenApi20Generator {
                             modelsWithSamePathAndMethod
                                 .filter { it.request.contentType != null && it.request.example != null }
                                 .map { it.request.contentType!! to it.request.example!! }
-                                .toMap())
+                                .toMap(),
+                            firstModelForPathAndMethod.request.schema)
                     )
                 ).nullIfEmpty()
             responses = responsesByStatusCode(
@@ -428,11 +408,12 @@ object OpenApi20Generator {
         }
     }
 
-    private fun requestFieldDescriptor2Parameter(fieldDescriptors: List<FieldDescriptor>, examples: Map<String, String>): BodyParameter? {
+    private fun requestFieldDescriptor2Parameter(fieldDescriptors: List<FieldDescriptor>, examples: Map<String, String>, requestSchema: Schema?): BodyParameter? {
         val firstExample = examples.entries.sortedBy { it.key.length }.map { it.value }.firstOrNull()
         return if (!fieldDescriptors.isEmpty()) {
             val parsedSchema: Model = Json.mapper().readValue(JsonSchemaFromFieldDescriptorsGenerator().generateSchema(fieldDescriptors = fieldDescriptors))
             parsedSchema.example = firstExample // a schema can only have one example
+            parsedSchema.reference = requestSchema?.name
             BodyParameter().apply {
                 name = ""
                 schema = parsedSchema
@@ -458,8 +439,9 @@ object OpenApi20Generator {
                 .nullIfEmpty()
             examples = mapOf(responseModel.contentType to responseModel.example).nullIfEmpty()
             responseSchema = if (!responseModel.responseFields.isEmpty()) {
-                Json.mapper().readValue<Model>(
-                    JsonSchemaFromFieldDescriptorsGenerator().generateSchema(fieldDescriptors = responseModel.responseFields))
+                val parsedSchema: Model = Json.mapper().readValue(JsonSchemaFromFieldDescriptorsGenerator().generateSchema(fieldDescriptors = responseModel.responseFields))
+                parsedSchema.reference = responseModel.schema?.name
+                parsedSchema
             } else {
                 null
             }
