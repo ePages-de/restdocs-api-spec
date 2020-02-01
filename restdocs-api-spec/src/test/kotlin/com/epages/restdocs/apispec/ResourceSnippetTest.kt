@@ -314,7 +314,7 @@ class ResourceSnippetTest {
     }
 
     private fun givenRequestSchemaName() {
-        parametersBuilder.requestSchema(Schema(name = "RequestSchema"));
+        parametersBuilder.requestSchema(Schema(name = "RequestSchema"))
     }
 
     private fun givenResponseFieldDescriptors() {
@@ -322,7 +322,7 @@ class ResourceSnippetTest {
     }
 
     private fun givenResponseSchemaName() {
-        parametersBuilder.responseSchema(Schema(name = "ResponseSchema"));
+        parametersBuilder.responseSchema(Schema(name = "ResponseSchema"))
     }
 
     private fun givenIgnoredAndNotIgnoredRequestFieldDescriptors() {
