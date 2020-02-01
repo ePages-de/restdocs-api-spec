@@ -1,7 +1,17 @@
 package com.epages.restdocs.apispec.openapi2
 
 import com.epages.restdocs.apispec.jsonschema.JsonSchemaFromFieldDescriptorsGenerator
-import com.epages.restdocs.apispec.model.*
+import com.epages.restdocs.apispec.model.AbstractParameterDescriptor
+import com.epages.restdocs.apispec.model.FieldDescriptor
+import com.epages.restdocs.apispec.model.HTTPMethod
+import com.epages.restdocs.apispec.model.HeaderDescriptor
+import com.epages.restdocs.apispec.model.Oauth2Configuration
+import com.epages.restdocs.apispec.model.ParameterDescriptor
+import com.epages.restdocs.apispec.model.RequestModel
+import com.epages.restdocs.apispec.model.ResourceModel
+import com.epages.restdocs.apispec.model.ResponseModel
+import com.epages.restdocs.apispec.model.SecurityRequirements
+import com.epages.restdocs.apispec.model.Schema
 import com.epages.restdocs.apispec.model.SecurityType.BASIC
 import com.epages.restdocs.apispec.model.SecurityType.OAUTH2
 import com.fasterxml.jackson.module.kotlin.readValue
