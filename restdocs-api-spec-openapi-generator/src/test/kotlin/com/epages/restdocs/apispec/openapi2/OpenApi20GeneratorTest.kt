@@ -518,7 +518,6 @@ class OpenApi20GeneratorTest {
         )
     }
 
-
     private fun givenHeadResourceModel(): List<ResourceModel> {
         return listOf(
             ResourceModel(
