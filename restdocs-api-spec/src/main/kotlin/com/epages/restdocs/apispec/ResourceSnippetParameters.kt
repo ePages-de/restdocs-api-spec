@@ -144,6 +144,7 @@ class ParameterDescriptorWithType(val name: String) : IgnorableDescriptor<Parame
 data class Schema(val name: String) {
 
     companion object {
+        @JvmStatic
         fun schema(name: String): Schema = Schema(name)
     }
 }
