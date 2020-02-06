@@ -14,6 +14,7 @@ import org.everit.json.schema.EmptySchema
 import org.everit.json.schema.NullSchema
 import org.everit.json.schema.NumberSchema
 import org.everit.json.schema.ObjectSchema
+import org.everit.json.schema.EnumSchema
 import org.everit.json.schema.Schema
 import org.everit.json.schema.StringSchema
 import org.everit.json.schema.internal.JSONPrinter
@@ -242,6 +243,7 @@ class JsonSchemaFromFieldDescriptorsGenerator {
                 "string" -> StringSchema.builder()
                     .minLength(minLengthString(this))
                     .maxLength(maxLengthString(this))
+                "enum" -> EnumSchema.builder().possibleValues(this.attributes.enumValues)
                 else -> throw IllegalArgumentException("unknown field type $type")
             }
 
