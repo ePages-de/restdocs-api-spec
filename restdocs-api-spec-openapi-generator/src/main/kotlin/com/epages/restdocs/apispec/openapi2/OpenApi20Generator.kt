@@ -10,6 +10,7 @@ import com.epages.restdocs.apispec.model.ResourceModel
 import com.epages.restdocs.apispec.model.ResponseModel
 import com.epages.restdocs.apispec.model.SecurityRequirements
 import com.epages.restdocs.apispec.model.SecurityType
+import com.epages.restdocs.apispec.model.Schema
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.swagger.models.Info
 import io.swagger.models.Model
@@ -153,7 +154,7 @@ object OpenApi20Generator {
         val schemaKey = if (schemasToKeys.containsKey(schema)) {
             schemasToKeys[schema]!!
         } else {
-            val name = schemaNameGenerator(schema)
+            val name = schema.reference ?: schemaNameGenerator(schema)
             schemasToKeys[schema] = name
             name
         }
@@ -293,7 +294,8 @@ object OpenApi20Generator {
                             modelsWithSamePathAndMethod
                                 .filter { it.request.contentType != null && it.request.example != null }
                                 .map { it.request.contentType!! to it.request.example!! }
-                                .toMap())
+                                .toMap(),
+                            firstModelForPathAndMethod.request.schema)
                     )
                 ).nullIfEmpty()
             responses = responsesByStatusCode(
@@ -428,11 +430,12 @@ object OpenApi20Generator {
         }
     }
 
-    private fun requestFieldDescriptor2Parameter(fieldDescriptors: List<FieldDescriptor>, examples: Map<String, String>): BodyParameter? {
+    private fun requestFieldDescriptor2Parameter(fieldDescriptors: List<FieldDescriptor>, examples: Map<String, String>, requestSchema: Schema?): BodyParameter? {
         val firstExample = examples.entries.sortedBy { it.key.length }.map { it.value }.firstOrNull()
         return if (!fieldDescriptors.isEmpty()) {
             val parsedSchema: Model = Json.mapper().readValue(JsonSchemaFromFieldDescriptorsGenerator().generateSchema(fieldDescriptors = fieldDescriptors))
             parsedSchema.example = firstExample // a schema can only have one example
+            parsedSchema.reference = requestSchema?.name
             BodyParameter().apply {
                 name = ""
                 schema = parsedSchema
@@ -458,8 +461,9 @@ object OpenApi20Generator {
                 .nullIfEmpty()
             examples = mapOf(responseModel.contentType to responseModel.example).nullIfEmpty()
             responseSchema = if (!responseModel.responseFields.isEmpty()) {
-                Json.mapper().readValue<Model>(
-                    JsonSchemaFromFieldDescriptorsGenerator().generateSchema(fieldDescriptors = responseModel.responseFields))
+                val parsedSchema: Model = Json.mapper().readValue(JsonSchemaFromFieldDescriptorsGenerator().generateSchema(fieldDescriptors = responseModel.responseFields))
+                parsedSchema.reference = responseModel.schema?.name
+                parsedSchema
             } else {
                 null
             }

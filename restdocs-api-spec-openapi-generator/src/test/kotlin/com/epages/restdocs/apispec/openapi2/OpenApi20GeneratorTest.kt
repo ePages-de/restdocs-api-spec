@@ -11,6 +11,7 @@ import com.epages.restdocs.apispec.model.RequestModel
 import com.epages.restdocs.apispec.model.ResourceModel
 import com.epages.restdocs.apispec.model.ResponseModel
 import com.epages.restdocs.apispec.model.SecurityRequirements
+import com.epages.restdocs.apispec.model.Schema
 import com.epages.restdocs.apispec.model.SecurityType.BASIC
 import com.epages.restdocs.apispec.model.SecurityType.OAUTH2
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -188,6 +189,26 @@ class OpenApi20GeneratorTest {
         then(schemaNameAndSchemaMap.size).isEqualTo(2)
     }
 
+    @Test
+    fun `should use custom schema name from resource model`() {
+        val api = givenPostProductResourceModelWithCustomSchemaNames()
+
+        val openapi = whenOpenApiObjectGenerated(api)
+
+        thenCustomSchemaNameOfSingleOperationAreSet(openapi)
+        thenValidateOpenApi(openapi)
+    }
+
+    @Test
+    fun `should not combine same schemas with custom schema name from multiple resource models`() {
+        val api = givenMultiplePostProductResourceModelsWithCustomSchemaNames()
+
+        val openapi = whenOpenApiObjectGenerated(api)
+
+        thenCustomSchemaNameOfMultipleOperationsAreSet(openapi)
+        thenValidateOpenApi(openapi)
+    }
+
     private fun whenExtractOrFindSchema(schemaNameAndSchemaMap: MutableMap<Model, String>, ordersSchema: Model, shopsSchema: Model) {
         OpenApi20Generator.extractOrFindSchema(schemaNameAndSchemaMap, ordersSchema, OpenApi20Generator.generateSchemaName("/orders"))
         OpenApi20Generator.extractOrFindSchema(schemaNameAndSchemaMap, shopsSchema, OpenApi20Generator.generateSchemaName("/shops"))
@@ -357,6 +378,20 @@ class OpenApi20GeneratorTest {
         ).isEqualTo(successfulDeleteProductModel.response.example)
     }
 
+    private fun thenCustomSchemaNameOfSingleOperationAreSet(openapi: Swagger) {
+        then(openapi.definitions.keys).size().isEqualTo(2)
+        then(openapi.definitions.keys).contains("ProductRequest")
+        then(openapi.definitions.keys).contains("ProductResponse")
+    }
+
+    private fun thenCustomSchemaNameOfMultipleOperationsAreSet(openapi: Swagger) {
+        then(openapi.definitions.keys).size().isEqualTo(4)
+        then(openapi.definitions.keys).contains("ProductRequest1")
+        then(openapi.definitions.keys).contains("ProductResponse1")
+        then(openapi.definitions.keys).contains("ProductRequest2")
+        then(openapi.definitions.keys).contains("ProductResponse2")
+    }
+
     private fun givenGetProductResourceModel(): List<ResourceModel> {
         return listOf(
             ResourceModel(
@@ -452,6 +487,37 @@ class OpenApi20GeneratorTest {
         )
     }
 
+    private fun givenPostProductResourceModelWithCustomSchemaNames(): List<ResourceModel> {
+        return listOf(
+                ResourceModel(
+                        operationId = "test",
+                        privateResource = false,
+                        deprecated = false,
+                        request = postProductRequest(schema = Schema("ProductRequest")),
+                        response = postProduct200Response(getProductPayloadExample(), schema = Schema("ProductResponse"))
+                )
+        )
+    }
+
+    private fun givenMultiplePostProductResourceModelsWithCustomSchemaNames(): List<ResourceModel> {
+        return listOf(
+                ResourceModel(
+                        operationId = "test1",
+                        privateResource = false,
+                        deprecated = false,
+                        request = postProductRequest(schema = Schema("ProductRequest1"), path = "/products1"),
+                        response = postProduct200Response(getProductPayloadExample(), schema = Schema("ProductResponse1"))
+                ),
+                ResourceModel(
+                        operationId = "test2",
+                        privateResource = false,
+                        deprecated = false,
+                        request = postProductRequest(schema = Schema("ProductRequest2"), path = "/products2"),
+                        response = postProduct200Response(getProductPayloadExample(), schema = Schema("ProductResponse2"))
+                )
+        )
+    }
+
     private fun givenHeadResourceModel(): List<ResourceModel> {
         return listOf(
             ResourceModel(
@@ -521,11 +587,12 @@ class OpenApi20GeneratorTest {
         )
     }
 
-    private fun postProduct200Response(example: String): ResponseModel {
+    private fun postProduct200Response(example: String, schema: Schema? = null): ResponseModel {
         return ResponseModel(
             status = 200,
             contentType = "application/json",
             headers = listOf(),
+            schema = schema,
             responseFields = listOf(
                 FieldDescriptor(
                     path = "_id",
@@ -556,6 +623,7 @@ class OpenApi20GeneratorTest {
         return ResponseModel(
             status = 200,
             contentType = "application/json",
+            schema = Schema("ProductResponse"),
             headers = listOf(
                 HeaderDescriptor(
                     name = "SIGNATURE",
@@ -695,11 +763,12 @@ class OpenApi20GeneratorTest {
         )
     }
 
-    private fun postProductRequest(): RequestModel {
+    private fun postProductRequest(schema: Schema? = null, path: String = "/products"): RequestModel {
         return RequestModel(
-            path = "/products",
+            path = path,
             method = HTTPMethod.POST,
             contentType = "application/json",
+            schema = schema,
             securityRequirements = SecurityRequirements(
                 type = OAUTH2,
                 requiredScopes = listOf("prod:c")

@@ -19,6 +19,8 @@ data class ResourceSnippetParameters @JvmOverloads constructor(
     val description: String? = null,
     val privateResource: Boolean = false,
     val deprecated: Boolean = false,
+    val requestSchema: Schema? = null,
+    val responseSchema: Schema? = null,
     val requestFields: List<FieldDescriptor> = emptyList(),
     val responseFields: List<FieldDescriptor> = emptyList(),
     val links: List<LinkDescriptor> = emptyList(),
@@ -136,10 +138,25 @@ class ParameterDescriptorWithType(val name: String) : IgnorableDescriptor<Parame
     }
 }
 
+/**
+ * Represents a request/response object schema.
+ */
+data class Schema(val name: String) {
+
+    companion object {
+        @JvmStatic
+        fun schema(name: String): Schema = Schema(name)
+    }
+}
+
 abstract class ResourceSnippetDetails {
     var summary: String? = null
         protected set
     var description: String? = null
+        protected set
+    var requestSchema: Schema? = null
+        protected set
+    var responseSchema: Schema? = null
         protected set
     var privateResource: Boolean = false
         protected set
@@ -150,6 +167,8 @@ abstract class ResourceSnippetDetails {
 
     abstract fun summary(summary: String?): ResourceSnippetDetails
     abstract fun description(description: String?): ResourceSnippetDetails
+    abstract fun requestSchema(requestSchema: Schema?): ResourceSnippetDetails
+    abstract fun responseSchema(responseSchema: Schema?): ResourceSnippetDetails
     abstract fun privateResource(privateResource: Boolean): ResourceSnippetDetails
     abstract fun deprecated(deprecated: Boolean): ResourceSnippetDetails
     abstract fun tag(tag: String): ResourceSnippetDetails
@@ -174,6 +193,8 @@ class ResourceSnippetParametersBuilder : ResourceSnippetDetails() {
 
     override fun summary(summary: String?) = apply { this.summary = summary }
     override fun description(description: String?) = apply { this.description = description }
+    override fun requestSchema(requestSchema: Schema?) = apply { this.requestSchema = requestSchema }
+    override fun responseSchema(responseSchema: Schema?) = apply { this.responseSchema = responseSchema }
     override fun privateResource(privateResource: Boolean) = apply { this.privateResource = privateResource }
     override fun deprecated(deprecated: Boolean) = apply { this.deprecated = deprecated }
 
@@ -220,6 +241,8 @@ class ResourceSnippetParametersBuilder : ResourceSnippetDetails() {
         description,
         privateResource,
         deprecated,
+        requestSchema,
+        responseSchema,
         requestFields,
         responseFields,
         links,

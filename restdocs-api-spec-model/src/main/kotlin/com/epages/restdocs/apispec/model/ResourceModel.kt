@@ -24,6 +24,10 @@ fun List<ResourceModel>.groupByPath(): Map<String, List<ResourceModel>> {
         .groupBy { it.request.path }
 }
 
+data class Schema(
+    val name: String
+)
+
 data class RequestModel(
     val path: String,
     val method: HTTPMethod,
@@ -34,7 +38,7 @@ data class RequestModel(
     val requestParameters: List<ParameterDescriptor>,
     val requestFields: List<FieldDescriptor>,
     val example: String? = null,
-    val schema: String? = null
+    val schema: Schema? = null
 )
 
 data class ResponseModel(
@@ -43,7 +47,7 @@ data class ResponseModel(
     val headers: List<HeaderDescriptor>,
     val responseFields: List<FieldDescriptor>,
     val example: String? = null,
-    val schema: String? = null
+    val schema: Schema? = null
 )
 
 enum class SimpleType {
