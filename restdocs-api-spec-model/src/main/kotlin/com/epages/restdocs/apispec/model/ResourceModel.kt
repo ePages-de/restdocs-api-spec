@@ -84,7 +84,8 @@ open class FieldDescriptor(
 )
 
 data class Attributes(
-    val validationConstraints: List<Constraint> = emptyList()
+    val validationConstraints: List<Constraint> = emptyList(),
+    val enumValues: List<String> = emptyList()
 )
 
 data class Constraint(

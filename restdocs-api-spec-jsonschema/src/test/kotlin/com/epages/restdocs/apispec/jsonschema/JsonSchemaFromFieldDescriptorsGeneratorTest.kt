@@ -12,6 +12,7 @@ import org.everit.json.schema.ArraySchema
 import org.everit.json.schema.ObjectSchema
 import org.everit.json.schema.Schema
 import org.everit.json.schema.StringSchema
+import org.everit.json.schema.EnumSchema
 import org.everit.json.schema.ValidationException
 import org.everit.json.schema.loader.SchemaLoader
 import org.json.JSONArray
@@ -194,6 +195,20 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
         thenSchemaValidatesJson("""{ some: [ { "a": "b" } ] }""")
     }
 
+    @Test
+    fun should_generate_schema_for_enum_values() {
+        givenFieldDescriptorWithEnum()
+
+        whenSchemaGenerated()
+
+        then(schema).isInstanceOf(ObjectSchema::class.java)
+        val objectSchema = schema as ObjectSchema?
+        then(objectSchema!!.propertySchemas["some"]).isInstanceOf(EnumSchema::class.java)
+
+        thenSchemaIsValid()
+        thenSchemaValidatesJson("""{ some: "ENUM_VALUE_1" }""")
+    }
+
     private fun thenSchemaIsValid() {
 
         val report = JsonSchemaFactory.byDefault()
@@ -311,6 +326,15 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
             ),
             FieldDescriptor("billingAddress.valid", "some", "BOOLEAN"),
             FieldDescriptor("paymentLineItem.lineItemTaxes", "some", "ARRAY")
+        )
+    }
+
+    private fun givenFieldDescriptorWithEnum() {
+        fieldDescriptors = listOf(
+                FieldDescriptor(
+                        "some",
+                        "some",
+                        "enum", attributes = Attributes(enumValues = listOf("ENUM_VALUE_1", "ENUM_VALUE_2")))
         )
     }
 
