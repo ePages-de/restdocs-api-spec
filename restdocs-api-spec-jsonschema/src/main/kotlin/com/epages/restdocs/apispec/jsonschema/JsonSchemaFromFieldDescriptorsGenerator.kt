@@ -69,9 +69,12 @@ class JsonSchemaFromFieldDescriptorsGenerator {
         val objectMapper = jacksonObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
         return StringWriter().use {
             schema.describeTo(JSONPrinter(it))
-            objectMapper.writeValueAsString(objectMapper.readTree(it.toString()))
+            val rawJsonSchema = cleanupRawJsonSchema(it.toString())
+            objectMapper.writeValueAsString(objectMapper.readTree(rawJsonSchema))
         }
     }
+
+    private fun cleanupRawJsonSchema(rawJsonSchema : String) = rawJsonSchema.replace("\"enum\"", "\"type\":\"string\",\"enum\"")
 
     private fun traverse(
         traversedSegments: List<String>,
