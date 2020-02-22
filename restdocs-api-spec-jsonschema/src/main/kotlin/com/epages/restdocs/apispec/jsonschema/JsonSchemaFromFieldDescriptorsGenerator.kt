@@ -74,7 +74,7 @@ class JsonSchemaFromFieldDescriptorsGenerator {
         }
     }
 
-    private fun cleanupRawJsonSchema(rawJsonSchema : String) = rawJsonSchema.replace("\"enum\"", "\"type\":\"string\",\"enum\"")
+    private fun cleanupRawJsonSchema(rawJsonSchema: String) = rawJsonSchema.replace("\"enum\"", "\"type\":\"string\",\"enum\"")
 
     private fun traverse(
         traversedSegments: List<String>,
