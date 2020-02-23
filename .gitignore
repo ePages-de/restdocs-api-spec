@@ -3,6 +3,7 @@
 !.gitignore
 !.travis.yml
 !.circleci
+!.github
 .settings/
 build/
 out/

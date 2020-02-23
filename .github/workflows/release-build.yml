@@ -1,0 +1,23 @@
+name: rest-docs-api-spec Fork Release
+
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+jobs:
+  release-build:
+    name: Release Build
+    runs-on: ubuntu-latest
+    env:
+      BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
+      BINTRAY_API_KEY: ${{ secrets.BINTRAY_API_KEY }}
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Build & Test
+        run: ./gradlew clean build coveralls
+
+      - name: Deploy to Bintray
+        run: ./gradlew binTrayUpload
