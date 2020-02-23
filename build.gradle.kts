@@ -46,7 +46,7 @@ val nonSampleProjects =  subprojects.filterNot { it.isSampleProject() }
 
 allprojects {
 
-    group = "com.epages"
+    group = "com.thowimmer"
     version = scmVer
 
     if (!isSampleProject()) {
@@ -112,7 +112,7 @@ subprojects {
             pkg(closureOf<PackageConfig> {
                 repo = "maven"
                 name = "restdocs-api-spec"
-                userOrg = "epages"
+                userOrg = "thowimmer"
                 version(closureOf<VersionConfig> {
                     gpg(closureOf<GpgConfig> {
                         sign = true
