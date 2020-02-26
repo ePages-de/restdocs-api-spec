@@ -34,11 +34,13 @@ import io.swagger.models.properties.PropertyBuilder
 import io.swagger.util.Json
 import java.util.Comparator.comparing
 import java.util.Comparator.comparingInt
+import java.util.regex.Pattern
 
 object OpenApi20Generator {
 
     private const val API_KEY_SECURITY_NAME = "api_key"
     private const val BASIC_SECURITY_NAME = "basic"
+    private val PATH_PARAMETER_PATTERN = """\{([^/}]+)}""".toRegex()
     internal fun generate(
         resources: List<ResourceModel>,
         basePath: String? = null,
@@ -322,10 +324,9 @@ object OpenApi20Generator {
     }
 
     private fun extractPathParameters(resourceModel: ResourceModel): List<PathParameter> {
-        val pathParameterNames = resourceModel.request.path
-            .split("/")
-            .filter { it.startsWith("{") && it.endsWith("}") }
-            .map { it.removePrefix("{").removeSuffix("}") }
+        val pathParameterNames = PATH_PARAMETER_PATTERN.findAll(resourceModel.request.path)
+                .map { matchResult -> matchResult.groupValues[1]  }
+                .toList()
 
         return pathParameterNames.map { parameterName ->
             resourceModel.request.pathParameters
