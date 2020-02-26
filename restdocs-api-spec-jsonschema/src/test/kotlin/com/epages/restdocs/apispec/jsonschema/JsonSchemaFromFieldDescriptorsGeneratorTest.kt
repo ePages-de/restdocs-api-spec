@@ -210,8 +210,8 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
 
         val subschemas = (enumSchema as CombinedSchema).subschemas.toList()
         then(subschemas).hasSize(2)
-        then(subschemas[0]).isInstanceOf(EnumSchema::class.java)
-        then(subschemas[1]).isInstanceOf(StringSchema::class.java)
+        then(subschemas).extracting("class").containsOnlyOnce(EnumSchema::class.java)
+        then(subschemas).extracting("class").containsOnlyOnce(StringSchema::class.java)
 
         thenSchemaIsValid()
         thenSchemaValidatesJson("""{ some: "ENUM_VALUE_1" }""")
