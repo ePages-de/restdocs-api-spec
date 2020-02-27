@@ -69,12 +69,9 @@ class JsonSchemaFromFieldDescriptorsGenerator {
         val objectMapper = jacksonObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
         return StringWriter().use {
             schema.describeTo(JSONPrinter(it))
-            val rawJsonSchema = cleanupRawJsonSchema(it.toString())
-            objectMapper.writeValueAsString(objectMapper.readTree(rawJsonSchema))
+            objectMapper.writeValueAsString(objectMapper.readTree(it.toString()))
         }
     }
-
-    private fun cleanupRawJsonSchema(rawJsonSchema: String) = rawJsonSchema.replace("\"enum\"", "\"type\":\"string\",\"enum\"")
 
     private fun traverse(
         traversedSegments: List<String>,
@@ -246,7 +243,11 @@ class JsonSchemaFromFieldDescriptorsGenerator {
                 "string" -> StringSchema.builder()
                     .minLength(minLengthString(this))
                     .maxLength(maxLengthString(this))
-                "enum" -> EnumSchema.builder().possibleValues(this.attributes.enumValues)
+                "enum" -> CombinedSchema.oneOf(
+                        listOf(
+                                StringSchema.builder().build(),
+                                EnumSchema.builder().possibleValues(this.attributes.enumValues).build())
+                        ).isSynthetic(true)
                 else -> throw IllegalArgumentException("unknown field type $type")
             }
 
