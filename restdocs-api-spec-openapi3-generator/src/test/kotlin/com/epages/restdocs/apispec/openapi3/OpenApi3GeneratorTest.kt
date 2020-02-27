@@ -11,6 +11,7 @@ import com.epages.restdocs.apispec.model.ResponseModel
 import com.epages.restdocs.apispec.model.SecurityRequirements
 import com.epages.restdocs.apispec.model.SecurityType
 import com.epages.restdocs.apispec.model.Schema
+import com.epages.restdocs.apispec.model.Attributes
 import com.jayway.jsonpath.Configuration
 import com.jayway.jsonpath.DocumentContext
 import com.jayway.jsonpath.JsonPath
@@ -166,6 +167,16 @@ class OpenApi3GeneratorTest {
         thenOpenApiSpecIsValid()
     }
 
+    @Test
+    fun `should include enum values in schemas`() {
+        givenPatchProductResourceModelWithCustomSchemaNames()
+
+        whenOpenApiObjectGenerated()
+
+        thenEnumValuesAreSetInRequestAndResponse()
+        thenOpenApiSpecIsValid()
+    }
+
     fun thenGetProductByIdOperationIsValid() {
         val productGetByIdPath = "paths./products/{id}.get"
         then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.tags")).isNotNull()
@@ -242,6 +253,14 @@ class OpenApi3GeneratorTest {
         then(schemas.keys).contains("ProductResponse1")
         then(schemas.keys).contains("ProductRequest2")
         then(schemas.keys).contains("ProductResponse2")
+    }
+
+    private fun thenEnumValuesAreSetInRequestAndResponse() {
+        val requestEnum = openApiJsonPathContext.read<Map<String, Any>>("components.schemas.ProductRequest.properties.someEnum")
+        then(requestEnum["enum"] as List<*>).containsExactly("FIRST_VALUE", "SECOND_VALUE", "THIRD_VALUE")
+
+        val responseEnum = openApiJsonPathContext.read<Map<String, Any>>("components.schemas.ProductResponse.properties.someEnum")
+        then(responseEnum["enum"] as List<*>).containsExactly("FIRST_VALUE", "SECOND_VALUE", "THIRD_VALUE")
     }
 
     private fun whenOpenApiObjectGenerated() {
@@ -560,6 +579,12 @@ class OpenApi3GeneratorTest {
                     path = "description",
                     description = "Product description, localized.",
                     type = "STRING"
+                ),
+                FieldDescriptor(
+                    path = "someEnum",
+                    description = "Some enum description",
+                    type = "enum",
+                    attributes = Attributes(enumValues = listOf("FIRST_VALUE", "SECOND_VALUE", "THIRD_VALUE"))
                 )
             ),
             example = """{
@@ -610,6 +635,12 @@ class OpenApi3GeneratorTest {
                     path = "description1",
                     description = "Product description, localized.",
                     type = "STRING"
+                ),
+                FieldDescriptor(
+                    path = "someEnum",
+                    description = "Some enum description",
+                    type = "enum",
+                    attributes = Attributes(enumValues = listOf("FIRST_VALUE", "SECOND_VALUE", "THIRD_VALUE"))
                 )
             ),
             contentType = "application/json",

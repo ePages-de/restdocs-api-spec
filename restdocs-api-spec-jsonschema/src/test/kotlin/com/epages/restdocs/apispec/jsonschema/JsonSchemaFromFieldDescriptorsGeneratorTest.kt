@@ -12,6 +12,7 @@ import org.everit.json.schema.ArraySchema
 import org.everit.json.schema.ObjectSchema
 import org.everit.json.schema.Schema
 import org.everit.json.schema.StringSchema
+import org.everit.json.schema.CombinedSchema
 import org.everit.json.schema.EnumSchema
 import org.everit.json.schema.ValidationException
 import org.everit.json.schema.loader.SchemaLoader
@@ -203,7 +204,14 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
 
         then(schema).isInstanceOf(ObjectSchema::class.java)
         val objectSchema = schema as ObjectSchema?
-        then(objectSchema!!.propertySchemas["some"]).isInstanceOf(EnumSchema::class.java)
+
+        val enumSchema = objectSchema!!.propertySchemas["some"]
+        then(enumSchema).isInstanceOf(CombinedSchema::class.java)
+
+        val subschemas = (enumSchema as CombinedSchema).subschemas.toList()
+        then(subschemas).hasSize(2)
+        then(subschemas).extracting("class").containsOnlyOnce(EnumSchema::class.java)
+        then(subschemas).extracting("class").containsOnlyOnce(StringSchema::class.java)
 
         thenSchemaIsValid()
         thenSchemaValidatesJson("""{ some: "ENUM_VALUE_1" }""")

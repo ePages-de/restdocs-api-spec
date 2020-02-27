@@ -243,7 +243,11 @@ class JsonSchemaFromFieldDescriptorsGenerator {
                 "string" -> StringSchema.builder()
                     .minLength(minLengthString(this))
                     .maxLength(maxLengthString(this))
-                "enum" -> EnumSchema.builder().possibleValues(this.attributes.enumValues)
+                "enum" -> CombinedSchema.oneOf(
+                        listOf(
+                                StringSchema.builder().build(),
+                                EnumSchema.builder().possibleValues(this.attributes.enumValues).build())
+                        ).isSynthetic(true)
                 else -> throw IllegalArgumentException("unknown field type $type")
             }
 
