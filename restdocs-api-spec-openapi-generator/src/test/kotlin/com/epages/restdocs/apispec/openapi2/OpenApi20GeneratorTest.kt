@@ -14,6 +14,7 @@ import com.epages.restdocs.apispec.model.SecurityRequirements
 import com.epages.restdocs.apispec.model.Schema
 import com.epages.restdocs.apispec.model.SecurityType.BASIC
 import com.epages.restdocs.apispec.model.SecurityType.OAUTH2
+import com.epages.restdocs.apispec.model.Attributes
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.swagger.models.Model
 import io.swagger.models.Path
@@ -24,6 +25,7 @@ import io.swagger.models.auth.OAuth2Definition
 import io.swagger.models.parameters.BodyParameter
 import io.swagger.models.parameters.Parameter
 import io.swagger.models.parameters.PathParameter
+import io.swagger.models.properties.StringProperty
 import io.swagger.parser.Swagger20Parser
 import io.swagger.util.Json
 import org.assertj.core.api.Assertions.tuple
@@ -218,6 +220,16 @@ class OpenApi20GeneratorTest {
         thenValidateOpenApi(openapi)
     }
 
+    @Test
+    fun `should include enum values in schemas`() {
+        val api = givenPostProductResourceModelWithCustomSchemaNames()
+
+        val openapi = whenOpenApiObjectGenerated(api)
+
+        thenEnumValuesAreSetInRequestAndResponse(openapi)
+        thenValidateOpenApi(openapi)
+    }
+
     private fun whenExtractOrFindSchema(schemaNameAndSchemaMap: MutableMap<Model, String>, ordersSchema: Model, shopsSchema: Model) {
         OpenApi20Generator.extractOrFindSchema(schemaNameAndSchemaMap, ordersSchema, OpenApi20Generator.generateSchemaName("/orders"))
         OpenApi20Generator.extractOrFindSchema(schemaNameAndSchemaMap, shopsSchema, OpenApi20Generator.generateSchemaName("/shops"))
@@ -343,11 +355,11 @@ class OpenApi20GeneratorTest {
         val requestSchemaRef = requestBody.schema.reference
         then(requestSchemaRef).startsWith("${SCHEMA_JSONPATH_PREFIX}products")
         val requestSchemaRefName = requestSchemaRef.replace(SCHEMA_JSONPATH_PREFIX, "")
-        then(definitions.get(requestSchemaRefName)!!.properties.keys).containsExactlyInAnyOrder("description", "price")
+        then(definitions.get(requestSchemaRefName)!!.properties.keys).containsExactlyInAnyOrder("description", "price", "someEnum")
 
         then(successfulPostResponse.responseSchema.reference).startsWith("${SCHEMA_JSONPATH_PREFIX}products")
         val responseSchemaRefName = successfulPostResponse.responseSchema.reference.replace(SCHEMA_JSONPATH_PREFIX, "")
-        then(definitions.get(responseSchemaRefName)!!.properties.keys).containsExactlyInAnyOrder("_id", "description", "price")
+        then(definitions.get(responseSchemaRefName)!!.properties.keys).containsExactlyInAnyOrder("_id", "description", "price", "someEnum")
     }
 
     private fun thenGetProductWith400ResponseIsGenerated(openapi: Swagger, api: List<ResourceModel>) {
@@ -406,6 +418,13 @@ class OpenApi20GeneratorTest {
         then(openapi.definitions.keys).contains("ProductResponse1")
         then(openapi.definitions.keys).contains("ProductRequest2")
         then(openapi.definitions.keys).contains("ProductResponse2")
+    }
+
+    private fun thenEnumValuesAreSetInRequestAndResponse(openapi: Swagger) {
+        then(openapi.definitions["ProductRequest"]?.properties?.keys ?: emptyList()).contains("someEnum")
+        then((openapi.definitions["ProductRequest"]!!.properties["someEnum"] as StringProperty).enum).containsExactly("FIRST_VALUE", "SECOND_VALUE", "THIRD_VALUE")
+        then(openapi.definitions["ProductResponse"]?.properties?.keys ?: emptyList()).contains("someEnum")
+        then((openapi.definitions["ProductResponse"]!!.properties["someEnum"] as StringProperty).enum).containsExactly("FIRST_VALUE", "SECOND_VALUE", "THIRD_VALUE")
     }
 
     private fun givenGetProductResourceModel(): List<ResourceModel> {
@@ -641,6 +660,12 @@ class OpenApi20GeneratorTest {
                     path = "price.amount",
                     description = "Product price.",
                     type = "NUMBER"
+                ),
+                FieldDescriptor(
+                    path = "someEnum",
+                    description = "Some enum description",
+                    type = "enum",
+                    attributes = Attributes(enumValues = listOf("FIRST_VALUE", "SECOND_VALUE", "THIRD_VALUE"))
                 )
             ),
             example = example
@@ -842,6 +867,12 @@ class OpenApi20GeneratorTest {
                     path = "price.amount",
                     description = "Product price.",
                     type = "NUMBER"
+                ),
+                FieldDescriptor(
+                    path = "someEnum",
+                    description = "Some enum description",
+                    type = "enum",
+                    attributes = Attributes(enumValues = listOf("FIRST_VALUE", "SECOND_VALUE", "THIRD_VALUE"))
                 )
             ),
             example = getProductPayloadExample()
