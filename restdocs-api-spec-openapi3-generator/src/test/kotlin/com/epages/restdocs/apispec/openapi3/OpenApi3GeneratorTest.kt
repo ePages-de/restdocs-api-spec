@@ -179,7 +179,7 @@ class OpenApi3GeneratorTest {
 
     @Test
     fun `should extract multiple parameters when seperated by delimiter`(){
-        givenResourceWithWithMultiplePathParameters()
+        givenResourceWithMultiplePathParameters()
 
         whenOpenApiObjectGenerated()
 
@@ -457,7 +457,7 @@ class OpenApi3GeneratorTest {
         )
     }
 
-    private fun givenResourceWithWithMultiplePathParameters() {
+    private fun givenResourceWithMultiplePathParameters() {
         resources = listOf(
                 ResourceModel(
                         operationId = "test",
