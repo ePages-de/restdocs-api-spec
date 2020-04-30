@@ -177,6 +177,16 @@ class OpenApi3GeneratorTest {
         thenOpenApiSpecIsValid()
     }
 
+    @Test
+    fun `should extract multiple parameters when seperated by delimiter`(){
+        givenResourceWithWithMultiplePathParameters()
+
+        whenOpenApiObjectGenerated()
+
+        thenMultiplePathParametersExist()
+
+    }
+
     fun thenGetProductByIdOperationIsValid() {
         val productGetByIdPath = "paths./products/{id}.get"
         then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.tags")).isNotNull()
@@ -204,6 +214,12 @@ class OpenApi3GeneratorTest {
 
         then(openApiJsonPathContext.read<List<List<String>>>("$productGetByIdPath.security[*].oauth2_clientCredentials").flatMap { it }).containsOnly("prod:r")
         then(openApiJsonPathContext.read<List<List<String>>>("$productGetByIdPath.security[*].oauth2_authorizationCode").flatMap { it }).containsOnly("prod:r")
+    }
+
+    private fun thenMultiplePathParametersExist() {
+        val productMultiparamPath = "paths./products/{id}-{subId}.get"
+        then(openApiJsonPathContext.read<List<String>>("$productMultiparamPath.parameters[?(@.name == 'id')].in")).containsOnly("path")
+        then(openApiJsonPathContext.read<List<String>>("$productMultiparamPath.parameters[?(@.name == 'subId')].in")).containsOnly("path")
     }
 
     private fun thenServersPresent() {
@@ -438,6 +454,21 @@ class OpenApi3GeneratorTest {
                 request = getProductPatchJsonPatchRequest(),
                 response = getProductHalResponse()
             )
+        )
+    }
+
+    private fun givenResourceWithWithMultiplePathParameters() {
+        resources = listOf(
+                ResourceModel(
+                        operationId = "test",
+                        summary = "summary",
+                        description = "description",
+                        privateResource = false,
+                        deprecated = false,
+                        tags = setOf("tag1", "tag2"),
+                        request = getProductRequestWithMultiplePathParameters(),
+                        response = getProductResponse()
+                )
         )
     }
 
@@ -685,6 +716,34 @@ class OpenApi3GeneratorTest {
                     }
                 ]
             """.trimIndent()
+        )
+    }
+
+    private fun getProductRequestWithMultiplePathParameters (getSecurityRequirement: () -> SecurityRequirements = ::getOAuth2SecurityRequirement): RequestModel {
+        return RequestModel(
+                path = "/products/{id}-{subId}",
+                method = HTTPMethod.GET,
+                securityRequirements = getSecurityRequirement(),
+                headers = listOf(
+                        HeaderDescriptor(
+                                name = "Authorization",
+                                description = "Access token",
+                                type = "string",
+                                optional = false,
+                                example = "some example"
+                        )
+                ),
+                pathParameters = emptyList(),
+                requestParameters = listOf(
+                        ParameterDescriptor(
+                                name = "locale",
+                                description = "Localizes the product fields to the given locale code",
+                                type = "STRING",
+                                optional = true,
+                                ignored = false
+                        )
+                ),
+                requestFields = listOf()
         )
     }
 

@@ -108,7 +108,7 @@ class OpenApi20GeneratorTest {
 
     @Test
     fun `should extract multiple path parameters from path as fallback`() {
-        val api = givenGetProductResourceModelWithoutMultiplePathParameters()
+        val api = givenGetProductResourceModelWithMultiplePathParameters()
 
         val openapi = whenOpenApiObjectGenerated(api)
 
@@ -464,13 +464,13 @@ class OpenApi20GeneratorTest {
         )
     }
 
-    private fun givenGetProductResourceModelWithoutMultiplePathParameters(): List<ResourceModel> {
+    private fun givenGetProductResourceModelWithMultiplePathParameters(): List<ResourceModel> {
         return listOf(
                 ResourceModel(
                         operationId = "test",
                         privateResource = false,
                         deprecated = false,
-                        request = getProductRequestWithoutMultiplePathParameters(),
+                        request = getProductRequestWithMultiplePathParameters(),
                         response = getProduct200Response(getProductPayloadExample())
                 )
         )
@@ -816,7 +816,7 @@ class OpenApi20GeneratorTest {
         )
     }
 
-    private fun getProductRequestWithoutMultiplePathParameters(): RequestModel {
+    private fun getProductRequestWithMultiplePathParameters(): RequestModel {
         return RequestModel(
                 path = "/products/{id}-{subId}",
                 method = HTTPMethod.GET,
