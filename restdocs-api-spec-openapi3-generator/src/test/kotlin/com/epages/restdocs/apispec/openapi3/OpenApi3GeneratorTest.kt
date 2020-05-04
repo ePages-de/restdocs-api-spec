@@ -178,7 +178,7 @@ class OpenApi3GeneratorTest {
     }
 
     @Test
-    fun `should extract multiple parameters when seperated by delimiter`(){
+    fun `should extract multiple parameters when seperated by delimiter`() {
         givenResourceWithMultiplePathParameters()
 
         whenOpenApiObjectGenerated()
@@ -718,7 +718,7 @@ class OpenApi3GeneratorTest {
         )
     }
 
-    private fun getProductRequestWithMultiplePathParameters (getSecurityRequirement: () -> SecurityRequirements = ::getOAuth2SecurityRequirement): RequestModel {
+    private fun getProductRequestWithMultiplePathParameters(getSecurityRequirement: () -> SecurityRequirements = ::getOAuth2SecurityRequirement): RequestModel {
         return RequestModel(
                 path = "/products/{id}-{subId}",
                 method = HTTPMethod.GET,
