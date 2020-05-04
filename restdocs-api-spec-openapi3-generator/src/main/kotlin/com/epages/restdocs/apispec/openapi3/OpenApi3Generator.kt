@@ -41,6 +41,7 @@ import io.swagger.v3.oas.models.tags.Tag
 
 object OpenApi3Generator {
 
+    private val PATH_PARAMETER_PATTERN = """\{([^/}]+)}""".toRegex()
     internal fun generate(
         resources: List<ResourceModel>,
         servers: List<Server>,
@@ -344,10 +345,9 @@ object OpenApi3Generator {
     }
 
     private fun extractPathParameters(resourceModel: ResourceModel): List<PathParameter> {
-        val pathParameterNames = resourceModel.request.path
-            .split("/")
-            .filter { it.startsWith("{") && it.endsWith("}") }
-            .map { it.removePrefix("{").removeSuffix("}") }
+        val pathParameterNames = PATH_PARAMETER_PATTERN.findAll(resourceModel.request.path)
+                .map { matchResult -> matchResult.groupValues[1]  }
+                .toList()
 
         return pathParameterNames.map { parameterName ->
             resourceModel.request.pathParameters

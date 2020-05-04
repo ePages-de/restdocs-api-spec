@@ -107,6 +107,15 @@ class OpenApi20GeneratorTest {
     }
 
     @Test
+    fun `should extract multiple path parameters from path as fallback`() {
+        val api = givenGetProductResourceModelWithMultiplePathParameters()
+
+        val openapi = whenOpenApiObjectGenerated(api)
+
+        thenMultiplePathParametersExist(openapi, api)
+    }
+
+    @Test
     fun `should convert resource with head http method`() {
         val api = givenHeadResourceModel()
 
@@ -268,6 +277,13 @@ class OpenApi20GeneratorTest {
         then(path.parameters.firstOrNull()).isNotNull
         val pathParameter = path.parameters.first { it is PathParameter } as PathParameter
         then(pathParameter.name).isEqualTo("id")
+    }
+
+    private fun thenMultiplePathParametersExist(openapi: Swagger, api: List<ResourceModel>) {
+        val path = openapi.paths.getValue(api[0].request.path).get
+        then(path.parameters).hasSize(2)
+        then(path.parameters[0].name).isEqualTo("id")
+        then(path.parameters[1].name).isEqualTo("subId")
     }
 
     private fun thenApiSpecificationWithoutJsonSchemaButWithExamplesIsGenerated(
@@ -445,6 +461,18 @@ class OpenApi20GeneratorTest {
                 request = getProductRequestWithoutPathParameters(),
                 response = getProduct200Response(getProductPayloadExample())
             )
+        )
+    }
+
+    private fun givenGetProductResourceModelWithMultiplePathParameters(): List<ResourceModel> {
+        return listOf(
+                ResourceModel(
+                        operationId = "test",
+                        privateResource = false,
+                        deprecated = false,
+                        request = getProductRequestWithMultiplePathParameters(),
+                        response = getProduct200Response(getProductPayloadExample())
+                )
         )
     }
 
@@ -785,6 +813,22 @@ class OpenApi20GeneratorTest {
             pathParameters = listOf(),
             requestParameters = listOf(),
             requestFields = listOf()
+        )
+    }
+
+    private fun getProductRequestWithMultiplePathParameters(): RequestModel {
+        return RequestModel(
+                path = "/products/{id}-{subId}",
+                method = HTTPMethod.GET,
+                contentType = "application/json",
+                securityRequirements = SecurityRequirements(
+                        type = OAUTH2,
+                        requiredScopes = listOf("prod:r")
+                ),
+                headers = listOf(),
+                pathParameters = listOf(),
+                requestParameters = listOf(),
+                requestFields = listOf()
         )
     }
 
