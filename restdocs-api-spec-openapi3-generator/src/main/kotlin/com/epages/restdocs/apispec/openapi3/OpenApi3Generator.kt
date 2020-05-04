@@ -346,7 +346,7 @@ object OpenApi3Generator {
 
     private fun extractPathParameters(resourceModel: ResourceModel): List<PathParameter> {
         val pathParameterNames = PATH_PARAMETER_PATTERN.findAll(resourceModel.request.path)
-                .map { matchResult -> matchResult.groupValues[1]  }
+                .map { matchResult -> matchResult.groupValues[1] }
                 .toList()
 
         return pathParameterNames.map { parameterName ->

@@ -1,5 +1,6 @@
 package com.epages.restdocs.apispec.openapi3
 
+import com.epages.restdocs.apispec.model.Attributes
 import com.epages.restdocs.apispec.model.FieldDescriptor
 import com.epages.restdocs.apispec.model.HTTPMethod
 import com.epages.restdocs.apispec.model.HeaderDescriptor
@@ -8,10 +9,9 @@ import com.epages.restdocs.apispec.model.ParameterDescriptor
 import com.epages.restdocs.apispec.model.RequestModel
 import com.epages.restdocs.apispec.model.ResourceModel
 import com.epages.restdocs.apispec.model.ResponseModel
+import com.epages.restdocs.apispec.model.Schema
 import com.epages.restdocs.apispec.model.SecurityRequirements
 import com.epages.restdocs.apispec.model.SecurityType
-import com.epages.restdocs.apispec.model.Schema
-import com.epages.restdocs.apispec.model.Attributes
 import com.jayway.jsonpath.Configuration
 import com.jayway.jsonpath.DocumentContext
 import com.jayway.jsonpath.JsonPath
@@ -178,13 +178,12 @@ class OpenApi3GeneratorTest {
     }
 
     @Test
-    fun `should extract multiple parameters when seperated by delimiter`(){
+    fun `should extract multiple parameters when seperated by delimiter`() {
         givenResourceWithMultiplePathParameters()
 
         whenOpenApiObjectGenerated()
 
         thenMultiplePathParametersExist()
-
     }
 
     fun thenGetProductByIdOperationIsValid() {
@@ -719,30 +718,14 @@ class OpenApi3GeneratorTest {
         )
     }
 
-    private fun getProductRequestWithMultiplePathParameters (getSecurityRequirement: () -> SecurityRequirements = ::getOAuth2SecurityRequirement): RequestModel {
+    private fun getProductRequestWithMultiplePathParameters(getSecurityRequirement: () -> SecurityRequirements = ::getOAuth2SecurityRequirement): RequestModel {
         return RequestModel(
                 path = "/products/{id}-{subId}",
                 method = HTTPMethod.GET,
                 securityRequirements = getSecurityRequirement(),
-                headers = listOf(
-                        HeaderDescriptor(
-                                name = "Authorization",
-                                description = "Access token",
-                                type = "string",
-                                optional = false,
-                                example = "some example"
-                        )
-                ),
+                headers = emptyList(),
                 pathParameters = emptyList(),
-                requestParameters = listOf(
-                        ParameterDescriptor(
-                                name = "locale",
-                                description = "Localizes the product fields to the given locale code",
-                                type = "STRING",
-                                optional = true,
-                                ignored = false
-                        )
-                ),
+                requestParameters = emptyList(),
                 requestFields = listOf()
         )
     }

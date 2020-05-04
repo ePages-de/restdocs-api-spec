@@ -8,9 +8,9 @@ import com.epages.restdocs.apispec.model.Oauth2Configuration
 import com.epages.restdocs.apispec.model.ParameterDescriptor
 import com.epages.restdocs.apispec.model.ResourceModel
 import com.epages.restdocs.apispec.model.ResponseModel
+import com.epages.restdocs.apispec.model.Schema
 import com.epages.restdocs.apispec.model.SecurityRequirements
 import com.epages.restdocs.apispec.model.SecurityType
-import com.epages.restdocs.apispec.model.Schema
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.swagger.models.Info
 import io.swagger.models.Model
@@ -34,7 +34,6 @@ import io.swagger.models.properties.PropertyBuilder
 import io.swagger.util.Json
 import java.util.Comparator.comparing
 import java.util.Comparator.comparingInt
-import java.util.regex.Pattern
 
 object OpenApi20Generator {
 
@@ -325,7 +324,7 @@ object OpenApi20Generator {
 
     private fun extractPathParameters(resourceModel: ResourceModel): List<PathParameter> {
         val pathParameterNames = PATH_PARAMETER_PATTERN.findAll(resourceModel.request.path)
-                .map { matchResult -> matchResult.groupValues[1]  }
+                .map { matchResult -> matchResult.groupValues[1] }
                 .toList()
 
         return pathParameterNames.map { parameterName ->
