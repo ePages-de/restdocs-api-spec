@@ -184,7 +184,6 @@ class OpenApi3GeneratorTest {
         whenOpenApiObjectGenerated()
 
         thenMultiplePathParametersExist()
-
     }
 
     fun thenGetProductByIdOperationIsValid() {
@@ -724,25 +723,9 @@ class OpenApi3GeneratorTest {
                 path = "/products/{id}-{subId}",
                 method = HTTPMethod.GET,
                 securityRequirements = getSecurityRequirement(),
-                headers = listOf(
-                        HeaderDescriptor(
-                                name = "Authorization",
-                                description = "Access token",
-                                type = "string",
-                                optional = false,
-                                example = "some example"
-                        )
-                ),
+                headers = emptyList(),
                 pathParameters = emptyList(),
-                requestParameters = listOf(
-                        ParameterDescriptor(
-                                name = "locale",
-                                description = "Localizes the product fields to the given locale code",
-                                type = "STRING",
-                                optional = true,
-                                ignored = false
-                        )
-                ),
+                requestParameters = emptyList(),
                 requestFields = listOf()
         )
     }
