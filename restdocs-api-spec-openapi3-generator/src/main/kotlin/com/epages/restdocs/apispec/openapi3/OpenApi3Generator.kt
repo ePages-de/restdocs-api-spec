@@ -224,6 +224,7 @@ object OpenApi3Generator {
                         firstModelForPathAndMethod
                     ).plus(
                         modelsWithSamePathAndMethod
+                                .filter { it.request.contentType != "application/x-www-form-urlencoded" }
                                 .flatMap { it.request.requestParameters }
                                 .distinctBy { it.name }
                                 .map { requestParameterDescriptor2Parameter(it)

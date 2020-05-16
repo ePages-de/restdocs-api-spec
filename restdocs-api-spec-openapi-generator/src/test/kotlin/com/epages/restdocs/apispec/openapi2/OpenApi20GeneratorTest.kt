@@ -230,6 +230,26 @@ class OpenApi20GeneratorTest {
         thenValidateOpenApi(openapi)
     }
 
+    @Test
+    fun `should handle urlencoded body in POST request as a formData not query string`() {
+        val api = givenResourceModelsWithApplicationForm(HTTPMethod.POST)
+
+        val openapi = whenOpenApiObjectGenerated(api)
+
+        thenPostRequestShouldHaveFormDataParameters(openapi, api)
+        thenValidateOpenApi(openapi)
+    }
+
+    @Test
+    fun `should handle urlencoded body in PUT request as a formData not query string`() {
+        val api = givenResourceModelsWithApplicationForm(HTTPMethod.PUT)
+
+        val openapi = whenOpenApiObjectGenerated(api)
+
+        thenPutRequestShouldHaveFormDataParameters(openapi, api)
+        thenValidateOpenApi(openapi)
+    }
+
     private fun whenExtractOrFindSchema(schemaNameAndSchemaMap: MutableMap<Model, String>, ordersSchema: Model, shopsSchema: Model) {
         OpenApi20Generator.extractOrFindSchema(schemaNameAndSchemaMap, ordersSchema, OpenApi20Generator.generateSchemaName("/orders"))
         OpenApi20Generator.extractOrFindSchema(schemaNameAndSchemaMap, shopsSchema, OpenApi20Generator.generateSchemaName("/shops"))
@@ -360,6 +380,20 @@ class OpenApi20GeneratorTest {
         then(successfulPostResponse.responseSchema.reference).startsWith("${SCHEMA_JSONPATH_PREFIX}products")
         val responseSchemaRefName = successfulPostResponse.responseSchema.reference.replace(SCHEMA_JSONPATH_PREFIX, "")
         then(definitions.get(responseSchemaRefName)!!.properties.keys).containsExactlyInAnyOrder("_id", "description", "price", "someEnum")
+    }
+
+    private fun thenPostRequestShouldHaveFormDataParameters(openapi: Swagger, api: List<ResourceModel>) {
+        val productResourceModel = api[0]
+        val productPath = openapi.paths.getValue(productResourceModel.request.path)
+
+        thenParameterMatches(productPath.post.parameters, "formData", productResourceModel.request.requestParameters[0])
+    }
+
+    private fun thenPutRequestShouldHaveFormDataParameters(openapi: Swagger, api: List<ResourceModel>) {
+        val productResourceModel = api[0]
+        val productPath = openapi.paths.getValue(productResourceModel.request.path)
+
+        thenParameterMatches(productPath.put.parameters, "formData", productResourceModel.request.requestParameters[0])
     }
 
     private fun thenGetProductWith400ResponseIsGenerated(openapi: Swagger, api: List<ResourceModel>) {
@@ -531,6 +565,18 @@ class OpenApi20GeneratorTest {
                 request = deleteProductRequest(),
                 response = deleteProduct204Response()
             )
+        )
+    }
+
+    private fun givenResourceModelsWithApplicationForm(method: HTTPMethod): List<ResourceModel> {
+        return listOf(
+                ResourceModel(
+                        operationId = "test",
+                        privateResource = false,
+                        deprecated = false,
+                        request = productRequest(method = method),
+                        response = postProduct200Response(getProductPayloadExample(), schema = Schema("ProductResponse"))
+                )
         )
     }
 
@@ -829,6 +875,41 @@ class OpenApi20GeneratorTest {
                 pathParameters = listOf(),
                 requestParameters = listOf(),
                 requestFields = listOf()
+        )
+    }
+
+    private fun productRequest(schema: Schema? = null, path: String = "/products", method: HTTPMethod = HTTPMethod.POST): RequestModel {
+        return RequestModel(
+                path = path,
+                method = method,
+                contentType = "application/x-www-form-urlencoded",
+                schema = schema,
+                securityRequirements = SecurityRequirements(
+                        type = OAUTH2,
+                        requiredScopes = listOf("prod:c")
+                ),
+                headers = listOf(
+                        HeaderDescriptor(
+                                name = "Authorization",
+                                description = "Access token",
+                                type = "STRING",
+                                optional = false
+                        )
+                ),
+                pathParameters = listOf(),
+                requestParameters = listOf(
+                        ParameterDescriptor(
+                                name = "locale",
+                                description = "Localizes the product fields to the given locale code",
+                                type = "STRING",
+                                optional = true,
+                                ignored = false
+                        )
+                ),
+                requestFields = listOf(),
+                example = """
+                    locale=pl&irrelevant=true
+                """.trimIndent()
         )
     }
 
