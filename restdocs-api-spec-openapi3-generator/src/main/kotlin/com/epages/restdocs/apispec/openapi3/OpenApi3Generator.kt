@@ -220,21 +220,20 @@ object OpenApi3Generator {
             tags = modelsWithSamePathAndMethod.flatMap { it.tags }.distinct().nullIfEmpty()
             deprecated = if (modelsWithSamePathAndMethod.all { it.deprecated }) true else null
             parameters =
-                    extractPathParameters(
-                        firstModelForPathAndMethod
-                    ).plus(
-                        modelsWithSamePathAndMethod
-                                .filter { it.request.contentType != "application/x-www-form-urlencoded" }
-                                .flatMap { it.request.requestParameters }
-                                .distinctBy { it.name }
-                                .map { requestParameterDescriptor2Parameter(it)
-                    }).plus(
-                        modelsWithSamePathAndMethod
-                                .flatMap { it.request.headers }
-                                .distinctBy { it.name }
-                                .map { header2Parameter(it)
-                        }
-                    ).nullIfEmpty()
+                extractPathParameters(
+                    firstModelForPathAndMethod
+                ).plus(
+                    modelsWithSamePathAndMethod
+                        .filter { it.request.contentType != "application/x-www-form-urlencoded" }
+                        .flatMap { it.request.requestParameters }
+                        .distinctBy { it.name }
+                        .map { requestParameterDescriptor2Parameter(it) }
+                ).plus(
+                    modelsWithSamePathAndMethod
+                        .flatMap { it.request.headers }
+                        .distinctBy { it.name }
+                        .map { header2Parameter(it) }
+                ).nullIfEmpty()
             requestBody = resourceModelsToRequestBody(
                 modelsWithSamePathAndMethod.map {
                     RequestModelWithOperationId(
@@ -263,7 +262,13 @@ object OpenApi3Generator {
         return requestByContentType
             .map { (contentType, requests) ->
                 toMediaType(
-                    requestFields = requests.flatMap { it.request.requestFields },
+                    requestFields = requests.flatMap { it ->
+                        if (it.request.contentType == "application/x-www-form-urlencoded") {
+                            it.request.requestParameters.map { parameterDescriptor2FieldDescriptor(it) }
+                        } else {
+                            it.request.requestFields
+                        }
+                    },
                     examplesWithOperationId = requests.filter { it.request.example != null }.map { it.operationId to it.request.example!! }.toMap(),
                     contentType = contentType,
                     schemaName = requests.first().request.schema?.name
@@ -356,6 +361,19 @@ object OpenApi3Generator {
                 ?.let { pathParameterDescriptor2Parameter(it) }
                 ?: parameterName2PathParameter(parameterName)
         }
+    }
+
+    private fun parameterDescriptor2FieldDescriptor(parameterDescriptor: ParameterDescriptor): FieldDescriptor {
+        return FieldDescriptor(
+            // It's safe to map name to path, as in application/x-www-form-urlencoded
+            // we should have a flat structure.
+            path = parameterDescriptor.name,
+            description = parameterDescriptor.description,
+            type = parameterDescriptor.type,
+            optional = parameterDescriptor.optional,
+            ignored = parameterDescriptor.ignored,
+            attributes = parameterDescriptor.attributes
+        )
     }
 
     private fun pathParameterDescriptor2Parameter(parameterDescriptor: ParameterDescriptor): PathParameter {

@@ -283,19 +283,18 @@ object OpenApi20Generator {
                         .filter { it.request.contentType != "application/x-www-form-urlencoded" }
                         .flatMap { it.request.requestParameters }
                         .distinctBy { it.name }
-                        .map { requestParameterDescriptor2QueryParameter(it)
-                }).plus(
+                        .map { requestParameterDescriptor2QueryParameter(it) }
+                ).plus(
                     modelsWithSamePathAndMethod
                         .filter { it.request.contentType == "application/x-www-form-urlencoded" }
                         .flatMap { it.request.requestParameters }
                         .distinctBy { it.name }
-                        .map { requestParameterDescriptor2FormParameter(it)
-                }).plus(
+                        .map { requestParameterDescriptor2FormParameter(it) }
+                ).plus(
                     modelsWithSamePathAndMethod
                         .flatMap { it.request.headers }
                         .distinctBy { it.name }
-                        .map { header2Parameter(it)
-                        }
+                        .map { header2Parameter(it) }
                 ).plus(
                     listOfNotNull<Parameter>(
                         requestFieldDescriptor2Parameter(

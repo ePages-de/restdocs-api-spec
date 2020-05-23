@@ -231,7 +231,7 @@ class OpenApi20GeneratorTest {
     }
 
     @Test
-    fun `should handle urlencoded body in POST request as a formData not query string`() {
+    fun `should handle urlencoded body in POST request as a formData`() {
         val api = givenResourceModelsWithApplicationForm(HTTPMethod.POST)
 
         val openapi = whenOpenApiObjectGenerated(api)
@@ -241,7 +241,7 @@ class OpenApi20GeneratorTest {
     }
 
     @Test
-    fun `should handle urlencoded body in PUT request as a formData not query string`() {
+    fun `should handle urlencoded body in PUT request as a formData`() {
         val api = givenResourceModelsWithApplicationForm(HTTPMethod.PUT)
 
         val openapi = whenOpenApiObjectGenerated(api)
@@ -884,18 +884,8 @@ class OpenApi20GeneratorTest {
                 method = method,
                 contentType = "application/x-www-form-urlencoded",
                 schema = schema,
-                securityRequirements = SecurityRequirements(
-                        type = OAUTH2,
-                        requiredScopes = listOf("prod:c")
-                ),
-                headers = listOf(
-                        HeaderDescriptor(
-                                name = "Authorization",
-                                description = "Access token",
-                                type = "STRING",
-                                optional = false
-                        )
-                ),
+                securityRequirements = null,
+                headers = listOf(),
                 pathParameters = listOf(),
                 requestParameters = listOf(
                         ParameterDescriptor(
