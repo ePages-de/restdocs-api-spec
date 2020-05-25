@@ -26,6 +26,7 @@ import io.swagger.models.auth.ApiKeyAuthDefinition
 import io.swagger.models.auth.BasicAuthDefinition
 import io.swagger.models.auth.OAuth2Definition
 import io.swagger.models.parameters.BodyParameter
+import io.swagger.models.parameters.FormParameter
 import io.swagger.models.parameters.HeaderParameter
 import io.swagger.models.parameters.Parameter
 import io.swagger.models.parameters.PathParameter
@@ -279,15 +280,21 @@ object OpenApi20Generator {
                     firstModelForPathAndMethod
                 ).plus(
                     modelsWithSamePathAndMethod
+                        .filter { it.request.contentType != "application/x-www-form-urlencoded" }
                         .flatMap { it.request.requestParameters }
                         .distinctBy { it.name }
-                        .map { requestParameterDescriptor2Parameter(it)
-                        }).plus(
+                        .map { requestParameterDescriptor2QueryParameter(it) }
+                ).plus(
+                    modelsWithSamePathAndMethod
+                        .filter { it.request.contentType == "application/x-www-form-urlencoded" }
+                        .flatMap { it.request.requestParameters }
+                        .distinctBy { it.name }
+                        .map { requestParameterDescriptor2FormParameter(it) }
+                ).plus(
                     modelsWithSamePathAndMethod
                         .flatMap { it.request.headers }
                         .distinctBy { it.name }
-                        .map { header2Parameter(it)
-                        }
+                        .map { header2Parameter(it) }
                 ).plus(
                     listOfNotNull<Parameter>(
                         requestFieldDescriptor2Parameter(
@@ -412,8 +419,17 @@ object OpenApi20Generator {
         }
     }
 
-    private fun requestParameterDescriptor2Parameter(parameterDescriptor: ParameterDescriptor): QueryParameter {
+    private fun requestParameterDescriptor2QueryParameter(parameterDescriptor: ParameterDescriptor): QueryParameter {
         return QueryParameter().apply {
+            name = parameterDescriptor.name
+            description = parameterDescriptor.description
+            required = parameterDescriptor.optional.not()
+            type = parameterDescriptor.type.toLowerCase()
+        }
+    }
+
+    private fun requestParameterDescriptor2FormParameter(parameterDescriptor: ParameterDescriptor): FormParameter {
+        return FormParameter().apply {
             name = parameterDescriptor.name
             description = parameterDescriptor.description
             required = parameterDescriptor.optional.not()

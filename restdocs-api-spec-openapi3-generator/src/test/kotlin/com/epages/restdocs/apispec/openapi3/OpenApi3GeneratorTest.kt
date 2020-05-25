@@ -178,12 +178,64 @@ class OpenApi3GeneratorTest {
     }
 
     @Test
-    fun `should extract multiple parameters when seperated by delimiter`() {
+    fun `should extract multiple parameters when separated by delimiter`() {
         givenResourceWithMultiplePathParameters()
 
         whenOpenApiObjectGenerated()
 
         thenMultiplePathParametersExist()
+    }
+
+    @Test
+    fun `should treat urlencoded body in POST request as request body and not as query`() {
+        val method = HTTPMethod.POST
+
+        givenResourceWithFormDataSentAs(method)
+
+        whenOpenApiObjectGenerated()
+
+        thenResourceHasFormDataInRequestBodyAndNotAsQueryParameters(method.toString().toLowerCase())
+    }
+
+    @Test
+    fun `should treat urlencoded body in PUT request as request body and not as query`() {
+        val method = HTTPMethod.PUT
+
+        givenResourceWithFormDataSentAs(method)
+
+        whenOpenApiObjectGenerated()
+
+        thenResourceHasFormDataInRequestBodyAndNotAsQueryParameters(method.toString().toLowerCase())
+    }
+
+    @Test
+    fun `should generate a valid schema from urlencoded body described as request parameters`() {
+        val method = HTTPMethod.POST
+
+        givenResourceWithFormDataSentAs(method)
+
+        whenOpenApiObjectGenerated()
+
+        thenResourceHasValidSchemaGeneratedFromRequestParameters(method.toString().toLowerCase())
+    }
+
+    fun thenResourceHasValidSchemaGeneratedFromRequestParameters(method: String) {
+        val productGetByIdPath = "paths./products/{id}.$method"
+        val getResponseSchemaRef = openApiJsonPathContext.read<String>("$productGetByIdPath.requestBody.content.application/x-www-form-urlencoded.schema.\$ref")
+        val schemaId = getResponseSchemaRef.removePrefix("#/components/schemas/")
+        then(openApiJsonPathContext.read<String>("components.schemas.$schemaId.properties.locale.type")).isEqualTo("string")
+        then(openApiJsonPathContext.read<String>("components.schemas.$schemaId.properties.locale.description")).isEqualTo("Localizes the product fields to the given locale code")
+    }
+
+    fun thenResourceHasFormDataInRequestBodyAndNotAsQueryParameters(method: String) {
+        val productGetByIdPath = "paths./products/{id}.$method"
+
+        then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'locale')]")).isEmpty()
+        then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.requestBody.content[?(@.name == 'application/x-www-form-urlencoded')]")).isNotNull()
+
+        val getResponseSchemaRef = openApiJsonPathContext.read<String>("$productGetByIdPath.requestBody.content.application/x-www-form-urlencoded.schema.\$ref")
+        val schemaId = getResponseSchemaRef.removePrefix("#/components/schemas/")
+        then(openApiJsonPathContext.read<String>("components.schemas.$schemaId.type")).isEqualTo("object")
     }
 
     fun thenGetProductByIdOperationIsValid() {
@@ -309,6 +361,21 @@ class OpenApi3GeneratorTest {
         println(openApiSpecJsonString)
         openApiJsonPathContext = JsonPath.parse(openApiSpecJsonString, Configuration.defaultConfiguration().addOptions(
                 Option.SUPPRESS_EXCEPTIONS))
+    }
+
+    private fun givenResourceWithFormDataSentAs(method: HTTPMethod) {
+        resources = listOf(
+                ResourceModel(
+                        operationId = "test",
+                        summary = "summary",
+                        description = "description",
+                        privateResource = false,
+                        deprecated = false,
+                        tags = setOf("tag1", "tag2"),
+                        request = productRequestAsFormData(method, schema = Schema("ProductRequest")),
+                        response = getProductResponse()
+                )
+        )
     }
 
     private fun givenResourcesWithSamePathAndContentType() {
@@ -727,6 +794,31 @@ class OpenApi3GeneratorTest {
                 pathParameters = emptyList(),
                 requestParameters = emptyList(),
                 requestFields = listOf()
+        )
+    }
+
+    private fun productRequestAsFormData(method: HTTPMethod, schema: Schema? = null, getSecurityRequirement: () -> SecurityRequirements = ::getOAuth2SecurityRequirement): RequestModel {
+        return RequestModel(
+                path = "/products/{id}",
+                method = method,
+                contentType = "application/x-www-form-urlencoded",
+                securityRequirements = getSecurityRequirement(),
+                headers = emptyList(),
+                pathParameters = emptyList(),
+                requestParameters = listOf(
+                        ParameterDescriptor(
+                                name = "locale",
+                                description = "Localizes the product fields to the given locale code",
+                                type = "STRING",
+                                optional = true,
+                                ignored = false
+                        )
+                ),
+                schema = schema,
+                requestFields = listOf(),
+                example = """
+                    locale=pl&irrelevant=true
+                """.trimIndent()
         )
     }
 
