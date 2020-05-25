@@ -231,7 +231,7 @@ class OpenApi20GeneratorTest {
     }
 
     @Test
-    fun `should handle urlencoded body in POST request as a formData`() {
+    fun `should handle urlencoded body in POST request as formData`() {
         val api = givenResourceModelsWithApplicationForm(HTTPMethod.POST)
 
         val openapi = whenOpenApiObjectGenerated(api)
@@ -241,7 +241,7 @@ class OpenApi20GeneratorTest {
     }
 
     @Test
-    fun `should handle urlencoded body in PUT request as a formData`() {
+    fun `should handle urlencoded body in PUT request as formData`() {
         val api = givenResourceModelsWithApplicationForm(HTTPMethod.PUT)
 
         val openapi = whenOpenApiObjectGenerated(api)
