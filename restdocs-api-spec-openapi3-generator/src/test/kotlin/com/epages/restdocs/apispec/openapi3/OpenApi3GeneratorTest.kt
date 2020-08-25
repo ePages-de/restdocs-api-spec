@@ -219,6 +219,24 @@ class OpenApi3GeneratorTest {
         thenResourceHasValidSchemaGeneratedFromRequestParameters(method.toString().toLowerCase())
     }
 
+    @Test
+    fun `should determine operationId as common prefix of all snippet operationIds`() {
+        givenResourcesWithSamePathAndContentType()
+
+        whenOpenApiObjectGenerated()
+
+        then(openApiJsonPathContext.read<String>("paths./products/{id}.get.operationId")).isEqualTo("test")
+    }
+
+    @Test
+    fun `should determine operationId as concatenated operationIds if no common prefix exists`() {
+        givenResourcesWithSamePathAndContentTypeButOperationIdsWithoutCommonPrefix()
+
+        whenOpenApiObjectGenerated()
+
+        then(openApiJsonPathContext.read<String>("paths./products/{id}.get.operationId")).isEqualTo("firstsecond")
+    }
+
     fun thenResourceHasValidSchemaGeneratedFromRequestParameters(method: String) {
         val productGetByIdPath = "paths./products/{id}.$method"
         val getResponseSchemaRef = openApiJsonPathContext.read<String>("$productGetByIdPath.requestBody.content.application/x-www-form-urlencoded.schema.\$ref")
@@ -400,6 +418,31 @@ class OpenApi3GeneratorTest {
                 request = getProductRequest(),
                 response = getProductResponse()
             )
+        )
+    }
+
+    private fun givenResourcesWithSamePathAndContentTypeButOperationIdsWithoutCommonPrefix() {
+        resources = listOf(
+                ResourceModel(
+                        operationId = "first",
+                        summary = "summary",
+                        description = "description",
+                        privateResource = false,
+                        deprecated = false,
+                        tags = setOf("tag1", "tag2"),
+                        request = getProductRequest(),
+                        response = getProductResponse()
+                ),
+                ResourceModel(
+                        operationId = "second",
+                        summary = "summary 1",
+                        description = "description 1",
+                        privateResource = false,
+                        deprecated = false,
+                        tags = setOf("tag1", "tag2"),
+                        request = getProductRequest(),
+                        response = getProductResponse()
+                )
         )
     }
 

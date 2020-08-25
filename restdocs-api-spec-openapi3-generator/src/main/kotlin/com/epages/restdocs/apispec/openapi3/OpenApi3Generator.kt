@@ -213,8 +213,9 @@ object OpenApi3Generator {
         oauth2SecuritySchemeDefinition: Oauth2Configuration?
     ): Operation {
         val firstModelForPathAndMethod = modelsWithSamePathAndMethod.first()
+        val operationIds = modelsWithSamePathAndMethod.map { model -> model.operationId }
         return Operation().apply {
-            operationId = firstModelForPathAndMethod.operationId
+            operationId = operationId(operationIds)
             summary = modelsWithSamePathAndMethod.map { it.summary }.find { !it.isNullOrBlank() }
             description = modelsWithSamePathAndMethod.map { it.description }.find { !it.isNullOrBlank() }
             tags = modelsWithSamePathAndMethod.flatMap { it.tags }.distinct().nullIfEmpty()
@@ -249,6 +250,19 @@ object OpenApi3Generator {
                     )
                 })
         }.apply { addSecurityItemFromSecurityRequirements(firstModelForPathAndMethod.request.securityRequirements, oauth2SecuritySchemeDefinition) }
+    }
+
+    private fun operationId(operationIds: List<String>): String {
+        var prefix = operationIds.first()
+        for (operationId in operationIds) {
+            prefix = prefix.commonPrefixWith(operationId)
+        }
+
+        if (prefix.isEmpty()) {
+            prefix = operationIds.sorted().joinToString(separator = "")
+        }
+
+        return prefix
     }
 
     private fun resourceModelsToRequestBody(requestModelsWithOperationId: List<RequestModelWithOperationId>): RequestBody? {
