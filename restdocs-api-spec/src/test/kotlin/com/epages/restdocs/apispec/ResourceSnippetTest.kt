@@ -175,14 +175,6 @@ class ResourceSnippetTest {
     @Test
     fun should_respect_content_type_parameters_for_response() {
         givenOperationWithRequestAndResponseBody(responseContentType = "application/json;format=format-1")
-        givenRequestFieldDescriptors()
-        givenRequestSchemaName()
-        givenResponseFieldDescriptors()
-        givenResponseSchemaName()
-        givenPathParameterDescriptors()
-        givenRequestParameterDescriptors()
-        givenRequestAndResponseHeaderDescriptors()
-        givenTag()
 
         whenResourceSnippetInvoked()
 
