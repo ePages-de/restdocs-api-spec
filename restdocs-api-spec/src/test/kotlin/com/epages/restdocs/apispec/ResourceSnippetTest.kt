@@ -172,6 +172,24 @@ class ResourceSnippetTest {
         then(resourceSnippetJson.read<String>("operationId")).isEqualTo("resource-snippet-test/get-some-by-id")
     }
 
+    @Test
+    fun should_respect_content_type_parameters_for_response() {
+        givenOperationWithRequestAndResponseBody(responseContentType = "application/json;format=format-1")
+        givenRequestFieldDescriptors()
+        givenRequestSchemaName()
+        givenResponseFieldDescriptors()
+        givenResponseSchemaName()
+        givenPathParameterDescriptors()
+        givenRequestParameterDescriptors()
+        givenRequestAndResponseHeaderDescriptors()
+        givenTag()
+
+        whenResourceSnippetInvoked()
+
+        thenSnippetFileExists()
+        then(resourceSnippetJson.read<String>("response.contentType")).isEqualTo("application/json;format=format-1")
+    }
+
     private fun givenTag() {
         parametersBuilder.tag("some")
         parametersBuilder.tags("someOther", "somethingElse")
@@ -343,7 +361,7 @@ class ResourceSnippetTest {
             parameterWithName("obviousParameter").description("needs no documentation, too obvious").ignored())
     }
 
-    private fun givenOperationWithRequestAndResponseBody() {
+    private fun givenOperationWithRequestAndResponseBody(responseContentType: String = APPLICATION_JSON_VALUE) {
         val operationBuilder = OperationBuilder("test", rootOutputDirectory)
             .attribute(ATTRIBUTE_NAME_URL_TEMPLATE, "http://localhost:8080/some/{id}")
         val content = "{\"comment\": \"some\"}"
@@ -359,7 +377,7 @@ class ResourceSnippetTest {
             .response()
             .status(201)
             .header("X-SOME", "some")
-            .header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+            .header(CONTENT_TYPE, responseContentType)
             .content(content)
         operation = operationBuilder.build()
     }
