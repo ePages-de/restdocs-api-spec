@@ -105,7 +105,7 @@ class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetPara
 
     private fun getContentTypeOrDefault(headers: HttpHeaders): String =
         Optional.ofNullable(headers.contentType)
-            .map { MediaType(it.type, it.subtype) }
+            .map { MediaType(it.type, it.subtype, it.parameters) }
             .orElse(APPLICATION_JSON)
             .toString()
 
