@@ -222,8 +222,7 @@ mockMvc.perform(get("/carts/{id}", cartId)
         linkWithRel("order").description("Link to order the cart."))
     .build())));
 ```
-
-Please see the [CartIntegrationTest](samples/restdocs-api-spec-sample/src/test/java/com/epages/restdocs/api-spec/sample/CartIntegrationTest.java) in the sample application for a detailed example.
+Please see the [CartIntegrationTest](samples/restdocs-api-spec-sample/src/test/java/com/epages/restdocs/apispec/sample/CartIntegrationTest.java) in the sample application for a detailed example.
 
 **:warning: Use `template URIs` to refer to path variables in your request**
 
