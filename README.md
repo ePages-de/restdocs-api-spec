@@ -538,7 +538,7 @@ The [redoc-cli](https://www.npmjs.com/package/redoc-cli) can be used to bundle (
 # Install redoc-cli
 npm install -g redoc-cli
 
-# Just bundle into zero-dependency HTML-file
+# Bundle the documentation into a zero-dependency HTML-file
 redoc-cli bundle build/api-spec/openapi.json
 
 # Bundle and serve
