@@ -533,7 +533,7 @@ postman {
 
 We can use [redoc](https://github.com/Rebilly/ReDoc) to generate an HTML API reference from our OpenAPI specification.
 
-The [redoc-cli](https://www.npmjs.com/package/redoc-cli) can be used to just bundle or bundle & serve this API reference:
+The [redoc-cli](https://www.npmjs.com/package/redoc-cli) can be used to bundle (and serve) this API reference:
 ```
 # Install redoc-cli
 npm install -g redoc-cli
