@@ -222,8 +222,7 @@ mockMvc.perform(get("/carts/{id}", cartId)
         linkWithRel("order").description("Link to order the cart."))
     .build())));
 ```
-
-Please see the [CartIntegrationTest](samples/restdocs-api-spec-sample/src/test/java/com/epages/restdocs/api-spec/sample/CartIntegrationTest.java) in the sample application for a detailed example.
+Please see the [CartIntegrationTest](samples/restdocs-api-spec-sample/src/test/java/com/epages/restdocs/apispec/sample/CartIntegrationTest.java) in the sample application for a detailed example.
 
 **:warning: Use `template URIs` to refer to path variables in your request**
 
@@ -534,9 +533,15 @@ postman {
 
 We can use [redoc](https://github.com/Rebilly/ReDoc) to generate an HTML API reference from our OpenAPI specification.
 
-The [redoc-cli](https://www.npmjs.com/package/redoc-cli) can be used to serve this API reference
+The [redoc-cli](https://www.npmjs.com/package/redoc-cli) can be used to bundle (and serve) this API reference:
 ```
+# Install redoc-cli
 npm install -g redoc-cli
+
+# Bundle the documentation into a zero-dependency HTML-file
+redoc-cli bundle build/api-spec/openapi.json
+
+# Bundle and serve
 redoc-cli serve build/api-spec/openapi.json
 ```
 
