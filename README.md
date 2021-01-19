@@ -105,25 +105,25 @@ The [ResourceSnippet](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apis
                 classpath('com.epages:restdocs-api-spec-gradle-plugin:0.9.5') //1.2
             }
         }
-  
+
         apply plugin: 'com.epages.restdocs-api-spec' //1.3
-        
+
         ```
 2. Add required dependencies to your tests
     * *2.1* add the `jcenter` repository used to resolve the `com.epages:restdocs-api-spec` module of the project.
     * *2.2* add the actual `restdocs-api-spec-mockmvc` dependency to the test scope. Use `restdocs-api-spec-restassured` if you use `RestAssured` instead of `MockMvc`.
-    * *2.3* add configuration options for restdocs-api-spec-gradle-plugin`. See [Gradle plugin configuration](#gradle-plugin-configuration) 
+    * *2.3* add configuration options for restdocs-api-spec-gradle-plugin`. See [Gradle plugin configuration](#gradle-plugin-configuration)
     ```groovy
-    
+
     repositories { //2.1
         jcenter()
     }
-    
+
     dependencies {
         //..
         testCompile('com.epages:restdocs-api-spec-mockmvc:0.9.5') //2.2
     }
-    
+
     openapi { //2.3
         host = 'localhost:8080'
         basePath = '/api'
@@ -133,7 +133,7 @@ The [ResourceSnippet](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apis
         version = '1.0.0'
         format = 'json'
     }
-    
+
     openapi3 {
         server = 'https://localhost:8080'
         title = 'My API'
@@ -142,7 +142,7 @@ The [ResourceSnippet](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apis
         version = '0.1.0'
         format = 'yaml'
     }
-    
+
     postman {
         title = 'My API'
         version = '0.1.0'
