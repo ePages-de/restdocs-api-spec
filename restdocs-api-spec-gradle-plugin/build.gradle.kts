@@ -8,6 +8,7 @@ plugins {
     kotlin("jvm")
     `java-gradle-plugin`
     `kotlin-dsl`
+    id("com.gradle.plugin-publish") version "0.12.0"
 }
 
 gradlePlugin {
@@ -18,6 +19,25 @@ gradlePlugin {
         }
     }
 }
+
+pluginBundle {
+    website = "https://github.com/ePages-de/restdocs-api-spec"
+    vcsUrl = "https://github.com/ePages-de/restdocs-api-spec"
+    tags = listOf("spring", "restdocs", "openapi", "openapi3", "postman", "api", "specification")
+    description = "Extends Spring REST Docs with API specifications in OpenAPI2, OpenAPI3 and Postman Collections formats"
+
+    (plugins) {
+        "com.epages.restdocs-api-spec" {
+            displayName = "restdocs-api-spec gradle plugin"
+        }
+    }
+
+    mavenCoordinates {
+        groupId = "com.epages"
+        artifactId = "restdocs-api-spec-gradle-plugin"
+    }
+}
+
 
 val jacksonVersion: String by extra
 val junitVersion: String by extra
