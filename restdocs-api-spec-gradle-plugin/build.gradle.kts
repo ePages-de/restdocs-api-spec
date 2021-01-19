@@ -82,3 +82,22 @@ val createTestKitFiles by tasks.creating {
 }
 
 tasks["test"].dependsOn(createTestKitFiles)
+
+// Set Gradle plugin publishing credentials from environment
+// see https://github.com/gradle/gradle/issues/1246
+//     https://github.com/cortinico/kotlin-gradle-plugin-template/blob/1194fbbb2bc61857a76da5b5b2df919a558653de/plugin-build/plugin/build.gradle.kts#L43-L55
+val configureGradlePluginCredentials by tasks.creating {
+    doLast {
+        val key = System.getenv("GRADLE_PUBLISH_KEY")
+        val secret = System.getenv("GRADLE_PUBLISH_SECRET")
+
+        if (key == null || secret == null) {
+            throw GradleException("GRADLE_PUBLISH_KEY and/or GRADLE_PUBLISH_SECRET are not defined environment variables")
+        }
+
+        System.setProperty("gradle.publish.key", key)
+        System.setProperty("gradle.publish.secret", secret)
+    }
+}
+
+tasks["publishPlugins"].dependsOn(configureGradlePluginCredentials)
