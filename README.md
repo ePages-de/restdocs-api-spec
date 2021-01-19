@@ -88,7 +88,7 @@ The [ResourceSnippet](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apis
     * Using the [plugins DSL](https://docs.gradle.org/current/userguide/plugins.html#sec:plugins_block):
         ```groovy
         plugins {
-            id 'com.epages.restdocs-api-spec' version '0.9.5'
+            id 'com.epages.restdocs-api-spec' version '0.10.3'
         }
         ```
         Examples with Kotlin are also available [here](https://plugins.gradle.org/plugin/com.epages.restdocs-api-spec)
@@ -102,7 +102,7 @@ The [ResourceSnippet](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apis
                 jcenter() //1.1
             }
             dependencies {
-                classpath('com.epages:restdocs-api-spec-gradle-plugin:0.9.5') //1.2
+                classpath('com.epages:restdocs-api-spec-gradle-plugin:0.10.3') //1.2
             }
         }
 
@@ -121,7 +121,7 @@ The [ResourceSnippet](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apis
 
     dependencies {
         //..
-        testCompile('com.epages:restdocs-api-spec-mockmvc:0.9.5') //2.2
+        testCompile('com.epages:restdocs-api-spec-mockmvc:0.10.3') //2.2
     }
 
     openapi { //2.3
