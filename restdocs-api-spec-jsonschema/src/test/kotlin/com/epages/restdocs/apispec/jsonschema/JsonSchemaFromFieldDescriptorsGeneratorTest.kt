@@ -156,6 +156,18 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
     }
 
     @Test
+    fun should_generate_schema_for_required_object() {
+        givenFieldDescriptorWithRequiredObject()
+
+        whenSchemaGenerated()
+
+        then(schema).isInstanceOf(ObjectSchema::class.java)
+        thenSchemaIsValid()
+        val objSchema = schema!!.let { it as ObjectSchema }
+        then(objSchema.requiredProperties).contains("obj")
+    }
+
+    @Test
     fun should_fail_on_unknown_field_type() {
         givenFieldDescriptorWithInvalidType()
 
@@ -233,6 +245,14 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
 
     private fun givenFieldDescriptorWithPrimitiveArray() {
         fieldDescriptors = listOf(FieldDescriptor("a[]", "some", "ARRAY"))
+    }
+
+    private fun givenFieldDescriptorWithRequiredObject() {
+        val notNullConstraint = Attributes(listOf(Constraint(NotNull::class.java.name, emptyMap())))
+        fieldDescriptors = listOf(
+                FieldDescriptor("obj", "some", "OBJECT", attributes = notNullConstraint),
+                FieldDescriptor("obj.field", "some", "STRING")
+        )
     }
 
     private fun givenFieldDescriptorWithTopLevelArray() {

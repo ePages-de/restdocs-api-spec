@@ -97,7 +97,7 @@ class JsonSchemaFromFieldDescriptorsGenerator {
                             propertyName,
                             newTraversedSegments,
                             newFields,
-                            directMatch.fieldDescriptor.description as? String
+                            directMatch
                         )
                     }
                     true
@@ -131,7 +131,7 @@ class JsonSchemaFromFieldDescriptorsGenerator {
         propertyName: String,
         traversedSegments: MutableList<String>,
         fields: List<JsonFieldPath>,
-        description: String?
+        propertyField: JsonFieldPath? = null
     ) {
         val remainingSegments = fields[0].remainingSegments(traversedSegments)
         if (remainingSegments.isNotEmpty() && JsonFieldPath.isArraySegment(
@@ -142,14 +142,17 @@ class JsonSchemaFromFieldDescriptorsGenerator {
             builder.addPropertySchema(
                 propertyName, ArraySchema.builder()
                     .allItemSchema(traverse(traversedSegments, fields, ObjectSchema.builder()))
-                    .description(description)
+                    .description(propertyField?.fieldDescriptor?.description)
                     .build()
             )
         } else {
+            if (propertyField?.fieldDescriptor?.let { isRequired(it) } == true) {
+                builder.addRequiredProperty(propertyName)
+            }
             builder.addPropertySchema(
                 propertyName, traverse(
                     traversedSegments, fields, ObjectSchema.builder()
-                        .description(description) as ObjectSchema.Builder
+                        .description(propertyField?.fieldDescriptor?.description) as ObjectSchema.Builder
                 )
             )
         }
