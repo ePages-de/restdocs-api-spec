@@ -20,7 +20,8 @@ fun List<ResourceModel>.groupByPath(): Map<String, List<ResourceModel>> {
             it.request.path.split("/").firstOrNull { s -> s.isNotEmpty() }.orEmpty()
         }
             .thenComparing(Comparator.comparingInt<ResourceModel> { it.request.path.count { c -> c == '/' } })
-            .thenComparing(Comparator.comparing<ResourceModel, String> { it.request.path }))
+            .thenComparing(Comparator.comparing<ResourceModel, String> { it.request.path })
+    )
         .groupBy { it.request.path }
 }
 

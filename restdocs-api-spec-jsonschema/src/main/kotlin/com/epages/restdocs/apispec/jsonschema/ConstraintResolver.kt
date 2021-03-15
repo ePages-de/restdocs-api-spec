@@ -25,9 +25,11 @@ internal object ConstraintResolver {
     internal fun minLengthString(fieldDescriptor: FieldDescriptor): Int? {
         return findConstraints(fieldDescriptor)
             .firstOrNull { constraint ->
-            (NOT_EMPTY_CONSTRAINTS.contains(constraint.name) ||
-                NOT_BLANK_CONSTRAINTS.contains(constraint.name) ||
-                LENGTH_CONSTRAINT == constraint.name)
+                (
+                    NOT_EMPTY_CONSTRAINTS.contains(constraint.name) ||
+                        NOT_BLANK_CONSTRAINTS.contains(constraint.name) ||
+                        LENGTH_CONSTRAINT == constraint.name
+                    )
             }
             ?.let { constraint -> if (LENGTH_CONSTRAINT == constraint.name) constraint.configuration["min"] as Int else 1 }
     }

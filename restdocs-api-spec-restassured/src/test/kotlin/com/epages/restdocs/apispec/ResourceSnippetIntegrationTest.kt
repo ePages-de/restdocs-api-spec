@@ -79,9 +79,9 @@ open class ResourceSnippetIntegrationTest {
                 resource.add(Link(link, "multiple"))
 
                 return ResponseEntity
-                        .ok()
-                        .header("X-Custom-Header", customHeader)
-                        .body<Resource<TestDataHolder>>(resource)
+                    .ok()
+                    .header("X-Custom-Header", customHeader)
+                    .body<Resource<TestDataHolder>>(resource)
             }
         }
     }
@@ -99,37 +99,37 @@ open class ResourceSnippetIntegrationTest {
 fun fieldDescriptors(): FieldDescriptors {
     val fields = ConstrainedFields(ResourceSnippetIntegrationTest.TestDataHolder::class.java)
     return ResourceDocumentation.fields(
-            fields.withPath("comment").description("the comment").optional(),
-            fields.withPath("flag").description("the flag"),
-            fields.withMappedPath("count", "count").description("the count")
+        fields.withPath("comment").description("the comment").optional(),
+        fields.withPath("flag").description("the flag"),
+        fields.withMappedPath("count", "count").description("the count")
     )
 }
 
 fun buildFullResourceSnippet(): ResourceSnippet {
     return resource(
-            ResourceSnippetParameters.builder()
-                    .description("description")
-                    .summary("summary")
-                    .deprecated(true)
-                    .privateResource(true)
-                    .requestFields(fieldDescriptors())
-                    .responseFields(fieldDescriptors().and(fieldWithPath("id").description("id")))
-                    .requestHeaders(
-                            headerWithName("X-Custom-Header").description("A custom header"),
-                            headerWithName(ACCEPT).description("Accept")
-                    )
-                    .responseHeaders(
-                            headerWithName("X-Custom-Header").description("A custom header"),
-                            headerWithName(CONTENT_TYPE).description("ContentType")
-                    )
-                    .pathParameters(
-                            parameterWithName("someId").description("some id"),
-                            parameterWithName("otherId").description("otherId id").type(SimpleType.INTEGER)
-                    )
-                    .links(
-                            linkWithRel("self").description("some"),
-                            linkWithRel("multiple").description("multiple")
-                    )
-                    .build()
+        ResourceSnippetParameters.builder()
+            .description("description")
+            .summary("summary")
+            .deprecated(true)
+            .privateResource(true)
+            .requestFields(fieldDescriptors())
+            .responseFields(fieldDescriptors().and(fieldWithPath("id").description("id")))
+            .requestHeaders(
+                headerWithName("X-Custom-Header").description("A custom header"),
+                headerWithName(ACCEPT).description("Accept")
+            )
+            .responseHeaders(
+                headerWithName("X-Custom-Header").description("A custom header"),
+                headerWithName(CONTENT_TYPE).description("ContentType")
+            )
+            .pathParameters(
+                parameterWithName("someId").description("some id"),
+                parameterWithName("otherId").description("otherId id").type(SimpleType.INTEGER)
+            )
+            .links(
+                linkWithRel("self").description("some"),
+                linkWithRel("multiple").description("multiple")
+            )
+            .build()
     )
 }

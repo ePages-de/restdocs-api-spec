@@ -71,17 +71,17 @@ abstract class RestdocsOpenApiTaskTestBase : ApiSpecTaskTest() {
 
     private fun givenScopeTextFile() {
         testProjectDir.resolve("scopeDescriptions.yaml").toFile().writeText(
-                """
+            """
                     "prod:r": "Some text"
-                """.trimIndent()
-            )
+            """.trimIndent()
+        )
     }
     private fun givenTagsTextFile() {
         testProjectDir.resolve("tagDescriptions.yaml").toFile().writeText(
-                """
+            """
                     "tag1": "tag1 description"
                     "tag2": "tag2 description"
-                """.trimIndent()
+            """.trimIndent()
         )
     }
 

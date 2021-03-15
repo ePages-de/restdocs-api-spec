@@ -14,6 +14,8 @@ import org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders
 import org.springframework.restdocs.headers.HeaderDocumentation.responseHeaders
 import org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel
 import org.springframework.restdocs.hypermedia.HypermediaDocumentation.links
+import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
 import org.springframework.restdocs.operation.preprocess.OperationRequestPreprocessor
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
@@ -24,8 +26,6 @@ import org.springframework.restdocs.request.RequestDocumentation.pathParameters
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
-import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document
-import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.io.File
 
@@ -108,36 +108,38 @@ class MockMvcRestDocumentationWrapperIntegrationTest(@Autowired private val mock
         givenEndpointInvoked("null")
 
         assertThatCode { this.whenResourceSnippetDocumentedWithRequestAndResponseFields() }
-                .doesNotThrowAnyException()
+            .doesNotThrowAnyException()
     }
 
     private fun whenResourceSnippetDocumentedWithoutParameters() {
         resultActions
-                .andDo(document(operationName, resource()))
+            .andDo(document(operationName, resource()))
     }
 
     private fun whenResourceSnippetDocumentedWithDescription() {
         resultActions
-                .andDo(document(operationName, resource("A description")))
+            .andDo(document(operationName, resource("A description")))
     }
 
     private fun whenResourceSnippetDocumentedWithRequestAndResponseFields() {
         resultActions
-                .andDo(document(operationName, buildFullResourceSnippet()))
+            .andDo(document(operationName, buildFullResourceSnippet()))
     }
 
     private fun givenEndpointInvoked(flagValue: String = "true") {
         resultActions = mockMvc.perform(
-                post("/some/{someId}/other/{otherId}", "id", 1)
-                        .contentType(APPLICATION_JSON)
-                        .header("X-Custom-Header", "test")
-                        .accept(HAL_JSON)
-                        .content("""{
+            post("/some/{someId}/other/{otherId}", "id", 1)
+                .contentType(APPLICATION_JSON)
+                .header("X-Custom-Header", "test")
+                .accept(HAL_JSON)
+                .content(
+                    """{
                             "comment": "some",
                             "flag": $flagValue,
                             "count": 1
-                        }""".trimIndent()
-                        )
+                        }
+                    """.trimIndent()
+                )
         ).andExpect(status().isOk)
     }
 

@@ -24,18 +24,18 @@ object MockMvcRestDocumentationWrapper : RestDocumentationWrapper() {
     ): RestDocumentationResultHandler {
 
         val enhancedSnippets =
-                enhanceSnippetsWithResourceSnippet(
-                        resourceDetails = resourceDetails,
-                        snippetFilter = snippetFilter,
-                        snippets = snippets
-                )
+            enhanceSnippetsWithResourceSnippet(
+                resourceDetails = resourceDetails,
+                snippetFilter = snippetFilter,
+                snippets = snippets
+            )
 
         if (requestPreprocessor != null && responsePreprocessor != null) {
             return MockMvcRestDocumentation.document(
-                    identifier,
-                    requestPreprocessor,
-                    responsePreprocessor,
-                    *enhancedSnippets
+                identifier,
+                requestPreprocessor,
+                responsePreprocessor,
+                *enhancedSnippets
             )
         } else if (requestPreprocessor != null) {
             return MockMvcRestDocumentation.document(identifier, requestPreprocessor, *enhancedSnippets)
@@ -59,16 +59,16 @@ object MockMvcRestDocumentationWrapper : RestDocumentationWrapper() {
         vararg snippets: Snippet
     ): RestDocumentationResultHandler {
         return document(
-                identifier = identifier,
-                resourceDetails = ResourceSnippetParametersBuilder()
-                        .description(description)
-                        .summary(summary)
-                        .privateResource(privateResource)
-                        .deprecated(deprecated),
-                requestPreprocessor = requestPreprocessor,
-                responsePreprocessor = responsePreprocessor,
-                snippetFilter = snippetFilter,
-                snippets = snippets
+            identifier = identifier,
+            resourceDetails = ResourceSnippetParametersBuilder()
+                .description(description)
+                .summary(summary)
+                .privateResource(privateResource)
+                .deprecated(deprecated),
+            requestPreprocessor = requestPreprocessor,
+            responsePreprocessor = responsePreprocessor,
+            snippetFilter = snippetFilter,
+            snippets = snippets
         )
     }
 

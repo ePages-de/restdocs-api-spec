@@ -363,36 +363,44 @@ class OpenApi3GeneratorTest {
         )
 
         println(openApiSpecJsonString)
-        openApiJsonPathContext = JsonPath.parse(openApiSpecJsonString, Configuration.defaultConfiguration().addOptions(
-            Option.SUPPRESS_EXCEPTIONS))
+        openApiJsonPathContext = JsonPath.parse(
+            openApiSpecJsonString,
+            Configuration.defaultConfiguration().addOptions(
+                Option.SUPPRESS_EXCEPTIONS
+            )
+        )
     }
 
     private fun whenOpenApiObjectGeneratedWithoutOAuth2() {
         openApiSpecJsonString = OpenApi3Generator.generateAndSerialize(
-                resources = resources,
-                servers = listOf(Server().apply { url = "https://localhost/api" }),
-                format = "json",
-                description = "API Description",
-                tagDescriptions = mapOf("tag1" to "tag1 description", "tag2" to "tag2 description")
+            resources = resources,
+            servers = listOf(Server().apply { url = "https://localhost/api" }),
+            format = "json",
+            description = "API Description",
+            tagDescriptions = mapOf("tag1" to "tag1 description", "tag2" to "tag2 description")
         )
 
         println(openApiSpecJsonString)
-        openApiJsonPathContext = JsonPath.parse(openApiSpecJsonString, Configuration.defaultConfiguration().addOptions(
-                Option.SUPPRESS_EXCEPTIONS))
+        openApiJsonPathContext = JsonPath.parse(
+            openApiSpecJsonString,
+            Configuration.defaultConfiguration().addOptions(
+                Option.SUPPRESS_EXCEPTIONS
+            )
+        )
     }
 
     private fun givenResourceWithFormDataSentAs(method: HTTPMethod) {
         resources = listOf(
-                ResourceModel(
-                        operationId = "test",
-                        summary = "summary",
-                        description = "description",
-                        privateResource = false,
-                        deprecated = false,
-                        tags = setOf("tag1", "tag2"),
-                        request = productRequestAsFormData(method, schema = Schema("ProductRequest")),
-                        response = getProductResponse()
-                )
+            ResourceModel(
+                operationId = "test",
+                summary = "summary",
+                description = "description",
+                privateResource = false,
+                deprecated = false,
+                tags = setOf("tag1", "tag2"),
+                request = productRequestAsFormData(method, schema = Schema("ProductRequest")),
+                response = getProductResponse()
+            )
         )
     }
 
@@ -423,26 +431,26 @@ class OpenApi3GeneratorTest {
 
     private fun givenResourcesWithSamePathAndContentTypeButOperationIdsWithoutCommonPrefix() {
         resources = listOf(
-                ResourceModel(
-                        operationId = "first",
-                        summary = "summary",
-                        description = "description",
-                        privateResource = false,
-                        deprecated = false,
-                        tags = setOf("tag1", "tag2"),
-                        request = getProductRequest(),
-                        response = getProductResponse()
-                ),
-                ResourceModel(
-                        operationId = "second",
-                        summary = "summary 1",
-                        description = "description 1",
-                        privateResource = false,
-                        deprecated = false,
-                        tags = setOf("tag1", "tag2"),
-                        request = getProductRequest(),
-                        response = getProductResponse()
-                )
+            ResourceModel(
+                operationId = "first",
+                summary = "summary",
+                description = "description",
+                privateResource = false,
+                deprecated = false,
+                tags = setOf("tag1", "tag2"),
+                request = getProductRequest(),
+                response = getProductResponse()
+            ),
+            ResourceModel(
+                operationId = "second",
+                summary = "summary 1",
+                description = "description 1",
+                privateResource = false,
+                deprecated = false,
+                tags = setOf("tag1", "tag2"),
+                request = getProductRequest(),
+                response = getProductResponse()
+            )
         )
     }
 
@@ -473,46 +481,46 @@ class OpenApi3GeneratorTest {
 
     private fun givenResourcesWithSamePathAndContentTypeAndDifferentParameters() {
         resources = listOf(
-                ResourceModel(
-                        operationId = "test",
-                        summary = "summary",
-                        description = "description",
-                        privateResource = false,
-                        deprecated = false,
-                        tags = setOf("tag1", "tag2"),
-                        request = getProductRequest(),
-                        response = getProductResponse()
-                ),
-                ResourceModel(
-                        operationId = "test",
-                        summary = "summary",
-                        description = "description",
-                        privateResource = false,
-                        deprecated = false,
-                        tags = setOf("tag1", "tag2"),
-                        request = getProductRequest(),
-                        response = getProductResponse()
-                ),
-                ResourceModel(
-                        operationId = "test-1",
-                        summary = "summary 1",
-                        description = "description 1",
-                        privateResource = false,
-                        deprecated = false,
-                        tags = setOf("tag1", "tag2"),
-                        request = getProductRequestWithDifferentParameter("color", "Changes the color of the product"),
-                        response = getProductResponse()
-                ),
-                ResourceModel(
-                        operationId = "test-1",
-                        summary = "summary 1",
-                        description = "description 1",
-                        privateResource = false,
-                        deprecated = false,
-                        tags = setOf("tag1", "tag2"),
-                        request = getProductRequestWithDifferentParameter("color", "Modifies the color of the product"),
-                        response = getProductResponse()
-                )
+            ResourceModel(
+                operationId = "test",
+                summary = "summary",
+                description = "description",
+                privateResource = false,
+                deprecated = false,
+                tags = setOf("tag1", "tag2"),
+                request = getProductRequest(),
+                response = getProductResponse()
+            ),
+            ResourceModel(
+                operationId = "test",
+                summary = "summary",
+                description = "description",
+                privateResource = false,
+                deprecated = false,
+                tags = setOf("tag1", "tag2"),
+                request = getProductRequest(),
+                response = getProductResponse()
+            ),
+            ResourceModel(
+                operationId = "test-1",
+                summary = "summary 1",
+                description = "description 1",
+                privateResource = false,
+                deprecated = false,
+                tags = setOf("tag1", "tag2"),
+                request = getProductRequestWithDifferentParameter("color", "Changes the color of the product"),
+                response = getProductResponse()
+            ),
+            ResourceModel(
+                operationId = "test-1",
+                summary = "summary 1",
+                description = "description 1",
+                privateResource = false,
+                deprecated = false,
+                tags = setOf("tag1", "tag2"),
+                request = getProductRequestWithDifferentParameter("color", "Modifies the color of the product"),
+                response = getProductResponse()
+            )
         )
     }
 
@@ -568,16 +576,16 @@ class OpenApi3GeneratorTest {
 
     private fun givenResourceWithMultiplePathParameters() {
         resources = listOf(
-                ResourceModel(
-                        operationId = "test",
-                        summary = "summary",
-                        description = "description",
-                        privateResource = false,
-                        deprecated = false,
-                        tags = setOf("tag1", "tag2"),
-                        request = getProductRequestWithMultiplePathParameters(),
-                        response = getProductResponse()
-                )
+            ResourceModel(
+                operationId = "test",
+                summary = "summary",
+                description = "description",
+                privateResource = false,
+                deprecated = false,
+                tags = setOf("tag1", "tag2"),
+                request = getProductRequestWithMultiplePathParameters(),
+                response = getProductResponse()
+            )
         )
     }
 
@@ -625,56 +633,56 @@ class OpenApi3GeneratorTest {
 
     private fun givenGetProductResourceModelWithJWTSecurityRequirement() {
         resources = listOf(
-                ResourceModel(
-                        operationId = "test",
-                        summary = "summary",
-                        description = "description",
-                        privateResource = false,
-                        deprecated = false,
-                        tags = setOf("tag1", "tag2"),
-                        request = getProductRequest(::getJWTSecurityRequirement),
-                        response = getProductResponse()
-                )
+            ResourceModel(
+                operationId = "test",
+                summary = "summary",
+                description = "description",
+                privateResource = false,
+                deprecated = false,
+                tags = setOf("tag1", "tag2"),
+                request = getProductRequest(::getJWTSecurityRequirement),
+                response = getProductResponse()
+            )
         )
     }
 
     private fun givenPatchProductResourceModelWithCustomSchemaNames() {
         resources = listOf(
-                ResourceModel(
-                        operationId = "test",
-                        summary = "summary",
-                        description = "description",
-                        privateResource = false,
-                        deprecated = false,
-                        tags = setOf("tag1", "tag2"),
-                        request = getProductPatchRequest(schema = Schema("ProductRequest")),
-                        response = getProductResponse(schema = Schema("ProductResponse"))
-                )
+            ResourceModel(
+                operationId = "test",
+                summary = "summary",
+                description = "description",
+                privateResource = false,
+                deprecated = false,
+                tags = setOf("tag1", "tag2"),
+                request = getProductPatchRequest(schema = Schema("ProductRequest")),
+                response = getProductResponse(schema = Schema("ProductResponse"))
+            )
         )
     }
 
     private fun givenMultiplePatchProductResourceModelsWithCustomSchemaNames() {
         resources = listOf(
-                ResourceModel(
-                        operationId = "test1",
-                        summary = "summary1",
-                        description = "description1",
-                        privateResource = false,
-                        deprecated = false,
-                        tags = setOf("tag1", "tag2"),
-                        request = getProductPatchRequest(schema = Schema("ProductRequest1"), path = "/products1/{id}"),
-                        response = getProductResponse(schema = Schema("ProductResponse1"))
-                ),
-                ResourceModel(
-                        operationId = "test2",
-                        summary = "summary2",
-                        description = "description2",
-                        privateResource = false,
-                        deprecated = false,
-                        tags = setOf("tag1", "tag2"),
-                        request = getProductPatchRequest(schema = Schema("ProductRequest2"), path = "/products2/{id}"),
-                        response = getProductResponse(schema = Schema("ProductResponse2"))
-                )
+            ResourceModel(
+                operationId = "test1",
+                summary = "summary1",
+                description = "description1",
+                privateResource = false,
+                deprecated = false,
+                tags = setOf("tag1", "tag2"),
+                request = getProductPatchRequest(schema = Schema("ProductRequest1"), path = "/products1/{id}"),
+                response = getProductResponse(schema = Schema("ProductResponse1"))
+            ),
+            ResourceModel(
+                operationId = "test2",
+                summary = "summary2",
+                description = "description2",
+                privateResource = false,
+                deprecated = false,
+                tags = setOf("tag1", "tag2"),
+                request = getProductPatchRequest(schema = Schema("ProductRequest2"), path = "/products2/{id}"),
+                response = getProductResponse(schema = Schema("ProductResponse2"))
+            )
         )
     }
 
@@ -830,96 +838,98 @@ class OpenApi3GeneratorTest {
 
     private fun getProductRequestWithMultiplePathParameters(getSecurityRequirement: () -> SecurityRequirements = ::getOAuth2SecurityRequirement): RequestModel {
         return RequestModel(
-                path = "/products/{id}-{subId}",
-                method = HTTPMethod.GET,
-                securityRequirements = getSecurityRequirement(),
-                headers = emptyList(),
-                pathParameters = emptyList(),
-                requestParameters = emptyList(),
-                requestFields = listOf()
+            path = "/products/{id}-{subId}",
+            method = HTTPMethod.GET,
+            securityRequirements = getSecurityRequirement(),
+            headers = emptyList(),
+            pathParameters = emptyList(),
+            requestParameters = emptyList(),
+            requestFields = listOf()
         )
     }
 
     private fun productRequestAsFormData(method: HTTPMethod, schema: Schema? = null, getSecurityRequirement: () -> SecurityRequirements = ::getOAuth2SecurityRequirement): RequestModel {
         return RequestModel(
-                path = "/products/{id}",
-                method = method,
-                contentType = "application/x-www-form-urlencoded",
-                securityRequirements = getSecurityRequirement(),
-                headers = emptyList(),
-                pathParameters = emptyList(),
-                requestParameters = listOf(
-                        ParameterDescriptor(
-                                name = "locale",
-                                description = "Localizes the product fields to the given locale code",
-                                type = "STRING",
-                                optional = true,
-                                ignored = false
-                        )
-                ),
-                schema = schema,
-                requestFields = listOf(),
-                example = """
+            path = "/products/{id}",
+            method = method,
+            contentType = "application/x-www-form-urlencoded",
+            securityRequirements = getSecurityRequirement(),
+            headers = emptyList(),
+            pathParameters = emptyList(),
+            requestParameters = listOf(
+                ParameterDescriptor(
+                    name = "locale",
+                    description = "Localizes the product fields to the given locale code",
+                    type = "STRING",
+                    optional = true,
+                    ignored = false
+                )
+            ),
+            schema = schema,
+            requestFields = listOf(),
+            example = """
                     locale=pl&irrelevant=true
-                """.trimIndent()
+            """.trimIndent()
         )
     }
 
     private fun getProductRequest(getSecurityRequirement: () -> SecurityRequirements = ::getOAuth2SecurityRequirement): RequestModel {
         return RequestModel(
-                path = "/products/{id}",
-                method = HTTPMethod.GET,
-                securityRequirements = getSecurityRequirement(),
-                headers = listOf(
-                        HeaderDescriptor(
-                                name = "Authorization",
-                                description = "Access token",
-                                type = "string",
-                                optional = false,
-                                example = "some example"
-                    )
-                ),
-                pathParameters = listOf(
-                        ParameterDescriptor(
-                                name = "id",
-                                description = "Product ID",
-                                type = "STRING",
-                                optional = false,
-                                ignored = false
-                        )
-                ),
-                requestParameters = listOf(
-                        ParameterDescriptor(
-                                name = "locale",
-                                description = "Localizes the product fields to the given locale code",
-                                type = "STRING",
-                                optional = true,
-                                ignored = false
-                        )
-                ),
-                requestFields = listOf()
+            path = "/products/{id}",
+            method = HTTPMethod.GET,
+            securityRequirements = getSecurityRequirement(),
+            headers = listOf(
+                HeaderDescriptor(
+                    name = "Authorization",
+                    description = "Access token",
+                    type = "string",
+                    optional = false,
+                    example = "some example"
+                )
+            ),
+            pathParameters = listOf(
+                ParameterDescriptor(
+                    name = "id",
+                    description = "Product ID",
+                    type = "STRING",
+                    optional = false,
+                    ignored = false
+                )
+            ),
+            requestParameters = listOf(
+                ParameterDescriptor(
+                    name = "locale",
+                    description = "Localizes the product fields to the given locale code",
+                    type = "STRING",
+                    optional = true,
+                    ignored = false
+                )
+            ),
+            requestFields = listOf()
         )
     }
 
     private fun getOAuth2SecurityRequirement() = SecurityRequirements(
-            type = SecurityType.OAUTH2,
-            requiredScopes = listOf("prod:r")
+        type = SecurityType.OAUTH2,
+        requiredScopes = listOf("prod:r")
     )
 
     private fun getJWTSecurityRequirement() = SecurityRequirements(
-            type = SecurityType.JWT_BEARER
+        type = SecurityType.JWT_BEARER
     )
 
     private fun getProductRequestWithDifferentParameter(name: String, description: String): RequestModel {
-        return getProductRequest().copy(requestParameters = listOf(
+        return getProductRequest().copy(
+            requestParameters = listOf(
                 ParameterDescriptor(
-                        name = name,
-                        description = description,
-                        type = "STRING",
-                        optional = true,
-                        ignored = false
+                    name = name,
+                    description = description,
+                    type = "STRING",
+                    optional = true,
+                    ignored = false
                 )
-        ))
+            )
+        )
     }
 
     private fun thenOpenApiSpecIsValid() {

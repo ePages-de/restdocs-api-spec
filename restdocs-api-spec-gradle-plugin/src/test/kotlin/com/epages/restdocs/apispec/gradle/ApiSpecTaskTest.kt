@@ -63,20 +63,20 @@ abstract class ApiSpecTaskTest {
     private fun Path.initializeGradleProperties() {
         // jacoco agent configuration
         resolve("gradle.properties").toFile()
-                .writeText(File("build/testkit/testkit-gradle.properties").readText())
+            .writeText(File("build/testkit/testkit-gradle.properties").readText())
     }
 
     protected fun whenPluginExecuted() {
         result = GradleRunner.create()
-                .withProjectDir(testProjectDir.toFile())
-                .withArguments("--info", "--stacktrace", taskName)
-                .withPluginClasspath()
-                .withDebug(true)
-                .build()
+            .withProjectDir(testProjectDir.toFile())
+            .withArguments("--info", "--stacktrace", taskName)
+            .withPluginClasspath()
+            .withDebug(true)
+            .build()
     }
 
     protected fun outputFileContext(): DocumentContext =
-            JsonPath.parse(outputFolder.resolve("$outputFileNamePrefix.$format").readText().also { println(it) })
+        JsonPath.parse(outputFolder.resolve("$outputFileNamePrefix.$format").readText().also { println(it) })
 
     fun baseBuildFile() = """
         plugins {
@@ -84,12 +84,12 @@ abstract class ApiSpecTaskTest {
             id 'com.epages.restdocs-api-spec'
         }
 
-        """.trimIndent()
+    """.trimIndent()
 
     protected fun givenResourceSnippet() {
         val operationDir = File(snippetsFolder, "some-operation").apply { mkdir() }
         File(operationDir, "resource.json").writeText(
-                """
+            """
                 {
   "operationId" : "product-get",
   "summary" : null,
@@ -125,7 +125,7 @@ abstract class ApiSpecTaskTest {
     protected fun givenPrivateResourceSnippet() {
         val operationDir = File(snippetsFolder, "some-private-operation").apply { mkdir() }
         File(operationDir, "resource.json").writeText(
-                """
+            """
                 {
   "operationId" : "product-get-some",
   "summary" : null,
@@ -176,10 +176,12 @@ abstract class ApiSpecTaskTest {
 
     protected fun thenExpectedFileFound(expectedFile: String) {
         BDDAssertions.then(outputFolder.resolve(expectedFile))
-                .describedAs("Output file not found '$expectedFile' - output dir contains ${Files.list(outputFolder.toPath()).map {
+            .describedAs(
+                "Output file not found '$expectedFile' - output dir contains ${Files.list(outputFolder.toPath()).map {
                     it.toFile().path
-                }.toList()}")
-                .exists()
+                }.toList()}"
+            )
+            .exists()
     }
 
     protected fun givenBuildFileWithoutApiSpecClosure() {

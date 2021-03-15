@@ -2,7 +2,6 @@ package com.epages.restdocs.apispec
 
 import org.springframework.restdocs.constraints.ValidatorConstraintResolver
 import org.springframework.restdocs.payload.FieldDescriptor
-
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.restdocs.snippet.Attributes.key
 

@@ -10,12 +10,14 @@ class JsonFieldPathTest {
 
     @Test
     fun should_get_remaining_segments() {
-        with(compile(
-            JsonSchemaFromFieldDescriptorsGenerator.FieldDescriptorWithSchemaType(
-                "a.b.c", "", "", false, false,
-                Attributes()
+        with(
+            compile(
+                JsonSchemaFromFieldDescriptorsGenerator.FieldDescriptorWithSchemaType(
+                    "a.b.c", "", "", false, false,
+                    Attributes()
+                )
             )
-        )) {
+        ) {
             then(remainingSegments(listOf("a"))).contains("b", "c")
             then(remainingSegments(listOf("a", "b"))).contains("c")
             then(remainingSegments(listOf("a", "b", "c"))).isEmpty()
