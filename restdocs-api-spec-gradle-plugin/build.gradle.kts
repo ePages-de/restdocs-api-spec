@@ -9,7 +9,6 @@ plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
     id("com.gradle.plugin-publish") version "0.12.0"
-    signing
 }
 
 gradlePlugin {
