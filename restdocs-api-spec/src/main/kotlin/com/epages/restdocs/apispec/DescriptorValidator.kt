@@ -81,9 +81,10 @@ internal object DescriptorValidator {
     }
 
     private fun toParameterDescriptors(parameters: List<ParameterDescriptorWithType>) =
-        parameters.map { p -> parameterWithName(p.name).description(p.description)
-            .apply { if (p.optional) optional() }
-            .apply { if (p.isIgnored) ignored() }
+        parameters.map { p ->
+            parameterWithName(p.name).description(p.description)
+                .apply { if (p.optional) optional() }
+                .apply { if (p.isIgnored) ignored() }
         }
 
     private fun toHeaderDescriptors(requestHeaders: List<HeaderDescriptorWithType>) =
@@ -105,8 +106,10 @@ internal object DescriptorValidator {
      *
      * This is baked into [org.springframework.restdocs.payload.AbstractFieldsSnippet.createModel] and is not accessible separately.
      */
-    private class RequestFieldsSnippetWrapper(val descriptors: List<FieldDescriptor>) : RequestFieldsSnippet(descriptors),
-        ValidateableSnippet, FieldTypeExtractor {
+    private class RequestFieldsSnippetWrapper(val descriptors: List<FieldDescriptor>) :
+        RequestFieldsSnippet(descriptors),
+        ValidateableSnippet,
+        FieldTypeExtractor {
 
         @Suppress("UNCHECKED_CAST")
         override fun validate(operation: Operation) {
@@ -115,8 +118,10 @@ internal object DescriptorValidator {
         }
     }
 
-    private class ResponseFieldsSnippetWrapper(val descriptors: List<FieldDescriptor>) : ResponseFieldsSnippet(descriptors),
-        ValidateableSnippet, FieldTypeExtractor {
+    private class ResponseFieldsSnippetWrapper(val descriptors: List<FieldDescriptor>) :
+        ResponseFieldsSnippet(descriptors),
+        ValidateableSnippet,
+        FieldTypeExtractor {
 
         @Suppress("UNCHECKED_CAST")
         override fun validate(operation: Operation) {
@@ -146,35 +151,40 @@ internal object DescriptorValidator {
         }
     }
 
-    private class PathParametersSnippetWrapper(descriptors: List<ParameterDescriptor>) : PathParametersSnippet(descriptors),
+    private class PathParametersSnippetWrapper(descriptors: List<ParameterDescriptor>) :
+        PathParametersSnippet(descriptors),
         ValidateableSnippet {
         override fun validate(operation: Operation) {
             super.createModel(operation)
         }
     }
 
-    private class RequestParameterSnippetWrapper(descriptors: List<ParameterDescriptor>) : RequestParametersSnippet(descriptors),
+    private class RequestParameterSnippetWrapper(descriptors: List<ParameterDescriptor>) :
+        RequestParametersSnippet(descriptors),
         ValidateableSnippet {
         override fun validate(operation: Operation) {
             super.createModel(operation)
         }
     }
 
-    private class RequestHeadersSnippetWrapper(descriptors: List<HeaderDescriptor>) : RequestHeadersSnippet(descriptors),
+    private class RequestHeadersSnippetWrapper(descriptors: List<HeaderDescriptor>) :
+        RequestHeadersSnippet(descriptors),
         ValidateableSnippet {
         override fun validate(operation: Operation) {
             this.createModel(operation)
         }
     }
 
-    private class ResponseHeadersSnippetWrapper(descriptors: List<HeaderDescriptor>) : ResponseHeadersSnippet(descriptors),
+    private class ResponseHeadersSnippetWrapper(descriptors: List<HeaderDescriptor>) :
+        ResponseHeadersSnippet(descriptors),
         ValidateableSnippet {
         override fun validate(operation: Operation) {
             this.createModel(operation)
         }
     }
 
-    private class LinksSnippetWrapper(descriptors: List<LinkDescriptor>) : LinksSnippet(HypermediaDocumentation.halLinks(), descriptors),
+    private class LinksSnippetWrapper(descriptors: List<LinkDescriptor>) :
+        LinksSnippet(HypermediaDocumentation.halLinks(), descriptors),
         ValidateableSnippet {
         override fun validate(operation: Operation) {
             this.createModel(operation)

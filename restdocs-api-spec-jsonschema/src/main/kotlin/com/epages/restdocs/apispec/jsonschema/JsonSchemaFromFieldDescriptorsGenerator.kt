@@ -11,10 +11,10 @@ import org.everit.json.schema.ArraySchema
 import org.everit.json.schema.BooleanSchema
 import org.everit.json.schema.CombinedSchema
 import org.everit.json.schema.EmptySchema
+import org.everit.json.schema.EnumSchema
 import org.everit.json.schema.NullSchema
 import org.everit.json.schema.NumberSchema
 import org.everit.json.schema.ObjectSchema
-import org.everit.json.schema.EnumSchema
 import org.everit.json.schema.Schema
 import org.everit.json.schema.StringSchema
 import org.everit.json.schema.internal.JSONPrinter
@@ -46,11 +46,12 @@ class JsonSchemaFromFieldDescriptorsGenerator {
                     it
                 )
             }
-            .foldRight(listOf()) { fieldDescriptor, groups -> groups
-                .firstOrNull { it.equalsOnPathAndType(fieldDescriptor) }
-                ?.let { groups } // omit the descriptor it is considered equal and can be omitted
-                ?: groups.firstOrNull { it.path == fieldDescriptor.path }
-                    ?.let { groups - it + it.merge(fieldDescriptor) } // merge the type with the descriptor with the same name
+            .foldRight(listOf()) { fieldDescriptor, groups ->
+                groups
+                    .firstOrNull { it.equalsOnPathAndType(fieldDescriptor) }
+                    ?.let { groups } // omit the descriptor it is considered equal and can be omitted
+                    ?: groups.firstOrNull { it.path == fieldDescriptor.path }
+                        ?.let { groups - it + it.merge(fieldDescriptor) } // merge the type with the descriptor with the same name
                     ?: groups + fieldDescriptor // it is new just add it
             }
     }
@@ -140,7 +141,8 @@ class JsonSchemaFromFieldDescriptorsGenerator {
         ) {
             traversedSegments.add(remainingSegments[0])
             builder.addPropertySchema(
-                propertyName, ArraySchema.builder()
+                propertyName,
+                ArraySchema.builder()
                     .allItemSchema(traverse(traversedSegments, fields, ObjectSchema.builder()))
                     .description(propertyField?.fieldDescriptor?.description)
                     .build()
@@ -150,8 +152,10 @@ class JsonSchemaFromFieldDescriptorsGenerator {
                 builder.addRequiredProperty(propertyName)
             }
             builder.addPropertySchema(
-                propertyName, traverse(
-                    traversedSegments, fields, ObjectSchema.builder()
+                propertyName,
+                traverse(
+                    traversedSegments, fields,
+                    ObjectSchema.builder()
                         .description(propertyField?.fieldDescriptor?.description) as ObjectSchema.Builder
                 )
             )
@@ -167,8 +171,10 @@ class JsonSchemaFromFieldDescriptorsGenerator {
                 builder.addRequiredProperty(propertyName)
             }
             if (propertyName == "[]") {
-                builder.addPropertySchema(propertyName,
-                    createSchemaWithArrayContent(ObjectSchema.builder().build(), depthOfArrayPath(fieldDescriptor.path)))
+                builder.addPropertySchema(
+                    propertyName,
+                    createSchemaWithArrayContent(ObjectSchema.builder().build(), depthOfArrayPath(fieldDescriptor.path))
+                )
             } else {
                 builder.addPropertySchema(propertyName, fieldDescriptor.jsonSchemaType())
             }
@@ -233,30 +239,35 @@ class JsonSchemaFromFieldDescriptorsGenerator {
                 "null" -> NullSchema.builder()
                 "empty" -> EmptySchema.builder()
                 "object" -> ObjectSchema.builder()
-                "array" -> ArraySchema.builder().allItemSchema(CombinedSchema.oneOf(
+                "array" -> ArraySchema.builder().allItemSchema(
+                    CombinedSchema.oneOf(
                         listOf(
-                                ObjectSchema.builder().build(),
-                                BooleanSchema.builder().build(),
-                                StringSchema.builder().build(),
-                                NumberSchema.builder().build()
+                            ObjectSchema.builder().build(),
+                            BooleanSchema.builder().build(),
+                            StringSchema.builder().build(),
+                            NumberSchema.builder().build()
                         )
-                ).build())
+                    ).build()
+                )
                 "boolean" -> BooleanSchema.builder()
                 "number" -> NumberSchema.builder()
                 "string" -> StringSchema.builder()
                     .minLength(minLengthString(this))
                     .maxLength(maxLengthString(this))
                 "enum" -> CombinedSchema.oneOf(
-                        listOf(
-                                StringSchema.builder().build(),
-                                EnumSchema.builder().possibleValues(this.attributes.enumValues).build())
-                        ).isSynthetic(true)
+                    listOf(
+                        StringSchema.builder().build(),
+                        EnumSchema.builder().possibleValues(this.attributes.enumValues).build()
+                    )
+                ).isSynthetic(true)
                 else -> throw IllegalArgumentException("unknown field type $type")
             }
 
         fun equalsOnPathAndType(f: FieldDescriptorWithSchemaType): Boolean =
-            (this.path == f.path &&
-                this.type == f.type)
+            (
+                this.path == f.path &&
+                    this.type == f.type
+                )
 
         companion object {
             fun fromFieldDescriptor(fieldDescriptor: FieldDescriptor) =

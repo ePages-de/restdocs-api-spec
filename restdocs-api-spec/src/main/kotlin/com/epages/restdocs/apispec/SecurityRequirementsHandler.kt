@@ -6,13 +6,13 @@ import org.springframework.restdocs.operation.Operation
 internal class SecurityRequirementsHandler {
 
     private val handlers = listOf(
-            BasicSecurityHandler(),
-            JwtSecurityHandler()
+        BasicSecurityHandler(),
+        JwtSecurityHandler()
     )
 
     fun extractSecurityRequirements(operation: Operation): SecurityRequirements? {
         return handlers.map { it.extractSecurityRequirements(operation) }
-                .firstOrNull { it != null }
+            .firstOrNull { it != null }
     }
 }
 
@@ -29,10 +29,10 @@ internal class BasicSecurityHandler : SecurityRequirementsExtractor {
 
     private fun isBasicSecurity(operation: Operation): Boolean {
         return operation.request.headers
-                .filterKeys { it == HttpHeaders.AUTHORIZATION }
-                .flatMap { it.value }
-                .filter { it.startsWith("Basic ") }
-                .isNotEmpty()
+            .filterKeys { it == HttpHeaders.AUTHORIZATION }
+            .flatMap { it.value }
+            .filter { it.startsWith("Basic ") }
+            .isNotEmpty()
     }
 }
 
@@ -41,7 +41,7 @@ internal interface SecurityRequirements {
 }
 
 internal data class Oauth2(val requiredScopes: List<String>) :
-        SecurityRequirements {
+    SecurityRequirements {
     override val type = SecurityType.OAUTH2
 }
 

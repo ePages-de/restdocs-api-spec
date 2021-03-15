@@ -41,9 +41,11 @@ data class ResourceSnippetParameters @JvmOverloads constructor(
             var descriptor = createLinkFieldDescriptor(linkDescriptor.rel)
                 .description(linkDescriptor.description)
                 .type(JsonFieldType.VARIES)
-                .attributes(*linkDescriptor.attributes.entries
-                    .map { e -> Attributes.Attribute(e.key, e.value) }
-                    .toTypedArray())
+                .attributes(
+                    *linkDescriptor.attributes.entries
+                        .map { e -> Attributes.Attribute(e.key, e.value) }
+                        .toTypedArray()
+                )
 
             if (linkDescriptor.isOptional) {
                 descriptor = descriptor.optional()
@@ -69,7 +71,8 @@ data class ResourceSnippetParameters @JvmOverloads constructor(
                     PayloadDocumentation::class.java,
                     "subsectionWithPath",
                     String::class.java
-                ))
+                )
+            )
                 .map { m -> ReflectionUtils.invokeMethod(m, null, path) }
                 .orElseGet { fieldWithPath(path) } as FieldDescriptor
         }
@@ -211,27 +214,34 @@ class ResourceSnippetParametersBuilder : ResourceSnippetDetails() {
 
     fun pathParameters(vararg pathParameters: ParameterDescriptorWithType) = pathParameters(pathParameters.toList())
     fun pathParameters(pathParameters: List<ParameterDescriptorWithType>) = apply { this.pathParameters = pathParameters }
-    fun pathParameters(vararg pathParameters: ParameterDescriptor) = pathParameters(pathParameters.map {
-        ParameterDescriptorWithType.fromParameterDescriptor(it)
-    })
+    fun pathParameters(vararg pathParameters: ParameterDescriptor) = pathParameters(
+        pathParameters.map {
+            ParameterDescriptorWithType.fromParameterDescriptor(it)
+        }
+    )
 
     fun requestParameters(vararg requestParameters: ParameterDescriptorWithType) = requestParameters(requestParameters.toList())
     fun requestParameters(requestParameters: List<ParameterDescriptorWithType>) = apply { this.requestParameters = requestParameters }
-    fun requestParameters(vararg requestParameters: ParameterDescriptor) = requestParameters(requestParameters.map {
-        ParameterDescriptorWithType.fromParameterDescriptor(it)
-    })
+    fun requestParameters(vararg requestParameters: ParameterDescriptor) = requestParameters(
+        requestParameters.map {
+            ParameterDescriptorWithType.fromParameterDescriptor(it)
+        }
+    )
 
     fun requestHeaders(requestHeaders: List<HeaderDescriptorWithType>) = apply { this.requestHeaders = requestHeaders }
     fun requestHeaders(vararg requestHeaders: HeaderDescriptorWithType) = requestHeaders(requestHeaders.toList())
     fun requestHeaders(vararg requestHeaders: HeaderDescriptor) =
-        requestHeaders(requestHeaders.map {
-            HeaderDescriptorWithType.fromHeaderDescriptor(it)
-        })
+        requestHeaders(
+            requestHeaders.map {
+                HeaderDescriptorWithType.fromHeaderDescriptor(it)
+            }
+        )
 
     fun responseHeaders(responseHeaders: List<HeaderDescriptorWithType>) = apply { this.responseHeaders = responseHeaders }
     fun responseHeaders(vararg responseHeaders: HeaderDescriptorWithType) = responseHeaders(responseHeaders.toList())
     fun responseHeaders(vararg responseHeaders: HeaderDescriptor) = responseHeaders(
-        responseHeaders.map { HeaderDescriptorWithType.fromHeaderDescriptor(it) })
+        responseHeaders.map { HeaderDescriptorWithType.fromHeaderDescriptor(it) }
+    )
 
     override fun tag(tag: String) = tags(tag)
     override fun tags(vararg tags: String) = apply { this.tags += tags }

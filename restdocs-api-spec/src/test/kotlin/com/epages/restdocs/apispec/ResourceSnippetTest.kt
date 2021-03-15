@@ -264,14 +264,14 @@ class ResourceSnippetTest {
 
     private fun givenOperationWithNamePlaceholders() {
         operation = OperationBuilder("{class-name}/{method-name}", rootOutputDirectory)
-                .attribute(ATTRIBUTE_NAME_URL_TEMPLATE, "http://localhost:8080/some/{id}")
-                .testClass(ResourceSnippetTest::class.java)
-                .testMethodName("getSomeById")
-                .request("http://localhost:8080/some/123")
-                .method("POST")
-                .header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-                .content("{\"comment\": \"some\"}")
-                .build()
+            .attribute(ATTRIBUTE_NAME_URL_TEMPLATE, "http://localhost:8080/some/{id}")
+            .testClass(ResourceSnippetTest::class.java)
+            .testMethodName("getSomeById")
+            .request("http://localhost:8080/some/123")
+            .method("POST")
+            .header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+            .content("{\"comment\": \"some\"}")
+            .build()
     }
 
     private fun givenOperationWithRequestBody() {
@@ -338,19 +338,22 @@ class ResourceSnippetTest {
     private fun givenIgnoredAndNotIgnoredRequestFieldDescriptors() {
         parametersBuilder.requestFields(
             fieldWithPath("comment").description("description"),
-            fieldWithPath("ignored").description("description").ignored())
+            fieldWithPath("ignored").description("description").ignored()
+        )
     }
 
     private fun givenIgnoredAndNotIgnoredResponseFieldDescriptors() {
         parametersBuilder.responseFields(
             fieldWithPath("comment").description("description"),
-            fieldWithPath("ignored").description("description").ignored())
+            fieldWithPath("ignored").description("description").ignored()
+        )
     }
 
     private fun givenIgnoredAndNotIgnoredRequestParameterDescriptors() {
         parametersBuilder.requestParameters(
             parameterWithName("describedParameter").description("description"),
-            parameterWithName("obviousParameter").description("needs no documentation, too obvious").ignored())
+            parameterWithName("obviousParameter").description("needs no documentation, too obvious").ignored()
+        )
     }
 
     private fun givenOperationWithRequestAndResponseBody(responseContentType: String = APPLICATION_JSON_VALUE) {

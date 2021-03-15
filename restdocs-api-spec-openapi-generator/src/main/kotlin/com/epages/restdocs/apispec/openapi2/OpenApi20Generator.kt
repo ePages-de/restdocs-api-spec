@@ -62,10 +62,14 @@ object OpenApi20Generator {
                 this.description = description
                 this.version = version
             }
-            this.tags(tagDescriptions.map { Tag().apply {
-                this.name = it.key
-                this.description = it.value
-            } })
+            this.tags(
+                tagDescriptions.map {
+                    Tag().apply {
+                        this.name = it.key
+                        this.description = it.value
+                    }
+                }
+            )
             paths = generatePaths(
                 resources,
                 oauth2SecuritySchemeDefinition
@@ -164,12 +168,13 @@ object OpenApi20Generator {
     }
 
     internal fun generateSchemaName(path: String): (Model) -> String {
-        return { schema -> path
-            .replaceFirst("/", "")
-            .replace("/", "_")
-            .replace(Regex.fromLiteral("{"), "")
-            .replace(Regex.fromLiteral("}"), "")
-            .plus(schema.hashCode())
+        return { schema ->
+            path
+                .replaceFirst("/", "")
+                .replace("/", "_")
+                .replace(Regex.fromLiteral("{"), "")
+                .replace(Regex.fromLiteral("}"), "")
+                .plus(schema.hashCode())
         }
     }
 
@@ -179,10 +184,11 @@ object OpenApi20Generator {
     ): Map<String, Path> {
         return groupByPath(resources)
             .entries
-            .map { it.key to resourceModels2Path(
-                it.value,
-                oauth2SecuritySchemeDefinition
-            )
+            .map {
+                it.key to resourceModels2Path(
+                    it.value,
+                    oauth2SecuritySchemeDefinition
+                )
             }
             .toMap()
     }
@@ -192,7 +198,8 @@ object OpenApi20Generator {
             // by first path segment, then path length, then path
             comparing<ResourceModel, String> { it.request.path.split("/").firstOrNull { s -> s.isNotEmpty() }.orEmpty() }
                 .thenComparing(comparingInt<ResourceModel> { it.request.path.count { c -> c == '/' } })
-                .thenComparing(comparing<ResourceModel, String> { it.request.path }))
+                .thenComparing(comparing<ResourceModel, String> { it.request.path })
+        )
             .groupBy { it.request.path }
     }
 
@@ -303,7 +310,8 @@ object OpenApi20Generator {
                                 .filter { it.request.contentType != null && it.request.example != null }
                                 .map { it.request.contentType!! to it.request.example!! }
                                 .toMap(),
-                            firstModelForPathAndMethod.request.schema)
+                            firstModelForPathAndMethod.request.schema
+                        )
                     )
                 ).nullIfEmpty()
             responses = responsesByStatusCode(
@@ -316,7 +324,8 @@ object OpenApi20Generator {
             if (securityRequirements != null) {
                 when (securityRequirements.type) {
                     SecurityType.OAUTH2 -> oauth2SecuritySchemeDefinition?.flows?.map {
-                        addSecurity(oauth2SecuritySchemeDefinition.securitySchemeName(it),
+                        addSecurity(
+                            oauth2SecuritySchemeDefinition.securitySchemeName(it),
                             securityRequirements2ScopesList(
                                 securityRequirements
                             )
@@ -331,8 +340,8 @@ object OpenApi20Generator {
 
     private fun extractPathParameters(resourceModel: ResourceModel): List<PathParameter> {
         val pathParameterNames = PATH_PARAMETER_PATTERN.findAll(resourceModel.request.path)
-                .map { matchResult -> matchResult.groupValues[1] }
-                .toList()
+            .map { matchResult -> matchResult.groupValues[1] }
+            .toList()
 
         return pathParameterNames.map { parameterName ->
             resourceModel.request.pathParameters

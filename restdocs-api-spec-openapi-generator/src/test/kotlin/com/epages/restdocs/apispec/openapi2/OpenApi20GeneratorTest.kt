@@ -2,6 +2,7 @@ package com.epages.restdocs.apispec.openapi2
 
 import com.epages.restdocs.apispec.jsonschema.JsonSchemaFromFieldDescriptorsGenerator
 import com.epages.restdocs.apispec.model.AbstractParameterDescriptor
+import com.epages.restdocs.apispec.model.Attributes
 import com.epages.restdocs.apispec.model.FieldDescriptor
 import com.epages.restdocs.apispec.model.HTTPMethod
 import com.epages.restdocs.apispec.model.HeaderDescriptor
@@ -10,11 +11,10 @@ import com.epages.restdocs.apispec.model.ParameterDescriptor
 import com.epages.restdocs.apispec.model.RequestModel
 import com.epages.restdocs.apispec.model.ResourceModel
 import com.epages.restdocs.apispec.model.ResponseModel
-import com.epages.restdocs.apispec.model.SecurityRequirements
 import com.epages.restdocs.apispec.model.Schema
+import com.epages.restdocs.apispec.model.SecurityRequirements
 import com.epages.restdocs.apispec.model.SecurityType.BASIC
 import com.epages.restdocs.apispec.model.SecurityType.OAUTH2
-import com.epages.restdocs.apispec.model.Attributes
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.swagger.models.Model
 import io.swagger.models.Path
@@ -44,10 +44,10 @@ class OpenApi20GeneratorTest {
 
         with(openapi) {
             then(this.tags).extracting("name", "description")
-                    .containsExactly(
-                            tuple("tag1", "tag1 description"),
-                            tuple("tag2", "tag2 description")
-                    )
+                .containsExactly(
+                    tuple("tag1", "tag1 description"),
+                    tuple("tag2", "tag2 description")
+                )
         }
     }
 
@@ -143,8 +143,10 @@ class OpenApi20GeneratorTest {
         with(openapi.securityDefinitions) {
             then(this.containsKey("oauth2_accessCode"))
             then(this["oauth2_accessCode"])
-                .isEqualToComparingFieldByField(OAuth2Definition().accessCode("http://example.com/authorize", "http://example.com/token")
-                    .apply { addScope("prod:r", "No description") })
+                .isEqualToComparingFieldByField(
+                    OAuth2Definition().accessCode("http://example.com/authorize", "http://example.com/token")
+                        .apply { addScope("prod:r", "No description") }
+                )
         }
         thenValidateOpenApi(openapi)
     }
@@ -158,7 +160,7 @@ class OpenApi20GeneratorTest {
         with(openapi.securityDefinitions) {
             then(this).containsKey("basic")
             then(this["basic"])
-                    .isEqualToComparingFieldByField(BasicAuthDefinition())
+                .isEqualToComparingFieldByField(BasicAuthDefinition())
         }
         then(openapi.paths.values.first().operations.first().security).hasSize(1)
         then(openapi.paths.values.first().operations.first().security.first()).containsKey("basic")
@@ -276,8 +278,8 @@ class OpenApi20GeneratorTest {
                 "http://example.com/authorize",
                 arrayOf("application", "accessCode")
             ),
-        description = "API description",
-        tagDescriptions = mapOf("tag1" to "tag1 description", "tag2" to "tag2 description")
+            description = "API description",
+            tagDescriptions = mapOf("tag1" to "tag1 description", "tag2" to "tag2 description")
         )
 
         println(ApiSpecificationWriter.serialize("yaml", openapi))
@@ -350,8 +352,10 @@ class OpenApi20GeneratorTest {
             then(successfulGetResponse.headers.get(header.name)!!.type).isEqualTo(header.type.toLowerCase())
         }
 
-        then(successfulGetResponse
-                .examples.get(successfulGetProductModel.response.contentType)).isEqualTo(successfulGetProductModel.response.example)
+        then(
+            successfulGetResponse
+                .examples.get(successfulGetProductModel.response.contentType)
+        ).isEqualTo(successfulGetProductModel.response.example)
         thenParametersForGetMatch(productPath.get.parameters, successfulGetProductModel.request)
     }
 
@@ -363,8 +367,10 @@ class OpenApi20GeneratorTest {
         then(productPath).isNotNull
         then(productPath.post.consumes).contains(successfulPostProductModel.request.contentType)
         then(successfulPostResponse).isNotNull
-        then(successfulPostResponse!!
-                .examples.get(successfulPostProductModel.response.contentType)).isEqualTo(successfulPostProductModel.response.example)
+        then(
+            successfulPostResponse!!
+                .examples.get(successfulPostProductModel.response.contentType)
+        ).isEqualTo(successfulPostProductModel.response.example)
         thenParametersForPostMatch(productPath.post.parameters, successfulPostProductModel.request)
 
         thenRequestAndResponseSchemataAreReferenced(productPath, successfulPostResponse, openapi.definitions)
@@ -400,8 +406,10 @@ class OpenApi20GeneratorTest {
         val badGetProductModel = api[2]
         val productPath = openapi.paths.getValue(badGetProductModel.request.path)
         then(productPath.get.responses.get(badGetProductModel.response.status.toString())).isNotNull
-        then(productPath.get.responses.get(badGetProductModel.response.status.toString())!!
-                .examples.get(badGetProductModel.response.contentType)).isEqualTo(badGetProductModel.response.example)
+        then(
+            productPath.get.responses.get(badGetProductModel.response.status.toString())!!
+                .examples.get(badGetProductModel.response.contentType)
+        ).isEqualTo(badGetProductModel.response.example)
         thenParametersForGetMatch(productPath.get.parameters, badGetProductModel.request)
     }
 
@@ -433,7 +441,7 @@ class OpenApi20GeneratorTest {
         then(productPath.delete.consumes).isNull()
         then(productPath.delete.responses[successfulDeleteProductModel.response.status.toString()]).isNotNull
         then(productPath.delete.security.reduce { map1, map2 -> map1 + map2 }.values)
-                .containsOnly(successfulDeleteProductModel.request.securityRequirements!!.requiredScopes)
+            .containsOnly(successfulDeleteProductModel.request.securityRequirements!!.requiredScopes)
         then(
             productPath.delete.responses[successfulDeleteProductModel.response.status.toString()]!!
                 .examples[successfulDeleteProductModel.response.contentType]
@@ -500,13 +508,13 @@ class OpenApi20GeneratorTest {
 
     private fun givenGetProductResourceModelWithMultiplePathParameters(): List<ResourceModel> {
         return listOf(
-                ResourceModel(
-                        operationId = "test",
-                        privateResource = false,
-                        deprecated = false,
-                        request = getProductRequestWithMultiplePathParameters(),
-                        response = getProduct200Response(getProductPayloadExample())
-                )
+            ResourceModel(
+                operationId = "test",
+                privateResource = false,
+                deprecated = false,
+                request = getProductRequestWithMultiplePathParameters(),
+                response = getProduct200Response(getProductPayloadExample())
+            )
         )
     }
 
@@ -570,44 +578,44 @@ class OpenApi20GeneratorTest {
 
     private fun givenResourceModelsWithApplicationForm(method: HTTPMethod): List<ResourceModel> {
         return listOf(
-                ResourceModel(
-                        operationId = "test",
-                        privateResource = false,
-                        deprecated = false,
-                        request = productRequest(method = method),
-                        response = postProduct200Response(getProductPayloadExample(), schema = Schema("ProductResponse"))
-                )
+            ResourceModel(
+                operationId = "test",
+                privateResource = false,
+                deprecated = false,
+                request = productRequest(method = method),
+                response = postProduct200Response(getProductPayloadExample(), schema = Schema("ProductResponse"))
+            )
         )
     }
 
     private fun givenPostProductResourceModelWithCustomSchemaNames(): List<ResourceModel> {
         return listOf(
-                ResourceModel(
-                        operationId = "test",
-                        privateResource = false,
-                        deprecated = false,
-                        request = postProductRequest(schema = Schema("ProductRequest")),
-                        response = postProduct200Response(getProductPayloadExample(), schema = Schema("ProductResponse"))
-                )
+            ResourceModel(
+                operationId = "test",
+                privateResource = false,
+                deprecated = false,
+                request = postProductRequest(schema = Schema("ProductRequest")),
+                response = postProduct200Response(getProductPayloadExample(), schema = Schema("ProductResponse"))
+            )
         )
     }
 
     private fun givenMultiplePostProductResourceModelsWithCustomSchemaNames(): List<ResourceModel> {
         return listOf(
-                ResourceModel(
-                        operationId = "test1",
-                        privateResource = false,
-                        deprecated = false,
-                        request = postProductRequest(schema = Schema("ProductRequest1"), path = "/products1"),
-                        response = postProduct200Response(getProductPayloadExample(), schema = Schema("ProductResponse1"))
-                ),
-                ResourceModel(
-                        operationId = "test2",
-                        privateResource = false,
-                        deprecated = false,
-                        request = postProductRequest(schema = Schema("ProductRequest2"), path = "/products2"),
-                        response = postProduct200Response(getProductPayloadExample(), schema = Schema("ProductResponse2"))
-                )
+            ResourceModel(
+                operationId = "test1",
+                privateResource = false,
+                deprecated = false,
+                request = postProductRequest(schema = Schema("ProductRequest1"), path = "/products1"),
+                response = postProduct200Response(getProductPayloadExample(), schema = Schema("ProductResponse1"))
+            ),
+            ResourceModel(
+                operationId = "test2",
+                privateResource = false,
+                deprecated = false,
+                request = postProductRequest(schema = Schema("ProductRequest2"), path = "/products2"),
+                response = postProduct200Response(getProductPayloadExample(), schema = Schema("ProductResponse2"))
+            )
         )
     }
 
@@ -637,46 +645,46 @@ class OpenApi20GeneratorTest {
 
     private fun givenResourcesWithSamePathAndContentTypeAndDifferentParameters(): List<ResourceModel> {
         return listOf(
-                ResourceModel(
-                        operationId = "test",
-                        summary = "summary",
-                        description = "description",
-                        privateResource = false,
-                        deprecated = false,
-                        tags = setOf("tag1", "tag2"),
-                        request = getProductRequest(),
-                        response = getProduct200Response(getProductPayloadExample())
-                ),
-                ResourceModel(
-                        operationId = "test",
-                        summary = "summary",
-                        description = "description",
-                        privateResource = false,
-                        deprecated = false,
-                        tags = setOf("tag1", "tag2"),
-                        request = getProductRequest(),
-                        response = getProduct200Response(getProductPayloadExample())
-                ),
-                ResourceModel(
-                        operationId = "test-1",
-                        summary = "summary 1",
-                        description = "description 1",
-                        privateResource = false,
-                        deprecated = false,
-                        tags = setOf("tag1", "tag2"),
-                        request = getProductRequestWithDifferentParameter("color", "Changes the color of the product"),
-                        response = getProduct200Response(getProductPayloadExample())
-                ),
-                ResourceModel(
-                        operationId = "test-1",
-                        summary = "summary 1",
-                        description = "description 1",
-                        privateResource = false,
-                        deprecated = false,
-                        tags = setOf("tag1", "tag2"),
-                        request = getProductRequestWithDifferentParameter("color", "Modifies the color of the product"),
-                        response = getProduct200Response(getProductPayloadExample())
-                )
+            ResourceModel(
+                operationId = "test",
+                summary = "summary",
+                description = "description",
+                privateResource = false,
+                deprecated = false,
+                tags = setOf("tag1", "tag2"),
+                request = getProductRequest(),
+                response = getProduct200Response(getProductPayloadExample())
+            ),
+            ResourceModel(
+                operationId = "test",
+                summary = "summary",
+                description = "description",
+                privateResource = false,
+                deprecated = false,
+                tags = setOf("tag1", "tag2"),
+                request = getProductRequest(),
+                response = getProduct200Response(getProductPayloadExample())
+            ),
+            ResourceModel(
+                operationId = "test-1",
+                summary = "summary 1",
+                description = "description 1",
+                privateResource = false,
+                deprecated = false,
+                tags = setOf("tag1", "tag2"),
+                request = getProductRequestWithDifferentParameter("color", "Changes the color of the product"),
+                response = getProduct200Response(getProductPayloadExample())
+            ),
+            ResourceModel(
+                operationId = "test-1",
+                summary = "summary 1",
+                description = "description 1",
+                privateResource = false,
+                deprecated = false,
+                tags = setOf("tag1", "tag2"),
+                request = getProductRequestWithDifferentParameter("color", "Modifies the color of the product"),
+                response = getProduct200Response(getProductPayloadExample())
+            )
         )
     }
 
@@ -769,16 +777,16 @@ class OpenApi20GeneratorTest {
 
     private fun getProductPayloadExample(): String {
         return "{\n" +
-                "    \"_id\": \"123\",\n" +
-                "    \"description\": \"Good stuff!\"\n" +
-                "}"
+            "    \"_id\": \"123\",\n" +
+            "    \"description\": \"Good stuff!\"\n" +
+            "}"
     }
 
     private fun getProduct200ResponseAlternateExample(): String {
         return "{\n" +
-                "    \"_id\": \"123\",\n" +
-                "    \"description\": \"Bad stuff!\"\n" +
-                "}"
+            "    \"_id\": \"123\",\n" +
+            "    \"description\": \"Bad stuff!\"\n" +
+            "}"
     }
 
     private fun getProductRequest(): RequestModel {
@@ -821,15 +829,17 @@ class OpenApi20GeneratorTest {
     }
 
     private fun getProductRequestWithDifferentParameter(name: String, description: String): RequestModel {
-        return getProductRequest().copy(requestParameters = listOf(
+        return getProductRequest().copy(
+            requestParameters = listOf(
                 ParameterDescriptor(
-                        name = name,
-                        description = description,
-                        type = "STRING",
-                        optional = true,
-                        ignored = false
+                    name = name,
+                    description = description,
+                    type = "STRING",
+                    optional = true,
+                    ignored = false
                 )
-        ))
+            )
+        )
     }
 
     private fun getProductRequestWithBasicSecurity(): RequestModel {
@@ -864,42 +874,42 @@ class OpenApi20GeneratorTest {
 
     private fun getProductRequestWithMultiplePathParameters(): RequestModel {
         return RequestModel(
-                path = "/products/{id}-{subId}",
-                method = HTTPMethod.GET,
-                contentType = "application/json",
-                securityRequirements = SecurityRequirements(
-                        type = OAUTH2,
-                        requiredScopes = listOf("prod:r")
-                ),
-                headers = listOf(),
-                pathParameters = listOf(),
-                requestParameters = listOf(),
-                requestFields = listOf()
+            path = "/products/{id}-{subId}",
+            method = HTTPMethod.GET,
+            contentType = "application/json",
+            securityRequirements = SecurityRequirements(
+                type = OAUTH2,
+                requiredScopes = listOf("prod:r")
+            ),
+            headers = listOf(),
+            pathParameters = listOf(),
+            requestParameters = listOf(),
+            requestFields = listOf()
         )
     }
 
     private fun productRequest(schema: Schema? = null, path: String = "/products", method: HTTPMethod = HTTPMethod.POST): RequestModel {
         return RequestModel(
-                path = path,
-                method = method,
-                contentType = "application/x-www-form-urlencoded",
-                schema = schema,
-                securityRequirements = null,
-                headers = listOf(),
-                pathParameters = listOf(),
-                requestParameters = listOf(
-                        ParameterDescriptor(
-                                name = "locale",
-                                description = "Localizes the product fields to the given locale code",
-                                type = "STRING",
-                                optional = true,
-                                ignored = false
-                        )
-                ),
-                requestFields = listOf(),
-                example = """
+            path = path,
+            method = method,
+            contentType = "application/x-www-form-urlencoded",
+            schema = schema,
+            securityRequirements = null,
+            headers = listOf(),
+            pathParameters = listOf(),
+            requestParameters = listOf(
+                ParameterDescriptor(
+                    name = "locale",
+                    description = "Localizes the product fields to the given locale code",
+                    type = "STRING",
+                    optional = true,
+                    ignored = false
+                )
+            ),
+            requestFields = listOf(),
+            example = """
                     locale=pl&irrelevant=true
-                """.trimIndent()
+            """.trimIndent()
         )
     }
 

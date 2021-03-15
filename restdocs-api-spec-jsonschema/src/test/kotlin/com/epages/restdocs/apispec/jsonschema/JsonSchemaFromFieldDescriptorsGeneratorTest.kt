@@ -9,11 +9,11 @@ import com.jayway.jsonpath.JsonPath
 import org.assertj.core.api.BDDAssertions.then
 import org.assertj.core.api.BDDAssertions.thenThrownBy
 import org.everit.json.schema.ArraySchema
+import org.everit.json.schema.CombinedSchema
+import org.everit.json.schema.EnumSchema
 import org.everit.json.schema.ObjectSchema
 import org.everit.json.schema.Schema
 import org.everit.json.schema.StringSchema
-import org.everit.json.schema.CombinedSchema
-import org.everit.json.schema.EnumSchema
 import org.everit.json.schema.ValidationException
 import org.everit.json.schema.loader.SchemaLoader
 import org.json.JSONArray
@@ -106,7 +106,8 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
                         }
                     ]
                 }
-            }""".trimIndent()
+            }
+            """.trimIndent()
         )
     }
 
@@ -250,8 +251,8 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
     private fun givenFieldDescriptorWithRequiredObject() {
         val notNullConstraint = Attributes(listOf(Constraint(NotNull::class.java.name, emptyMap())))
         fieldDescriptors = listOf(
-                FieldDescriptor("obj", "some", "OBJECT", attributes = notNullConstraint),
-                FieldDescriptor("obj.field", "some", "STRING")
+            FieldDescriptor("obj", "some", "OBJECT", attributes = notNullConstraint),
+            FieldDescriptor("obj.field", "some", "STRING")
         )
     }
 
@@ -305,7 +306,8 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
             Attributes(
                 listOf(
                     Constraint(
-                        "org.hibernate.validator.constraints.Length", mapOf(
+                        "org.hibernate.validator.constraints.Length",
+                        mapOf(
                             "min" to 2,
                             "max" to 255
                         )
@@ -359,10 +361,11 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
 
     private fun givenFieldDescriptorWithEnum() {
         fieldDescriptors = listOf(
-                FieldDescriptor(
-                        "some",
-                        "some",
-                        "enum", attributes = Attributes(enumValues = listOf("ENUM_VALUE_1", "ENUM_VALUE_2")))
+            FieldDescriptor(
+                "some",
+                "some",
+                "enum", attributes = Attributes(enumValues = listOf("ENUM_VALUE_1", "ENUM_VALUE_2"))
+            )
         )
     }
 

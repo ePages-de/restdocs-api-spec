@@ -24,14 +24,14 @@ internal class JwtSecurityHandler : SecurityRequirementsExtractor {
 
     private fun hasJWTBearer(operation: Operation): Boolean {
         return getJWT(operation)
-                .any { isJWT(it) }
+            .any { isJWT(it) }
     }
 
     private fun getJWT(operation: Operation) = operation.request.headers
-            .filterKeys { it == HttpHeaders.AUTHORIZATION }
-            .flatMap { it.value }
-            .filter { it.startsWith("Bearer ") }
-            .map { it.replace("Bearer ", "") }
+        .filterKeys { it == HttpHeaders.AUTHORIZATION }
+        .flatMap { it.value }
+        .filter { it.startsWith("Bearer ") }
+        .map { it.replace("Bearer ", "") }
 
     private fun isJWT(jwt: String): Boolean {
         val jwtParts = jwt.split("\\.".toRegex()).dropLastWhile { it.isEmpty() }
@@ -40,7 +40,7 @@ internal class JwtSecurityHandler : SecurityRequirementsExtractor {
             val decodedJwtHeader = String(Base64.getDecoder().decode(jwtHeader))
             try {
                 return ObjectMapper().readValue<Map<String, Any>>(decodedJwtHeader)
-                        .containsKey("alg")
+                    .containsKey("alg")
             } catch (e: IOException) {
                 // probably not JWT
             }
@@ -50,7 +50,7 @@ internal class JwtSecurityHandler : SecurityRequirementsExtractor {
 
     private fun extractScopes(operation: Operation): List<String> {
         return getJWT(operation)
-                .flatMap { jwt2scopes(it) }
+            .flatMap { jwt2scopes(it) }
     }
 
     @Suppress("UNCHECKED_CAST")

@@ -59,10 +59,14 @@ object OpenApi3Generator {
                 this.description = description
                 this.version = version
             }
-            this.tags(tagDescriptions.map { Tag().apply {
-                this.name = it.key
-                this.description = it.value
-            } })
+            this.tags(
+                tagDescriptions.map {
+                    Tag().apply {
+                        this.name = it.key
+                        this.description = it.value
+                    }
+                }
+            )
             paths = generatePaths(
                 resources,
                 oauth2SecuritySchemeDefinition
@@ -82,7 +86,8 @@ object OpenApi3Generator {
         oauth2SecuritySchemeDefinition: Oauth2Configuration? = null,
         format: String
     ) =
-        ApiSpecificationWriter.serialize(format,
+        ApiSpecificationWriter.serialize(
+            format,
             generate(
                 resources = resources,
                 servers = servers,
@@ -91,7 +96,8 @@ object OpenApi3Generator {
                 tagDescriptions = tagDescriptions,
                 version = version,
                 oauth2SecuritySchemeDefinition = oauth2SecuritySchemeDefinition
-            ))
+            )
+        )
 
     private fun OpenAPI.extractDefinitions() {
         val schemasToKeys = HashMap<Schema<Any>, String>()
@@ -149,12 +155,13 @@ object OpenApi3Generator {
     }
 
     private fun generateSchemaName(path: String): (Schema<Any>) -> String {
-        return { schema -> path
-            .removePrefix("/")
-            .replace("/", "-")
-            .replace(Regex.fromLiteral("{"), "")
-            .replace(Regex.fromLiteral("}"), "")
-            .plus(schema.hashCode())
+        return { schema ->
+            path
+                .removePrefix("/")
+                .replace("/", "-")
+                .replace(Regex.fromLiteral("{"), "")
+                .replace(Regex.fromLiteral("}"), "")
+                .plus(schema.hashCode())
         }
     }
 
@@ -163,13 +170,15 @@ object OpenApi3Generator {
         oauth2SecuritySchemeDefinition: Oauth2Configuration?
     ): Paths {
         return resources.groupByPath().entries
-            .map { it.key to resourceModels2PathItem(
-                it.value,
-                oauth2SecuritySchemeDefinition
-            )
+            .map {
+                it.key to resourceModels2PathItem(
+                    it.value,
+                    oauth2SecuritySchemeDefinition
+                )
             }
             .let { pathAndPathItem ->
-                Paths().apply { pathAndPathItem.forEach { addPathItem(it.first, it.second) } } }
+                Paths().apply { pathAndPathItem.forEach { addPathItem(it.first, it.second) } }
+            }
     }
 
     private fun groupByHttpMethod(resources: List<ResourceModel>): Map<HTTPMethod, List<ResourceModel>> {
@@ -241,14 +250,16 @@ object OpenApi3Generator {
                         it.operationId,
                         it.request
                     )
-                })
+                }
+            )
             responses = resourceModelsToApiResponses(
                 modelsWithSamePathAndMethod.map {
                     ResponseModelWithOperationId(
                         it.operationId,
                         it.response
                     )
-                })
+                }
+            )
         }.apply { addSecurityItemFromSecurityRequirements(firstModelForPathAndMethod.request.securityRequirements, oauth2SecuritySchemeDefinition) }
     }
 
@@ -310,9 +321,11 @@ object OpenApi3Generator {
                     responses
                 )
             }
-            .let { ApiResponses().apply {
-                it.forEach { (status, apiResponse) -> addApiResponse(status.toString(), apiResponse) }
-            } }
+            .let {
+                ApiResponses().apply {
+                    it.forEach { (status, apiResponse) -> addApiResponse(status.toString(), apiResponse) }
+                }
+            }
     }
 
     private fun responsesWithSameStatusToApiResponse(responseModelsSameStatus: List<ResponseModelWithOperationId>): ApiResponse {
@@ -323,10 +336,11 @@ object OpenApi3Generator {
         val apiResponse = ApiResponse().apply {
             description = responseModelsSameStatus.first().response.status.toString()
             headers = responseModelsSameStatus.flatMap { it.response.headers }
-                .map { it.name to Header().apply {
-                    description(it.description)
-                    schema = simpleTypeToSchema(it.type)
-                }
+                .map {
+                    it.name to Header().apply {
+                        description(it.description)
+                        schema = simpleTypeToSchema(it.type)
+                    }
                 }.toMap().nullIfEmpty()
         }
         return responsesByContentType
@@ -366,8 +380,8 @@ object OpenApi3Generator {
 
     private fun extractPathParameters(resourceModel: ResourceModel): List<PathParameter> {
         val pathParameterNames = PATH_PARAMETER_PATTERN.findAll(resourceModel.request.path)
-                .map { matchResult -> matchResult.groupValues[1] }
-                .toList()
+            .map { matchResult -> matchResult.groupValues[1] }
+            .toList()
 
         return pathParameterNames.map { parameterName ->
             resourceModel.request.pathParameters

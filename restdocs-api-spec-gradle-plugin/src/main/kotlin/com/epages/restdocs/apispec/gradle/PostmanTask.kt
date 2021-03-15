@@ -25,12 +25,12 @@ open class PostmanTask : ApiSpecTask() {
 
     override fun generateSpecification(resourceModels: List<ResourceModel>): String =
         jacksonObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).writeValueAsString(
-                PostmanCollectionGenerator.generate(
-                        resources = resourceModels,
-                        title = title,
-                        version = apiVersion,
-                        baseUrl = baseUrl
-                )
+            PostmanCollectionGenerator.generate(
+                resources = resourceModels,
+                title = title,
+                version = apiVersion,
+                baseUrl = baseUrl
+            )
         )
 
     fun applyExtension(extension: PostmanExtension) {
