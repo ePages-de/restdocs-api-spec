@@ -57,7 +57,7 @@ allprojects {
 
 subprojects {
 
-    val jacksonVersion by extra { "2.9.9" }
+    val jacksonVersion by extra { "2.12.2" }
     val springBootVersion by extra { "2.1.9.RELEASE" }
     val springRestDocsVersion by extra { "2.0.4.RELEASE" }
     val junitVersion by extra { "5.4.2" }
