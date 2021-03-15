@@ -41,30 +41,26 @@ publishing {
             from(components["java"])
 
             pom {
-                name.set("My Library")
-                description.set("A concise description of my library")
-                url.set("http://www.example.com/library")
-                properties.set(mapOf(
-                    "myProp" to "value",
-                    "prop.with.dots" to "anotherValue"
-                ))
+                name.set("REST Doc API Spec")
+                description.set("Adds API specification support to Spring REST Docs ")
+                url.set("https://github.com/ePages-de/restdocs-api-spec")
                 licenses {
                     license {
-                        name.set("The Apache License, Version 2.0")
-                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                        name.set("MIT License")
+                        url.set("https://github.com/ePages-de/restdocs-api-spec/blob/master/LICENSE")
                     }
                 }
                 developers {
                     developer {
-                        id.set("johnd")
-                        name.set("John Doe")
-                        email.set("john.doe@example.com")
+                        id.set("ePages")
+                        name.set("ePages Devs")
+                        email.set("info@epages.com")
                     }
                 }
                 scm {
-                    connection.set("scm:git:git://example.com/my-library.git")
-                    developerConnection.set("scm:git:ssh://example.com/my-library.git")
-                    url.set("http://example.com/my-library/")
+                    connection.set("scm:git:git://github.com/ePages-de/restdocs-api-spec.git")
+                    developerConnection.set("scm:git:ssh://github.com/ePages-de/restdocs-api-spec.git")
+                    url.set("https://github.com/ePages-de/restdocs-api-spec")
                 }
             }
         }
