@@ -33,7 +33,6 @@ import io.swagger.models.parameters.PathParameter
 import io.swagger.models.parameters.QueryParameter
 import io.swagger.models.properties.PropertyBuilder
 import io.swagger.util.Json
-import java.lang.UnsupportedOperationException
 import java.util.Comparator.comparing
 import java.util.Comparator.comparingInt
 
