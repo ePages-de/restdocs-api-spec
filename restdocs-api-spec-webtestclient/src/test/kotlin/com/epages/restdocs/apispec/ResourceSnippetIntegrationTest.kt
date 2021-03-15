@@ -46,8 +46,8 @@ open class ResourceSnippetIntegrationTest {
 
             @PostMapping(path = ["/some/{someId}/other/{otherId}"])
             fun doSomething(
-                @PathVariable someId: String,
-                @PathVariable otherId: Int?,
+                @Suppress("UNUSED_PARAMETER") @PathVariable someId: String,
+                @Suppress("UNUSED_PARAMETER") @PathVariable otherId: Int?,
                 @RequestHeader("X-Custom-Header") customHeader: String,
                 @RequestBody testDataHolder: TestDataHolder,
                 serverHttpRequest: ServerHttpRequest

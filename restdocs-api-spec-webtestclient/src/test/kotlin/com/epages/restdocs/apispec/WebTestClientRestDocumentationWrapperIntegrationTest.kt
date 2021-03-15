@@ -156,7 +156,7 @@ class WebTestClientRestDocumentationWrapperIntegrationTest(@Autowired val webTes
                 .consumeWith(
                         WebTestClientRestDocumentationWrapper.document(
                                 identifier = operationName,
-                                snippets = *arrayOf(
+                                snippets = arrayOf(
                                         pathParameters(
                                                 parameterWithName("someId").description("someId"),
                                                 parameterWithName("otherId").description("otherId")
@@ -189,7 +189,7 @@ class WebTestClientRestDocumentationWrapperIntegrationTest(@Autowired val webTes
                 .consumeWith(
                         WebTestClientRestDocumentationWrapper.document(
                                 identifier = operationName,
-                                snippets = *arrayOf(buildFullResourceSnippet())
+                                snippets = arrayOf(buildFullResourceSnippet())
                         )
                 )
     }
@@ -200,7 +200,7 @@ class WebTestClientRestDocumentationWrapperIntegrationTest(@Autowired val webTes
                 .consumeWith(
                         WebTestClientRestDocumentationWrapper.document(
                                 identifier = operationName,
-                                snippets = *arrayOf(
+                                snippets = arrayOf(
                                         requestFields(fieldDescriptors().fieldDescriptors),
                                         responseFields(
                                                 fieldWithPath("comment").ignored(),
@@ -227,7 +227,7 @@ class WebTestClientRestDocumentationWrapperIntegrationTest(@Autowired val webTes
                                 identifier = operationName,
                                 privateResource = true,
                                 requestPreprocessor = operationRequestPreprocessor,
-                                snippets = *arrayOf(
+                                snippets = arrayOf(
                                         requestFields(fieldDescriptors().fieldDescriptors),
                                         responseFields(
                                                 fieldWithPath("comment").description("the comment"),
@@ -257,7 +257,7 @@ class WebTestClientRestDocumentationWrapperIntegrationTest(@Autowired val webTes
                                         .privateResource(true)
                                         .tag("some-tag"),
                                 requestPreprocessor = operationRequestPreprocessor,
-                                snippets = *arrayOf(
+                                snippets = arrayOf(
                                         requestFields(fieldDescriptors().fieldDescriptors),
                                         responseFields(
                                                 fieldWithPath("comment").description("the comment"),
