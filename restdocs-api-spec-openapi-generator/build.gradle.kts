@@ -5,7 +5,6 @@ plugins {
 
 repositories {
     mavenCentral()
-    jcenter()
 }
 
 val junitVersion: String by extra

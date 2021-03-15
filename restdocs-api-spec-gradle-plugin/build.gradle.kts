@@ -1,8 +1,6 @@
 repositories {
     mavenCentral()
-    jcenter()
 }
-
 
 plugins {
     kotlin("jvm")
