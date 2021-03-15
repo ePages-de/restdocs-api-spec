@@ -25,10 +25,10 @@ class EnumFields(enumType: Class<*>) {
      * @param path json path of the field
      */
     fun withPath(path: String) =
-            addPossibleEnumValue(fieldWithPath(path))
+        addPossibleEnumValue(fieldWithPath(path))
 
     private fun addPossibleEnumValue(fieldDescriptor: FieldDescriptor): FieldDescriptor =
-            fieldDescriptor.type(ENUM_TYPE).attributes(key(ENUM_VALUES_KEY).value(possibleEnumValues))
+        fieldDescriptor.type(ENUM_TYPE).attributes(key(ENUM_VALUES_KEY).value(possibleEnumValues))
 
     companion object {
         private const val ENUM_TYPE = "enum"

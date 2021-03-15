@@ -63,7 +63,8 @@ class RestdocsOpenApi3TaskTest : RestdocsOpenApiTaskTestBase() {
     }
 
     override fun givenBuildFileWithOpenApiClosure() {
-        givenBuildFileWithOpenApiClosure("servers",
+        givenBuildFileWithOpenApiClosure(
+            "servers",
             """[ {
                 url = 'http://some.api/api/{id}'
                 variables = [
@@ -87,11 +88,13 @@ class RestdocsOpenApi3TaskTest : RestdocsOpenApiTaskTestBase() {
                     ]
                 ]
             }
-            ]""".trimMargin())
+            ]""".trimMargin()
+        )
     }
 
     private fun givenBuildFileWithOpenApiClosure(serverConfigurationFieldName: String, serversSection: String) {
-        buildFile.writeText(baseBuildFile() + """
+        buildFile.writeText(
+            baseBuildFile() + """
             openapi3 {
                 $serverConfigurationFieldName = $serversSection
                 title = '$title'
@@ -100,11 +103,13 @@ class RestdocsOpenApi3TaskTest : RestdocsOpenApiTaskTestBase() {
                 separatePublicApi = $separatePublicApi
                 outputFileNamePrefix = '$outputFileNamePrefix'
             }
-            """.trimIndent())
+            """.trimIndent()
+        )
     }
 
     override fun givenBuildFileWithOpenApiClosureAndSecurityDefinitions() {
-        buildFile.writeText(baseBuildFile() + """
+        buildFile.writeText(
+            baseBuildFile() + """
             openapi3 {
                 servers = [ { url = "http://some.api" } ]
                 title = '$title'
@@ -121,7 +126,8 @@ class RestdocsOpenApi3TaskTest : RestdocsOpenApiTaskTestBase() {
                     scopeDescriptionsPropertiesFile = "scopeDescriptions.yaml"
                 }
             }
-            """.trimIndent())
+            """.trimIndent()
+        )
     }
 
     override fun thenSecurityDefinitionsFoundInOutputFile() {

@@ -37,7 +37,7 @@ internal class ConstrainedFieldsTest {
 
         then(descriptor.attributes).containsKey("validationConstraints")
         then((descriptor.attributes["validationConstraints"] as List<Constraint>).map { it.name })
-                .containsExactly(NotEmpty::class.java.name)
+            .containsExactly(NotEmpty::class.java.name)
     }
 
     private data class SomeWithConstraints(

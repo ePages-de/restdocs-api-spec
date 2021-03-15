@@ -20,8 +20,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 import javax.validation.constraints.NotEmpty
@@ -62,10 +62,10 @@ open class ResourceSnippetIntegrationTest {
                 responseData._links = linksHolder
 
                 return ResponseEntity
-                        .ok()
-                        .header("X-Custom-Header", customHeader)
-                        .header("Content-Type", HAL_JSON_VALUE)
-                        .body(responseData)
+                    .ok()
+                    .header("X-Custom-Header", customHeader)
+                    .header("Content-Type", HAL_JSON_VALUE)
+                    .body(responseData)
             }
         }
     }
@@ -95,37 +95,37 @@ open class ResourceSnippetIntegrationTest {
 fun fieldDescriptors(): FieldDescriptors {
     val fields = ConstrainedFields(ResourceSnippetIntegrationTest.TestDataHolder::class.java)
     return ResourceDocumentation.fields(
-            fields.withPath("comment").description("the comment").optional(),
-            fields.withPath("flag").description("the flag"),
-            fields.withMappedPath("count", "count").description("the count")
+        fields.withPath("comment").description("the comment").optional(),
+        fields.withPath("flag").description("the flag"),
+        fields.withMappedPath("count", "count").description("the count")
     )
 }
 
 fun buildFullResourceSnippet(): ResourceSnippet {
     return resource(
-            ResourceSnippetParameters.builder()
-                    .description("description")
-                    .summary("summary")
-                    .deprecated(true)
-                    .privateResource(true)
-                    .requestFields(fieldDescriptors())
-                    .responseFields(fieldDescriptors().and(fieldWithPath("id").description("id")))
-                    .requestHeaders(
-                            headerWithName("X-Custom-Header").description("A custom header"),
-                            headerWithName(ACCEPT).description("Accept")
-                    )
-                    .responseHeaders(
-                            headerWithName("X-Custom-Header").description("A custom header"),
-                            headerWithName(CONTENT_TYPE).description("ContentType")
-                    )
-                    .pathParameters(
-                            parameterWithName("someId").description("some id"),
-                            parameterWithName("otherId").description("otherId id").type(SimpleType.INTEGER)
-                    )
-                    .links(
-                            linkWithRel("self").description("some"),
-                            linkWithRel("multiple").description("multiple")
-                    )
-                    .build()
+        ResourceSnippetParameters.builder()
+            .description("description")
+            .summary("summary")
+            .deprecated(true)
+            .privateResource(true)
+            .requestFields(fieldDescriptors())
+            .responseFields(fieldDescriptors().and(fieldWithPath("id").description("id")))
+            .requestHeaders(
+                headerWithName("X-Custom-Header").description("A custom header"),
+                headerWithName(ACCEPT).description("Accept")
+            )
+            .responseHeaders(
+                headerWithName("X-Custom-Header").description("A custom header"),
+                headerWithName(CONTENT_TYPE).description("ContentType")
+            )
+            .pathParameters(
+                parameterWithName("someId").description("some id"),
+                parameterWithName("otherId").description("otherId id").type(SimpleType.INTEGER)
+            )
+            .links(
+                linkWithRel("self").description("some"),
+                linkWithRel("multiple").description("multiple")
+            )
+            .build()
     )
 }

@@ -25,7 +25,7 @@ class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetPara
 
     override fun document(operation: Operation) {
         val context = operation
-                .attributes[RestDocumentationContext::class.java.name] as RestDocumentationContext
+            .attributes[RestDocumentationContext::class.java.name] as RestDocumentationContext
 
         DescriptorValidator.validatePresentParameters(resourceSnippetParameters, operation)
 
@@ -33,10 +33,13 @@ class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetPara
 
         val model = createModel(operation, placeholderResolverFactory, context)
 
-        (StandardWriterResolver(placeholderResolverFactory, Charsets.UTF_8.name(),
-            JsonTemplateFormat
-        ))
-                .resolve(operation.name, "resource", context)
+        (
+            StandardWriterResolver(
+                placeholderResolverFactory, Charsets.UTF_8.name(),
+                JsonTemplateFormat
+            )
+            )
+            .resolve(operation.name, "resource", context)
             .use { it.append(objectMapper.writeValueAsString(model)) }
     }
 

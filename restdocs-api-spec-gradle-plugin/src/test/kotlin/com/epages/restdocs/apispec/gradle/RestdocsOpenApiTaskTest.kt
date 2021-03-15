@@ -11,7 +11,8 @@ class RestdocsOpenApiTaskTest : RestdocsOpenApiTaskTestBase() {
     override val taskName = "openapi"
 
     override fun givenBuildFileWithOpenApiClosure() {
-        buildFile.writeText(baseBuildFile() + """
+        buildFile.writeText(
+            baseBuildFile() + """
             openapi {
                 host = '$host'
                 basePath = '$basePath'
@@ -24,11 +25,13 @@ class RestdocsOpenApiTaskTest : RestdocsOpenApiTaskTestBase() {
                 separatePublicApi = $separatePublicApi
                 outputFileNamePrefix = '$outputFileNamePrefix'
             }
-            """.trimIndent())
+            """.trimIndent()
+        )
     }
 
     override fun givenBuildFileWithOpenApiClosureAndSecurityDefinitions() {
-        buildFile.writeText(baseBuildFile() + """
+        buildFile.writeText(
+            baseBuildFile() + """
             openapi {
                 host = '$host'
                 basePath = '$basePath'
@@ -45,7 +48,8 @@ class RestdocsOpenApiTaskTest : RestdocsOpenApiTaskTestBase() {
                     scopeDescriptionsPropertiesFile = "scopeDescriptions.yaml"
                 }
             }
-            """.trimIndent())
+            """.trimIndent()
+        )
     }
 
     override fun thenSecurityDefinitionsFoundInOutputFile() {

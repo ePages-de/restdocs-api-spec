@@ -64,7 +64,8 @@ class PostmanTaskTest : ApiSpecTaskTest() {
     }
 
     private fun givenBuildFileWithPostmanClosure() {
-        buildFile.writeText(baseBuildFile() + """
+        buildFile.writeText(
+            baseBuildFile() + """
             postman {
                 title = '$title'
                 version = '$version'
@@ -72,6 +73,7 @@ class PostmanTaskTest : ApiSpecTaskTest() {
                 separatePublicApi = $separatePublicApi
                 outputFileNamePrefix = '$outputFileNamePrefix'
             }
-            """.trimIndent())
+            """.trimIndent()
+        )
     }
 }

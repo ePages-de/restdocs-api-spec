@@ -104,40 +104,42 @@ class WebTestClientRestDocumentationWrapperIntegrationTest(@Autowired val webTes
         givenEndpointInvoked("null")
 
         assertThatCode { this.whenResourceSnippetDocumentedWithRequestAndResponseFields() }
-                .doesNotThrowAnyException()
+            .doesNotThrowAnyException()
     }
 
     private fun whenResourceSnippetDocumentedWithoutParameters() {
         bodyContentSpec
-                .consumeWith(document(operationName, resource()))
+            .consumeWith(document(operationName, resource()))
     }
 
     private fun whenResourceSnippetDocumentedWithDescription() {
         bodyContentSpec
-                .consumeWith(document(operationName, resource("A description")))
+            .consumeWith(document(operationName, resource("A description")))
     }
 
     private fun whenResourceSnippetDocumentedWithRequestAndResponseFields() {
         bodyContentSpec
-                .consumeWith(document(operationName, buildFullResourceSnippet()))
+            .consumeWith(document(operationName, buildFullResourceSnippet()))
     }
 
     private fun givenEndpointInvoked(flagValue: String = "true") {
 
         bodyContentSpec = webTestClient.post()
-                .uri("/some/{someId}/other/{otherId}", "id", 1)
-                .contentType(APPLICATION_JSON)
-                .header("X-Custom-Header", "test")
-                .accept(APPLICATION_JSON)
-                .syncBody("""{
+            .uri("/some/{someId}/other/{otherId}", "id", 1)
+            .contentType(APPLICATION_JSON)
+            .header("X-Custom-Header", "test")
+            .accept(APPLICATION_JSON)
+            .syncBody(
+                """{
                             "comment": "some",
                             "flag": $flagValue,
                             "count": 1
-                        }""".trimIndent()
-                )
-                .exchange()
-                .expectStatus().isOk
-                .expectBody()
+                        }
+                """.trimIndent()
+            )
+            .exchange()
+            .expectStatus().isOk
+            .expectBody()
     }
 
     private fun thenSnippetFileExists() {
@@ -152,126 +154,126 @@ class WebTestClientRestDocumentationWrapperIntegrationTest(@Autowired val webTes
 
     private fun whenDocumentedWithRestdocsAndResource() {
         bodyContentSpec
-                .consumeWith { print(it) }
-                .consumeWith(
-                        WebTestClientRestDocumentationWrapper.document(
-                                identifier = operationName,
-                                snippets = *arrayOf(
-                                        pathParameters(
-                                                parameterWithName("someId").description("someId"),
-                                                parameterWithName("otherId").description("otherId")
-                                        ),
-                                        requestFields(fieldDescriptors().fieldDescriptors),
-                                        requestHeaders(
-                                                headerWithName("X-Custom-Header").description("some custom header")
-                                        ),
-                                        responseFields(
-                                                fieldWithPath("comment").description("the comment"),
-                                                fieldWithPath("flag").description("the flag"),
-                                                fieldWithPath("count").description("the count"),
-                                                fieldWithPath("id").description("id"),
-                                                subsectionWithPath("_links").ignored()
-                                        ),
-                                        responseHeaders(
-                                                headerWithName("X-Custom-Header").description("some custom header")
-                                        ),
-                                        links(
-                                                linkWithRel("self").description("some"),
-                                                linkWithRel("multiple").description("multiple")
-                                        )
-                                )
+            .consumeWith { print(it) }
+            .consumeWith(
+                WebTestClientRestDocumentationWrapper.document(
+                    identifier = operationName,
+                    snippets = *arrayOf(
+                        pathParameters(
+                            parameterWithName("someId").description("someId"),
+                            parameterWithName("otherId").description("otherId")
+                        ),
+                        requestFields(fieldDescriptors().fieldDescriptors),
+                        requestHeaders(
+                            headerWithName("X-Custom-Header").description("some custom header")
+                        ),
+                        responseFields(
+                            fieldWithPath("comment").description("the comment"),
+                            fieldWithPath("flag").description("the flag"),
+                            fieldWithPath("count").description("the count"),
+                            fieldWithPath("id").description("id"),
+                            subsectionWithPath("_links").ignored()
+                        ),
+                        responseHeaders(
+                            headerWithName("X-Custom-Header").description("some custom header")
+                        ),
+                        links(
+                            linkWithRel("self").description("some"),
+                            linkWithRel("multiple").description("multiple")
                         )
+                    )
                 )
+            )
     }
 
     private fun whenDocumentedWithRamlSnippet() {
         bodyContentSpec
-                .consumeWith(
-                        WebTestClientRestDocumentationWrapper.document(
-                                identifier = operationName,
-                                snippets = *arrayOf(buildFullResourceSnippet())
-                        )
+            .consumeWith(
+                WebTestClientRestDocumentationWrapper.document(
+                    identifier = operationName,
+                    snippets = *arrayOf(buildFullResourceSnippet())
                 )
+            )
     }
 
     @Throws(Exception::class)
     private fun whenDocumentedWithAllFieldsLinksIgnored() {
         bodyContentSpec
-                .consumeWith(
-                        WebTestClientRestDocumentationWrapper.document(
-                                identifier = operationName,
-                                snippets = *arrayOf(
-                                        requestFields(fieldDescriptors().fieldDescriptors),
-                                        responseFields(
-                                                fieldWithPath("comment").ignored(),
-                                                fieldWithPath("flag").ignored(),
-                                                fieldWithPath("count").ignored(),
-                                                fieldWithPath("id").ignored(),
-                                                subsectionWithPath("_links").ignored()
-                                        ),
-                                        links(
-                                                linkWithRel("self").optional().ignored(),
-                                                linkWithRel("multiple").optional().ignored()
-                                        )
-                                )
+            .consumeWith(
+                WebTestClientRestDocumentationWrapper.document(
+                    identifier = operationName,
+                    snippets = *arrayOf(
+                        requestFields(fieldDescriptors().fieldDescriptors),
+                        responseFields(
+                            fieldWithPath("comment").ignored(),
+                            fieldWithPath("flag").ignored(),
+                            fieldWithPath("count").ignored(),
+                            fieldWithPath("id").ignored(),
+                            subsectionWithPath("_links").ignored()
+                        ),
+                        links(
+                            linkWithRel("self").optional().ignored(),
+                            linkWithRel("multiple").optional().ignored()
                         )
+                    )
                 )
+            )
     }
 
     @Throws(Exception::class)
     private fun whenDocumentedAsPrivateResource() {
         val operationRequestPreprocessor = OperationRequestPreprocessor { r -> r }
         bodyContentSpec
-                .consumeWith(
-                        WebTestClientRestDocumentationWrapper.document(
-                                identifier = operationName,
-                                privateResource = true,
-                                requestPreprocessor = operationRequestPreprocessor,
-                                snippets = *arrayOf(
-                                        requestFields(fieldDescriptors().fieldDescriptors),
-                                        responseFields(
-                                                fieldWithPath("comment").description("the comment"),
-                                                fieldWithPath("flag").description("the flag"),
-                                                fieldWithPath("count").description("the count"),
-                                                fieldWithPath("id").description("id"),
-                                                subsectionWithPath("_links").ignored()
-                                        ),
-                                        links(
-                                                linkWithRel("self").description("some"),
-                                                linkWithRel("multiple").description("multiple")
-                                        )
-                                )
+            .consumeWith(
+                WebTestClientRestDocumentationWrapper.document(
+                    identifier = operationName,
+                    privateResource = true,
+                    requestPreprocessor = operationRequestPreprocessor,
+                    snippets = *arrayOf(
+                        requestFields(fieldDescriptors().fieldDescriptors),
+                        responseFields(
+                            fieldWithPath("comment").description("the comment"),
+                            fieldWithPath("flag").description("the flag"),
+                            fieldWithPath("count").description("the count"),
+                            fieldWithPath("id").description("id"),
+                            subsectionWithPath("_links").ignored()
+                        ),
+                        links(
+                            linkWithRel("self").description("some"),
+                            linkWithRel("multiple").description("multiple")
                         )
+                    )
                 )
+            )
     }
 
     @Throws(Exception::class)
     private fun whenDocumentedWithResourceSnippetDetails() {
         val operationRequestPreprocessor = OperationRequestPreprocessor { r -> r }
         bodyContentSpec
-                .consumeWith(
-                        WebTestClientRestDocumentationWrapper.document(
-                                identifier = operationName,
-                                resourceDetails = WebTestClientRestDocumentationWrapper.resourceDetails()
-                                        .description("The Resource")
-                                        .privateResource(true)
-                                        .tag("some-tag"),
-                                requestPreprocessor = operationRequestPreprocessor,
-                                snippets = *arrayOf(
-                                        requestFields(fieldDescriptors().fieldDescriptors),
-                                        responseFields(
-                                                fieldWithPath("comment").description("the comment"),
-                                                fieldWithPath("flag").description("the flag"),
-                                                fieldWithPath("count").description("the count"),
-                                                fieldWithPath("id").description("id"),
-                                                subsectionWithPath("_links").ignored()
-                                        ),
-                                        links(
-                                                linkWithRel("self").description("some"),
-                                                linkWithRel("multiple").description("multiple")
-                                        )
-                                )
+            .consumeWith(
+                WebTestClientRestDocumentationWrapper.document(
+                    identifier = operationName,
+                    resourceDetails = WebTestClientRestDocumentationWrapper.resourceDetails()
+                        .description("The Resource")
+                        .privateResource(true)
+                        .tag("some-tag"),
+                    requestPreprocessor = operationRequestPreprocessor,
+                    snippets = *arrayOf(
+                        requestFields(fieldDescriptors().fieldDescriptors),
+                        responseFields(
+                            fieldWithPath("comment").description("the comment"),
+                            fieldWithPath("flag").description("the flag"),
+                            fieldWithPath("count").description("the count"),
+                            fieldWithPath("id").description("id"),
+                            subsectionWithPath("_links").ignored()
+                        ),
+                        links(
+                            linkWithRel("self").description("some"),
+                            linkWithRel("multiple").description("multiple")
                         )
+                    )
                 )
+            )
     }
 }
