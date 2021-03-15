@@ -9,13 +9,10 @@ cache:
   - "$HOME/.gradle/caches/"
   - "$HOME/.gradle/wrapper/"
 install: true
-script: "./ci_build.sh"
+script:
+  - "./ci_build.sh"
+  - "./ci_publish_java.sh"
 deploy:
-- provider: script
-  script: "./ci_publish_java.sh"
-#  on:
-#    tags: true
-#  skip_cleanup: true
 - provider: script
   script: "./ci_publish_gradle.sh"
   on:
