@@ -1,5 +1,4 @@
 dist: focal
-sudo: false
 before_install:
   - sudo apt-get install -y openjdk-8-jdk
 before_cache:
