@@ -121,17 +121,17 @@ class RestAssuredRestDocumentationWrapperIntegrationTest : ResourceSnippetIntegr
     }
 
     private fun whenResourceSnippetDocumentedWithoutParameters(): RestDocumentationFilter {
-        return RestAssuredRestDocumentationWrapper.document(identifier = operationName, snippets = *arrayOf(ResourceDocumentation.resource()))
+        return RestAssuredRestDocumentationWrapper.document(identifier = operationName, snippets = arrayOf(ResourceDocumentation.resource()))
     }
 
     private fun whenResourceSnippetDocumentedWithDescription(): RestDocumentationFilter {
-        return RestAssuredRestDocumentationWrapper.document(identifier = operationName, snippets = *arrayOf(ResourceDocumentation.resource("A description")))
+        return RestAssuredRestDocumentationWrapper.document(identifier = operationName, snippets = arrayOf(ResourceDocumentation.resource("A description")))
     }
 
     private fun whenResourceSnippetDocumentedWithRequestAndResponseFields(): RestDocumentationFilter {
         return RestAssuredRestDocumentationWrapper.document(
             identifier = operationName,
-            snippets = *arrayOf(buildFullResourceSnippet())
+            snippets = arrayOf(buildFullResourceSnippet())
         )
     }
 
@@ -139,7 +139,7 @@ class RestAssuredRestDocumentationWrapperIntegrationTest : ResourceSnippetIntegr
     private fun whenDocumentedWithRestdocsAndResource(): RestDocumentationFilter {
         return RestAssuredRestDocumentationWrapper.document(
             identifier = operationName,
-            snippets = *arrayOf(
+            snippets = arrayOf(
                 pathParameters(
                     parameterWithName("someId").description("someId"),
                     parameterWithName("otherId").description("otherId")
@@ -170,7 +170,7 @@ class RestAssuredRestDocumentationWrapperIntegrationTest : ResourceSnippetIntegr
     private fun whenDocumentedWithRamlSnippet(): RestDocumentationFilter {
         return RestAssuredRestDocumentationWrapper.document(
             identifier = operationName,
-            snippets = *arrayOf(buildFullResourceSnippet())
+            snippets = arrayOf(buildFullResourceSnippet())
         )
     }
 
@@ -178,7 +178,7 @@ class RestAssuredRestDocumentationWrapperIntegrationTest : ResourceSnippetIntegr
     private fun whenDocumentedWithAllFieldsLinksIgnored(): RestDocumentationFilter {
         return RestAssuredRestDocumentationWrapper.document(
             identifier = operationName,
-            snippets = *arrayOf(
+            snippets = arrayOf(
                 requestFields(fieldDescriptors().fieldDescriptors),
                 responseFields(
                     fieldWithPath("comment").ignored(),
@@ -202,7 +202,7 @@ class RestAssuredRestDocumentationWrapperIntegrationTest : ResourceSnippetIntegr
             identifier = operationName,
             privateResource = true,
             requestPreprocessor = operationRequestPreprocessor,
-            snippets = *arrayOf(
+            snippets = arrayOf(
                 requestFields(fieldDescriptors().fieldDescriptors),
                 responseFields(
                     fieldWithPath("comment").description("the comment"),
@@ -229,7 +229,7 @@ class RestAssuredRestDocumentationWrapperIntegrationTest : ResourceSnippetIntegr
                 .privateResource(true)
                 .tag("some-tag"),
             requestPreprocessor = operationRequestPreprocessor,
-            snippets = *arrayOf(
+            snippets = arrayOf(
                 requestFields(fieldDescriptors().fieldDescriptors),
                 responseFields(
                     fieldWithPath("comment").description("the comment"),
@@ -250,7 +250,7 @@ class RestAssuredRestDocumentationWrapperIntegrationTest : ResourceSnippetIntegr
         with(generatedSnippetFile()) {
             then(this).exists()
             val contents = readText()
-            then(contents).isNotEmpty()
+            then(contents).isNotEmpty
         }
     }
 

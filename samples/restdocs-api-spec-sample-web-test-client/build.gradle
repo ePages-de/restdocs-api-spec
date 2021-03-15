@@ -33,7 +33,7 @@ ext {
 dependencies {
 	implementation('org.springframework.boot:spring-boot-starter-webflux')
 
-	testImplementation('org.junit.jupiter:junit-jupiter-engine:5.4.2')
+	testImplementation('org.junit.jupiter:junit-jupiter-engine')
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
 	testImplementation('org.springframework.restdocs:spring-restdocs-webtestclient')
 	testImplementation('io.projectreactor:reactor-test')

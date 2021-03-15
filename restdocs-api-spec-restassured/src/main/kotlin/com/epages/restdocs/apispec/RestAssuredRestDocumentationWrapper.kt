@@ -27,7 +27,7 @@ object RestAssuredRestDocumentationWrapper : RestDocumentationWrapper() {
             enhanceSnippetsWithResourceSnippet(
                 resourceDetails = resourceDetails,
                 snippetFilter = snippetFilter,
-                snippets = *snippets
+                snippets = snippets
             )
 
         if (requestPreprocessor != null && responsePreprocessor != null) {
@@ -68,7 +68,7 @@ object RestAssuredRestDocumentationWrapper : RestDocumentationWrapper() {
             requestPreprocessor = requestPreprocessor,
             responsePreprocessor = responsePreprocessor,
             snippetFilter = snippetFilter,
-            snippets = *snippets
+            snippets = snippets
         )
     }
 
@@ -78,7 +78,7 @@ object RestAssuredRestDocumentationWrapper : RestDocumentationWrapper() {
         requestPreprocessor: OperationRequestPreprocessor,
         vararg snippets: Snippet
     ): RestDocumentationFilter {
-        return document(identifier, null, null, false, false, requestPreprocessor, snippets = *snippets)
+        return document(identifier, null, null, false, false, requestPreprocessor, snippets = snippets)
     }
 
     @JvmStatic
@@ -88,7 +88,7 @@ object RestAssuredRestDocumentationWrapper : RestDocumentationWrapper() {
         privateResource: Boolean,
         vararg snippets: Snippet
     ): RestDocumentationFilter {
-        return document(identifier, description, null, privateResource, snippets = *snippets)
+        return document(identifier, description, null, privateResource, snippets = snippets)
     }
 
     @JvmStatic
@@ -97,7 +97,7 @@ object RestAssuredRestDocumentationWrapper : RestDocumentationWrapper() {
         responsePreprocessor: OperationResponsePreprocessor,
         vararg snippets: Snippet
     ): RestDocumentationFilter {
-        return document(identifier, null, null, false, false, responsePreprocessor = responsePreprocessor, snippets = *snippets)
+        return document(identifier, null, null, false, false, responsePreprocessor = responsePreprocessor, snippets = snippets)
     }
 
     @JvmStatic
@@ -107,7 +107,7 @@ object RestAssuredRestDocumentationWrapper : RestDocumentationWrapper() {
         responsePreprocessor: OperationResponsePreprocessor,
         vararg snippets: Snippet
     ): RestDocumentationFilter {
-        return document(identifier, null, null, false, false, requestPreprocessor, responsePreprocessor, snippets = *snippets)
+        return document(identifier, null, null, false, false, requestPreprocessor, responsePreprocessor, snippets = snippets)
     }
 
     @JvmStatic

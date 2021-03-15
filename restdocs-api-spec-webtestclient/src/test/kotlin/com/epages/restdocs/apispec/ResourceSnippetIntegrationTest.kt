@@ -42,6 +42,7 @@ open class ResourceSnippetIntegrationTest {
         }
 
         @RestController
+        @Suppress("UNUSED_PARAMETER")
         internal open class TestController {
 
             @PostMapping(path = ["/some/{someId}/other/{otherId}"])
