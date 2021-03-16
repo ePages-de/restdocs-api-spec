@@ -4,6 +4,7 @@ buildscript {
 	}
 	repositories {
 		mavenCentral()
+		jcenter()
 		maven { url "https://plugins.gradle.org/m2/" }
 	}
 	dependencies {
@@ -21,6 +22,7 @@ sourceCompatibility = 1.8
 
 repositories {
 	mavenCentral()
+	jcenter()
 }
 
 ext {
