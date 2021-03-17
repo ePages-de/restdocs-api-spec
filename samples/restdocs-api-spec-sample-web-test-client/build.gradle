@@ -4,7 +4,6 @@ buildscript {
 	}
 	repositories {
 		mavenCentral()
-		jcenter()
 		maven { url "https://plugins.gradle.org/m2/" }
 	}
 	dependencies {
@@ -20,7 +19,6 @@ apply plugin: 'com.epages.restdocs-api-spec'
 
 repositories {
 	mavenCentral()
-	jcenter()
 }
 
 sourceCompatibility = 1.8
@@ -37,7 +35,7 @@ dependencies {
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
 	testImplementation('org.springframework.restdocs:spring-restdocs-webtestclient')
 	testImplementation('io.projectreactor:reactor-test')
-	testImplementation('com.epages:restdocs-api-spec:0.9.5')
+	testImplementation('com.epages:restdocs-api-spec:0.11.2')
 }
 
 openapi {
@@ -62,4 +60,3 @@ postman {
 	version = '0.1.0'
 	baseUrl = 'https://localhost:8080'
 }
-
