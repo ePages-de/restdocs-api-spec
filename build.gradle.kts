@@ -1,8 +1,4 @@
 
-import com.jfrog.bintray.gradle.BintrayExtension
-import com.jfrog.bintray.gradle.BintrayExtension.GpgConfig
-import com.jfrog.bintray.gradle.BintrayExtension.PackageConfig
-import com.jfrog.bintray.gradle.BintrayExtension.VersionConfig
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.kt3k.gradle.plugin.CoverallsPluginExtension
 import pl.allegro.tech.build.axion.release.domain.TagNameSerializationConfig
@@ -10,14 +6,14 @@ import pl.allegro.tech.build.axion.release.domain.hooks.HooksConfig
 
 
 plugins {
-    java
-    kotlin("jvm") version "1.3.41" apply false
+    id("com.github.kt3k.coveralls") version "2.8.2"
+    id("io.github.gradle-nexus.publish-plugin") version "1.0.0"
+    id("org.jmailen.kotlinter") version "3.3.0" apply false
     id("pl.allegro.tech.build.axion-release") version "1.9.2"
     jacoco
+    java
+    kotlin("jvm") version "1.4.20" apply false
     `maven-publish`
-    id("org.jmailen.kotlinter") version "3.3.0" apply false
-    id("com.github.kt3k.coveralls") version "2.8.2"
-    id("com.jfrog.bintray") version "1.8.4" apply false
 }
 
 repositories {
@@ -61,7 +57,7 @@ allprojects {
 
 subprojects {
 
-    val jacksonVersion by extra { "2.9.9" }
+    val jacksonVersion by extra { "2.12.2" }
     val springBootVersion by extra { "2.1.9.RELEASE" }
     val springRestDocsVersion by extra { "2.0.4.RELEASE" }
     val junitVersion by extra { "5.4.2" }
@@ -85,40 +81,6 @@ subprojects {
                 html.isEnabled = true
                 xml.isEnabled = true
             }
-        }
-
-        val sourcesJar by tasks.creating(Jar::class) {
-            classifier = "sources"
-            from(sourceSets["main"].allSource)
-        }
-
-        publishing {
-            publications {
-                (publications) {
-                    register("mavenJava", MavenPublication::class) {
-                        from(components["java"])
-                        artifact(sourcesJar)
-                    }
-                }
-            }
-        }
-
-        apply(plugin = "com.jfrog.bintray")
-        configure<BintrayExtension> {
-            user = project.findProperty("bintrayUser") as String? ?: System.getenv("BINTRAY_USER")
-            key = project.findProperty("bintrayApiKey") as String? ?: System.getenv("BINTRAY_API_KEY")
-            publish = true
-            setPublications("mavenJava")
-            pkg(closureOf<PackageConfig> {
-                repo = "maven"
-                name = "restdocs-api-spec"
-                userOrg = "epages"
-                version(closureOf<VersionConfig> {
-                    gpg(closureOf<GpgConfig> {
-                        sign = true
-                    })
-                })
-            })
         }
     }
 }
@@ -154,4 +116,10 @@ tasks {
         }
     }
     getByName("coveralls").dependsOn(jacocoRootReport)
+}
+
+nexusPublishing {
+    repositories {
+        sonatype ()
+    }
 }

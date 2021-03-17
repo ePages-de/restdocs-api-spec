@@ -37,7 +37,7 @@ abstract class OpenApiBaseExtension(project: Project) : ApiSpecExtension(project
     }
 
     private fun scopeDescriptionSource(scopeDescriptionsPropertiesFile: File): Map<String, String> {
-        return scopeDescriptionsPropertiesFile.let { objectMapper.readValue<Map<String, String>>(it) } ?: emptyMap()
+        return scopeDescriptionsPropertiesFile.let { objectMapper.readValue(it) }
     }
 }
 

@@ -22,7 +22,7 @@ sourceCompatibility = 1.8
 
 repositories {
 	mavenCentral()
-    jcenter()
+	jcenter()
 }
 
 ext {
@@ -33,7 +33,7 @@ dependencies {
 	compile('org.springframework.boot:spring-boot-starter-data-jpa')
 	compile('org.springframework.boot:spring-boot-starter-data-rest')
 	runtime('com.h2database:h2')
-	testCompile('org.junit.jupiter:junit-jupiter-engine:5.4.2')
+	testCompile('org.junit.jupiter:junit-jupiter-engine')
 
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	testCompile('org.springframework.restdocs:spring-restdocs-mockmvc')

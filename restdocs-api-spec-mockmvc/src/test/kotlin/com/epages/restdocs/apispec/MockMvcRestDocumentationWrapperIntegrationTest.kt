@@ -160,7 +160,7 @@ class MockMvcRestDocumentationWrapperIntegrationTest(@Autowired private val mock
             .andDo(
                 MockMvcRestDocumentationWrapper.document(
                     identifier = operationName,
-                    snippets = *arrayOf(
+                    snippets = arrayOf(
                         pathParameters(
                             parameterWithName("someId").description("someId"),
                             parameterWithName("otherId").description("otherId")
@@ -194,7 +194,7 @@ class MockMvcRestDocumentationWrapperIntegrationTest(@Autowired private val mock
             .andDo(
                 MockMvcRestDocumentationWrapper.document(
                     identifier = operationName,
-                    snippets = *arrayOf(buildFullResourceSnippet())
+                    snippets = arrayOf(buildFullResourceSnippet())
                 )
             )
     }
@@ -205,7 +205,7 @@ class MockMvcRestDocumentationWrapperIntegrationTest(@Autowired private val mock
             .andDo(
                 MockMvcRestDocumentationWrapper.document(
                     identifier = operationName,
-                    snippets = *arrayOf(
+                    snippets = arrayOf(
                         requestFields(fieldDescriptors().fieldDescriptors),
                         responseFields(
                             fieldWithPath("comment").ignored(),
@@ -232,7 +232,7 @@ class MockMvcRestDocumentationWrapperIntegrationTest(@Autowired private val mock
                     identifier = operationName,
                     privateResource = true,
                     requestPreprocessor = operationRequestPreprocessor,
-                    snippets = *arrayOf(
+                    snippets = arrayOf(
                         requestFields(fieldDescriptors().fieldDescriptors),
                         responseFields(
                             fieldWithPath("comment").description("the comment"),
@@ -262,7 +262,7 @@ class MockMvcRestDocumentationWrapperIntegrationTest(@Autowired private val mock
                         .privateResource(true)
                         .tag("some-tag"),
                     requestPreprocessor = operationRequestPreprocessor,
-                    snippets = *arrayOf(
+                    snippets = arrayOf(
                         requestFields(fieldDescriptors().fieldDescriptors),
                         responseFields(
                             fieldWithPath("comment").description("the comment"),
