@@ -96,14 +96,14 @@ The [ResourceSnippet](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apis
         * *1.2* add the dependency to `restdocs-api-spec-gradle-plugin`
         * *1.3* apply `restdocs-api-spec-gradle-plugin`
         ```groovy
-        buildscript { //1.1
+        buildscript {
           repositories {
             maven {
-              url "https://plugins.gradle.org/m2/" //1.2
+              url "https://plugins.gradle.org/m2/" //1.1
             }
           }
           dependencies {
-            classpath "com.epages:restdocs-api-spec-gradle-plugin:0.11.2"
+            classpath "com.epages:restdocs-api-spec-gradle-plugin:0.11.2" //1.2
           }
         }
 
