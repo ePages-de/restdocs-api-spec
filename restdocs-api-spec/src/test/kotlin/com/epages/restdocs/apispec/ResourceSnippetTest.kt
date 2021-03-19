@@ -17,6 +17,8 @@ import org.springframework.http.HttpStatus.OK
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.restdocs.generate.RestDocumentationGenerator.ATTRIBUTE_NAME_URL_TEMPLATE
 import org.springframework.restdocs.headers.HeaderDocumentation
+import org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel
+import org.springframework.restdocs.hypermedia.LinkDescriptor
 import org.springframework.restdocs.operation.Operation
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
@@ -180,6 +182,16 @@ class ResourceSnippetTest {
 
         thenSnippetFileExists()
         then(resourceSnippetJson.read<String>("response.contentType")).isEqualTo("application/json;format=format-1")
+    }
+
+    @Test
+    fun should_generate_resourcemodel_for_links_not_in_HAL_format() {
+        givenOperationWithAtomLinksInResponse()
+        givenLinkDescriptor()
+
+        whenResourceSnippetInvoked()
+
+        thenSnippetFileExists()
     }
 
     private fun givenTag() {
@@ -375,6 +387,38 @@ class ResourceSnippetTest {
             .header(CONTENT_TYPE, responseContentType)
             .content(content)
         operation = operationBuilder.build()
+    }
+
+    private fun givenOperationWithAtomLinksInResponse() {
+        val operationBuilder = OperationBuilder("test", rootOutputDirectory)
+        val responseContent = """
+            {
+                "links": [
+                    {
+                        "rel": "self",
+                        "href": "http://localhost:8080/some/123"
+                    }
+                ]
+            }
+        """.trimIndent()
+
+        operationBuilder
+            .attribute(ATTRIBUTE_NAME_URL_TEMPLATE, "http://localhost:8080/some/{id}")
+            .request("http://localhost:8080/some/123")
+            .method("GET")
+
+        operationBuilder
+            .response()
+            .status(200)
+            .content(responseContent)
+
+        operation = operationBuilder.build()
+    }
+
+    private fun givenLinkDescriptor() {
+        parametersBuilder.links(
+            linkWithRel("self").description("Link to this resource")
+        )
     }
 
     @Throws(IOException::class)
