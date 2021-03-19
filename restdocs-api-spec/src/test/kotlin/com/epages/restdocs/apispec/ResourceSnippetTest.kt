@@ -17,11 +17,12 @@ import org.springframework.http.HttpStatus.OK
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.restdocs.generate.RestDocumentationGenerator.ATTRIBUTE_NAME_URL_TEMPLATE
 import org.springframework.restdocs.headers.HeaderDocumentation
+import org.springframework.restdocs.hypermedia.HypermediaDocumentation
 import org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel
-import org.springframework.restdocs.hypermedia.LinkDescriptor
 import org.springframework.restdocs.operation.Operation
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
+import org.springframework.restdocs.payload.PayloadDocumentation.subsectionWithPath
 import java.io.File
 import java.io.IOException
 import java.nio.file.Path
@@ -187,7 +188,7 @@ class ResourceSnippetTest {
     @Test
     fun should_generate_resourcemodel_for_links_not_in_HAL_format() {
         givenOperationWithAtomLinksInResponse()
-        givenLinkDescriptor()
+        givenLinkDescriptorAndAtomLinkExtractor()
 
         whenResourceSnippetInvoked()
 
@@ -415,10 +416,15 @@ class ResourceSnippetTest {
         operation = operationBuilder.build()
     }
 
-    private fun givenLinkDescriptor() {
-        parametersBuilder.links(
-            linkWithRel("self").description("Link to this resource")
-        )
+    private fun givenLinkDescriptorAndAtomLinkExtractor() {
+        parametersBuilder
+            .responseFields(
+                subsectionWithPath("links").ignored()
+            )
+            .links(
+                linkWithRel("self").description("Link to this resource")
+            )
+            .linkExtractor(HypermediaDocumentation.atomLinks())
     }
 
     @Throws(IOException::class)
