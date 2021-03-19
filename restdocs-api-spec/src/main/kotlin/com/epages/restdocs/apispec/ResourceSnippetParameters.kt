@@ -33,7 +33,13 @@ data class ResourceSnippetParameters @JvmOverloads constructor(
     val tags: Set<String> = emptySet(),
     val linkExtractor: LinkExtractor = HypermediaDocumentation.halLinks()
 ) {
-    val responseFieldsWithLinks by lazy { responseFields + links.map(Companion::toFieldDescriptor) }
+    val responseFieldsWithLinks by lazy {
+        if (linkExtractor::class == HypermediaDocumentation.halLinks()::class) {
+            responseFields + links.map(Companion::toFieldDescriptor)
+        } else {
+            responseFields
+        }
+    }
 
     companion object {
         @JvmStatic
@@ -68,7 +74,7 @@ data class ResourceSnippetParameters @JvmOverloads constructor(
          * @return
          */
         private fun createLinkFieldDescriptor(rel: String): FieldDescriptor {
-            val path = "_links.$rel"
+            val path = "_links.$rel" // HAL specific
             return Optional.ofNullable(
                 ReflectionUtils.findMethod(
                     PayloadDocumentation::class.java,
