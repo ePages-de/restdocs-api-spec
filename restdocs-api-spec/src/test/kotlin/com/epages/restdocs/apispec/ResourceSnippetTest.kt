@@ -193,6 +193,7 @@ class ResourceSnippetTest {
         whenResourceSnippetInvoked()
 
         thenSnippetFileExists()
+        then(resourceSnippetJson.read<List<*>>("response.responseFields")).hasSize(1)
     }
 
     private fun givenTag() {
@@ -418,9 +419,6 @@ class ResourceSnippetTest {
 
     private fun givenLinkDescriptorAndAtomLinkExtractor() {
         parametersBuilder
-            .responseFields(
-                subsectionWithPath("links").ignored()
-            )
             .links(
                 linkWithRel("self").description("Link to this resource")
             )
