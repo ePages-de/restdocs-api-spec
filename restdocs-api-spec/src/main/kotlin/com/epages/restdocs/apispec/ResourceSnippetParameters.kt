@@ -2,7 +2,9 @@ package com.epages.restdocs.apispec
 
 import com.epages.restdocs.apispec.SimpleType.STRING
 import org.springframework.restdocs.headers.HeaderDescriptor
+import org.springframework.restdocs.hypermedia.HypermediaDocumentation
 import org.springframework.restdocs.hypermedia.LinkDescriptor
+import org.springframework.restdocs.hypermedia.LinkExtractor
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.restdocs.payload.PayloadDocumentation
@@ -28,7 +30,8 @@ data class ResourceSnippetParameters @JvmOverloads constructor(
     val requestParameters: List<ParameterDescriptorWithType> = emptyList(),
     val requestHeaders: List<HeaderDescriptorWithType> = emptyList(),
     val responseHeaders: List<HeaderDescriptorWithType> = emptyList(),
-    val tags: Set<String> = emptySet()
+    val tags: Set<String> = emptySet(),
+    val linkExtractor: LinkExtractor = HypermediaDocumentation.halLinks()
 ) {
     val responseFieldsWithLinks by lazy { responseFields + links.map(Companion::toFieldDescriptor) }
 
@@ -193,6 +196,8 @@ class ResourceSnippetParametersBuilder : ResourceSnippetDetails() {
         private set
     var responseHeaders: List<HeaderDescriptorWithType> = emptyList()
         private set
+    var linkExtractor: LinkExtractor = HypermediaDocumentation.halLinks()
+        private set
 
     override fun summary(summary: String?) = apply { this.summary = summary }
     override fun description(description: String?) = apply { this.description = description }
@@ -246,6 +251,8 @@ class ResourceSnippetParametersBuilder : ResourceSnippetDetails() {
     override fun tag(tag: String) = tags(tag)
     override fun tags(vararg tags: String) = apply { this.tags += tags }
 
+    fun linkExtractor(linkExtractor: LinkExtractor) = apply { this.linkExtractor = linkExtractor }
+
     fun build() = ResourceSnippetParameters(
         summary,
         description,
@@ -260,6 +267,7 @@ class ResourceSnippetParametersBuilder : ResourceSnippetDetails() {
         requestParameters,
         requestHeaders,
         responseHeaders,
-        tags
+        tags,
+        linkExtractor
     )
 }

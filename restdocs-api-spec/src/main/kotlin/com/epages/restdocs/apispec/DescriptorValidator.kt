@@ -6,6 +6,7 @@ import org.springframework.restdocs.headers.RequestHeadersSnippet
 import org.springframework.restdocs.headers.ResponseHeadersSnippet
 import org.springframework.restdocs.hypermedia.HypermediaDocumentation
 import org.springframework.restdocs.hypermedia.LinkDescriptor
+import org.springframework.restdocs.hypermedia.LinkExtractor
 import org.springframework.restdocs.hypermedia.LinksSnippet
 import org.springframework.restdocs.operation.Operation
 import org.springframework.restdocs.payload.FieldDescriptor
@@ -29,7 +30,7 @@ internal object DescriptorValidator {
             validateIfDescriptorsPresent(
                 links,
                 operation
-            ) { LinksSnippetWrapper(links) }
+            ) { LinksSnippetWrapper(links, linkExtractor) }
 
             validateIfDescriptorsPresent(
                 responseFieldsWithLinks,
@@ -183,8 +184,8 @@ internal object DescriptorValidator {
         }
     }
 
-    private class LinksSnippetWrapper(descriptors: List<LinkDescriptor>) :
-        LinksSnippet(HypermediaDocumentation.halLinks(), descriptors),
+    private class LinksSnippetWrapper(descriptors: List<LinkDescriptor>, linkExtractor: LinkExtractor) :
+        LinksSnippet(linkExtractor, descriptors),
         ValidateableSnippet {
         override fun validate(operation: Operation) {
             this.createModel(operation)
