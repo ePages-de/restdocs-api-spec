@@ -408,7 +408,7 @@ object OpenApi3Generator {
         return PathParameter().apply {
             name = parameterDescriptor.name
             description = parameterDescriptor.description
-            schema = StringSchema()
+            schema = simpleTypeToSchema(parameterDescriptor.type)
         }
     }
 
