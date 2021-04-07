@@ -266,6 +266,7 @@ class OpenApi3GeneratorTest {
 
         then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'id')].in")).containsOnly("path")
         then(openApiJsonPathContext.read<List<Boolean>>("$productGetByIdPath.parameters[?(@.name == 'id')].required")).containsOnly(true)
+        then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'id')].schema.type")).containsOnly("integer")
         then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'locale')].in")).containsOnly("query")
         then(openApiJsonPathContext.read<List<Boolean>>("$productGetByIdPath.parameters[?(@.name == 'locale')].required")).containsOnly(false)
         then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'locale')].schema.type")).containsOnly("string")
@@ -891,7 +892,7 @@ class OpenApi3GeneratorTest {
                 ParameterDescriptor(
                     name = "id",
                     description = "Product ID",
-                    type = "STRING",
+                    type = "INTEGER",
                     optional = false,
                     ignored = false
                 )
