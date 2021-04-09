@@ -88,7 +88,7 @@ The [ResourceSnippet](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apis
     * Using the [plugins DSL](https://docs.gradle.org/current/userguide/plugins.html#sec:plugins_block):
         ```groovy
         plugins {
-            id 'com.epages.restdocs-api-spec' version '0.11.2'
+            id 'com.epages.restdocs-api-spec' version '0.11.3'
         }
         ```
         Examples with Kotlin are also available [here](https://plugins.gradle.org/plugin/com.epages.restdocs-api-spec)
@@ -104,7 +104,7 @@ The [ResourceSnippet](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apis
             }
           }
           dependencies {
-            classpath "com.epages:restdocs-api-spec-gradle-plugin:0.11.2" //1.2
+            classpath "com.epages:restdocs-api-spec-gradle-plugin:0.11.3" //1.2
           }
         }
 
@@ -123,7 +123,7 @@ The [ResourceSnippet](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apis
 
     dependencies {
         //..
-        testCompile('com.epages:restdocs-api-spec-mockmvc:0.11.2') //2.2
+        testCompile('com.epages:restdocs-api-spec-mockmvc:0.11.3') //2.2
     }
 
     openapi { //2.3
@@ -595,7 +595,7 @@ Given that the `master` branch on the upstream repository is in the state from w
 
 1. [Create release via the GitHub UI](https://github.com/ePages-de/restdocs-api-spec/releases/new)
 
-Use the intended version number as "Tag version", e.g. "0.11.2".
+Use the intended version number as "Tag version", e.g. "0.11.3".
 
 This will automatically trigger a Travis build which publishes the JAR files for this release to Sonatype.
 
