@@ -610,7 +610,7 @@ Check that there are no errors afterwards (e.g. missing signatures or Javadoc JA
 
 4. Release the repository
 
-Select the generated staging repository and publish it.
+Select the generated staging repository and release it.
 Soon after, the release should be available in the ["Public Repositories" of ePages](https://oss.sonatype.org/service/local/repo_groups/public/content/com/epages/).
 
 5. Update documentation
