@@ -86,6 +86,33 @@ class OpenApi3GeneratorTest {
     }
 
     @Test
+    fun `should segregate responses schema with different content type and different response schema`() {
+        givenResourcesWithSamePathAndDifferentContentTypeAndDifferentResponseSchema()
+
+        whenOpenApiObjectGenerated()
+
+        val productPatchByIdPath = "paths./products/{id}.patch"
+        then(openApiJsonPathContext.read<Any>("$productPatchByIdPath.requestBody.content.application/json.schema.\$ref")).isNotNull()
+        then(openApiJsonPathContext.read<Any>("$productPatchByIdPath.requestBody.content.application/json.examples.test")).isNotNull()
+        then(openApiJsonPathContext.read<Any>("$productPatchByIdPath.requestBody.content.application/json-patch+json.schema.\$ref")).isNotNull()
+        then(openApiJsonPathContext.read<Any>("$productPatchByIdPath.requestBody.content.application/json-patch+json.examples.test-1")).isNotNull()
+
+        val schema1 = openApiJsonPathContext.read<Any>("$productPatchByIdPath.responses.200.content.application/json.schema.\$ref")
+        val schema2 = openApiJsonPathContext.read<Any>("$productPatchByIdPath.responses.200.content.application/hal+json.schema.\$ref")
+        then(schema1).isEqualTo("#/components/schemas/schema1")
+        then(schema2).isEqualTo("#/components/schemas/schema2")
+
+        then(openApiJsonPathContext.read<Any>("$productPatchByIdPath.responses.200.content.application/json.examples.test")).isNotNull()
+        then(openApiJsonPathContext.read<Any>("$productPatchByIdPath.responses.200.content.application/hal+json.examples.test-1")).isNotNull()
+
+        val componentsSchemaPath = "components.schemas"
+        then(openApiJsonPathContext.read<Any>("$componentsSchemaPath.schema1")).isNotNull()
+        then(openApiJsonPathContext.read<Any>("$componentsSchemaPath.schema2")).isNotNull()
+
+        thenOpenApiSpecIsValid()
+    }
+
+    @Test
     fun `should aggregate example responses with same path and status and content type`() {
         givenResourcesWithSamePathAndContentType()
 
@@ -575,6 +602,31 @@ class OpenApi3GeneratorTest {
         )
     }
 
+    private fun givenResourcesWithSamePathAndDifferentContentTypeAndDifferentResponseSchema() {
+        resources = listOf(
+            ResourceModel(
+                operationId = "test",
+                summary = "summary",
+                description = "description",
+                privateResource = false,
+                deprecated = false,
+                tags = setOf("tag1", "tag2"),
+                request = getProductPatchRequest(),
+                response = getProductResponse(Schema("schema1"))
+            ),
+            ResourceModel(
+                operationId = "test-1",
+                summary = "summary 1",
+                description = "description 1",
+                privateResource = false,
+                deprecated = false,
+                tags = setOf("tag1", "tag2"),
+                request = getProductPatchJsonPatchRequest(),
+                response = getProductHalResponse(Schema("schema2"))
+            )
+        )
+    }
+
     private fun givenResourceWithMultiplePathParameters() {
         resources = listOf(
             ResourceModel(
@@ -743,10 +795,11 @@ class OpenApi3GeneratorTest {
         )
     }
 
-    private fun getProductHalResponse(): ResponseModel {
+    private fun getProductHalResponse(schema: Schema? = null): ResponseModel {
         return ResponseModel(
             status = 200,
             contentType = "application/hal+json",
+            schema = schema,
             responseFields = listOf(
                 FieldDescriptor(
                     path = "_id",

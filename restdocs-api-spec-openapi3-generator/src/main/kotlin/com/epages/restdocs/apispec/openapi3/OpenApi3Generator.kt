@@ -349,7 +349,7 @@ object OpenApi3Generator {
                     requestFields = requests.flatMap { it.response.responseFields },
                     examplesWithOperationId = requests.map { it.operationId to it.response.example!! }.toMap(),
                     contentType = contentType,
-                    schemaName = responseModelsSameStatus.first().response.schema?.name
+                    schemaName = requests.first().response.schema?.name
                 )
             }.toMap()
             .let { contentTypeToMediaType ->
