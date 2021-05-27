@@ -67,35 +67,6 @@ class OpenApi3GeneratorTest {
 
     @Test
     fun `should aggregate responses with different content type and different response schema`() {
-        givenResourcesWithSamePathAndDifferentContentType()
-
-        whenOpenApiObjectGenerated()
-
-        val productPatchByIdPath = "paths./products/{id}.patch"
-        then(openApiJsonPathContext.read<Any>("$productPatchByIdPath.requestBody.content.application/json.schema.\$ref")).isNotNull()
-        then(openApiJsonPathContext.read<Any>("$productPatchByIdPath.requestBody.content.application/json.examples.test")).isNotNull()
-        then(openApiJsonPathContext.read<Any>("$productPatchByIdPath.requestBody.content.application/json-patch+json.schema.\$ref")).isNotNull()
-        then(openApiJsonPathContext.read<Any>("$productPatchByIdPath.requestBody.content.application/json-patch+json.examples.test-1")).isNotNull()
-
-        then(openApiJsonPathContext.read<Any>("$productPatchByIdPath.responses.200.content.application/json.schema.\$ref")).isNotNull()
-        then(openApiJsonPathContext.read<Any>("$productPatchByIdPath.responses.200.content.application/json.examples.test")).isNotNull()
-        then(openApiJsonPathContext.read<Any>("$productPatchByIdPath.responses.200.content.application/hal+json.schema.\$ref")).isNotNull()
-        then(openApiJsonPathContext.read<Any>("$productPatchByIdPath.responses.200.content.application/hal+json.examples.test-1")).isNotNull()
-
-        val schema1 = openApiJsonPathContext.read<String>("$productPatchByIdPath.responses.200.content.application/json.schema.\$ref")
-        val schema2 = openApiJsonPathContext.read<String>("$productPatchByIdPath.responses.200.content.application/hal+json.schema.\$ref")
-        then(schema1).startsWith("#/components/schemas/products-id")
-        then(schema2).startsWith("#/components/schemas/products-id-")
-        then(schema1).isNotEqualTo(schema2)
-
-        then(openApiJsonPathContext.read<Any>("${schema1.replaceFirst("#/", "").replace("/", ".")}")).isNotNull()
-        then(openApiJsonPathContext.read<Any>("${schema2.replaceFirst("#/", "").replace("/", ".")}")).isNotNull()
-
-        thenOpenApiSpecIsValid()
-    }
-
-    @Test
-    fun `should segregate responses schema with different content type and different response schema`() {
         givenResourcesWithSamePathAndDifferentContentTypeAndDifferentResponseSchema()
 
         whenOpenApiObjectGenerated()
@@ -583,31 +554,6 @@ class OpenApi3GeneratorTest {
                 tags = setOf("tag1", "tag2"),
                 request = getProductRequest(),
                 response = getProductResponse()
-            )
-        )
-    }
-
-    private fun givenResourcesWithSamePathAndDifferentContentType() {
-        resources = listOf(
-            ResourceModel(
-                operationId = "test",
-                summary = "summary",
-                description = "description",
-                privateResource = false,
-                deprecated = false,
-                tags = setOf("tag1", "tag2"),
-                request = getProductPatchRequest(),
-                response = getProductResponse()
-            ),
-            ResourceModel(
-                operationId = "test-1",
-                summary = "summary 1",
-                description = "description 1",
-                privateResource = false,
-                deprecated = false,
-                tags = setOf("tag1", "tag2"),
-                request = getProductPatchJsonPatchRequest(),
-                response = getProductHalResponse()
             )
         )
     }
