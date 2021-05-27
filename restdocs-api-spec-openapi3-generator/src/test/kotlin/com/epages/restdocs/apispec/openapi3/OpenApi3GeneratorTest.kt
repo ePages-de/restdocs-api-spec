@@ -66,7 +66,7 @@ class OpenApi3GeneratorTest {
     }
 
     @Test
-    fun `should aggregate responses with different content type`() {
+    fun `should aggregate responses with different content type and different response schema`() {
         givenResourcesWithSamePathAndDifferentContentType()
 
         whenOpenApiObjectGenerated()
