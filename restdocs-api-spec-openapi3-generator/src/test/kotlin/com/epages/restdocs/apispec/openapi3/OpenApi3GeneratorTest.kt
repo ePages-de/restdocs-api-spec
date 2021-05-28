@@ -66,8 +66,8 @@ class OpenApi3GeneratorTest {
     }
 
     @Test
-    fun `should aggregate responses with different content type`() {
-        givenResourcesWithSamePathAndDifferentContentType()
+    fun `should aggregate responses with different content type and different response schema`() {
+        givenResourcesWithSamePathAndDifferentContentTypeAndDifferentResponseSchema()
 
         whenOpenApiObjectGenerated()
 
@@ -82,32 +82,13 @@ class OpenApi3GeneratorTest {
         then(openApiJsonPathContext.read<Any>("$productPatchByIdPath.responses.200.content.application/hal+json.schema.\$ref")).isNotNull()
         then(openApiJsonPathContext.read<Any>("$productPatchByIdPath.responses.200.content.application/hal+json.examples.test-1")).isNotNull()
 
-        thenOpenApiSpecIsValid()
-    }
-
-    @Test
-    fun `should segregate responses schema with different content type and different response schema`() {
-        givenResourcesWithSamePathAndDifferentContentTypeAndDifferentResponseSchema()
-
-        whenOpenApiObjectGenerated()
-
-        val productPatchByIdPath = "paths./products/{id}.patch"
-        then(openApiJsonPathContext.read<Any>("$productPatchByIdPath.requestBody.content.application/json.schema.\$ref")).isNotNull()
-        then(openApiJsonPathContext.read<Any>("$productPatchByIdPath.requestBody.content.application/json.examples.test")).isNotNull()
-        then(openApiJsonPathContext.read<Any>("$productPatchByIdPath.requestBody.content.application/json-patch+json.schema.\$ref")).isNotNull()
-        then(openApiJsonPathContext.read<Any>("$productPatchByIdPath.requestBody.content.application/json-patch+json.examples.test-1")).isNotNull()
-
-        val schema1 = openApiJsonPathContext.read<Any>("$productPatchByIdPath.responses.200.content.application/json.schema.\$ref")
-        val schema2 = openApiJsonPathContext.read<Any>("$productPatchByIdPath.responses.200.content.application/hal+json.schema.\$ref")
+        val schema1 = openApiJsonPathContext.read<String>("$productPatchByIdPath.responses.200.content.application/json.schema.\$ref")
+        val schema2 = openApiJsonPathContext.read<String>("$productPatchByIdPath.responses.200.content.application/hal+json.schema.\$ref")
         then(schema1).isEqualTo("#/components/schemas/schema1")
         then(schema2).isEqualTo("#/components/schemas/schema2")
 
-        then(openApiJsonPathContext.read<Any>("$productPatchByIdPath.responses.200.content.application/json.examples.test")).isNotNull()
-        then(openApiJsonPathContext.read<Any>("$productPatchByIdPath.responses.200.content.application/hal+json.examples.test-1")).isNotNull()
-
-        val componentsSchemaPath = "components.schemas"
-        then(openApiJsonPathContext.read<Any>("$componentsSchemaPath.schema1")).isNotNull()
-        then(openApiJsonPathContext.read<Any>("$componentsSchemaPath.schema2")).isNotNull()
+        then(openApiJsonPathContext.read<Any>("${schema1.replaceFirst("#/", "").replace("/", ".")}")).isNotNull()
+        then(openApiJsonPathContext.read<Any>("${schema2.replaceFirst("#/", "").replace("/", ".")}")).isNotNull()
 
         thenOpenApiSpecIsValid()
     }
@@ -573,31 +554,6 @@ class OpenApi3GeneratorTest {
                 tags = setOf("tag1", "tag2"),
                 request = getProductRequest(),
                 response = getProductResponse()
-            )
-        )
-    }
-
-    private fun givenResourcesWithSamePathAndDifferentContentType() {
-        resources = listOf(
-            ResourceModel(
-                operationId = "test",
-                summary = "summary",
-                description = "description",
-                privateResource = false,
-                deprecated = false,
-                tags = setOf("tag1", "tag2"),
-                request = getProductPatchRequest(),
-                response = getProductResponse()
-            ),
-            ResourceModel(
-                operationId = "test-1",
-                summary = "summary 1",
-                description = "description 1",
-                privateResource = false,
-                deprecated = false,
-                tags = setOf("tag1", "tag2"),
-                request = getProductPatchJsonPatchRequest(),
-                response = getProductHalResponse()
             )
         )
     }
