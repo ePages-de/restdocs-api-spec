@@ -590,29 +590,27 @@ It's version number is determined by the Git tags (see [allegro/axion-release-pl
 The Java dependencies are published to Sonatype with the help of the [gradle-nexus/publish-plugin](https://github.com/gradle-nexus/publish-plugin) and the Maven Publish Plugin.
 The Gradle plugin is published to the [Gradle plugin portal](https://plugins.gradle.org/plugin/com.epages.restdocs-api-spec) with the help of the ['plugin-publish' plugin](https://plugins.gradle.org/plugin/com.gradle.plugin-publish) (see [docs.gradle.org](https://docs.gradle.org/current/userguide/publishing_gradle_plugins.html)).
 
-
 Given that the `master` branch on the upstream repository is in the state from which you want to create a release, execute the following steps:
 
 1. [Create release via the GitHub UI](https://github.com/ePages-de/restdocs-api-spec/releases/new)
 
-Use the intended version number as "Tag version", e.g. "0.11.3".
-
-This will automatically trigger a Travis build which publishes the JAR files for this release to Sonatype.
+  Use the intended version number as "Tag version", e.g. "0.11.3".
+  This will automatically trigger a Travis build which publishes the JAR files for this release to Sonatype.
 
 2. Login to Sonatype
 
-Login to Sonatype and navigate to the [staging repositories](https://oss.sonatype.org/#stagingRepositories).
+  Login to Sonatype and navigate to the [staging repositories](https://oss.sonatype.org/#stagingRepositories).
 
 3. Close the staging repository
 
-Select the generated staging repository and close it.
-Check that there are no errors afterwards (e.g. missing signatures or Javadoc JARs).
+  Select the generated staging repository and close it.
+  Check that there are no errors afterwards (e.g. missing signatures or Javadoc JARs).
 
 4. Release the repository
 
-Select the generated staging repository and release it.
-Soon after, the release should be available in the ["Public Repositories" of ePages](https://oss.sonatype.org/service/local/repo_groups/public/content/com/epages/).
+  Select the generated staging repository and release it.
+  Soon after, the release should be available in the ["Public Repositories" of ePages](https://oss.sonatype.org/service/local/repo_groups/public/content/com/epages/).
 
 5. Update documentation
 
-Create a new commit which updates the version numbers in the `README` file.
+  Create a new commit which updates the version numbers in the `README` file.
