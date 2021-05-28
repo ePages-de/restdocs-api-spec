@@ -592,16 +592,15 @@ The Gradle plugin is published to the [Gradle plugin portal](https://plugins.gra
 
 Given that the `master` branch on the upstream repository is in the state from which you want to create a release, execute the following steps:
 
-1. [Create release via the GitHub UI](https://github.com/ePages-de/restdocs-api-spec/releases/new)
-  Use the intended version number as "Tag version", e.g. "0.11.4".
-  This will automatically trigger a Travis build which publishes the JAR files for this release to Sonatype.
-2. Login to Sonatype
-  Login to Sonatype and navigate to the [staging repositories](https://oss.sonatype.org/#stagingRepositories).
-3. Close the staging repository
-  Select the generated staging repository and close it.
-  Check that there are no errors afterwards (e.g. missing signatures or Javadoc JARs).
-4. Release the repository
-  Select the generated staging repository and release it.
-  Soon after, the release should be available in the ["Public Repositories" of ePages](https://oss.sonatype.org/service/local/repo_groups/public/content/com/epages/).
-5. Update documentation
-  Create a new commit which updates the version numbers in the `README` file.
+1. [Create release via the GitHub UI](https://github.com/ePages-de/restdocs-api-spec/releases/new) <br>
+    Use the intended version number as "Tag version", e.g. "0.11.4".
+    This will automatically trigger a Travis build which publishes the JAR files for this release to Sonatype.
+2. Login to Sonatype and navigate to the [staging repositories](https://oss.sonatype.org/#stagingRepositories)
+3. Close the staging repository <br>
+    Select the generated staging repository and close it.
+    Check that there are no errors afterwards (e.g. missing signatures or Javadoc JARs).
+4. Release the repository <br>
+    Select the generated staging repository and release it.
+    Soon after, the release should be available in the ["Public Repositories" of ePages](https://oss.sonatype.org/service/local/repo_groups/public/content/com/epages/).
+5. Update documentation <br>
+    Create a new commit which updates the version numbers in the `README` file.
