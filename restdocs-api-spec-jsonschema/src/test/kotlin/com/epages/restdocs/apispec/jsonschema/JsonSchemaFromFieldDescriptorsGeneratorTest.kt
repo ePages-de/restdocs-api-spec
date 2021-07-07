@@ -210,6 +210,18 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
     }
 
     @Test
+    fun should_generate_schema_for_mixture_of_array_and_array_wildcard_paths() {
+        fieldDescriptors = listOf(
+            FieldDescriptor("some[].foo", "some", "Object"),
+            FieldDescriptor("some[*].bar", "some", "Object")
+        )
+
+        whenSchemaGenerated()
+
+        thenSchemaIsValid()
+    }
+
+    @Test
     fun should_generate_schema_for_enum_values() {
         givenFieldDescriptorWithEnum()
 
