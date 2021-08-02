@@ -114,9 +114,13 @@ class HeaderDescriptorWithType(val name: String) : AbstractDescriptor<HeaderDesc
     }
 }
 
+internal const val PARAMETER_DESCRIPTOR_TYPE = "parameterDescriptorType"
 /**
  * We are transitively extending AbstractDescriptor instead of ParameterDescriptor because otherwise methods like
  * description() and ignored() would return ParameterDescriptor instead of ParameterDescriptorWithType.
+ *
+ * If the parameter descriptor is set with a [PARAMETER_DESCRIPTOR_TYPE] attribute,
+ * ParameterDescriptor type is resolved as a [SimpleType] or set by default to [SimpleType.STRING]
  */
 class ParameterDescriptorWithType(val name: String) : IgnorableDescriptor<ParameterDescriptorWithType>() {
 
@@ -137,6 +141,7 @@ class ParameterDescriptorWithType(val name: String) : IgnorableDescriptor<Parame
                     description(parameterDescriptor.description)
                     if (parameterDescriptor.isOptional) optional()
                     if (parameterDescriptor.isIgnored) ignored()
+                    type(parameterDescriptor.attributes?.get(PARAMETER_DESCRIPTOR_TYPE) as? SimpleType ?: STRING)
                 }
     }
 }

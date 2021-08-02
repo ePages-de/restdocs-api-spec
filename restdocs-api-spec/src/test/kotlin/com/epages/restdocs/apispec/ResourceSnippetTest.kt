@@ -2,6 +2,8 @@ package com.epages.restdocs.apispec
 
 import com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName
 import com.epages.restdocs.apispec.ResourceDocumentation.resource
+import com.epages.restdocs.apispec.SimpleType.BOOLEAN
+import com.epages.restdocs.apispec.SimpleType.STRING
 import com.jayway.jsonpath.DocumentContext
 import com.jayway.jsonpath.JsonPath
 import org.assertj.core.api.BDDAssertions.then
@@ -20,9 +22,11 @@ import org.springframework.restdocs.headers.HeaderDocumentation
 import org.springframework.restdocs.operation.Operation
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
+import org.springframework.restdocs.snippet.Attributes.key
 import java.io.File
 import java.io.IOException
 import java.nio.file.Path
+import org.springframework.restdocs.request.RequestDocumentation.parameterWithName as parameterDescriptorWithName
 
 @ExtendWith(TempDirectory::class)
 class ResourceSnippetTest {
@@ -42,6 +46,7 @@ class ResourceSnippetTest {
     fun init(@TempDirectory.TempDir tempDir: Path) {
         rootOutputDirectory = tempDir.toFile()
     }
+
     @Test
     fun should_generate_resource_snippet_for_operation_with_request_body() {
         givenOperationWithRequestBody()
@@ -102,7 +107,10 @@ class ResourceSnippetTest {
         then(resourceSnippetJson.read<Boolean>("request.requestParameters[0].optional")).isFalse()
         then(resourceSnippetJson.read<Boolean>("request.requestParameters[0].ignored")).isFalse()
 
-        then(resourceSnippetJson.read<List<String>>("request.securityRequirements.requiredScopes")).containsExactly("scope1", "scope2")
+        then(resourceSnippetJson.read<List<String>>("request.securityRequirements.requiredScopes")).containsExactly(
+            "scope1",
+            "scope2"
+        )
         then(resourceSnippetJson.read<String>("request.securityRequirements.type")).isEqualTo("OAUTH2")
 
         then(resourceSnippetJson.read<String>("request.example")).isNotEmpty()
@@ -152,6 +160,23 @@ class ResourceSnippetTest {
         thenSnippetFileExists()
         then(resourceSnippetJson.read<List<*>>("request.requestParameters")).hasSize(1)
         then(resourceSnippetJson.read<String>("request.requestParameters[0].name")).isEqualTo("describedParameter")
+    }
+
+    @Test
+    fun should_generate_resource_snippet_with_typed_parameters() {
+        givenOperationWithTypedRequestParameters()
+        givenTypedRequestParameterDescriptors()
+
+        whenResourceSnippetInvoked()
+
+        thenSnippetFileExists()
+        then(resourceSnippetJson.read<List<*>>("request.requestParameters")).hasSize(3)
+        then(resourceSnippetJson.read<String>("request.requestParameters[0].name")).isEqualTo("booleanParameter")
+        then(resourceSnippetJson.read<String>("request.requestParameters[0].type")).isEqualTo(BOOLEAN.toString())
+        then(resourceSnippetJson.read<String>("request.requestParameters[1].name")).isEqualTo("withoutTypeParameter")
+        then(resourceSnippetJson.read<String>("request.requestParameters[1].type")).isEqualTo(STRING.toString())
+        then(resourceSnippetJson.read<String>("request.requestParameters[2].name")).isEqualTo("unknownTypeParameter")
+        then(resourceSnippetJson.read<String>("request.requestParameters[2].type")).isEqualTo(STRING.toString())
     }
 
     @Test
@@ -218,7 +243,7 @@ class ResourceSnippetTest {
     }
 
     private fun givenRequestParameterDescriptors() {
-        parametersBuilder.requestParameters(parameterWithName("test-param").type(SimpleType.STRING).description("test param"))
+        parametersBuilder.requestParameters(parameterWithName("test-param").type(STRING).description("test param"))
     }
 
     private fun givenRequestAndResponseHeaderDescriptors() {
@@ -319,6 +344,24 @@ class ResourceSnippetTest {
         operation = operationBuilder.build()
     }
 
+    private fun givenOperationWithTypedRequestParameters() {
+        val operationBuilder = OperationBuilder("test", rootOutputDirectory)
+
+        operationBuilder
+            .attribute(ATTRIBUTE_NAME_URL_TEMPLATE, "http://localhost:8080/some/{id}")
+            .request("http://localhost:8080/some/123")
+            .param("booleanParameter", "documented", "as", "boolean")
+            .param("withoutTypeParameter", "documented", "as", "default", "type")
+            .param("unknownTypeParameter", "documented", "as", "default", "type")
+            .method("GET")
+
+        operationBuilder
+            .response()
+            .status(204)
+
+        operation = operationBuilder.build()
+    }
+
     private fun givenRequestFieldDescriptors() {
         parametersBuilder.requestFields(fieldWithPath("comment").description("description"))
     }
@@ -356,6 +399,25 @@ class ResourceSnippetTest {
         )
     }
 
+    private fun givenTypedRequestParameterDescriptors() {
+        parametersBuilder.requestParameters(
+            ParameterDescriptorWithType.fromParameterDescriptor(
+                parameterDescriptorWithName("booleanParameter")
+                    .description("parameter with BOOLEAN type sets")
+                    .attributes(key(PARAMETER_DESCRIPTOR_TYPE).value(BOOLEAN))
+            ),
+            ParameterDescriptorWithType.fromParameterDescriptor(
+                parameterDescriptorWithName("withoutTypeParameter")
+                    .description("parameter with default STRING type")
+            ),
+            ParameterDescriptorWithType.fromParameterDescriptor(
+                parameterDescriptorWithName("unknownTypeParameter")
+                    .description("parameter with default STRING type")
+                    .attributes(key(PARAMETER_DESCRIPTOR_TYPE).value(Map::class))
+            )
+        )
+    }
+
     private fun givenOperationWithRequestAndResponseBody(responseContentType: String = APPLICATION_JSON_VALUE) {
         val operationBuilder = OperationBuilder("test", rootOutputDirectory)
             .attribute(ATTRIBUTE_NAME_URL_TEMPLATE, "http://localhost:8080/some/{id}")
@@ -365,7 +427,10 @@ class ResourceSnippetTest {
             .param("test-param", "1")
             .method("POST")
             .header("X-SOME", "some")
-            .header(AUTHORIZATION, "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzY29wZSI6WyJzY29wZTEiLCJzY29wZTIiXSwiZXhwIjoxNTA3NzU4NDk4LCJpYXQiOjE1MDc3MTUyOTgsImp0aSI6IjQyYTBhOTFhLWQ2ZWQtNDBjYy1iMTA2LWU5MGNkYWU0M2Q2ZCJ9.eWGo7Y124_Hdrr-bKX08d_oCfdgtlGXo9csz-hvRhRORJi_ZK7PIwM0ChqoLa4AhR-dJ86npid75GB9IxCW2f5E24FyZW2p5swpOpfkEAA4oFuj7jxHiaiqL_HFKKCRsVNAN3hGiSp9Hn3fde0-LlABqMaihdzZzHL-xm8-CqbXT-qBfuscDImZrZQZqhizpSEV4idbEMzZykggLASGoOIL0t0ycfe3yeuQkMUhzZmXuu08VM7zXwWnqfXCa-RmA6wC7ZnWqiJoi0vBr4BrlLR067YoUrT6pgRfiy2HZ0vEE_XY5SBtA-qI2QnlJb7eTk7pgFtoGkYdeOZ86k6GDVw")
+            .header(
+                AUTHORIZATION,
+                "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzY29wZSI6WyJzY29wZTEiLCJzY29wZTIiXSwiZXhwIjoxNTA3NzU4NDk4LCJpYXQiOjE1MDc3MTUyOTgsImp0aSI6IjQyYTBhOTFhLWQ2ZWQtNDBjYy1iMTA2LWU5MGNkYWU0M2Q2ZCJ9.eWGo7Y124_Hdrr-bKX08d_oCfdgtlGXo9csz-hvRhRORJi_ZK7PIwM0ChqoLa4AhR-dJ86npid75GB9IxCW2f5E24FyZW2p5swpOpfkEAA4oFuj7jxHiaiqL_HFKKCRsVNAN3hGiSp9Hn3fde0-LlABqMaihdzZzHL-xm8-CqbXT-qBfuscDImZrZQZqhizpSEV4idbEMzZykggLASGoOIL0t0ycfe3yeuQkMUhzZmXuu08VM7zXwWnqfXCa-RmA6wC7ZnWqiJoi0vBr4BrlLR067YoUrT6pgRfiy2HZ0vEE_XY5SBtA-qI2QnlJb7eTk7pgFtoGkYdeOZ86k6GDVw"
+            )
             .header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
             .content(content)
         operationBuilder
