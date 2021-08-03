@@ -115,8 +115,8 @@ class HeaderDescriptorWithType(val name: String) : AbstractDescriptor<HeaderDesc
 }
 
 /**
- * We are extending AbstractDescriptor instead of HeaderDescriptor because otherwise methods like description() and ignored()
- * would return HeaderDescriptor instead of HeaderDescriptorWithType
+ * We are transitively extending AbstractDescriptor instead of ParameterDescriptor because otherwise methods like
+ * description() and ignored() would return ParameterDescriptor instead of ParameterDescriptorWithType.
  */
 class ParameterDescriptorWithType(val name: String) : IgnorableDescriptor<ParameterDescriptorWithType>() {
 
