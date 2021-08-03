@@ -2,6 +2,8 @@ package com.epages.restdocs.apispec.jsonschema
 
 import com.epages.restdocs.apispec.jsonschema.ConstraintResolver.isRequired
 import com.epages.restdocs.apispec.jsonschema.ConstraintResolver.maxLengthString
+import com.epages.restdocs.apispec.jsonschema.ConstraintResolver.maybeMaxSizeArray
+import com.epages.restdocs.apispec.jsonschema.ConstraintResolver.maybeMinSizeArray
 import com.epages.restdocs.apispec.jsonschema.ConstraintResolver.minLengthString
 import com.epages.restdocs.apispec.model.Attributes
 import com.epages.restdocs.apispec.model.FieldDescriptor
@@ -60,7 +62,8 @@ class JsonSchemaFromFieldDescriptorsGenerator {
         if (schema is ObjectSchema) {
             val groups = groupFieldsByFirstRemainingPathSegment(emptyList(), jsonFieldPaths)
             if (groups.keys.size == 1 && groups.keys.contains("[]")) {
-                return ArraySchema.builder().allItemSchema(schema.propertySchemas["[]"]).title(schema.title).build()
+                val descriptor = jsonFieldPaths.find { it.fieldDescriptor.path == "[]" }?.fieldDescriptor
+                return ArraySchema.builder().allItemSchema(schema.propertySchemas["[]"]).applyConstraints(descriptor).title(schema.title).build()
             }
         }
         return schema
@@ -135,6 +138,9 @@ class JsonSchemaFromFieldDescriptorsGenerator {
         propertyField: JsonFieldPath? = null
     ) {
         val remainingSegments = fields[0].remainingSegments(traversedSegments)
+        if (propertyField?.fieldDescriptor?.let { isRequired(it) } == true) {
+            builder.addRequiredProperty(propertyName)
+        }
         if (remainingSegments.isNotEmpty() && JsonFieldPath.isArraySegment(
                 remainingSegments[0]
             )
@@ -144,13 +150,11 @@ class JsonSchemaFromFieldDescriptorsGenerator {
                 propertyName,
                 ArraySchema.builder()
                     .allItemSchema(traverse(traversedSegments, fields, ObjectSchema.builder()))
+                    .applyConstraints(propertyField?.fieldDescriptor)
                     .description(propertyField?.fieldDescriptor?.description)
                     .build()
             )
         } else {
-            if (propertyField?.fieldDescriptor?.let { isRequired(it) } == true) {
-                builder.addRequiredProperty(propertyName)
-            }
             builder.addPropertySchema(
                 propertyName,
                 traverse(
@@ -173,7 +177,7 @@ class JsonSchemaFromFieldDescriptorsGenerator {
             if (propertyName == "[]") {
                 builder.addPropertySchema(
                     propertyName,
-                    createSchemaWithArrayContent(ObjectSchema.builder().build(), depthOfArrayPath(fieldDescriptor.path))
+                    createSchemaWithArrayContent(ObjectSchema.builder().build(), depthOfArrayPath(fieldDescriptor.path), fieldDescriptor)
                 )
             } else {
                 builder.addPropertySchema(propertyName, fieldDescriptor.jsonSchemaType())
@@ -187,13 +191,13 @@ class JsonSchemaFromFieldDescriptorsGenerator {
             .size - 1
     }
 
-    private fun createSchemaWithArrayContent(schema: Schema, level: Int): Schema {
+    private fun createSchemaWithArrayContent(schema: Schema, level: Int, fieldDescriptor: FieldDescriptorWithSchemaType): Schema {
         return if (schema is ObjectSchema && level < 1) {
             schema
         } else if (level <= 1) {
-            ArraySchema.builder().addItemSchema(schema).build()
+            ArraySchema.builder().addItemSchema(schema).applyConstraints(fieldDescriptor).build()
         } else {
-            createSchemaWithArrayContent(ArraySchema.builder().addItemSchema(schema).build(), level - 1)
+            createSchemaWithArrayContent(ArraySchema.builder().addItemSchema(schema).applyConstraints(fieldDescriptor).build(), level - 1, fieldDescriptor)
         }
     }
 
@@ -239,7 +243,7 @@ class JsonSchemaFromFieldDescriptorsGenerator {
                 "null" -> NullSchema.builder()
                 "empty" -> EmptySchema.builder()
                 "object" -> ObjectSchema.builder()
-                "array" -> ArraySchema.builder().allItemSchema(
+                "array" -> ArraySchema.builder().applyConstraints(this).allItemSchema(
                     CombinedSchema.oneOf(
                         listOf(
                             ObjectSchema.builder().build(),
@@ -285,4 +289,9 @@ class JsonSchemaFromFieldDescriptorsGenerator {
                     .let { if (it == "varies") "empty" else it } // varies is used by spring rest docs if the type is ambiguous - in json schema we want to represent as empty
         }
     }
+}
+
+private fun ArraySchema.Builder.applyConstraints(fieldDescriptor: FieldDescriptor?) = apply {
+    minItems(maybeMinSizeArray(fieldDescriptor))
+    maxItems(maybeMaxSizeArray(fieldDescriptor))
 }
