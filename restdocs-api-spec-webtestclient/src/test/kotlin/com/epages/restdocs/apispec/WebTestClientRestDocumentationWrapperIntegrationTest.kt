@@ -73,6 +73,15 @@ class WebTestClientRestDocumentationWrapperIntegrationTest(@Autowired val webTes
     }
 
     @Test
+    fun should_document_restdocs_and_resource_snippet_details_with_parameter_with_type() {
+        givenEndpointInvoked()
+
+        whenDocumentedWithResourceSnippetDetailsWithParameterWithType()
+
+        thenSnippetFileExists()
+    }
+
+    @Test
     fun should_document_request() {
         givenEndpointInvoked()
 
@@ -260,6 +269,48 @@ class WebTestClientRestDocumentationWrapperIntegrationTest(@Autowired val webTes
                         .tag("some-tag"),
                     requestPreprocessor = operationRequestPreprocessor,
                     snippets = arrayOf(
+                        requestFields(fieldDescriptors().fieldDescriptors),
+                        responseFields(
+                            fieldWithPath("comment").description("the comment"),
+                            fieldWithPath("flag").description("the flag"),
+                            fieldWithPath("count").description("the count"),
+                            fieldWithPath("id").description("id"),
+                            subsectionWithPath("_links").ignored()
+                        ),
+                        links(
+                            linkWithRel("self").description("some"),
+                            linkWithRel("multiple").description("multiple")
+                        )
+                    )
+                )
+            )
+    }
+
+    @Throws(Exception::class)
+    private fun whenDocumentedWithResourceSnippetDetailsWithParameterWithType() {
+        val operationRequestPreprocessor = OperationRequestPreprocessor { r -> r }
+        bodyContentSpec
+            .consumeWith(
+                WebTestClientRestDocumentationWrapper.document(
+                    identifier = operationName,
+                    resourceDetails = ResourceSnippetParametersBuilder()
+                        .description("The Resource")
+                        .privateResource(true)
+                        .tag("some-tag")
+                        .pathParameters(
+                            ParameterDescriptorWithType("someId")
+                                .type(SimpleType.BOOLEAN)
+                                .description("someId"),
+                            ParameterDescriptorWithType("otherId")
+                                .type(SimpleType.NUMBER)
+                                .description("otherId")
+                        ),
+                    requestPreprocessor = operationRequestPreprocessor,
+                    snippets = arrayOf(
+                        pathParameters(
+                            parameterWithName("someId").description("someId"),
+                            parameterWithName("otherId").description("otherId")
+                        ),
                         requestFields(fieldDescriptors().fieldDescriptors),
                         responseFields(
                             fieldWithPath("comment").description("the comment"),
