@@ -177,7 +177,7 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
     }
 
     @Test
-    fun should_generate_schema_for_required_object_in_array() {
+    fun should_generate_schema_for_required_array_in_object() {
         givenFieldDescriptorWithRequiredArray()
 
         whenSchemaGenerated()
@@ -252,7 +252,7 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
 
     @Test
     fun should_generate_schema_for_top_level_array_with_size_constraint() {
-        givenFieldDescriptorWithTopLevelArrayOfAnyWithSizeConstraint()
+        givenFieldDescriptorWithTopLevelArrayWithSizeConstraint()
 
         whenSchemaGenerated()
 
@@ -263,8 +263,8 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
     }
 
     @Test
-    fun should_generate_schema_for_top_level_array_of_any_with_size_constraint() {
-        givenFieldDescriptorWithTopLevelArrayOfArrayOfAnyWithSizeConstraint()
+    fun should_generate_schema_for_top_level_array_of_arrays_with_size_constraint() {
+        givenFieldDescriptorWithTopLevelArrayOfArraysWithSizeConstraint()
 
         whenSchemaGenerated()
 
@@ -276,7 +276,7 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
     }
 
     @Test
-    fun should_generate_schema_for_unspecified_array_contents_with_size_constraint() {
+    fun should_generate_schema_for_array_with_size_constraint() {
         givenFieldDescriptorUnspecifiedArrayItemsWithSizeConstraint()
 
         whenSchemaGenerated()
@@ -318,8 +318,8 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
     private fun givenFieldDescriptorWithRequiredArray() {
         val notNullConstraint = Attributes(listOf(Constraint(NotNull::class.java.name, emptyMap())))
         fieldDescriptors = listOf(
-            FieldDescriptor("obj", "some", "ARRAY", attributes = notNullConstraint),
-            FieldDescriptor("obj[].field", "some", "STRING")
+            FieldDescriptor("array", "someArray", "ARRAY", attributes = notNullConstraint),
+            FieldDescriptor("array[].field", "some", "STRING")
         )
     }
 
@@ -339,7 +339,7 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
         fieldDescriptors = listOf(FieldDescriptor("some[]", "some", "ARRAY"))
     }
 
-    private fun givenFieldDescriptorWithTopLevelArrayOfAnyWithSizeConstraint() {
+    private fun givenFieldDescriptorWithTopLevelArrayWithSizeConstraint() {
         fieldDescriptors = listOf(
             FieldDescriptor(
                 "[]",
@@ -357,7 +357,7 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
         )
     }
 
-    private fun givenFieldDescriptorWithTopLevelArrayOfArrayOfAnyWithSizeConstraint() {
+    private fun givenFieldDescriptorWithTopLevelArrayOfArraysWithSizeConstraint() {
         fieldDescriptors = listOf(
             FieldDescriptor(
                 "[][]",
