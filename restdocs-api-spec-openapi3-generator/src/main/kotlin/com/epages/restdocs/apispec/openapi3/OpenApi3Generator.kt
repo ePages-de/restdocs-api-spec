@@ -1,6 +1,7 @@
 package com.epages.restdocs.apispec.openapi3
 
 import com.epages.restdocs.apispec.jsonschema.JsonSchemaFromFieldDescriptorsGenerator
+import com.epages.restdocs.apispec.model.AbstractParameterDescriptor
 import com.epages.restdocs.apispec.model.FieldDescriptor
 import com.epages.restdocs.apispec.model.HTTPMethod
 import com.epages.restdocs.apispec.model.HeaderDescriptor
@@ -38,6 +39,7 @@ import io.swagger.v3.oas.models.responses.ApiResponse
 import io.swagger.v3.oas.models.responses.ApiResponses
 import io.swagger.v3.oas.models.servers.Server
 import io.swagger.v3.oas.models.tags.Tag
+import java.math.BigDecimal
 
 object OpenApi3Generator {
 
@@ -339,7 +341,7 @@ object OpenApi3Generator {
                 .map {
                     it.name to Header().apply {
                         description(it.description)
-                        schema = simpleTypeToSchema(it.type)
+                        schema = simpleTypeToSchema(it)
                     }
                 }.toMap().nullIfEmpty()
         }
@@ -408,7 +410,7 @@ object OpenApi3Generator {
         return PathParameter().apply {
             name = parameterDescriptor.name
             description = parameterDescriptor.description
-            schema = simpleTypeToSchema(parameterDescriptor.type)
+            schema = simpleTypeToSchema(parameterDescriptor)
         }
     }
 
@@ -425,7 +427,7 @@ object OpenApi3Generator {
             name = parameterDescriptor.name
             description = parameterDescriptor.description
             required = parameterDescriptor.optional.not()
-            schema = simpleTypeToSchema(parameterDescriptor.type)
+            schema = simpleTypeToSchema(parameterDescriptor)
         }
     }
 
@@ -434,19 +436,25 @@ object OpenApi3Generator {
             name = headerDescriptor.name
             description = headerDescriptor.description
             required = headerDescriptor.optional.not()
-            schema = simpleTypeToSchema(headerDescriptor.type)
+            schema = simpleTypeToSchema(headerDescriptor)
             example = headerDescriptor.example
         }
     }
 
-    private fun simpleTypeToSchema(type: String): Schema<*>? {
-        return when (type.toLowerCase()) {
-            SimpleType.BOOLEAN.name.toLowerCase() -> BooleanSchema()
-            SimpleType.STRING.name.toLowerCase() -> StringSchema()
-            SimpleType.NUMBER.name.toLowerCase() -> NumberSchema()
-            SimpleType.INTEGER.name.toLowerCase() -> IntegerSchema()
-            else -> throw IllegalArgumentException("Unknown type '$type'")
+    private fun simpleTypeToSchema(parameterDescriptor: AbstractParameterDescriptor): Schema<*>? {
+        return when (parameterDescriptor.type.toLowerCase()) {
+            SimpleType.BOOLEAN.name.toLowerCase() -> BooleanSchema().apply { this._default(parameterDescriptor.defaultValue?.toBooleanStrict()) }
+            SimpleType.STRING.name.toLowerCase() -> StringSchema().apply { this._default(parameterDescriptor.defaultValue) }
+            SimpleType.NUMBER.name.toLowerCase() -> NumberSchema().apply { this._default(parameterDescriptor.defaultValue?.toBigDecimal()) }
+            SimpleType.INTEGER.name.toLowerCase() -> IntegerSchema().apply { this._default(parameterDescriptor.defaultValue?.toInt()) }
+            else -> throw IllegalArgumentException("Unknown type '${parameterDescriptor.type}'")
         }
+    }
+
+    private fun String.toBooleanStrict(): Boolean = when (this.toLowerCase()) {
+        "true" -> true
+        "false" -> false
+        else -> error("Default value '${this}' must be boolean")
     }
 
     private fun <K, V> Map<K, V>.nullIfEmpty(): Map<K, V>? {

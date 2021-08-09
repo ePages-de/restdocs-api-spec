@@ -126,7 +126,11 @@ class ParameterDescriptorWithType(val name: String) : IgnorableDescriptor<Parame
     var optional: Boolean = false
         private set
 
+    var defaultValue: String? = null
+
     fun type(type: SimpleType) = apply { this.type = type }
+
+    fun defaultValue(defaultValue: String) = apply { this.defaultValue = defaultValue }
 
     fun optional() = apply { optional = true }
 

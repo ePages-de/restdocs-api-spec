@@ -92,6 +92,7 @@ class ResourceSnippetTest {
         then(resourceSnippetJson.read<String>("request.pathParameters[0].name")).isNotEmpty()
         then(resourceSnippetJson.read<String>("request.pathParameters[0].description")).isNotEmpty()
         then(resourceSnippetJson.read<String>("request.pathParameters[0].type")).isNotEmpty()
+        then(resourceSnippetJson.read<String>("request.pathParameters[0].defaultValue")).isNull()
         then(resourceSnippetJson.read<Boolean>("request.pathParameters[0].optional")).isFalse()
         then(resourceSnippetJson.read<Boolean>("request.pathParameters[0].ignored")).isFalse()
 
@@ -218,7 +219,7 @@ class ResourceSnippetTest {
     }
 
     private fun givenRequestParameterDescriptors() {
-        parametersBuilder.requestParameters(parameterWithName("test-param").type(SimpleType.STRING).description("test param"))
+        parametersBuilder.requestParameters(parameterWithName("test-param").type(SimpleType.STRING).defaultValue("default-value").description("test param"))
     }
 
     private fun givenRequestAndResponseHeaderDescriptors() {

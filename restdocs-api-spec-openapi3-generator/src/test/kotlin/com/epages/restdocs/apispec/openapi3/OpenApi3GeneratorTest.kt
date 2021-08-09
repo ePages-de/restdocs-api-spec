@@ -21,6 +21,7 @@ import io.swagger.parser.models.ParseOptions
 import io.swagger.v3.oas.models.servers.Server
 import org.assertj.core.api.BDDAssertions.then
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 class OpenApi3GeneratorTest {
 
@@ -243,6 +244,52 @@ class OpenApi3GeneratorTest {
         whenOpenApiObjectGenerated()
 
         then(openApiJsonPathContext.read<String>("paths./products/{id}.get.operationId")).isEqualTo("firstsecond")
+    }
+
+    @Test
+    fun `should failed when wrong default values`() {
+        givenResourcesWithRequestParameterWithWrongDefaultValue()
+        assertThrows<IllegalStateException> { whenOpenApiObjectGenerated() }
+    }
+
+    @Test
+    fun `should include default values`() {
+        givenResourcesWithRequestParametersWithDefaultValues()
+
+        whenOpenApiObjectGenerated()
+
+        val params = openApiJsonPathContext.read<List<Map<*, *>>>("paths./products/{id}.get.parameters.*")
+
+        then(params).anyMatch { it["name"] == "id" }
+        then(params).anyMatch {
+            it["name"] == "booleanParameter" &&
+                    it["description"] == "a boolean parameter" &&
+                    (it["schema"] as LinkedHashMap<*, *>)["type"] == "boolean" &&
+                    (it["schema"] as LinkedHashMap<*, *>)["default"] == true
+        }
+        then(params).anyMatch {
+            it["name"] == "stringParameter" &&
+                    it["description"] == "a string parameter" &&
+                    (it["schema"] as LinkedHashMap<*, *>)["type"] == "string" &&
+                    (it["schema"] as LinkedHashMap<*, *>)["default"] == "a default value"
+        }
+        then(params).anyMatch {
+            it["name"] == "numberParameter" &&
+                    it["description"] == "a number parameter" &&
+                    (it["schema"] as LinkedHashMap<*, *>)["type"] == "number" &&
+                    (it["schema"] as LinkedHashMap<*, *>)["default"] == 1.0
+        }
+        then(params).anyMatch {
+            it["name"] == "integerParameter" &&
+                    it["description"] == "a integer parameter" &&
+                    (it["schema"] as LinkedHashMap<*, *>)["type"] == "integer" &&
+                    (it["schema"] as LinkedHashMap<*, *>)["format"] == "int32" &&
+                    (it["schema"] as LinkedHashMap<*, *>)["default"] == 2
+        }
+        then(params).anyMatch { it["name"] == "Authorization" }
+        then(params).hasSize(6)
+
+        thenOpenApiSpecIsValid()
     }
 
     fun thenResourceHasValidSchemaGeneratedFromRequestParameters(method: String) {
@@ -598,6 +645,36 @@ class OpenApi3GeneratorTest {
         )
     }
 
+    private fun givenResourcesWithRequestParametersWithDefaultValues() {
+        resources = listOf(
+            ResourceModel(
+                operationId = "test",
+                summary = "summary",
+                description = "description",
+                privateResource = false,
+                deprecated = false,
+                tags = setOf("tag1", "tag2"),
+                request = getProductRequestWithRequestParametersWithDefaultValue(),
+                response = getProductResponse()
+            )
+        )
+    }
+
+    private fun givenResourcesWithRequestParameterWithWrongDefaultValue() {
+        resources = listOf(
+            ResourceModel(
+                operationId = "test",
+                summary = "summary",
+                description = "description",
+                privateResource = false,
+                deprecated = false,
+                tags = setOf("tag1", "tag2"),
+                request = getProductRequestWithRequestParameterWithWrongDefaultValue(),
+                response = getProductResponse()
+            )
+        )
+    }
+
     private fun givenDeleteProductResourceModel() {
         resources = listOf(
             ResourceModel(
@@ -937,6 +1014,60 @@ class OpenApi3GeneratorTest {
                     type = "STRING",
                     optional = true,
                     ignored = false
+                )
+            )
+        )
+    }
+
+    private fun getProductRequestWithRequestParametersWithDefaultValue(): RequestModel {
+        return getProductRequest().copy(
+            requestParameters = listOf(
+                ParameterDescriptor(
+                    name = "booleanParameter",
+                    description = "a boolean parameter",
+                    type = "BOOLEAN",
+                    optional = true,
+                    ignored = false,
+                    defaultValue = "true"
+                ),
+                ParameterDescriptor(
+                    name = "stringParameter",
+                    description = "a string parameter",
+                    type = "STRING",
+                    optional = true,
+                    ignored = false,
+                    defaultValue = "a default value"
+                ),
+                ParameterDescriptor(
+                    name = "numberParameter",
+                    description = "a number parameter",
+                    type = "NUMBER",
+                    optional = true,
+                    ignored = false,
+                    defaultValue = 1F.toBigDecimal().toString()
+                ),
+                ParameterDescriptor(
+                    name = "integerParameter",
+                    description = "a integer parameter",
+                    type = "INTEGER",
+                    optional = true,
+                    ignored = false,
+                    defaultValue = 2.toString()
+                )
+            )
+        )
+    }
+
+    private fun getProductRequestWithRequestParameterWithWrongDefaultValue(): RequestModel {
+        return getProductRequest().copy(
+            requestParameters = listOf(
+                ParameterDescriptor(
+                    name = "booleanParameter",
+                    description = "a boolean parameter",
+                    type = "BOOLEAN",
+                    optional = true,
+                    ignored = false,
+                    defaultValue = "not a boolean value"
                 )
             )
         )
