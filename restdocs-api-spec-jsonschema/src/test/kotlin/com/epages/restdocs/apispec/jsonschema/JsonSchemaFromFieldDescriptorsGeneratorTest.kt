@@ -185,7 +185,7 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
         then(schema).isInstanceOf(ObjectSchema::class.java)
         thenSchemaIsValid()
         val objSchema = schema!!.let { it as ObjectSchema }
-        then(objSchema.requiredProperties).contains("obj")
+        then(objSchema.requiredProperties).contains("array")
     }
 
     @Test
