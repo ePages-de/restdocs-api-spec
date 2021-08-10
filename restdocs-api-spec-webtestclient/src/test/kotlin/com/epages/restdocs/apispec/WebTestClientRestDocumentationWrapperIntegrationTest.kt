@@ -293,35 +293,32 @@ class WebTestClientRestDocumentationWrapperIntegrationTest(@Autowired val webTes
             .consumeWith(
                 WebTestClientRestDocumentationWrapper.document(
                     identifier = operationName,
-                    resourceDetails = ResourceSnippetParametersBuilder()
-                        .description("The Resource")
-                        .privateResource(true)
-                        .tag("some-tag")
-                        .pathParameters(
-                            ParameterDescriptorWithType("someId")
-                                .type(SimpleType.BOOLEAN)
-                                .description("someId"),
-                            ParameterDescriptorWithType("otherId")
-                                .type(SimpleType.NUMBER)
-                                .description("otherId")
-                        ),
                     requestPreprocessor = operationRequestPreprocessor,
                     snippets = arrayOf(
-                        pathParameters(
-                            parameterWithName("someId").description("someId"),
-                            parameterWithName("otherId").description("otherId")
-                        ),
-                        requestFields(fieldDescriptors().fieldDescriptors),
-                        responseFields(
-                            fieldWithPath("comment").description("the comment"),
-                            fieldWithPath("flag").description("the flag"),
-                            fieldWithPath("count").description("the count"),
-                            fieldWithPath("id").description("id"),
-                            subsectionWithPath("_links").ignored()
-                        ),
-                        links(
-                            linkWithRel("self").description("some"),
-                            linkWithRel("multiple").description("multiple")
+                        resource(
+                            ResourceSnippetParametersBuilder()
+                                .description("The Resource")
+                                .privateResource(true)
+                                .tag("some-tag")
+                                .pathParameters(
+                                    ParameterDescriptorWithType("someId")
+                                        .type(SimpleType.BOOLEAN)
+                                        .description("someId"),
+                                    ParameterDescriptorWithType("otherId")
+                                        .type(SimpleType.NUMBER)
+                                        .description("otherId")
+                                )
+                                .requestFields(fieldDescriptors().fieldDescriptors)
+                                .responseFields(
+                                    fieldWithPath("comment").description("the comment"),
+                                    fieldWithPath("flag").description("the flag"),
+                                    fieldWithPath("count").description("the count"),
+                                    fieldWithPath("id").description("id"),
+                                    subsectionWithPath("_links").ignored()
+                                ).links(
+                                    linkWithRel("self").description("some"),
+                                    linkWithRel("multiple").description("multiple")
+                                ).build()
                         )
                     )
                 )
