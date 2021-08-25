@@ -9,8 +9,11 @@ import com.jayway.jsonpath.JsonPath
 import org.assertj.core.api.BDDAssertions.then
 import org.assertj.core.api.BDDAssertions.thenThrownBy
 import org.everit.json.schema.ArraySchema
+import org.everit.json.schema.BooleanSchema
 import org.everit.json.schema.CombinedSchema
+import org.everit.json.schema.CombinedSchema.ONE_CRITERION
 import org.everit.json.schema.EnumSchema
+import org.everit.json.schema.NumberSchema
 import org.everit.json.schema.ObjectSchema
 import org.everit.json.schema.Schema
 import org.everit.json.schema.StringSchema
@@ -80,7 +83,15 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
 
         then(lineItemSchema.allItemSchema).isInstanceOf(ObjectSchema::class.java)
 
-        thenSchemaIsValid()
+        then(objectSchema.propertySchemas["lineItems"]).isInstanceOf(ArraySchema::class.java)
+
+        val paymentLineItem = objectSchema.propertySchemas["paymentLineItem"] as ObjectSchema
+
+        val lineItemsTaxesSchema = paymentLineItem.propertySchemas["lineItemTaxes"] as ArraySchema
+        then(lineItemsTaxesSchema.minItems).isEqualTo(1)
+        then(lineItemsTaxesSchema.maxItems).isEqualTo(255)
+        then(lineItemsTaxesSchema.requiresArray()).isTrue()
+
         // language=JSON
         thenSchemaValidatesJson(
             """{
@@ -130,6 +141,15 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
         whenSchemaGenerated()
 
         then(schema).isInstanceOf(ArraySchema::class.java)
+        then((schema as ArraySchema).allItemSchema).isInstanceOf(CombinedSchema::class.java)
+        val combinedSchema = ((schema as ArraySchema).allItemSchema) as CombinedSchema
+        then(combinedSchema.criterion).isEqualTo(ONE_CRITERION)
+        then(combinedSchema.subschemas).extracting("class").containsExactlyInAnyOrder(
+            ObjectSchema::class.java,
+            BooleanSchema::class.java,
+            StringSchema::class.java,
+            NumberSchema::class.java
+        )
         thenSchemaIsValid()
         thenSchemaValidatesJson("""[{"id": "some"}]""")
     }
@@ -141,6 +161,17 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
         whenSchemaGenerated()
 
         then(schema).isInstanceOf(ArraySchema::class.java)
+        then((schema as ArraySchema).allItemSchema).isInstanceOf(ArraySchema::class.java)
+        val arrayOfArraySchema = ((schema as ArraySchema).allItemSchema) as ArraySchema
+        then(arrayOfArraySchema.allItemSchema).isInstanceOf(CombinedSchema::class.java)
+        val combinedSchema = arrayOfArraySchema.allItemSchema as CombinedSchema
+        then(combinedSchema.criterion).isEqualTo(ONE_CRITERION)
+        then(combinedSchema.subschemas).extracting("class").containsExactlyInAnyOrder(
+            ObjectSchema::class.java,
+            BooleanSchema::class.java,
+            StringSchema::class.java,
+            NumberSchema::class.java
+        )
         thenSchemaIsValid()
         thenSchemaValidatesJson("""[[{"id": "some"}]]""")
     }
@@ -166,6 +197,18 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
         thenSchemaIsValid()
         val objSchema = schema!!.let { it as ObjectSchema }
         then(objSchema.requiredProperties).contains("obj")
+    }
+
+    @Test
+    fun should_generate_schema_for_required_array_in_object() {
+        givenFieldDescriptorWithRequiredArray()
+
+        whenSchemaGenerated()
+
+        then(schema).isInstanceOf(ObjectSchema::class.java)
+        thenSchemaIsValid()
+        val objSchema = schema!!.let { it as ObjectSchema }
+        then(objSchema.requiredProperties).contains("array")
     }
 
     @Test
@@ -257,6 +300,90 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
         thenSchemaValidatesJson("""{ some: "ENUM_VALUE_1" }""")
     }
 
+    @Test
+    fun should_generate_schema_for_top_level_array_with_size_constraint() {
+        givenFieldDescriptorWithTopLevelArrayWithSizeConstraint()
+
+        whenSchemaGenerated()
+
+        then(schema).isInstanceOf(ArraySchema::class.java)
+        then((schema as ArraySchema).minItems).isEqualTo(1)
+        then((schema as ArraySchema).maxItems).isEqualTo(255)
+        thenSchemaIsValid()
+    }
+
+    @Test
+    fun should_generate_schema_for_top_level_array_of_arrays_with_size_constraint() {
+        givenFieldDescriptorWithTopLevelArrayOfArraysWithSizeConstraint()
+
+        whenSchemaGenerated()
+
+        then(schema).isInstanceOf(ArraySchema::class.java)
+        then((schema as ArraySchema).allItemSchema).isInstanceOf(ArraySchema::class.java)
+        then(((schema as ArraySchema).allItemSchema as ArraySchema).minItems).isEqualTo(1)
+        then(((schema as ArraySchema).allItemSchema as ArraySchema).maxItems).isEqualTo(255)
+        thenSchemaIsValid()
+    }
+
+    @Test
+    fun should_generate_schema_for_array_with_size_constraint() {
+        givenFieldDescriptorUnspecifiedArrayItemsWithSizeConstraint()
+
+        whenSchemaGenerated()
+
+        then(schema).isInstanceOf(ObjectSchema::class.java)
+        then((schema as ObjectSchema).definesProperty("some")).isTrue
+        then((schema as ObjectSchema).propertySchemas["some"]).isInstanceOf(ArraySchema::class.java)
+        then(((schema as ObjectSchema).propertySchemas["some"] as ArraySchema).minItems).isEqualTo(1)
+        then(((schema as ObjectSchema).propertySchemas["some"] as ArraySchema).maxItems).isEqualTo(255)
+        thenSchemaIsValid()
+    }
+
+    @Test
+    fun should_specify_accurate_items_type_in_array_when_descriptor_contains_itemsType_in_additionalParameters() {
+        givenFieldDescriptorWithArrayOfSingleType()
+
+        whenSchemaGenerated()
+
+        then(schema).isInstanceOf(ArraySchema::class.java)
+        then((schema as ArraySchema).allItemSchema).isInstanceOf(StringSchema::class.java)
+        thenSchemaIsValid()
+    }
+
+    @Test
+    fun should_specify_accurate_items_type_in_array_of_array_when_descriptor_contains_itemsType_in_additionalParameters() {
+        givenFieldDescriptorWithTopLevelArrayOfArrayOfSingleType()
+
+        whenSchemaGenerated()
+
+        then(schema).isInstanceOf(ArraySchema::class.java)
+        then((schema as ArraySchema).allItemSchema).isInstanceOf(ArraySchema::class.java)
+        val arrayOfArraySchema = (schema as ArraySchema).allItemSchema as ArraySchema
+        then(arrayOfArraySchema.allItemSchema).isInstanceOf(StringSchema::class.java)
+        thenSchemaIsValid()
+    }
+
+    @Test
+    fun should_create_objectSchema_in_arraySchema_when_items_of_array_are_object() {
+        fieldDescriptors = listOf(
+            FieldDescriptor("thisIsAnArray", "I'm an array", "ARRAY"),
+            FieldDescriptor("thisIsAnArray[].numberItem", "I'm a number", "NUMBER"),
+            FieldDescriptor("thisIsAnArray[].objectItem", "I'm an object", "OBJECT")
+        )
+
+        whenSchemaGenerated()
+
+        then(schema).isInstanceOf(ObjectSchema::class.java)
+        then((schema as ObjectSchema).definesProperty("thisIsAnArray")).isTrue
+        then((schema as ObjectSchema).propertySchemas["thisIsAnArray"]).isInstanceOf(ArraySchema::class.java)
+        val objectInArray = ((schema as ObjectSchema).propertySchemas["thisIsAnArray"] as ArraySchema).allItemSchema as ObjectSchema
+        then(objectInArray.definesProperty("numberItem")).isTrue
+        then(objectInArray.propertySchemas["numberItem"]).isInstanceOf(NumberSchema::class.java)
+        then(objectInArray.definesProperty("objectItem")).isTrue
+        then(objectInArray.propertySchemas["objectItem"]).isInstanceOf(ObjectSchema::class.java)
+        thenSchemaIsValid()
+    }
+
     private fun thenSchemaIsValid() {
 
         val report = JsonSchemaFactory.byDefault()
@@ -283,6 +410,14 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
         )
     }
 
+    private fun givenFieldDescriptorWithRequiredArray() {
+        val notNullConstraint = Attributes(listOf(Constraint(NotNull::class.java.name, emptyMap())))
+        fieldDescriptors = listOf(
+            FieldDescriptor("array", "someArray", "ARRAY", attributes = notNullConstraint),
+            FieldDescriptor("array[].field", "some", "STRING")
+        )
+    }
+
     private fun givenFieldDescriptorWithTopLevelArray() {
         fieldDescriptors = listOf(FieldDescriptor("[]['id']", "some", "STRING"))
     }
@@ -291,12 +426,78 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
         fieldDescriptors = listOf(FieldDescriptor("[]", "some", "ARRAY"))
     }
 
+    private fun givenFieldDescriptorWithArrayOfSingleType() {
+        fieldDescriptors = listOf(
+            FieldDescriptor(
+                "[]",
+                "some",
+                "ARRAY",
+                attributes = Attributes(itemsType = "string")
+            )
+        )
+    }
+
     private fun givenFieldDescriptorWithTopLevelArrayOfArrayOfAny() {
         fieldDescriptors = listOf(FieldDescriptor("[][]", "some", "ARRAY"))
     }
 
+    private fun givenFieldDescriptorWithTopLevelArrayOfArrayOfSingleType() {
+        fieldDescriptors = listOf(
+            FieldDescriptor(
+                "[][]",
+                "some",
+                "ARRAY",
+                attributes = Attributes(itemsType = "string")
+            )
+        )
+    }
+
     private fun givenFieldDescriptorUnspecifiedArrayItems() {
         fieldDescriptors = listOf(FieldDescriptor("some[]", "some", "ARRAY"))
+    }
+
+    private fun givenFieldDescriptorWithTopLevelArrayWithSizeConstraint() {
+        fieldDescriptors = listOf(
+            FieldDescriptor(
+                "[]",
+                "some",
+                "ARRAY",
+                attributes = Attributes(
+                    listOf(
+                        Constraint(
+                            "javax.validation.constraints.Size",
+                            mapOf("min" to 1, "max" to 255)
+                        )
+                    )
+                )
+            )
+        )
+    }
+
+    private fun givenFieldDescriptorWithTopLevelArrayOfArraysWithSizeConstraint() {
+        fieldDescriptors = listOf(
+            FieldDescriptor(
+                "[][]",
+                "some",
+                "ARRAY",
+                attributes = Attributes(
+                    listOf(Constraint("javax.validation.constraints.Size", mapOf("min" to 1, "max" to 255)))
+                )
+            )
+        )
+    }
+
+    private fun givenFieldDescriptorUnspecifiedArrayItemsWithSizeConstraint() {
+        fieldDescriptors = listOf(
+            FieldDescriptor(
+                "some[]",
+                "some",
+                "ARRAY",
+                attributes = Attributes(
+                    listOf(Constraint("javax.validation.constraints.Size", mapOf("min" to 1, "max" to 255)))
+                )
+            )
+        )
     }
 
     private fun givenFieldDescriptorWithInvalidType() {
@@ -367,6 +568,7 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
                 "NUMBER",
                 attributes = constraintAttributeWithNotNull
             ),
+
             FieldDescriptor("lineItems[*].quantity.unit", "some", "STRING"),
             FieldDescriptor("shippingAddress", "some", "OBJECT"),
             FieldDescriptor("billingAddress", "some", "OBJECT"),
@@ -382,7 +584,26 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
                 )
             ),
             FieldDescriptor("billingAddress.valid", "some", "BOOLEAN"),
-            FieldDescriptor("paymentLineItem.lineItemTaxes", "some", "ARRAY")
+            FieldDescriptor(
+                "paymentLineItem.lineItemTaxes",
+                "some",
+                "ARRAY",
+                attributes = Attributes(
+                    listOf(
+                        Constraint(
+                            "javax.validation.constraints.Size",
+                            mapOf(
+                                "min" to 1,
+                                "max" to 255
+                            )
+                        ),
+                        Constraint(
+                            NotNull::class.java.name,
+                            emptyMap()
+                        )
+                    )
+                )
+            )
         )
     }
 

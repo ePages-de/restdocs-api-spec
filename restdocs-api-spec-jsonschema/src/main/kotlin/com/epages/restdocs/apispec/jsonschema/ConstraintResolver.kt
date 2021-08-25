@@ -22,6 +22,14 @@ internal object ConstraintResolver {
 
     private const val LENGTH_CONSTRAINT = "org.hibernate.validator.constraints.Length"
 
+    private const val SIZE_CONSTRAINT = "javax.validation.constraints.Size"
+
+    internal fun maybeMinSizeArray(fieldDescriptor: FieldDescriptor?) = fieldDescriptor?.maybeSizeConstraint()?.let { it.configuration["min"] as? Int }
+
+    internal fun maybeMaxSizeArray(fieldDescriptor: FieldDescriptor?) = fieldDescriptor?.maybeSizeConstraint()?.let { it.configuration["max"] as? Int }
+
+    private fun FieldDescriptor.maybeSizeConstraint() = findConstraints(this).firstOrNull { SIZE_CONSTRAINT == it.name }
+
     internal fun minLengthString(fieldDescriptor: FieldDescriptor): Int? {
         return findConstraints(fieldDescriptor)
             .firstOrNull { constraint ->

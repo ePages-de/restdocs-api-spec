@@ -1,7 +1,7 @@
 # Spring REST Docs API specification Integration
 
 ![](https://img.shields.io/github/license/ePages-de/restdocs-openapi.svg)
-[![Build Status](https://travis-ci.org/ePages-de/restdocs-api-spec.svg?branch=master)](https://travis-ci.org/ePages-de/restdocs-api-spec)
+[![Build Status](https://travis-ci.com/ePages-de/restdocs-api-spec.svg?branch=master)](https://travis-ci.com/ePages-de/restdocs-api-spec)
 [![Maven Central](https://img.shields.io/maven-central/v/com.epages/restdocs-api-spec)](https://search.maven.org/artifact/com.epages/restdocs-api-spec)
 [![Coverage Status](https://coveralls.io/repos/github/ePages-de/restdocs-api-spec/badge.svg?branch=master)](https://coveralls.io/github/ePages-de/restdocs-api-spec?branch=master)
 [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/restdocs-api-spec/Lobby)
@@ -88,7 +88,7 @@ The [ResourceSnippet](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apis
     * Using the [plugins DSL](https://docs.gradle.org/current/userguide/plugins.html#sec:plugins_block):
         ```groovy
         plugins {
-            id 'com.epages.restdocs-api-spec' version '0.11.4'
+            id 'com.epages.restdocs-api-spec' version '0.11.5'
         }
         ```
         Examples with Kotlin are also available [here](https://plugins.gradle.org/plugin/com.epages.restdocs-api-spec)
@@ -104,7 +104,7 @@ The [ResourceSnippet](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apis
             }
           }
           dependencies {
-            classpath "com.epages:restdocs-api-spec-gradle-plugin:0.11.4" //1.2
+            classpath "com.epages:restdocs-api-spec-gradle-plugin:0.11.5" //1.2
           }
         }
 
@@ -123,7 +123,7 @@ The [ResourceSnippet](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apis
 
     dependencies {
         //..
-        testCompile('com.epages:restdocs-api-spec-mockmvc:0.11.4') //2.2
+        testCompile('com.epages:restdocs-api-spec-mockmvc:0.11.5') //2.2
     }
 
     openapi { //2.3
@@ -593,7 +593,7 @@ The Gradle plugin is published to the [Gradle plugin portal](https://plugins.gra
 Given that the `master` branch on the upstream repository is in the state from which you want to create a release, execute the following steps:
 
 1. [Create release via the GitHub UI](https://github.com/ePages-de/restdocs-api-spec/releases/new) <br>
-    Use the intended version number as "Tag version", e.g. "0.11.4".
+    Use the intended version number as "Tag version", e.g. "0.11.5".
     This will automatically trigger a Travis build which publishes the JAR files for this release to Sonatype.
 2. Login to Sonatype and navigate to the [staging repositories](https://oss.sonatype.org/#stagingRepositories)
 3. Close the staging repository <br>
