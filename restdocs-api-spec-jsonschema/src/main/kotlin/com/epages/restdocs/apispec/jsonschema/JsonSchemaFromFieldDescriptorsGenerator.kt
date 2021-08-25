@@ -62,8 +62,8 @@ class JsonSchemaFromFieldDescriptorsGenerator {
         if (schema is ObjectSchema) {
             val groups = groupFieldsByFirstRemainingPathSegment(emptyList(), jsonFieldPaths)
             if (groups.keys.size == 1 && groups.keys.contains("[]")) {
-                val descriptor = jsonFieldPaths.find { it.fieldDescriptor.path == "[]" }?.fieldDescriptor
-                return ArraySchema.builder().allItemSchema(schema.propertySchemas["[]"]).applyConstraints(descriptor).title(schema.title).build()
+                return jsonFieldPaths.find { it.fieldDescriptor.path == "[]" }?.fieldDescriptor?.jsonSchemaType()
+                    ?: ArraySchema.builder().allItemSchema(schema.propertySchemas["[]"]).title(schema.title).build()
             }
         }
         return schema
@@ -148,6 +148,7 @@ class JsonSchemaFromFieldDescriptorsGenerator {
             traversedSegments.add(remainingSegments[0])
             builder.addPropertySchema(
                 propertyName,
+
                 ArraySchema.builder()
                     .allItemSchema(traverse(traversedSegments, fields, ObjectSchema.builder()))
                     .applyConstraints(propertyField?.fieldDescriptor)
@@ -167,37 +168,11 @@ class JsonSchemaFromFieldDescriptorsGenerator {
     }
 
     private fun handleEndOfPath(builder: ObjectSchema.Builder, propertyName: String, fieldDescriptor: FieldDescriptorWithSchemaType) {
-
-        if (fieldDescriptor.ignored) {
-            // We don't need to render anything
-        } else {
+        if (!fieldDescriptor.ignored) {
             if (isRequired(fieldDescriptor)) {
                 builder.addRequiredProperty(propertyName)
             }
-            if (propertyName == "[]") {
-                builder.addPropertySchema(
-                    propertyName,
-                    createSchemaWithArrayContent(ObjectSchema.builder().build(), depthOfArrayPath(fieldDescriptor.path), fieldDescriptor)
-                )
-            } else {
-                builder.addPropertySchema(propertyName, fieldDescriptor.jsonSchemaType())
-            }
-        }
-    }
-
-    private fun depthOfArrayPath(path: String): Int {
-        return path.split("]")
-            .filter { it.isNotEmpty() }
-            .size - 1
-    }
-
-    private fun createSchemaWithArrayContent(schema: Schema, level: Int, fieldDescriptor: FieldDescriptorWithSchemaType): Schema {
-        return if (schema is ObjectSchema && level < 1) {
-            schema
-        } else if (level <= 1) {
-            ArraySchema.builder().addItemSchema(schema).applyConstraints(fieldDescriptor).build()
-        } else {
-            createSchemaWithArrayContent(ArraySchema.builder().addItemSchema(schema).applyConstraints(fieldDescriptor).build(), level - 1, fieldDescriptor)
+            builder.addPropertySchema(propertyName, fieldDescriptor.jsonSchemaType())
         }
     }
 
@@ -243,16 +218,7 @@ class JsonSchemaFromFieldDescriptorsGenerator {
                 "null" -> NullSchema.builder()
                 "empty" -> EmptySchema.builder()
                 "object" -> ObjectSchema.builder()
-                "array" -> ArraySchema.builder().applyConstraints(this).allItemSchema(
-                    CombinedSchema.oneOf(
-                        listOf(
-                            ObjectSchema.builder().build(),
-                            BooleanSchema.builder().build(),
-                            StringSchema.builder().build(),
-                            NumberSchema.builder().build()
-                        )
-                    ).build()
-                )
+                "array" -> ArraySchema.builder().applyConstraints(this).allItemSchema(arrayItemsSchema())
                 "boolean" -> BooleanSchema.builder()
                 "number" -> NumberSchema.builder()
                 "string" -> StringSchema.builder()
@@ -266,6 +232,19 @@ class JsonSchemaFromFieldDescriptorsGenerator {
                 ).isSynthetic(true)
                 else -> throw IllegalArgumentException("unknown field type $type")
             }
+
+        private fun arrayItemsSchema(): Schema {
+            return attributes.itemsType
+                ?.let { typeToSchema(it.toLowerCase()).build() }
+                ?: CombinedSchema.oneOf(
+                    listOf(
+                        ObjectSchema.builder().build(),
+                        BooleanSchema.builder().build(),
+                        StringSchema.builder().build(),
+                        NumberSchema.builder().build()
+                    )
+                ).build()
+        }
 
         fun equalsOnPathAndType(f: FieldDescriptorWithSchemaType): Boolean =
             (
