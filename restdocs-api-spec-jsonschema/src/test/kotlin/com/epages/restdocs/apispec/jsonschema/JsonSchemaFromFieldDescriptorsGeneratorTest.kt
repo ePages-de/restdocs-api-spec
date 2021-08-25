@@ -141,6 +141,15 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
         whenSchemaGenerated()
 
         then(schema).isInstanceOf(ArraySchema::class.java)
+        then((schema as ArraySchema).allItemSchema).isInstanceOf(CombinedSchema::class.java)
+        val combinedSchema = ((schema as ArraySchema).allItemSchema) as CombinedSchema
+        then(combinedSchema.criterion).isEqualTo(ONE_CRITERION)
+        then(combinedSchema.subschemas).extracting("class").containsExactlyInAnyOrder(
+            ObjectSchema::class.java,
+            BooleanSchema::class.java,
+            StringSchema::class.java,
+            NumberSchema::class.java
+        )
         thenSchemaIsValid()
         thenSchemaValidatesJson("""[{"id": "some"}]""")
     }
@@ -152,6 +161,17 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
         whenSchemaGenerated()
 
         then(schema).isInstanceOf(ArraySchema::class.java)
+        then((schema as ArraySchema).allItemSchema).isInstanceOf(ArraySchema::class.java)
+        val arrayOfArraySchema = ((schema as ArraySchema).allItemSchema) as ArraySchema
+        then(arrayOfArraySchema.allItemSchema).isInstanceOf(CombinedSchema::class.java)
+        val combinedSchema = arrayOfArraySchema.allItemSchema as CombinedSchema
+        then(combinedSchema.criterion).isEqualTo(ONE_CRITERION)
+        then(combinedSchema.subschemas).extracting("class").containsExactlyInAnyOrder(
+            ObjectSchema::class.java,
+            BooleanSchema::class.java,
+            StringSchema::class.java,
+            NumberSchema::class.java
+        )
         thenSchemaIsValid()
         thenSchemaValidatesJson("""[[{"id": "some"}]]""")
     }
@@ -293,25 +313,6 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
     }
 
     @Test
-    fun should_specify_generic_items_type_in_array_when_descriptor_doesnt_contain_itemsType_in_additionalParameters() {
-        givenFieldDescriptorWithTopLevelArrayOfAny()
-
-        whenSchemaGenerated()
-
-        then(schema).isInstanceOf(ArraySchema::class.java)
-        then((schema as ArraySchema).allItemSchema).isInstanceOf(CombinedSchema::class.java)
-        val combinedSchema = ((schema as ArraySchema).allItemSchema) as CombinedSchema
-        then(combinedSchema.criterion).isEqualTo(ONE_CRITERION)
-        then(combinedSchema.subschemas).extracting("class").containsExactlyInAnyOrder(
-            ObjectSchema::class.java,
-            BooleanSchema::class.java,
-            StringSchema::class.java,
-            NumberSchema::class.java
-        )
-        thenSchemaIsValid()
-    }
-
-    @Test
     fun should_specify_accurate_items_type_in_array_when_descriptor_contains_itemsType_in_additionalParameters() {
         givenFieldDescriptorWithArrayOfSingleType()
 
@@ -319,27 +320,6 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
 
         then(schema).isInstanceOf(ArraySchema::class.java)
         then((schema as ArraySchema).allItemSchema).isInstanceOf(StringSchema::class.java)
-        thenSchemaIsValid()
-    }
-
-    @Test
-    fun should_specify_generic_items_type_in_array_of_array_when_descriptor_doesnt_contain_itemsType_in_additionalParameters() {
-        givenFieldDescriptorWithTopLevelArrayOfArrayOfAny()
-
-        whenSchemaGenerated()
-
-        then(schema).isInstanceOf(ArraySchema::class.java)
-        then((schema as ArraySchema).allItemSchema).isInstanceOf(ArraySchema::class.java)
-        val arrayOfArraySchema = ((schema as ArraySchema).allItemSchema) as ArraySchema
-        then(arrayOfArraySchema.allItemSchema).isInstanceOf(CombinedSchema::class.java)
-        val combinedSchema = arrayOfArraySchema.allItemSchema as CombinedSchema
-        then(combinedSchema.criterion).isEqualTo(ONE_CRITERION)
-        then(combinedSchema.subschemas).extracting("class").containsExactlyInAnyOrder(
-            ObjectSchema::class.java,
-            BooleanSchema::class.java,
-            StringSchema::class.java,
-            NumberSchema::class.java
-        )
         thenSchemaIsValid()
     }
 
@@ -357,12 +337,13 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
     }
 
     @Test
-    fun should_not_erased_array_content() {
+    fun should_create_objectSchema_in_arraySchema_when_items_of_array_are_object() {
         fieldDescriptors = listOf(
             FieldDescriptor("thisIsAnArray", "I'm an array", "ARRAY"),
             FieldDescriptor("thisIsAnArray[].numberItem", "I'm a number", "NUMBER"),
             FieldDescriptor("thisIsAnArray[].objectItem", "I'm an object", "OBJECT")
         )
+
         whenSchemaGenerated()
 
         then(schema).isInstanceOf(ObjectSchema::class.java)
@@ -373,6 +354,7 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
         then(objectInArray.propertySchemas["numberItem"]).isInstanceOf(NumberSchema::class.java)
         then(objectInArray.definesProperty("objectItem")).isTrue
         then(objectInArray.propertySchemas["objectItem"]).isInstanceOf(ObjectSchema::class.java)
+        thenSchemaIsValid()
     }
 
     private fun thenSchemaIsValid() {
