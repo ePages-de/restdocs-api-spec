@@ -443,18 +443,12 @@ object OpenApi3Generator {
 
     private fun simpleTypeToSchema(parameterDescriptor: AbstractParameterDescriptor): Schema<*>? {
         return when (parameterDescriptor.type.toLowerCase()) {
-            SimpleType.BOOLEAN.name.toLowerCase() -> BooleanSchema().apply { this._default(parameterDescriptor.defaultValue?.toBooleanStrict()) }
-            SimpleType.STRING.name.toLowerCase() -> StringSchema().apply { this._default(parameterDescriptor.defaultValue) }
-            SimpleType.NUMBER.name.toLowerCase() -> NumberSchema().apply { this._default(parameterDescriptor.defaultValue?.toBigDecimal()) }
-            SimpleType.INTEGER.name.toLowerCase() -> IntegerSchema().apply { this._default(parameterDescriptor.defaultValue?.toInt()) }
+            SimpleType.BOOLEAN.name.toLowerCase() -> BooleanSchema().apply { this._default(parameterDescriptor.default?.let { it as Boolean }) }
+            SimpleType.STRING.name.toLowerCase() -> StringSchema().apply { this._default(parameterDescriptor.default?.let { it as String }) }
+            SimpleType.NUMBER.name.toLowerCase() -> NumberSchema().apply { this._default(parameterDescriptor.default?.let { it as BigDecimal }) }
+            SimpleType.INTEGER.name.toLowerCase() -> IntegerSchema().apply { this._default(parameterDescriptor.default?.let { it as Int }) }
             else -> throw IllegalArgumentException("Unknown type '${parameterDescriptor.type}'")
         }
-    }
-
-    private fun String.toBooleanStrict(): Boolean = when (this.toLowerCase()) {
-        "true" -> true
-        "false" -> false
-        else -> error("Default value '${this}' must be boolean")
     }
 
     private fun <K, V> Map<K, V>.nullIfEmpty(): Map<K, V>? {

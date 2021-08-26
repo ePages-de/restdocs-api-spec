@@ -62,7 +62,7 @@ interface AbstractParameterDescriptor {
     val name: String
     val description: String
     val type: String
-    val defaultValue: String?
+    val default: Any?
     val optional: Boolean
     val attributes: Attributes
 }
@@ -71,7 +71,7 @@ data class HeaderDescriptor(
     override val name: String,
     override val description: String,
     override val type: String,
-    override val defaultValue: String? = null,
+    override val default: Any? = null,
     override val optional: Boolean,
     val example: String? = null,
     override val attributes: Attributes = Attributes()
@@ -100,7 +100,7 @@ data class ParameterDescriptor(
     override val name: String,
     override val description: String,
     override val type: String,
-    override val defaultValue: String? = null,
+    override val default: Any? = null,
     override val optional: Boolean,
     val ignored: Boolean,
     override val attributes: Attributes = Attributes()

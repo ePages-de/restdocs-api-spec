@@ -247,9 +247,10 @@ class OpenApi3GeneratorTest {
     }
 
     @Test
-    fun `should failed when wrong default values`() {
+    fun `should fail for default value with wrong type`() {
         givenResourcesWithRequestParameterWithWrongDefaultValue()
-        assertThrows<IllegalStateException> { whenOpenApiObjectGenerated() }
+
+        assertThrows<ClassCastException> { whenOpenApiObjectGenerated() }
     }
 
     @Test
@@ -263,28 +264,28 @@ class OpenApi3GeneratorTest {
         then(params).anyMatch { it["name"] == "id" }
         then(params).anyMatch {
             it["name"] == "booleanParameter" &&
-                    it["description"] == "a boolean parameter" &&
-                    (it["schema"] as LinkedHashMap<*, *>)["type"] == "boolean" &&
-                    (it["schema"] as LinkedHashMap<*, *>)["default"] == true
+                it["description"] == "a boolean parameter" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "boolean" &&
+                (it["schema"] as LinkedHashMap<*, *>)["default"] == true
         }
         then(params).anyMatch {
             it["name"] == "stringParameter" &&
-                    it["description"] == "a string parameter" &&
-                    (it["schema"] as LinkedHashMap<*, *>)["type"] == "string" &&
-                    (it["schema"] as LinkedHashMap<*, *>)["default"] == "a default value"
+                it["description"] == "a string parameter" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "string" &&
+                (it["schema"] as LinkedHashMap<*, *>)["default"] == "a default value"
         }
         then(params).anyMatch {
             it["name"] == "numberParameter" &&
-                    it["description"] == "a number parameter" &&
-                    (it["schema"] as LinkedHashMap<*, *>)["type"] == "number" &&
-                    (it["schema"] as LinkedHashMap<*, *>)["default"] == 1.0
+                it["description"] == "a number parameter" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "number" &&
+                (it["schema"] as LinkedHashMap<*, *>)["default"] == 1
         }
         then(params).anyMatch {
             it["name"] == "integerParameter" &&
-                    it["description"] == "a integer parameter" &&
-                    (it["schema"] as LinkedHashMap<*, *>)["type"] == "integer" &&
-                    (it["schema"] as LinkedHashMap<*, *>)["format"] == "int32" &&
-                    (it["schema"] as LinkedHashMap<*, *>)["default"] == 2
+                it["description"] == "a integer parameter" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "integer" &&
+                (it["schema"] as LinkedHashMap<*, *>)["format"] == "int32" &&
+                (it["schema"] as LinkedHashMap<*, *>)["default"] == 2
         }
         then(params).anyMatch { it["name"] == "Authorization" }
         then(params).hasSize(6)
@@ -322,13 +323,16 @@ class OpenApi3GeneratorTest {
         then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'id')].in")).containsOnly("path")
         then(openApiJsonPathContext.read<List<Boolean>>("$productGetByIdPath.parameters[?(@.name == 'id')].required")).containsOnly(true)
         then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'id')].schema.type")).containsOnly("integer")
+        then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'id')].schema.default")).isEmpty()
         then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'locale')].in")).containsOnly("query")
         then(openApiJsonPathContext.read<List<Boolean>>("$productGetByIdPath.parameters[?(@.name == 'locale')].required")).containsOnly(false)
         then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'locale')].schema.type")).containsOnly("string")
+        then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'locale')].schema.default")).isEmpty()
         then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'Authorization')].in")).containsOnly("header")
         then(openApiJsonPathContext.read<List<Boolean>>("$productGetByIdPath.parameters[?(@.name == 'Authorization')].required")).containsOnly(true)
         then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'Authorization')].example")).containsOnly("some example")
         then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'Authorization')].schema.type")).containsOnly("string")
+        then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'Authorization')].schema.default")).isEmpty()
 
         then(openApiJsonPathContext.read<String>("$productGetByIdPath.requestBody")).isNull()
 
@@ -1028,7 +1032,7 @@ class OpenApi3GeneratorTest {
                     type = "BOOLEAN",
                     optional = true,
                     ignored = false,
-                    defaultValue = "true"
+                    default = true
                 ),
                 ParameterDescriptor(
                     name = "stringParameter",
@@ -1036,7 +1040,7 @@ class OpenApi3GeneratorTest {
                     type = "STRING",
                     optional = true,
                     ignored = false,
-                    defaultValue = "a default value"
+                    default = "a default value"
                 ),
                 ParameterDescriptor(
                     name = "numberParameter",
@@ -1044,7 +1048,7 @@ class OpenApi3GeneratorTest {
                     type = "NUMBER",
                     optional = true,
                     ignored = false,
-                    defaultValue = 1F.toBigDecimal().toString()
+                    default = 1.toBigDecimal()
                 ),
                 ParameterDescriptor(
                     name = "integerParameter",
@@ -1052,7 +1056,7 @@ class OpenApi3GeneratorTest {
                     type = "INTEGER",
                     optional = true,
                     ignored = false,
-                    defaultValue = 2.toString()
+                    default = 2
                 )
             )
         )
@@ -1067,7 +1071,7 @@ class OpenApi3GeneratorTest {
                     type = "BOOLEAN",
                     optional = true,
                     ignored = false,
-                    defaultValue = "not a boolean value"
+                    default = "not a boolean value"
                 )
             )
         )
