@@ -417,6 +417,7 @@ object OpenApi20Generator {
             name = parameterDescriptor.name
             description = parameterDescriptor.description
             type = parameterDescriptor.type.toLowerCase()
+            default = parameterDescriptor.default
         }
     }
 
@@ -434,6 +435,7 @@ object OpenApi20Generator {
             description = parameterDescriptor.description
             required = parameterDescriptor.optional.not()
             type = parameterDescriptor.type.toLowerCase()
+            default = parameterDescriptor.default
         }
     }
 
@@ -443,6 +445,7 @@ object OpenApi20Generator {
             description = parameterDescriptor.description
             required = parameterDescriptor.optional.not()
             type = parameterDescriptor.type.toLowerCase()
+            default = parameterDescriptor.default
         }
     }
 
@@ -452,6 +455,7 @@ object OpenApi20Generator {
             description = headerDescriptor.description
             required = headerDescriptor.optional.not()
             type = headerDescriptor.type.toLowerCase()
+            default = headerDescriptor.default
         }
     }
 

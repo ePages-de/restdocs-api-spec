@@ -21,6 +21,7 @@ import io.swagger.parser.models.ParseOptions
 import io.swagger.v3.oas.models.servers.Server
 import org.assertj.core.api.BDDAssertions.then
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 class OpenApi3GeneratorTest {
 
@@ -245,6 +246,53 @@ class OpenApi3GeneratorTest {
         then(openApiJsonPathContext.read<String>("paths./products/{id}.get.operationId")).isEqualTo("firstsecond")
     }
 
+    @Test
+    fun `should fail for default value with wrong type`() {
+        givenResourcesWithRequestParameterWithWrongDefaultValue()
+
+        assertThrows<ClassCastException> { whenOpenApiObjectGenerated() }
+    }
+
+    @Test
+    fun `should include default values`() {
+        givenResourcesWithRequestParametersWithDefaultValues()
+
+        whenOpenApiObjectGenerated()
+
+        val params = openApiJsonPathContext.read<List<Map<*, *>>>("paths./products/{id}.get.parameters.*")
+
+        then(params).anyMatch { it["name"] == "id" }
+        then(params).anyMatch {
+            it["name"] == "booleanParameter" &&
+                it["description"] == "a boolean parameter" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "boolean" &&
+                (it["schema"] as LinkedHashMap<*, *>)["default"] == true
+        }
+        then(params).anyMatch {
+            it["name"] == "stringParameter" &&
+                it["description"] == "a string parameter" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "string" &&
+                (it["schema"] as LinkedHashMap<*, *>)["default"] == "a default value"
+        }
+        then(params).anyMatch {
+            it["name"] == "numberParameter" &&
+                it["description"] == "a number parameter" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "number" &&
+                (it["schema"] as LinkedHashMap<*, *>)["default"] == 1
+        }
+        then(params).anyMatch {
+            it["name"] == "integerParameter" &&
+                it["description"] == "a integer parameter" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "integer" &&
+                (it["schema"] as LinkedHashMap<*, *>)["format"] == "int32" &&
+                (it["schema"] as LinkedHashMap<*, *>)["default"] == 2
+        }
+        then(params).anyMatch { it["name"] == "Authorization" }
+        then(params).hasSize(6)
+
+        thenOpenApiSpecIsValid()
+    }
+
     fun thenResourceHasValidSchemaGeneratedFromRequestParameters(method: String) {
         val productGetByIdPath = "paths./products/{id}.$method"
         val getResponseSchemaRef = openApiJsonPathContext.read<String>("$productGetByIdPath.requestBody.content.application/x-www-form-urlencoded.schema.\$ref")
@@ -275,13 +323,16 @@ class OpenApi3GeneratorTest {
         then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'id')].in")).containsOnly("path")
         then(openApiJsonPathContext.read<List<Boolean>>("$productGetByIdPath.parameters[?(@.name == 'id')].required")).containsOnly(true)
         then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'id')].schema.type")).containsOnly("integer")
+        then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'id')].schema.default")).isEmpty()
         then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'locale')].in")).containsOnly("query")
         then(openApiJsonPathContext.read<List<Boolean>>("$productGetByIdPath.parameters[?(@.name == 'locale')].required")).containsOnly(false)
         then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'locale')].schema.type")).containsOnly("string")
+        then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'locale')].schema.default")).isEmpty()
         then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'Authorization')].in")).containsOnly("header")
         then(openApiJsonPathContext.read<List<Boolean>>("$productGetByIdPath.parameters[?(@.name == 'Authorization')].required")).containsOnly(true)
         then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'Authorization')].example")).containsOnly("some example")
         then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'Authorization')].schema.type")).containsOnly("string")
+        then(openApiJsonPathContext.read<List<String>>("$productGetByIdPath.parameters[?(@.name == 'Authorization')].schema.default")).isEmpty()
 
         then(openApiJsonPathContext.read<String>("$productGetByIdPath.requestBody")).isNull()
 
@@ -593,6 +644,36 @@ class OpenApi3GeneratorTest {
                 deprecated = false,
                 tags = setOf("tag1", "tag2"),
                 request = getProductRequestWithMultiplePathParameters(),
+                response = getProductResponse()
+            )
+        )
+    }
+
+    private fun givenResourcesWithRequestParametersWithDefaultValues() {
+        resources = listOf(
+            ResourceModel(
+                operationId = "test",
+                summary = "summary",
+                description = "description",
+                privateResource = false,
+                deprecated = false,
+                tags = setOf("tag1", "tag2"),
+                request = getProductRequestWithRequestParametersWithDefaultValue(),
+                response = getProductResponse()
+            )
+        )
+    }
+
+    private fun givenResourcesWithRequestParameterWithWrongDefaultValue() {
+        resources = listOf(
+            ResourceModel(
+                operationId = "test",
+                summary = "summary",
+                description = "description",
+                privateResource = false,
+                deprecated = false,
+                tags = setOf("tag1", "tag2"),
+                request = getProductRequestWithRequestParameterWithWrongDefaultValue(),
                 response = getProductResponse()
             )
         )
@@ -937,6 +1018,60 @@ class OpenApi3GeneratorTest {
                     type = "STRING",
                     optional = true,
                     ignored = false
+                )
+            )
+        )
+    }
+
+    private fun getProductRequestWithRequestParametersWithDefaultValue(): RequestModel {
+        return getProductRequest().copy(
+            requestParameters = listOf(
+                ParameterDescriptor(
+                    name = "booleanParameter",
+                    description = "a boolean parameter",
+                    type = "BOOLEAN",
+                    optional = true,
+                    ignored = false,
+                    default = true
+                ),
+                ParameterDescriptor(
+                    name = "stringParameter",
+                    description = "a string parameter",
+                    type = "STRING",
+                    optional = true,
+                    ignored = false,
+                    default = "a default value"
+                ),
+                ParameterDescriptor(
+                    name = "numberParameter",
+                    description = "a number parameter",
+                    type = "NUMBER",
+                    optional = true,
+                    ignored = false,
+                    default = 1.toBigDecimal()
+                ),
+                ParameterDescriptor(
+                    name = "integerParameter",
+                    description = "a integer parameter",
+                    type = "INTEGER",
+                    optional = true,
+                    ignored = false,
+                    default = 2
+                )
+            )
+        )
+    }
+
+    private fun getProductRequestWithRequestParameterWithWrongDefaultValue(): RequestModel {
+        return getProductRequest().copy(
+            requestParameters = listOf(
+                ParameterDescriptor(
+                    name = "booleanParameter",
+                    description = "a boolean parameter",
+                    type = "BOOLEAN",
+                    optional = true,
+                    ignored = false,
+                    default = "not a boolean value"
                 )
             )
         )

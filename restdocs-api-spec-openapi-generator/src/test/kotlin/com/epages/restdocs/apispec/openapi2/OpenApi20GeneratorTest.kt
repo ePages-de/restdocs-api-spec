@@ -22,8 +22,8 @@ import io.swagger.models.Response
 import io.swagger.models.Swagger
 import io.swagger.models.auth.BasicAuthDefinition
 import io.swagger.models.auth.OAuth2Definition
+import io.swagger.models.parameters.AbstractSerializableParameter
 import io.swagger.models.parameters.BodyParameter
-import io.swagger.models.parameters.Parameter
 import io.swagger.models.parameters.PathParameter
 import io.swagger.models.properties.StringProperty
 import io.swagger.parser.Swagger20Parser
@@ -252,6 +252,16 @@ class OpenApi20GeneratorTest {
         thenValidateOpenApi(openapi)
     }
 
+    @Test
+    fun `should include default values`() {
+        val api = givenResourcesWithRequestParametersWithDefaultValues()
+
+        val openapi = whenOpenApiObjectGenerated(api)
+
+        thenGetProductWith200ResponseIsGeneratedWithDefaultValue(openapi, api)
+        thenValidateOpenApi(openapi)
+    }
+
     private fun whenExtractOrFindSchema(schemaNameAndSchemaMap: MutableMap<Model, String>, ordersSchema: Model, shopsSchema: Model) {
         OpenApi20Generator.extractOrFindSchema(schemaNameAndSchemaMap, ordersSchema, OpenApi20Generator.generateSchemaName("/orders"))
         OpenApi20Generator.extractOrFindSchema(schemaNameAndSchemaMap, shopsSchema, OpenApi20Generator.generateSchemaName("/shops"))
@@ -356,7 +366,13 @@ class OpenApi20GeneratorTest {
             successfulGetResponse
                 .examples.get(successfulGetProductModel.response.contentType)
         ).isEqualTo(successfulGetProductModel.response.example)
-        thenParametersForGetMatch(productPath.get.parameters, successfulGetProductModel.request)
+        thenParametersForGetMatch(productPath.get.parameters as List<AbstractSerializableParameter<*>>, successfulGetProductModel.request)
+    }
+
+    private fun thenGetProductWith200ResponseIsGeneratedWithDefaultValue(openapi: Swagger, api: List<ResourceModel>) {
+        val successfulGetProductModel = api[0]
+        val productPath = openapi.paths.getValue(successfulGetProductModel.request.path)
+        thenParametersForGetMatchWithDefaultValue(productPath.get.parameters as List<AbstractSerializableParameter<*>>, successfulGetProductModel.request)
     }
 
     private fun thenPostProductWith200ResponseIsGenerated(openapi: Swagger, api: List<ResourceModel>) {
@@ -371,7 +387,7 @@ class OpenApi20GeneratorTest {
             successfulPostResponse!!
                 .examples.get(successfulPostProductModel.response.contentType)
         ).isEqualTo(successfulPostProductModel.response.example)
-        thenParametersForPostMatch(productPath.post.parameters, successfulPostProductModel.request)
+        thenParametersForPostMatch(productPath.post.parameters as List<AbstractSerializableParameter<*>>, successfulPostProductModel.request)
 
         thenRequestAndResponseSchemataAreReferenced(productPath, successfulPostResponse, openapi.definitions)
     }
@@ -392,14 +408,14 @@ class OpenApi20GeneratorTest {
         val productResourceModel = api[0]
         val productPath = openapi.paths.getValue(productResourceModel.request.path)
 
-        thenParameterMatches(productPath.post.parameters, "formData", productResourceModel.request.requestParameters[0])
+        thenParameterMatches(productPath.post.parameters as List<AbstractSerializableParameter<*>>, "formData", productResourceModel.request.requestParameters[0])
     }
 
     private fun thenPutRequestShouldHaveFormDataParameters(openapi: Swagger, api: List<ResourceModel>) {
         val productResourceModel = api[0]
         val productPath = openapi.paths.getValue(productResourceModel.request.path)
 
-        thenParameterMatches(productPath.put.parameters, "formData", productResourceModel.request.requestParameters[0])
+        thenParameterMatches(productPath.put.parameters as List<AbstractSerializableParameter<*>>, "formData", productResourceModel.request.requestParameters[0])
     }
 
     private fun thenGetProductWith400ResponseIsGenerated(openapi: Swagger, api: List<ResourceModel>) {
@@ -410,26 +426,36 @@ class OpenApi20GeneratorTest {
             productPath.get.responses.get(badGetProductModel.response.status.toString())!!
                 .examples.get(badGetProductModel.response.contentType)
         ).isEqualTo(badGetProductModel.response.example)
-        thenParametersForGetMatch(productPath.get.parameters, badGetProductModel.request)
+        thenParametersForGetMatch(productPath.get.parameters as List<AbstractSerializableParameter<*>>, badGetProductModel.request)
     }
 
-    private fun thenParametersForGetMatch(parameters: List<Parameter>, request: RequestModel) {
+    private fun thenParametersForGetMatch(parameters: List<AbstractSerializableParameter<*>>, request: RequestModel) {
         thenParameterMatches(parameters, "path", request.pathParameters[0])
         thenParameterMatches(parameters, "query", request.requestParameters[0])
         thenParameterMatches(parameters, "header", request.headers[0])
     }
 
-    private fun thenParametersForPostMatch(parameters: List<Parameter>, request: RequestModel) {
+    private fun thenParametersForGetMatchWithDefaultValue(parameters: List<AbstractSerializableParameter<*>>, request: RequestModel) {
+        thenParameterMatches(parameters, "path", request.pathParameters[0])
+        thenParameterMatches(parameters, "query", request.requestParameters[0])
+        thenParameterMatches(parameters, "query", request.requestParameters[1])
+        thenParameterMatches(parameters, "query", request.requestParameters[2])
+        thenParameterMatches(parameters, "query", request.requestParameters[3])
         thenParameterMatches(parameters, "header", request.headers[0])
     }
 
-    private fun thenParameterMatches(parameters: List<Parameter>, type: String, parameterDescriptor: AbstractParameterDescriptor) {
+    private fun thenParametersForPostMatch(parameters: List<AbstractSerializableParameter<*>>, request: RequestModel) {
+        thenParameterMatches(parameters, "header", request.headers[0])
+    }
+
+    private fun thenParameterMatches(parameters: List<AbstractSerializableParameter<*>>, type: String, parameterDescriptor: AbstractParameterDescriptor) {
         val parameter = findParameterByTypeAndName(parameters, type, parameterDescriptor.name)
         then(parameter).isNotNull
         then(parameter!!.description).isEqualTo(parameterDescriptor.description)
+        then(parameter!!.default).isEqualTo(parameterDescriptor.default)
     }
 
-    private fun findParameterByTypeAndName(parameters: List<Parameter>, type: String, name: String): Parameter? {
+    private fun findParameterByTypeAndName(parameters: List<AbstractSerializableParameter<*>>, type: String, name: String): AbstractSerializableParameter<*>? {
         return parameters.firstOrNull { it.`in` == type && it.name == name }
     }
 
@@ -513,6 +539,21 @@ class OpenApi20GeneratorTest {
                 privateResource = false,
                 deprecated = false,
                 request = getProductRequestWithMultiplePathParameters(),
+                response = getProduct200Response(getProductPayloadExample())
+            )
+        )
+    }
+
+    private fun givenResourcesWithRequestParametersWithDefaultValues(): List<ResourceModel> {
+        return listOf(
+            ResourceModel(
+                operationId = "test",
+                summary = "summary",
+                description = "description",
+                privateResource = false,
+                deprecated = false,
+                tags = setOf("tag1", "tag2"),
+                request = getProductRequestWithRequestParametersWithDefaultValue(),
                 response = getProduct200Response(getProductPayloadExample())
             )
         )
@@ -885,6 +926,45 @@ class OpenApi20GeneratorTest {
             pathParameters = listOf(),
             requestParameters = listOf(),
             requestFields = listOf()
+        )
+    }
+
+    private fun getProductRequestWithRequestParametersWithDefaultValue(): RequestModel {
+        return getProductRequest().copy(
+            requestParameters = listOf(
+                ParameterDescriptor(
+                    name = "booleanParameter",
+                    description = "a boolean parameter",
+                    type = "BOOLEAN",
+                    optional = true,
+                    ignored = false,
+                    default = true
+                ),
+                ParameterDescriptor(
+                    name = "stringParameter",
+                    description = "a string parameter",
+                    type = "STRING",
+                    optional = true,
+                    ignored = false,
+                    default = "a default value"
+                ),
+                ParameterDescriptor(
+                    name = "numberParameter",
+                    description = "a number parameter",
+                    type = "NUMBER",
+                    optional = true,
+                    ignored = false,
+                    default = 1.0
+                ),
+                ParameterDescriptor(
+                    name = "integerParameter",
+                    description = "a integer parameter",
+                    type = "INTEGER",
+                    optional = true,
+                    ignored = false,
+                    default = 2L
+                )
+            )
         )
     }
 
