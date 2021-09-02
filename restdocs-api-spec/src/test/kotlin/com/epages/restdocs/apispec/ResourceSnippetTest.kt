@@ -85,6 +85,7 @@ class ResourceSnippetTest {
         then(resourceSnippetJson.read<String>("request.headers[0].name")).isNotEmpty()
         then(resourceSnippetJson.read<String>("request.headers[0].description")).isNotEmpty()
         then(resourceSnippetJson.read<String>("request.headers[0].type")).isNotEmpty()
+        then(resourceSnippetJson.read<String>("request.headers[0].default")).isNotEmpty()
         then(resourceSnippetJson.read<Boolean>("request.headers[0].optional")).isFalse()
         then(resourceSnippetJson.read<String>("request.headers[0].example")).isNotEmpty()
 
@@ -118,6 +119,7 @@ class ResourceSnippetTest {
         then(resourceSnippetJson.read<String>("response.headers[0].name")).isNotEmpty()
         then(resourceSnippetJson.read<String>("response.headers[0].description")).isNotEmpty()
         then(resourceSnippetJson.read<String>("response.headers[0].type")).isNotEmpty()
+        then(resourceSnippetJson.read<String>("response.headers[0].default")).isNull()
         then(resourceSnippetJson.read<Boolean>("response.headers[0].optional")).isFalse()
         then(resourceSnippetJson.read<String>("response.headers[0].example")).isNotEmpty()
     }
@@ -224,7 +226,7 @@ class ResourceSnippetTest {
     }
 
     private fun givenRequestAndResponseHeaderDescriptors() {
-        val headerDescriptor = ResourceDocumentation.headerWithName("X-SOME").description("some")
+        val headerDescriptor = ResourceDocumentation.headerWithName("X-SOME").type(SimpleType.STRING).default("default-value").description("some")
         parametersBuilder.requestHeaders(headerDescriptor)
         parametersBuilder.responseHeaders(HeaderDocumentation.headerWithName("X-SOME").description("some"))
     }

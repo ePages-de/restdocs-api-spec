@@ -254,7 +254,7 @@ class OpenApi20GeneratorTest {
 
     @Test
     fun `should include default values`() {
-        val api = givenResourcesWithRequestParametersWithDefaultValues()
+        val api = givenResourcesWithDefaultValues()
 
         val openapi = whenOpenApiObjectGenerated(api)
 
@@ -442,6 +442,7 @@ class OpenApi20GeneratorTest {
         thenParameterMatches(parameters, "query", request.requestParameters[2])
         thenParameterMatches(parameters, "query", request.requestParameters[3])
         thenParameterMatches(parameters, "header", request.headers[0])
+        thenParameterMatches(parameters, "header", request.headers[1])
     }
 
     private fun thenParametersForPostMatch(parameters: List<AbstractSerializableParameter<*>>, request: RequestModel) {
@@ -544,7 +545,7 @@ class OpenApi20GeneratorTest {
         )
     }
 
-    private fun givenResourcesWithRequestParametersWithDefaultValues(): List<ResourceModel> {
+    private fun givenResourcesWithDefaultValues(): List<ResourceModel> {
         return listOf(
             ResourceModel(
                 operationId = "test",
@@ -553,7 +554,7 @@ class OpenApi20GeneratorTest {
                 privateResource = false,
                 deprecated = false,
                 tags = setOf("tag1", "tag2"),
-                request = getProductRequestWithRequestParametersWithDefaultValue(),
+                request = getProductRequestWithDefaultValue(),
                 response = getProduct200Response(getProductPayloadExample())
             )
         )
@@ -929,8 +930,24 @@ class OpenApi20GeneratorTest {
         )
     }
 
-    private fun getProductRequestWithRequestParametersWithDefaultValue(): RequestModel {
+    private fun getProductRequestWithDefaultValue(): RequestModel {
         return getProductRequest().copy(
+            headers = listOf(
+                HeaderDescriptor(
+                    name = "X-SOME-STRING",
+                    description = "a header string parameter",
+                    type = "STRING",
+                    optional = true,
+                    default = "a default header value"
+                ),
+                HeaderDescriptor(
+                    name = "X-SOME-BOOLEAN",
+                    description = "a header boolean parameter",
+                    type = "BOOLEAN",
+                    optional = true,
+                    default = true
+                )
+            ),
             requestParameters = listOf(
                 ParameterDescriptor(
                     name = "booleanParameter",
