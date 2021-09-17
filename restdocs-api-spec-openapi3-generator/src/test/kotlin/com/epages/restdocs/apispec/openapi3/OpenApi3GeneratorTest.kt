@@ -247,15 +247,22 @@ class OpenApi3GeneratorTest {
     }
 
     @Test
-    fun `should fail for default value with wrong type`() {
+    fun `should fail for default value request parameter with wrong type`() {
         givenResourcesWithRequestParameterWithWrongDefaultValue()
 
         assertThrows<ClassCastException> { whenOpenApiObjectGenerated() }
     }
 
     @Test
+    fun `should fail for default value header parameter with wrong type`() {
+        givenResourcesWithHeaderParameterWithWrongDefaultValue()
+
+        assertThrows<ClassCastException> { whenOpenApiObjectGenerated() }
+    }
+
+    @Test
     fun `should include default values`() {
-        givenResourcesWithRequestParametersWithDefaultValues()
+        givenResourcesWithDefaultValues()
 
         whenOpenApiObjectGenerated()
 
@@ -287,8 +294,32 @@ class OpenApi3GeneratorTest {
                 (it["schema"] as LinkedHashMap<*, *>)["format"] == "int32" &&
                 (it["schema"] as LinkedHashMap<*, *>)["default"] == 2
         }
-        then(params).anyMatch { it["name"] == "Authorization" }
-        then(params).hasSize(6)
+        then(params).anyMatch {
+            it["name"] == "X-SOME-BOOLEAN" &&
+                it["description"] == "a header boolean parameter" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "boolean" &&
+                (it["schema"] as LinkedHashMap<*, *>)["default"] == true
+        }
+        then(params).anyMatch {
+            it["name"] == "X-SOME-STRING" &&
+                it["description"] == "a header string parameter" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "string" &&
+                (it["schema"] as LinkedHashMap<*, *>)["default"] == "a default header value"
+        }
+        then(params).anyMatch {
+            it["name"] == "X-SOME-NUMBER" &&
+                it["description"] == "a header number parameter" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "number" &&
+                (it["schema"] as LinkedHashMap<*, *>)["default"] == 1
+        }
+        then(params).anyMatch {
+            it["name"] == "X-SOME-INTEGER" &&
+                it["description"] == "a header integer parameter" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "integer" &&
+                (it["schema"] as LinkedHashMap<*, *>)["format"] == "int32" &&
+                (it["schema"] as LinkedHashMap<*, *>)["default"] == 2
+        }
+        then(params).hasSize(9)
 
         thenOpenApiSpecIsValid()
     }
@@ -649,7 +680,7 @@ class OpenApi3GeneratorTest {
         )
     }
 
-    private fun givenResourcesWithRequestParametersWithDefaultValues() {
+    private fun givenResourcesWithDefaultValues() {
         resources = listOf(
             ResourceModel(
                 operationId = "test",
@@ -658,7 +689,7 @@ class OpenApi3GeneratorTest {
                 privateResource = false,
                 deprecated = false,
                 tags = setOf("tag1", "tag2"),
-                request = getProductRequestWithRequestParametersWithDefaultValue(),
+                request = getProductRequestWithDefaultValue(),
                 response = getProductResponse()
             )
         )
@@ -674,6 +705,21 @@ class OpenApi3GeneratorTest {
                 deprecated = false,
                 tags = setOf("tag1", "tag2"),
                 request = getProductRequestWithRequestParameterWithWrongDefaultValue(),
+                response = getProductResponse()
+            )
+        )
+    }
+
+    private fun givenResourcesWithHeaderParameterWithWrongDefaultValue() {
+        resources = listOf(
+            ResourceModel(
+                operationId = "test",
+                summary = "summary",
+                description = "description",
+                privateResource = false,
+                deprecated = false,
+                tags = setOf("tag1", "tag2"),
+                request = getProductRequestWithHeaderParameterWithWrongDefaultValue(),
                 response = getProductResponse()
             )
         )
@@ -1023,8 +1069,38 @@ class OpenApi3GeneratorTest {
         )
     }
 
-    private fun getProductRequestWithRequestParametersWithDefaultValue(): RequestModel {
+    private fun getProductRequestWithDefaultValue(): RequestModel {
         return getProductRequest().copy(
+            headers = listOf(
+                HeaderDescriptor(
+                    name = "X-SOME-BOOLEAN",
+                    description = "a header boolean parameter",
+                    type = "BOOLEAN",
+                    optional = true,
+                    default = true
+                ),
+                HeaderDescriptor(
+                    name = "X-SOME-STRING",
+                    description = "a header string parameter",
+                    type = "STRING",
+                    optional = true,
+                    default = "a default header value"
+                ),
+                HeaderDescriptor(
+                    name = "X-SOME-NUMBER",
+                    description = "a header number parameter",
+                    type = "NUMBER",
+                    optional = true,
+                    default = 1.toBigDecimal()
+                ),
+                HeaderDescriptor(
+                    name = "X-SOME-INTEGER",
+                    description = "a header integer parameter",
+                    type = "INTEGER",
+                    optional = true,
+                    default = 2
+                )
+            ),
             requestParameters = listOf(
                 ParameterDescriptor(
                     name = "booleanParameter",
@@ -1071,6 +1147,20 @@ class OpenApi3GeneratorTest {
                     type = "BOOLEAN",
                     optional = true,
                     ignored = false,
+                    default = "not a boolean value"
+                )
+            )
+        )
+    }
+
+    private fun getProductRequestWithHeaderParameterWithWrongDefaultValue(): RequestModel {
+        return getProductRequest().copy(
+            headers = listOf(
+                HeaderDescriptor(
+                    name = "X-SOME-BOOLEAN",
+                    description = "a header boolean parameter",
+                    type = "BOOLEAN",
+                    optional = true,
                     default = "not a boolean value"
                 )
             )

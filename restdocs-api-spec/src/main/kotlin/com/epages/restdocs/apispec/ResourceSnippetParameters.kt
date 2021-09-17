@@ -98,9 +98,13 @@ class HeaderDescriptorWithType(val name: String) : AbstractDescriptor<HeaderDesc
     var optional: Boolean = false
         private set
 
+    var default: Any? = null
+
     var example: String? = null
 
     fun type(type: SimpleType) = apply { this.type = type }
+
+    fun default(default: Any) = apply { this.default = default }
 
     fun optional() = apply { optional = true }
 
