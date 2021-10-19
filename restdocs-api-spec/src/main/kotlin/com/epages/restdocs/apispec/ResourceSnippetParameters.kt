@@ -137,7 +137,7 @@ class ParameterDescriptorWithType(val name: String) : IgnorableDescriptor<Parame
 
     fun type(type: SimpleType) = apply { this.type = type }
 
-    fun defaultValue(_default: Any) = apply { this._default = _default }
+    fun defaultValue(defaultValue: Any) = apply { this._default = defaultValue }
 
     fun optional() = apply { optional = true }
 
