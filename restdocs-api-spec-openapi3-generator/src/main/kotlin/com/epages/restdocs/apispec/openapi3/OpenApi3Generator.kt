@@ -443,10 +443,10 @@ object OpenApi3Generator {
 
     private fun simpleTypeToSchema(parameterDescriptor: AbstractParameterDescriptor): Schema<*>? {
         return when (parameterDescriptor.type.toLowerCase()) {
-            SimpleType.BOOLEAN.name.toLowerCase() -> BooleanSchema().apply { this._default(parameterDescriptor._default?.let { it as Boolean }) }
-            SimpleType.STRING.name.toLowerCase() -> StringSchema().apply { this._default(parameterDescriptor._default?.let { it as String }) }
-            SimpleType.NUMBER.name.toLowerCase() -> NumberSchema().apply { this._default(parameterDescriptor._default?.let { it as BigDecimal }) }
-            SimpleType.INTEGER.name.toLowerCase() -> IntegerSchema().apply { this._default(parameterDescriptor._default?.let { it as Int }) }
+            SimpleType.BOOLEAN.name.toLowerCase() -> BooleanSchema().apply { this._default(parameterDescriptor.defaultValue?.let { it as Boolean }) }
+            SimpleType.STRING.name.toLowerCase() -> StringSchema().apply { this._default(parameterDescriptor.defaultValue?.let { it as String }) }
+            SimpleType.NUMBER.name.toLowerCase() -> NumberSchema().apply { this._default(parameterDescriptor.defaultValue?.let { it as BigDecimal }) }
+            SimpleType.INTEGER.name.toLowerCase() -> IntegerSchema().apply { this._default(parameterDescriptor.defaultValue?.let { it as Int }) }
             else -> throw IllegalArgumentException("Unknown type '${parameterDescriptor.type}'")
         }
     }
