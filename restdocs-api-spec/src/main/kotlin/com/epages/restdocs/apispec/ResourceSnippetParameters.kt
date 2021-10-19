@@ -133,11 +133,11 @@ class ParameterDescriptorWithType(val name: String) : IgnorableDescriptor<Parame
         private set
 
     @JsonProperty("default")
-    var _default: Any? = null
+    var defaultValue: Any? = null
 
     fun type(type: SimpleType) = apply { this.type = type }
 
-    fun defaultValue(defaultValue: Any) = apply { this._default = defaultValue }
+    fun defaultValue(defaultValue: Any) = apply { this.defaultValue = defaultValue }
 
     fun optional() = apply { optional = true }
 
