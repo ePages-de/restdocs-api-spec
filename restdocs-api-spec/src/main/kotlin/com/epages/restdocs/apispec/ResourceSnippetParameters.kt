@@ -100,13 +100,13 @@ class HeaderDescriptorWithType(val name: String) : AbstractDescriptor<HeaderDesc
         private set
 
     @JsonProperty("default")
-    var _default: Any? = null
+    var defaultValue: Any? = null
 
     var example: String? = null
 
     fun type(type: SimpleType) = apply { this.type = type }
 
-    fun defaultValue(_default: Any) = apply { this._default = _default }
+    fun defaultValue(defaultValue: Any) = apply { this.defaultValue = defaultValue }
 
     fun optional() = apply { optional = true }
 
