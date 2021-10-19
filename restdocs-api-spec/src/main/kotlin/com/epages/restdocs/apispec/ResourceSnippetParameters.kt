@@ -1,6 +1,7 @@
 package com.epages.restdocs.apispec
 
 import com.epages.restdocs.apispec.SimpleType.STRING
+import com.fasterxml.jackson.annotation.JsonProperty
 import org.springframework.restdocs.headers.HeaderDescriptor
 import org.springframework.restdocs.hypermedia.LinkDescriptor
 import org.springframework.restdocs.payload.FieldDescriptor
@@ -98,13 +99,14 @@ class HeaderDescriptorWithType(val name: String) : AbstractDescriptor<HeaderDesc
     var optional: Boolean = false
         private set
 
-    var default: Any? = null
+    @JsonProperty("default")
+    var _default: Any? = null
 
     var example: String? = null
 
     fun type(type: SimpleType) = apply { this.type = type }
 
-    fun default(default: Any) = apply { this.default = default }
+    fun defaultValue(_default: Any) = apply { this._default = _default }
 
     fun optional() = apply { optional = true }
 
@@ -130,11 +132,12 @@ class ParameterDescriptorWithType(val name: String) : IgnorableDescriptor<Parame
     var optional: Boolean = false
         private set
 
-    var default: Any? = null
+    @JsonProperty("default")
+    var _default: Any? = null
 
     fun type(type: SimpleType) = apply { this.type = type }
 
-    fun default(default: Any) = apply { this.default = default }
+    fun defaultValue(_default: Any) = apply { this._default = _default }
 
     fun optional() = apply { optional = true }
 
