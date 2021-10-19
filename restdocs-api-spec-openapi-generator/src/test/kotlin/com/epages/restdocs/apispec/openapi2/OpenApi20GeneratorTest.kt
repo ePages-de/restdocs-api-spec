@@ -453,7 +453,7 @@ class OpenApi20GeneratorTest {
         val parameter = findParameterByTypeAndName(parameters, type, parameterDescriptor.name)
         then(parameter).isNotNull
         then(parameter!!.description).isEqualTo(parameterDescriptor.description)
-        then(parameter!!.default).isEqualTo(parameterDescriptor.default)
+        then(parameter!!.default).isEqualTo(parameterDescriptor._default)
     }
 
     private fun findParameterByTypeAndName(parameters: List<AbstractSerializableParameter<*>>, type: String, name: String): AbstractSerializableParameter<*>? {
@@ -938,14 +938,14 @@ class OpenApi20GeneratorTest {
                     description = "a header string parameter",
                     type = "STRING",
                     optional = true,
-                    default = "a default header value"
+                    _default = "a default header value"
                 ),
                 HeaderDescriptor(
                     name = "X-SOME-BOOLEAN",
                     description = "a header boolean parameter",
                     type = "BOOLEAN",
                     optional = true,
-                    default = true
+                    _default = true
                 )
             ),
             requestParameters = listOf(
@@ -955,7 +955,7 @@ class OpenApi20GeneratorTest {
                     type = "BOOLEAN",
                     optional = true,
                     ignored = false,
-                    default = true
+                    _default = true
                 ),
                 ParameterDescriptor(
                     name = "stringParameter",
@@ -963,7 +963,7 @@ class OpenApi20GeneratorTest {
                     type = "STRING",
                     optional = true,
                     ignored = false,
-                    default = "a default value"
+                    _default = "a default value"
                 ),
                 ParameterDescriptor(
                     name = "numberParameter",
@@ -971,7 +971,7 @@ class OpenApi20GeneratorTest {
                     type = "NUMBER",
                     optional = true,
                     ignored = false,
-                    default = 1.0
+                    _default = 1.0
                 ),
                 ParameterDescriptor(
                     name = "integerParameter",
@@ -979,7 +979,7 @@ class OpenApi20GeneratorTest {
                     type = "INTEGER",
                     optional = true,
                     ignored = false,
-                    default = 2L
+                    _default = 2L
                 )
             )
         )

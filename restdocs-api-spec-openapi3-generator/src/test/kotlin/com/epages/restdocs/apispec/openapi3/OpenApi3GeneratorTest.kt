@@ -1077,28 +1077,28 @@ class OpenApi3GeneratorTest {
                     description = "a header boolean parameter",
                     type = "BOOLEAN",
                     optional = true,
-                    default = true
+                    _default = true
                 ),
                 HeaderDescriptor(
                     name = "X-SOME-STRING",
                     description = "a header string parameter",
                     type = "STRING",
                     optional = true,
-                    default = "a default header value"
+                    _default = "a default header value"
                 ),
                 HeaderDescriptor(
                     name = "X-SOME-NUMBER",
                     description = "a header number parameter",
                     type = "NUMBER",
                     optional = true,
-                    default = 1.toBigDecimal()
+                    _default = 1.toBigDecimal()
                 ),
                 HeaderDescriptor(
                     name = "X-SOME-INTEGER",
                     description = "a header integer parameter",
                     type = "INTEGER",
                     optional = true,
-                    default = 2
+                    _default = 2
                 )
             ),
             requestParameters = listOf(
@@ -1108,7 +1108,7 @@ class OpenApi3GeneratorTest {
                     type = "BOOLEAN",
                     optional = true,
                     ignored = false,
-                    default = true
+                    _default = true
                 ),
                 ParameterDescriptor(
                     name = "stringParameter",
@@ -1116,7 +1116,7 @@ class OpenApi3GeneratorTest {
                     type = "STRING",
                     optional = true,
                     ignored = false,
-                    default = "a default value"
+                    _default = "a default value"
                 ),
                 ParameterDescriptor(
                     name = "numberParameter",
@@ -1124,7 +1124,7 @@ class OpenApi3GeneratorTest {
                     type = "NUMBER",
                     optional = true,
                     ignored = false,
-                    default = 1.toBigDecimal()
+                    _default = 1.toBigDecimal()
                 ),
                 ParameterDescriptor(
                     name = "integerParameter",
@@ -1132,7 +1132,7 @@ class OpenApi3GeneratorTest {
                     type = "INTEGER",
                     optional = true,
                     ignored = false,
-                    default = 2
+                    _default = 2
                 )
             )
         )
@@ -1147,7 +1147,7 @@ class OpenApi3GeneratorTest {
                     type = "BOOLEAN",
                     optional = true,
                     ignored = false,
-                    default = "not a boolean value"
+                    _default = "not a boolean value"
                 )
             )
         )
@@ -1161,7 +1161,7 @@ class OpenApi3GeneratorTest {
                     description = "a header boolean parameter",
                     type = "BOOLEAN",
                     optional = true,
-                    default = "not a boolean value"
+                    _default = "not a boolean value"
                 )
             )
         )
