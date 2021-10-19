@@ -337,12 +337,8 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
     }
 
     @Test
-    fun should_create_objectSchema_in_arraySchema_when_items_of_array_are_object() {
-        fieldDescriptors = listOf(
-            FieldDescriptor("thisIsAnArray", "I'm an array", "ARRAY"),
-            FieldDescriptor("thisIsAnArray[].numberItem", "I'm a number", "NUMBER"),
-            FieldDescriptor("thisIsAnArray[].objectItem", "I'm an object", "OBJECT")
-        )
+    fun should_create_objectOfArraySchema_in_objectOfArraySchema() {
+        givenFieldDescriptorWithTopLevelObjectOfArrayOfObject()
 
         whenSchemaGenerated()
 
@@ -350,6 +346,62 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
         then((schema as ObjectSchema).definesProperty("thisIsAnArray")).isTrue
         then((schema as ObjectSchema).propertySchemas["thisIsAnArray"]).isInstanceOf(ArraySchema::class.java)
         val objectInArray = ((schema as ObjectSchema).propertySchemas["thisIsAnArray"] as ArraySchema).allItemSchema as ObjectSchema
+        then(objectInArray.definesProperty("numberItem")).isTrue
+        then(objectInArray.propertySchemas["numberItem"]).isInstanceOf(NumberSchema::class.java)
+        then(objectInArray.definesProperty("objectItem")).isTrue
+        then(objectInArray.propertySchemas["objectItem"]).isInstanceOf(ObjectSchema::class.java)
+        thenSchemaIsValid()
+    }
+
+    @Test
+    fun should_create_objectOfArraySchema_in_arraySchema() {
+        givenFieldDescriptorWithTopLevelArrayOfObject()
+
+        whenSchemaGenerated()
+
+        then(schema).isInstanceOf(ArraySchema::class.java)
+        then(schema?.description).isEqualTo("I'm an array")
+        val objectInArray = (schema as ArraySchema).allItemSchema as ObjectSchema
+        then(objectInArray.definesProperty("numberItem")).isTrue
+        then(objectInArray.propertySchemas["numberItem"]).isInstanceOf(NumberSchema::class.java)
+        then(objectInArray.definesProperty("objectItem")).isTrue
+        then(objectInArray.propertySchemas["objectItem"]).isInstanceOf(ObjectSchema::class.java)
+        thenSchemaIsValid()
+    }
+
+    @Test
+    fun should_create_nested_objectOfArraySchema_in_objectOfArraySchema() {
+        givenFieldDescriptorWithTopLevelArrayOfObjectAndNestedArrayOfObject()
+
+        whenSchemaGenerated()
+
+        then(schema).isInstanceOf(ArraySchema::class.java)
+        then(schema?.description).isEqualTo("I'm an array")
+        val objectInArray = (schema as ArraySchema).allItemSchema as ObjectSchema
+        then(objectInArray.definesProperty("stringItem")).isTrue
+        then(objectInArray.propertySchemas["stringItem"]).isInstanceOf(StringSchema::class.java)
+        then(objectInArray.definesProperty("thisIsAnArray")).isTrue
+        then(objectInArray.propertySchemas["thisIsAnArray"]).isInstanceOf(ArraySchema::class.java)
+        then(objectInArray.propertySchemas["thisIsAnArray"]?.description).isEqualTo("I'm another array")
+        val objectInNestedArray = (objectInArray.propertySchemas["thisIsAnArray"] as ArraySchema).allItemSchema as ObjectSchema
+        then(objectInNestedArray.definesProperty("numberItem")).isTrue
+        then(objectInNestedArray.propertySchemas["numberItem"]).isInstanceOf(NumberSchema::class.java)
+        then(objectInNestedArray.definesProperty("objectItem")).isTrue
+        then(objectInNestedArray.propertySchemas["objectItem"]).isInstanceOf(ObjectSchema::class.java)
+        thenSchemaIsValid()
+    }
+
+    @Test
+    fun should_create_nested_objectOfArraySchema_in_arraySchema() {
+        givenFieldDescriptorWithTopLevelArrayAndNestedArrayOfObject()
+
+        whenSchemaGenerated()
+
+        then(schema).isInstanceOf(ArraySchema::class.java)
+        val arrayInArray = (schema as ArraySchema).allItemSchema
+        then(arrayInArray).isInstanceOf(ArraySchema::class.java)
+        then(arrayInArray?.description).isEqualTo("I'm an array")
+        val objectInArray = (arrayInArray as ArraySchema).allItemSchema as ObjectSchema
         then(objectInArray.definesProperty("numberItem")).isTrue
         then(objectInArray.propertySchemas["numberItem"]).isInstanceOf(NumberSchema::class.java)
         then(objectInArray.definesProperty("objectItem")).isTrue
@@ -422,6 +474,40 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
                 "ARRAY",
                 attributes = Attributes(itemsType = "string")
             )
+        )
+    }
+
+    private fun givenFieldDescriptorWithTopLevelObjectOfArrayOfObject() {
+        fieldDescriptors = listOf(
+            FieldDescriptor("thisIsAnArray", "I'm an array", "ARRAY"),
+            FieldDescriptor("thisIsAnArray[].numberItem", "I'm a number", "NUMBER"),
+            FieldDescriptor("thisIsAnArray[].objectItem", "I'm an object", "OBJECT")
+        )
+    }
+
+    private fun givenFieldDescriptorWithTopLevelArrayOfObject() {
+        fieldDescriptors = listOf(
+            FieldDescriptor("[]", "I'm an array", "ARRAY"),
+            FieldDescriptor("[].numberItem", "I'm a number", "NUMBER"),
+            FieldDescriptor("[].objectItem", "I'm an object", "OBJECT")
+        )
+    }
+
+    private fun givenFieldDescriptorWithTopLevelArrayOfObjectAndNestedArrayOfObject() {
+        fieldDescriptors = listOf(
+            FieldDescriptor("[]", "I'm an array", "ARRAY"),
+            FieldDescriptor("[].thisIsAnArray", "I'm another array", "ARRAY"),
+            FieldDescriptor("[].thisIsAnArray[].numberItem", "I'm a number", "NUMBER"),
+            FieldDescriptor("[].thisIsAnArray[].objectItem", "I'm an object", "OBJECT"),
+            FieldDescriptor("[].stringItem", "I'm a string", "STRING"),
+        )
+    }
+
+    private fun givenFieldDescriptorWithTopLevelArrayAndNestedArrayOfObject() {
+        fieldDescriptors = listOf(
+            FieldDescriptor("[][]", "I'm an array", "ARRAY"),
+            FieldDescriptor("[][].numberItem", "I'm a number", "NUMBER"),
+            FieldDescriptor("[][].objectItem", "I'm an object", "OBJECT"),
         )
     }
 

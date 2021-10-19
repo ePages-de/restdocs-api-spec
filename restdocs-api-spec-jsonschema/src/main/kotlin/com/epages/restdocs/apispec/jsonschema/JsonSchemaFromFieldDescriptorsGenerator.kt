@@ -62,8 +62,16 @@ class JsonSchemaFromFieldDescriptorsGenerator {
         if (schema is ObjectSchema) {
             val groups = groupFieldsByFirstRemainingPathSegment(emptyList(), jsonFieldPaths)
             if (groups.keys.size == 1 && groups.keys.contains("[]")) {
-                return jsonFieldPaths.find { it.fieldDescriptor.path == "[]" }?.fieldDescriptor?.jsonSchemaType()
-                    ?: ArraySchema.builder().allItemSchema(schema.propertySchemas["[]"]).title(schema.title).build()
+                // In case of root array without additional fields, return the propertySchemas as it has already been properly defined in [typeToSchema]
+                // In other cases wrap it in ArraySchema
+                val rootDescriptor = jsonFieldPaths.find { it.fieldDescriptor.path == "[]" }
+                return takeIf {
+                    rootDescriptor?.remainingSegments(emptyList())?.size == 1 && jsonFieldPaths.size == 1
+                }?.let { schema.propertySchemas["[]"] }
+                    ?: ArraySchema.builder().allItemSchema(schema.propertySchemas["[]"])
+                        .applyConstraints(rootDescriptor?.fieldDescriptor)
+                        .description(rootDescriptor?.fieldDescriptor?.description)
+                        .title(schema.title).build()
             }
         }
         return schema
@@ -167,7 +175,11 @@ class JsonSchemaFromFieldDescriptorsGenerator {
         }
     }
 
-    private fun handleEndOfPath(builder: ObjectSchema.Builder, propertyName: String, fieldDescriptor: FieldDescriptorWithSchemaType) {
+    private fun handleEndOfPath(
+        builder: ObjectSchema.Builder,
+        propertyName: String,
+        fieldDescriptor: FieldDescriptorWithSchemaType
+    ) {
         if (!fieldDescriptor.ignored) {
             if (isRequired(fieldDescriptor)) {
                 builder.addRequiredProperty(propertyName)
