@@ -222,11 +222,11 @@ class ResourceSnippetTest {
     }
 
     private fun givenRequestParameterDescriptors() {
-        parametersBuilder.requestParameters(parameterWithName("test-param").type(SimpleType.STRING).default("default-value").description("test param"))
+        parametersBuilder.requestParameters(parameterWithName("test-param").type(SimpleType.STRING).defaultValue("default-value").description("test param"))
     }
 
     private fun givenRequestAndResponseHeaderDescriptors() {
-        val headerDescriptor = ResourceDocumentation.headerWithName("X-SOME").type(SimpleType.STRING).default("default-value").description("some")
+        val headerDescriptor = ResourceDocumentation.headerWithName("X-SOME").type(SimpleType.STRING).defaultValue("default-value").description("some")
         parametersBuilder.requestHeaders(headerDescriptor)
         parametersBuilder.responseHeaders(HeaderDocumentation.headerWithName("X-SOME").description("some"))
     }
