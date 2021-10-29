@@ -337,8 +337,8 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
     }
 
     @Test
-    fun should_create_objectOfArraySchema_in_objectOfArraySchema() {
-        givenFieldDescriptorWithTopLevelObjectOfArrayOfObject()
+    fun should_create_objectSchema_in_arraySchema_when_items_of_array_are_object() {
+        givenFieldDescriptorWithTopLevelObjectWithArrayFieldOfObjects()
 
         whenSchemaGenerated()
 
@@ -354,24 +354,8 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
     }
 
     @Test
-    fun should_create_objectOfArraySchema_in_arraySchema() {
-        givenFieldDescriptorWithTopLevelArrayOfObject()
-
-        whenSchemaGenerated()
-
-        then(schema).isInstanceOf(ArraySchema::class.java)
-        then(schema?.description).isEqualTo("I'm an array")
-        val objectInArray = (schema as ArraySchema).allItemSchema as ObjectSchema
-        then(objectInArray.definesProperty("numberItem")).isTrue
-        then(objectInArray.propertySchemas["numberItem"]).isInstanceOf(NumberSchema::class.java)
-        then(objectInArray.definesProperty("objectItem")).isTrue
-        then(objectInArray.propertySchemas["objectItem"]).isInstanceOf(ObjectSchema::class.java)
-        thenSchemaIsValid()
-    }
-
-    @Test
     fun should_create_nested_objectOfArraySchema_in_objectOfArraySchema() {
-        givenFieldDescriptorWithTopLevelArrayOfObjectAndNestedArrayOfObject()
+        givenFieldDescriptorWithTopLevelArrayOfObjectsWithArrayFieldOfObjects()
 
         whenSchemaGenerated()
 
@@ -393,7 +377,7 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
 
     @Test
     fun should_create_nested_objectOfArraySchema_in_arraySchema() {
-        givenFieldDescriptorWithTopLevelArrayAndNestedArrayOfObject()
+        givenFieldDescriptorWithTopLevelAndNestedArrayOfObjects()
 
         whenSchemaGenerated()
 
@@ -477,7 +461,7 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
         )
     }
 
-    private fun givenFieldDescriptorWithTopLevelObjectOfArrayOfObject() {
+    private fun givenFieldDescriptorWithTopLevelObjectWithArrayFieldOfObjects() {
         fieldDescriptors = listOf(
             FieldDescriptor("thisIsAnArray", "I'm an array", "ARRAY"),
             FieldDescriptor("thisIsAnArray[].numberItem", "I'm a number", "NUMBER"),
@@ -485,15 +469,7 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
         )
     }
 
-    private fun givenFieldDescriptorWithTopLevelArrayOfObject() {
-        fieldDescriptors = listOf(
-            FieldDescriptor("[]", "I'm an array", "ARRAY"),
-            FieldDescriptor("[].numberItem", "I'm a number", "NUMBER"),
-            FieldDescriptor("[].objectItem", "I'm an object", "OBJECT")
-        )
-    }
-
-    private fun givenFieldDescriptorWithTopLevelArrayOfObjectAndNestedArrayOfObject() {
+    private fun givenFieldDescriptorWithTopLevelArrayOfObjectsWithArrayFieldOfObjects() {
         fieldDescriptors = listOf(
             FieldDescriptor("[]", "I'm an array", "ARRAY"),
             FieldDescriptor("[].thisIsAnArray", "I'm another array", "ARRAY"),
@@ -503,7 +479,7 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
         )
     }
 
-    private fun givenFieldDescriptorWithTopLevelArrayAndNestedArrayOfObject() {
+    private fun givenFieldDescriptorWithTopLevelAndNestedArrayOfObjects() {
         fieldDescriptors = listOf(
             FieldDescriptor("[][]", "I'm an array", "ARRAY"),
             FieldDescriptor("[][].numberItem", "I'm a number", "NUMBER"),
