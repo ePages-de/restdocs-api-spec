@@ -4,6 +4,7 @@ import com.epages.restdocs.apispec.jsonschema.ConstraintResolver.isRequired
 import com.epages.restdocs.apispec.jsonschema.ConstraintResolver.maxLengthString
 import com.epages.restdocs.apispec.jsonschema.ConstraintResolver.maybeMaxSizeArray
 import com.epages.restdocs.apispec.jsonschema.ConstraintResolver.maybeMinSizeArray
+import com.epages.restdocs.apispec.jsonschema.ConstraintResolver.maybePattern
 import com.epages.restdocs.apispec.jsonschema.ConstraintResolver.minLengthString
 import com.epages.restdocs.apispec.model.Attributes
 import com.epages.restdocs.apispec.model.FieldDescriptor
@@ -233,9 +234,7 @@ class JsonSchemaFromFieldDescriptorsGenerator {
                 "array" -> ArraySchema.builder().applyConstraints(this).allItemSchema(arrayItemsSchema())
                 "boolean" -> BooleanSchema.builder()
                 "number" -> NumberSchema.builder()
-                "string" -> StringSchema.builder()
-                    .minLength(minLengthString(this))
-                    .maxLength(maxLengthString(this))
+                "string" -> StringSchema.builder().applyConstraints(this)
                 "enum" -> CombinedSchema.oneOf(
                     listOf(
                         StringSchema.builder().build(),
@@ -280,6 +279,12 @@ class JsonSchemaFromFieldDescriptorsGenerator {
                     .let { if (it == "varies") "empty" else it } // varies is used by spring rest docs if the type is ambiguous - in json schema we want to represent as empty
         }
     }
+}
+
+private fun StringSchema.Builder.applyConstraints(fieldDescriptor: FieldDescriptor) = apply {
+    minLength(minLengthString(fieldDescriptor))
+    maxLength(maxLengthString(fieldDescriptor))
+    maybePattern(fieldDescriptor)?.let { pattern(it) }
 }
 
 private fun ArraySchema.Builder.applyConstraints(fieldDescriptor: FieldDescriptor?) = apply {

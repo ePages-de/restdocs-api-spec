@@ -24,11 +24,17 @@ internal object ConstraintResolver {
 
     private const val SIZE_CONSTRAINT = "javax.validation.constraints.Size"
 
+    private const val PATTERN_CONSTRAINT = "javax.validation.constraints.Pattern"
+
     internal fun maybeMinSizeArray(fieldDescriptor: FieldDescriptor?) = fieldDescriptor?.maybeSizeConstraint()?.let { it.configuration["min"] as? Int }
 
     internal fun maybeMaxSizeArray(fieldDescriptor: FieldDescriptor?) = fieldDescriptor?.maybeSizeConstraint()?.let { it.configuration["max"] as? Int }
 
     private fun FieldDescriptor.maybeSizeConstraint() = findConstraints(this).firstOrNull { SIZE_CONSTRAINT == it.name }
+
+    internal fun maybePattern(fieldDescriptor: FieldDescriptor?) = fieldDescriptor?.maybePatternConstraint()?.let { it.configuration["pattern"] as? String }
+
+    private fun FieldDescriptor.maybePatternConstraint() = findConstraints(this).firstOrNull { PATTERN_CONSTRAINT == it.name }
 
     internal fun minLengthString(fieldDescriptor: FieldDescriptor): Int? {
         return findConstraints(fieldDescriptor)
