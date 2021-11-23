@@ -24,6 +24,7 @@ import org.json.JSONObject
 import org.junit.jupiter.api.Test
 import java.io.IOException
 import java.util.Collections.emptyMap
+import java.util.regex.Pattern
 import javax.validation.constraints.NotNull
 
 class JsonSchemaFromFieldDescriptorsGeneratorTest {
@@ -48,6 +49,12 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
         then(objectSchema!!.definesProperty("id")).isTrue()
         then(objectSchema.propertySchemas["id"]).isInstanceOf(StringSchema::class.java)
         then(objectSchema.requiredProperties).contains("id")
+
+        then(objectSchema.definesProperty("pattern")).isTrue
+        then(objectSchema.propertySchemas["pattern"]).isInstanceOf(StringSchema::class.java)
+        val patternSchema = objectSchema.propertySchemas["pattern"] as StringSchema
+        then(patternSchema.pattern.pattern()).isEqualTo("[a-z]")
+
 
         then(objectSchema.definesProperty("shippingAddress")).isTrue()
         val shippingAddressSchema = objectSchema.propertySchemas["shippingAddress"]!!
@@ -116,7 +123,8 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
                             "value": 1
                         }
                     ]
-                }
+                },
+                "pattern": "a"
             }
             """.trimIndent()
         )
@@ -578,6 +586,15 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
                 )
             )
 
+        val patternConstraint =
+            Attributes(
+                listOf(
+                    Constraint(
+                        "javax.validation.constraints.Pattern",
+                        mapOf("pattern" to "[a-z]")
+                    )
+                )
+            )
         fieldDescriptors = listOf(
             FieldDescriptor(
                 "id",
@@ -638,6 +655,12 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
                         )
                     )
                 )
+            ),
+            FieldDescriptor(
+                "pattern",
+                "some",
+                "STRING",
+                attributes = patternConstraint
             )
         )
     }
