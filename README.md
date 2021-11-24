@@ -88,7 +88,7 @@ The [ResourceSnippet](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apis
     * Using the [plugins DSL](https://docs.gradle.org/current/userguide/plugins.html#sec:plugins_block):
         ```groovy
         plugins {
-            id 'com.epages.restdocs-api-spec' version '0.14.1'
+            id 'com.epages.restdocs-api-spec' version '0.15.1'
         }
         ```
         Examples with Kotlin are also available [here](https://plugins.gradle.org/plugin/com.epages.restdocs-api-spec)
@@ -104,7 +104,7 @@ The [ResourceSnippet](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apis
             }
           }
           dependencies {
-            classpath "com.epages:restdocs-api-spec-gradle-plugin:0.14.1" //1.2
+            classpath "com.epages:restdocs-api-spec-gradle-plugin:0.15.1" //1.2
           }
         }
 
@@ -123,7 +123,7 @@ The [ResourceSnippet](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apis
 
     dependencies {
         //..
-        testCompile('com.epages:restdocs-api-spec-mockmvc:0.14.1') //2.2
+        testCompile('com.epages:restdocs-api-spec-mockmvc:0.15.1') //2.2
     }
 
     openapi { //2.3
@@ -252,6 +252,7 @@ Currently the following constraints are considered when generating JsonSchema fr
 - `NotNull`, `NotEmpty`, and `NotBlank` annotated fields become required fields in the JsonSchema
 - for String fields annotated with `NotEmpty`, and `NotBlank` the `minLength` constraint in JsonSchema is set to 1
 - for String fields annotated with `Length` the `minLength` and `maxLength` constraints in JsonSchema are set to the value of the corresponding attribute of the annotation
+- for String fields annotated with `Pattern`, the pattern constraint is propagated to JsonSchema
 
 If you already have your own `ConstraintFields` implementation you can also add the logic from `com.epages.restdocs.apispec.ConstrainedFields` to your own class.
 Here it is important to add the constraints under the key `validationConstraints` into the attributes map if the `FieldDescriptor`.
@@ -593,7 +594,7 @@ The Gradle plugin is published to the [Gradle plugin portal](https://plugins.gra
 Given that the `master` branch on the upstream repository is in the state from which you want to create a release, execute the following steps:
 
 1. [Create release via the GitHub UI](https://github.com/ePages-de/restdocs-api-spec/releases/new) <br>
-    Use the intended version number as "Tag version", e.g. "0.14.1".
+    Use the intended version number as "Tag version", e.g. "0.15.1".
     This will automatically trigger a Travis build which publishes the JAR files for this release to Sonatype.
 2. Login to Sonatype and navigate to the [staging repositories](https://oss.sonatype.org/#stagingRepositories)
 3. Close the staging repository <br>
