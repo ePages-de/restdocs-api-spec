@@ -24,7 +24,6 @@ import org.json.JSONObject
 import org.junit.jupiter.api.Test
 import java.io.IOException
 import java.util.Collections.emptyMap
-import java.util.regex.Pattern
 import javax.validation.constraints.NotNull
 
 class JsonSchemaFromFieldDescriptorsGeneratorTest {
@@ -54,7 +53,6 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
         then(objectSchema.propertySchemas["pattern"]).isInstanceOf(StringSchema::class.java)
         val patternSchema = objectSchema.propertySchemas["pattern"] as StringSchema
         then(patternSchema.pattern.pattern()).isEqualTo("[a-z]")
-
 
         then(objectSchema.definesProperty("shippingAddress")).isTrue()
         val shippingAddressSchema = objectSchema.propertySchemas["shippingAddress"]!!
