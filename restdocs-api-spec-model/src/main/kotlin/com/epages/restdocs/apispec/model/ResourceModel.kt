@@ -1,5 +1,6 @@
 package com.epages.restdocs.apispec.model
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import java.util.Comparator
 
 data class ResourceModel(
@@ -71,7 +72,7 @@ data class HeaderDescriptor(
     override val name: String,
     override val description: String,
     override val type: String,
-    override val defaultValue: Any? = null,
+    @JsonProperty("default") override val defaultValue: Any? = null,
     override val optional: Boolean,
     val example: String? = null,
     override val attributes: Attributes = Attributes()
@@ -101,7 +102,7 @@ data class ParameterDescriptor(
     override val name: String,
     override val description: String,
     override val type: String,
-    override val defaultValue: Any? = null,
+    @JsonProperty("default") override val defaultValue: Any? = null,
     override val optional: Boolean,
     val ignored: Boolean,
     override val attributes: Attributes = Attributes()

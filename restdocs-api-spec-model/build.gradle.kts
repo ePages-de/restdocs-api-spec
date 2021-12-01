@@ -1,5 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+val jacksonVersion: String by extra
+
 plugins {
     kotlin("jvm")
     signing
@@ -11,6 +13,7 @@ repositories {
 
 dependencies {
     compile(kotlin("stdlib-jdk8"))
+    implementation("com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion")
 }
 
 publishing {
