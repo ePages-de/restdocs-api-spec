@@ -5,6 +5,7 @@ import org.assertj.core.api.BDDAssertions.then
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junitpioneer.jupiter.TempDirectory
+import java.lang.Boolean.FALSE
 
 @ExtendWith(TempDirectory::class)
 class RestdocsOpenApi3TaskTest : RestdocsOpenApiTaskTestBase() {
@@ -48,9 +49,32 @@ class RestdocsOpenApi3TaskTest : RestdocsOpenApiTaskTestBase() {
         thenSingleServerContainedInOutput()
     }
 
+    @Test
+    fun `should run openapi task with default values in headers`() {
+        givenBuildFileWithOpenApiClosureWithSingleServerString()
+        givenResourceSnippetWithDefaultHeader()
+
+        whenPluginExecuted()
+
+        thenApiSpecTaskSuccessful()
+        thenOutputFileFound()
+        thenHeaderWithDefaultValuesContainedInOutput()
+    }
+
     private fun thenSingleServerContainedInOutput() {
         with(outputFileContext()) {
             then(read<List<String>>("servers[*].url")).containsOnly("http://some.api")
+        }
+    }
+
+    private fun thenHeaderWithDefaultValuesContainedInOutput() {
+        with(outputFileContext()) {
+            then(read<String>("paths./products/{id}.get.parameters[1].name")).isEqualTo("one")
+            then(read<String>("paths./products/{id}.get.parameters[1].description")).isEqualTo("Override request header param")
+            then(read<Boolean>("paths./products/{id}.get.parameters[1].required")).isEqualTo(FALSE)
+            then(read<String>("paths./products/{id}.get.parameters[1].schema.type")).isEqualTo("string")
+            then(read<String>("paths./products/{id}.get.parameters[1].schema.default")).isEqualTo("a default value")
+            then(read<String>("paths./products/{id}.get.parameters[1].example")).isEqualTo("one")
         }
     }
 

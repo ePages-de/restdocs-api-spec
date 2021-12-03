@@ -122,6 +122,50 @@ abstract class ApiSpecTaskTest {
         )
     }
 
+    protected fun givenResourceSnippetWithDefaultHeader() {
+        val operationDir = File(snippetsFolder, "some-operation").apply { mkdir() }
+        File(operationDir, "resource.json").writeText(
+            """
+                {
+  "operationId" : "product-get",
+  "summary" : null,
+  "description" : null,
+  "privateResource" : false,
+  "deprecated" : false,
+  "request" : {
+    "path" : "/products/{id}",
+    "method" : "GET",
+    "contentType" : null,
+    "headers" : [ {
+      "name" : "one",
+      "attributes" : { },
+      "description" : "Override request header param",
+      "type" : "STRING",
+      "optional" : true,
+      "example" : "one",
+      "default" : "a default value"
+    } ],
+    "pathParameters" : [ ],
+    "requestParameters" : [ ],
+    "requestFields" : [ ],
+    "example" : null,
+    "securityRequirements" : {
+      "type": "OAUTH2",
+      "requiredScopes": ["prod:r"]
+    }
+  },
+  "response" : {
+    "status" : 200,
+    "contentType" : "application/hal+json",
+    "headers" : [ ],
+    "responseFields" : [ ],
+    "example" : "{\n  \"name\" : \"Fancy pants\",\n  \"price\" : 49.99,\n  \"_links\" : {\n    \"self\" : {\n      \"href\" : \"http://localhost:8080/products/7\"\n    },\n    \"product\" : {\n      \"href\" : \"http://localhost:8080/products/7\"\n    }\n  }\n}"
+  }
+}
+            """.trimIndent()
+        )
+    }
+
     protected fun givenPrivateResourceSnippet() {
         val operationDir = File(snippetsFolder, "some-private-operation").apply { mkdir() }
         File(operationDir, "resource.json").writeText(
