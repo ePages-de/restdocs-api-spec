@@ -20,6 +20,7 @@ import org.springframework.restdocs.headers.HeaderDocumentation
 import org.springframework.restdocs.operation.Operation
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
+import org.springframework.restdocs.snippet.Attributes
 import java.io.File
 import java.io.IOException
 import java.nio.file.Path
@@ -42,6 +43,7 @@ class ResourceSnippetTest {
     fun init(@TempDirectory.TempDir tempDir: Path) {
         rootOutputDirectory = tempDir.toFile()
     }
+
     @Test
     fun should_generate_resource_snippet_for_operation_with_request_body() {
         givenOperationWithRequestBody()
@@ -156,6 +158,42 @@ class ResourceSnippetTest {
         thenSnippetFileExists()
         then(resourceSnippetJson.read<List<*>>("request.requestParameters")).hasSize(1)
         then(resourceSnippetJson.read<String>("request.requestParameters[0].name")).isEqualTo("describedParameter")
+    }
+
+    @Test
+    fun should_generate_parameter_attributes() {
+        givenOperationWithPathAndRequestParametersHasAttributes()
+        givenPathParameterDescriptorsHasAttributes()
+        givenRequestParameterDescriptorsHasAttributes()
+
+        whenResourceSnippetInvoked()
+
+        thenSnippetFileExists()
+        then(resourceSnippetJson.read<List<*>>("request.pathParameters")).hasSize(2)
+        then(resourceSnippetJson.read<String>("request.pathParameters[0].name")).isEqualTo("no")
+        then(resourceSnippetJson.read<String>("request.pathParameters[0].type")).isEqualTo(SimpleType.INTEGER.name)
+        then(resourceSnippetJson.read<String>("request.pathParameters[0].description")).isEqualTo("number")
+        then(resourceSnippetJson.read<Boolean>("request.pathParameters[0].optional")).isFalse
+        then(resourceSnippetJson.read<String>("request.pathParameters[1].name")).isEqualTo("enum")
+        then(resourceSnippetJson.read<String>("request.pathParameters[1].type")).isEqualTo(SimpleType.STRING.name)
+        then(resourceSnippetJson.read<String>("request.pathParameters[1].description")).isEqualTo("enum string")
+        then(resourceSnippetJson.read<Boolean>("request.pathParameters[1].optional")).isFalse
+        then(resourceSnippetJson.read<List<String>>("request.pathParameters[1].attributes.enumValues")).isEqualTo(
+            listOf("P1", "P2", "P3")
+        )
+
+        then(resourceSnippetJson.read<List<*>>("request.requestParameters")).hasSize(2)
+        then(resourceSnippetJson.read<String>("request.requestParameters[0].name")).isEqualTo("no")
+        then(resourceSnippetJson.read<String>("request.requestParameters[0].type")).isEqualTo(SimpleType.INTEGER.name)
+        then(resourceSnippetJson.read<String>("request.requestParameters[0].description")).isEqualTo("number")
+        then(resourceSnippetJson.read<Boolean>("request.requestParameters[0].optional")).isFalse
+        then(resourceSnippetJson.read<String>("request.requestParameters[1].name")).isEqualTo("enum")
+        then(resourceSnippetJson.read<String>("request.requestParameters[1].type")).isEqualTo(SimpleType.STRING.name)
+        then(resourceSnippetJson.read<String>("request.requestParameters[1].description")).isEqualTo("enum string")
+        then(resourceSnippetJson.read<Boolean>("request.requestParameters[1].optional")).isFalse
+        then(resourceSnippetJson.read<List<String>>("request.requestParameters[1].attributes.enumValues")).isEqualTo(
+            listOf("P1", "P2", "P3")
+        )
     }
 
     @Test
@@ -323,6 +361,23 @@ class ResourceSnippetTest {
         operation = operationBuilder.build()
     }
 
+    private fun givenOperationWithPathAndRequestParametersHasAttributes() {
+        val operationBuilder = OperationBuilder("test", rootOutputDirectory)
+
+        operationBuilder
+            .attribute(ATTRIBUTE_NAME_URL_TEMPLATE, "http://localhost:8080/some/{no}/{enum}")
+            .request("http://localhost:8080/some/123/P1")
+            .param("no", "21")
+            .param("enum", "P2")
+            .method("GET")
+
+        operationBuilder
+            .response()
+            .status(204)
+
+        operation = operationBuilder.build()
+    }
+
     private fun givenRequestFieldDescriptors() {
         parametersBuilder.requestFields(fieldWithPath("comment").description("description"))
     }
@@ -357,6 +412,24 @@ class ResourceSnippetTest {
         parametersBuilder.requestParameters(
             parameterWithName("describedParameter").description("description"),
             parameterWithName("obviousParameter").description("needs no documentation, too obvious").ignored()
+        )
+    }
+
+    private fun givenPathParameterDescriptorsHasAttributes() {
+        parametersBuilder.pathParameters(
+            parameterWithName("no").type(SimpleType.INTEGER).description("number"),
+            parameterWithName("enum").description("enum string").attributes(
+                Attributes.key("enumValues").value(arrayOf("P1", "P2", "P3"))
+            )
+        )
+    }
+
+    private fun givenRequestParameterDescriptorsHasAttributes() {
+        parametersBuilder.requestParameters(
+            parameterWithName("no").type(SimpleType.INTEGER).description("number"),
+            parameterWithName("enum").description("enum string").attributes(
+                Attributes.key("enumValues").value(arrayOf("P1", "P2", "P3"))
+            )
         )
     }
 

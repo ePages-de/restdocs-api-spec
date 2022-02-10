@@ -115,6 +115,7 @@ class HeaderDescriptorWithType(val name: String) : AbstractDescriptor<HeaderDesc
             HeaderDescriptorWithType(headerDescriptor.name)
                 .apply {
                     description(headerDescriptor.description)
+                    attributes.putAll(headerDescriptor.attributes)
                     if (headerDescriptor.isOptional) optional()
                 }
     }
@@ -146,6 +147,7 @@ class ParameterDescriptorWithType(val name: String) : IgnorableDescriptor<Parame
             ParameterDescriptorWithType(parameterDescriptor.name)
                 .apply {
                     description(parameterDescriptor.description)
+                    attributes.putAll(parameterDescriptor.attributes)
                     if (parameterDescriptor.isOptional) optional()
                     if (parameterDescriptor.isIgnored) ignored()
                 }
