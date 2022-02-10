@@ -63,7 +63,7 @@ internal object ConstraintResolver {
             .mapNotNull {
                 when (it.name) {
                     MIN_CONSTRAINT -> it.configuration["value"] as Int
-                    SIZE_CONSTRAINT -> it.configuration["min"] as Int?
+                    SIZE_CONSTRAINT -> it.configuration["min"] as? Int
                     else -> null
                 }
             }
@@ -75,7 +75,7 @@ internal object ConstraintResolver {
             .mapNotNull {
                 when (it.name) {
                     MAX_CONSTRAINT -> it.configuration["value"] as Int
-                    SIZE_CONSTRAINT -> it.configuration["max"] as Int?
+                    SIZE_CONSTRAINT -> it.configuration["max"] as? Int
                     else -> null
                 }
             }
