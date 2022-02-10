@@ -262,6 +262,16 @@ class OpenApi20GeneratorTest {
         thenValidateOpenApi(openapi)
     }
 
+    @Test
+    fun `should include enum values`() {
+        val api = givenResourcesWithEnumValues()
+
+        val openapi = whenOpenApiObjectGenerated(api)
+
+        thenGetProductWith200ResponseIsGeneratedWithEnumValues(openapi, api)
+        thenValidateOpenApi(openapi)
+    }
+
     private fun whenExtractOrFindSchema(schemaNameAndSchemaMap: MutableMap<Model, String>, ordersSchema: Model, shopsSchema: Model) {
         OpenApi20Generator.extractOrFindSchema(schemaNameAndSchemaMap, ordersSchema, OpenApi20Generator.generateSchemaName("/orders"))
         OpenApi20Generator.extractOrFindSchema(schemaNameAndSchemaMap, shopsSchema, OpenApi20Generator.generateSchemaName("/shops"))
@@ -375,6 +385,12 @@ class OpenApi20GeneratorTest {
         thenParametersForGetMatchWithDefaultValue(productPath.get.parameters as List<AbstractSerializableParameter<*>>, successfulGetProductModel.request)
     }
 
+    private fun thenGetProductWith200ResponseIsGeneratedWithEnumValues(openapi: Swagger, api: List<ResourceModel>) {
+        val successfulGetProductModel = api[0]
+        val productPath = openapi.paths.getValue(successfulGetProductModel.request.path)
+        thenParametersForGetMatchWithEnumValues(productPath.get.parameters as List<AbstractSerializableParameter<*>>, successfulGetProductModel.request)
+    }
+
     private fun thenPostProductWith200ResponseIsGenerated(openapi: Swagger, api: List<ResourceModel>) {
         val successfulPostProductModel = api[0]
         val productPath = openapi.paths.getValue(successfulPostProductModel.request.path)
@@ -445,6 +461,16 @@ class OpenApi20GeneratorTest {
         thenParameterMatches(parameters, "header", request.headers[1])
     }
 
+    private fun thenParametersForGetMatchWithEnumValues(parameters: List<AbstractSerializableParameter<*>>, request: RequestModel) {
+        thenParameterMatches(parameters, "path", request.pathParameters[0])
+        thenParameterEnumValuesMatches(parameters, "query", request.requestParameters[0])
+        thenParameterEnumValuesMatches(parameters, "query", request.requestParameters[1])
+        thenParameterEnumValuesMatches(parameters, "query", request.requestParameters[2])
+        thenParameterEnumValuesMatches(parameters, "query", request.requestParameters[3])
+        thenParameterEnumValuesMatches(parameters, "header", request.headers[0])
+        thenParameterEnumValuesMatches(parameters, "header", request.headers[1])
+    }
+
     private fun thenParametersForPostMatch(parameters: List<AbstractSerializableParameter<*>>, request: RequestModel) {
         thenParameterMatches(parameters, "header", request.headers[0])
     }
@@ -454,6 +480,12 @@ class OpenApi20GeneratorTest {
         then(parameter).isNotNull
         then(parameter!!.description).isEqualTo(parameterDescriptor.description)
         then(parameter!!.default).isEqualTo(parameterDescriptor.defaultValue)
+    }
+
+    private fun thenParameterEnumValuesMatches(parameters: List<AbstractSerializableParameter<*>>, type: String, parameterDescriptor: AbstractParameterDescriptor) {
+        val parameter = findParameterByTypeAndName(parameters, type, parameterDescriptor.name)
+        then(parameter).isNotNull
+        then(parameter!!.enum).isEqualTo(parameterDescriptor.attributes.enumValues)
     }
 
     private fun findParameterByTypeAndName(parameters: List<AbstractSerializableParameter<*>>, type: String, name: String): AbstractSerializableParameter<*>? {
@@ -555,6 +587,21 @@ class OpenApi20GeneratorTest {
                 deprecated = false,
                 tags = setOf("tag1", "tag2"),
                 request = getProductRequestWithDefaultValue(),
+                response = getProduct200Response(getProductPayloadExample())
+            )
+        )
+    }
+
+    private fun givenResourcesWithEnumValues(): List<ResourceModel> {
+        return listOf(
+            ResourceModel(
+                operationId = "test",
+                summary = "summary",
+                description = "description",
+                privateResource = false,
+                deprecated = false,
+                tags = setOf("tag1", "tag2"),
+                request = getProductRequestWithEnumValues(),
                 response = getProduct200Response(getProductPayloadExample())
             )
         )
@@ -980,6 +1027,73 @@ class OpenApi20GeneratorTest {
                     optional = true,
                     ignored = false,
                     defaultValue = 2L
+                )
+            )
+        )
+    }
+
+    private fun getProductRequestWithEnumValues(): RequestModel {
+        return getProductRequest().copy(
+            headers = listOf(
+                HeaderDescriptor(
+                    name = "X-SOME-STRING",
+                    description = "a header string parameter",
+                    type = "STRING",
+                    optional = true,
+                    attributes = Attributes(
+                        enumValues = listOf("HV1", "HV2")
+                    )
+                ),
+                HeaderDescriptor(
+                    name = "X-SOME-BOOLEAN",
+                    description = "a header boolean parameter",
+                    type = "BOOLEAN",
+                    optional = true,
+                    attributes = Attributes(
+                        enumValues = listOf("true", "false")
+                    )
+                )
+            ),
+            requestParameters = listOf(
+                ParameterDescriptor(
+                    name = "booleanParameter",
+                    description = "a boolean parameter",
+                    type = "BOOLEAN",
+                    optional = true,
+                    ignored = false,
+                    attributes = Attributes(
+                        enumValues = listOf("true", "false")
+                    )
+                ),
+                ParameterDescriptor(
+                    name = "stringParameter",
+                    description = "a string parameter",
+                    type = "STRING",
+                    optional = true,
+                    ignored = false,
+                    attributes = Attributes(
+                        enumValues = listOf("PV1", "PV2", "PV3")
+                    )
+                ),
+                ParameterDescriptor(
+                    name = "numberParameter",
+                    description = "a number parameter",
+                    type = "NUMBER",
+                    optional = true,
+                    ignored = false,
+                    attributes = Attributes(
+                        enumValues = listOf("1", "2", "3")
+                    )
+                ),
+                ParameterDescriptor(
+                    name = "integerParameter",
+                    description = "a integer parameter",
+                    type = "INTEGER",
+                    optional = true,
+                    ignored = false,
+                    attributes = Attributes(
+                        enumValues = listOf("1", "2", "3")
+                    )
                 )
             )
         )
