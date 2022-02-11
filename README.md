@@ -253,6 +253,9 @@ Currently the following constraints are considered when generating JsonSchema fr
 - for String fields annotated with `NotEmpty`, and `NotBlank` the `minLength` constraint in JsonSchema is set to 1
 - for String fields annotated with `Length` the `minLength` and `maxLength` constraints in JsonSchema are set to the value of the corresponding attribute of the annotation
 - for String fields annotated with `Pattern`, the pattern constraint is propagated to JsonSchema
+- for Number fields annotated with `Min`, the `minimum` constraint is propagated to JsonSchema
+- for Number fields annotated with `Max`, the `maximum` constraint is propagated to JsonSchema
+- for Number fields annotated with `Size` the `minimum` and `maximum` constraints in JsonSchema are set to the value of the corresponding attribute of the annotation
 
 If you already have your own `ConstraintFields` implementation you can also add the logic from `com.epages.restdocs.apispec.ConstrainedFields` to your own class.
 Here it is important to add the constraints under the key `validationConstraints` into the attributes map if the `FieldDescriptor`.

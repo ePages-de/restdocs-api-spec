@@ -1,10 +1,12 @@
 package com.epages.restdocs.apispec.jsonschema
 
 import com.epages.restdocs.apispec.jsonschema.ConstraintResolver.isRequired
+import com.epages.restdocs.apispec.jsonschema.ConstraintResolver.maxInteger
 import com.epages.restdocs.apispec.jsonschema.ConstraintResolver.maxLengthString
 import com.epages.restdocs.apispec.jsonschema.ConstraintResolver.maybeMaxSizeArray
 import com.epages.restdocs.apispec.jsonschema.ConstraintResolver.maybeMinSizeArray
 import com.epages.restdocs.apispec.jsonschema.ConstraintResolver.maybePattern
+import com.epages.restdocs.apispec.jsonschema.ConstraintResolver.minInteger
 import com.epages.restdocs.apispec.jsonschema.ConstraintResolver.minLengthString
 import com.epages.restdocs.apispec.model.Attributes
 import com.epages.restdocs.apispec.model.FieldDescriptor
@@ -233,7 +235,7 @@ class JsonSchemaFromFieldDescriptorsGenerator {
                 "object" -> ObjectSchema.builder()
                 "array" -> ArraySchema.builder().applyConstraints(this).allItemSchema(arrayItemsSchema())
                 "boolean" -> BooleanSchema.builder()
-                "number" -> NumberSchema.builder()
+                "number" -> NumberSchema.builder().applyConstraints(this)
                 "string" -> StringSchema.builder().applyConstraints(this)
                 "enum" -> CombinedSchema.oneOf(
                     listOf(
@@ -290,4 +292,15 @@ private fun StringSchema.Builder.applyConstraints(fieldDescriptor: FieldDescript
 private fun ArraySchema.Builder.applyConstraints(fieldDescriptor: FieldDescriptor?) = apply {
     minItems(maybeMinSizeArray(fieldDescriptor))
     maxItems(maybeMaxSizeArray(fieldDescriptor))
+}
+
+private fun NumberSchema.Builder.applyConstraints(fieldDescriptor: FieldDescriptor) = apply {
+    minInteger(fieldDescriptor)?.let {
+        minimum(it)
+        requiresInteger(true)
+    }
+    maxInteger(fieldDescriptor)?.let {
+        maximum(it)
+        requiresInteger(true)
+    }
 }

@@ -24,7 +24,10 @@ import org.json.JSONObject
 import org.junit.jupiter.api.Test
 import java.io.IOException
 import java.util.Collections.emptyMap
+import javax.validation.constraints.Max
+import javax.validation.constraints.Min
 import javax.validation.constraints.NotNull
+import javax.validation.constraints.Size
 
 class JsonSchemaFromFieldDescriptorsGeneratorTest {
 
@@ -97,6 +100,34 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
         then(lineItemsTaxesSchema.maxItems).isEqualTo(255)
         then(lineItemsTaxesSchema.requiresArray()).isTrue()
 
+        then(objectSchema.definesProperty("pageIndex")).isTrue
+        then(objectSchema.propertySchemas["pageIndex"]).isInstanceOf(NumberSchema::class.java)
+        val pageIndexSchema = objectSchema.propertySchemas["pageIndex"] as NumberSchema
+        then(pageIndexSchema.minimum.toInt()).isEqualTo(1)
+        then(pageIndexSchema.maximum.toInt()).isEqualTo(100)
+        then(pageIndexSchema.requiresInteger()).isTrue
+
+        then(objectSchema.definesProperty("pageSize")).isTrue
+        then(objectSchema.propertySchemas["pageSize"]).isInstanceOf(NumberSchema::class.java)
+        val pageSizeSchema = objectSchema.propertySchemas["pageSize"] as NumberSchema
+        then(pageSizeSchema.minimum.toInt()).isEqualTo(1)
+        then(pageSizeSchema.maximum.toInt()).isEqualTo(255)
+        then(pageSizeSchema.requiresInteger()).isTrue
+
+        then(objectSchema.definesProperty("pagePositive")).isTrue
+        then(objectSchema.propertySchemas["pagePositive"]).isInstanceOf(NumberSchema::class.java)
+        val pagePositiveSchema = objectSchema.propertySchemas["pagePositive"] as NumberSchema
+        then(pagePositiveSchema.minimum.toInt()).isEqualTo(1)
+        then(pagePositiveSchema.maximum).isNull()
+        then(pagePositiveSchema.requiresInteger()).isTrue
+
+        then(objectSchema.definesProperty("page100_200")).isTrue
+        then(objectSchema.propertySchemas["page100_200"]).isInstanceOf(NumberSchema::class.java)
+        val page100to200Schema = objectSchema.propertySchemas["page100_200"] as NumberSchema
+        then(page100to200Schema.minimum.toInt()).isEqualTo(100)
+        then(page100to200Schema.maximum.toInt()).isEqualTo(200)
+        then(page100to200Schema.requiresInteger()).isTrue
+
         // language=JSON
         thenSchemaValidatesJson(
             """{
@@ -122,7 +153,11 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
                         }
                     ]
                 },
-                "pattern": "a"
+                "pattern": "a",
+                "pageIndex": 1,
+                "pageSize": 255,
+                "pageHalf": 100,
+                "page100_200": 200
             }
             """.trimIndent()
         )
@@ -659,6 +694,76 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
                 "some",
                 "STRING",
                 attributes = patternConstraint
+            ),
+            FieldDescriptor(
+                "pageIndex",
+                "some",
+                "NUMBER",
+                attributes = Attributes(
+                    listOf(
+                        Constraint(
+                            Min::class.java.name,
+                            mapOf("value" to 1)
+                        ),
+                        Constraint(
+                            Max::class.java.name,
+                            mapOf("value" to 100)
+                        )
+                    )
+                )
+            ),
+            FieldDescriptor(
+                "pageSize",
+                "some",
+                "NUMBER",
+                attributes = Attributes(
+                    listOf(
+                        Constraint(
+                            Size::class.java.name,
+                            mapOf(
+                                "min" to 1,
+                                "max" to 255
+                            )
+                        )
+                    )
+                )
+            ),
+            FieldDescriptor(
+                "pagePositive",
+                "some",
+                "NUMBER",
+                attributes = Attributes(
+                    listOf(
+                        Constraint(
+                            Size::class.java.name,
+                            mapOf("min" to 1)
+                        )
+                    )
+                )
+            ),
+            FieldDescriptor(
+                "page100_200",
+                "some",
+                "NUMBER",
+                attributes = Attributes(
+                    listOf(
+                        Constraint(
+                            Size::class.java.name,
+                            mapOf(
+                                "min" to 1,
+                                "max" to 255
+                            )
+                        ),
+                        Constraint(
+                            Min::class.java.name,
+                            mapOf("value" to 100)
+                        ),
+                        Constraint(
+                            Max::class.java.name,
+                            mapOf("value" to 200)
+                        )
+                    )
+                )
             )
         )
     }

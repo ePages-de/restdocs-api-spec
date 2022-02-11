@@ -26,6 +26,10 @@ internal object ConstraintResolver {
 
     private const val PATTERN_CONSTRAINT = "javax.validation.constraints.Pattern"
 
+    private const val MIN_CONSTRAINT = "javax.validation.constraints.Min"
+
+    private const val MAX_CONSTRAINT = "javax.validation.constraints.Max"
+
     internal fun maybeMinSizeArray(fieldDescriptor: FieldDescriptor?) = fieldDescriptor?.maybeSizeConstraint()?.let { it.configuration["min"] as? Int }
 
     internal fun maybeMaxSizeArray(fieldDescriptor: FieldDescriptor?) = fieldDescriptor?.maybeSizeConstraint()?.let { it.configuration["max"] as? Int }
@@ -52,6 +56,30 @@ internal object ConstraintResolver {
         return findConstraints(fieldDescriptor)
             .firstOrNull { LENGTH_CONSTRAINT == it.name }
             ?.let { it.configuration["max"] as Int }
+    }
+
+    internal fun minInteger(fieldDescriptor: FieldDescriptor): Int? {
+        return findConstraints(fieldDescriptor)
+            .mapNotNull {
+                when (it.name) {
+                    MIN_CONSTRAINT -> it.configuration["value"] as Int
+                    SIZE_CONSTRAINT -> it.configuration["min"] as? Int
+                    else -> null
+                }
+            }
+            .maxOrNull()
+    }
+
+    internal fun maxInteger(fieldDescriptor: FieldDescriptor): Int? {
+        return findConstraints(fieldDescriptor)
+            .mapNotNull {
+                when (it.name) {
+                    MAX_CONSTRAINT -> it.configuration["value"] as Int
+                    SIZE_CONSTRAINT -> it.configuration["max"] as? Int
+                    else -> null
+                }
+            }
+            .minOrNull()
     }
 
     internal fun isRequired(fieldDescriptor: FieldDescriptor): Boolean =
