@@ -12,9 +12,6 @@ It currently supports:
 - [OpenAPI 3.0.1](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md) in `json` and `yaml`
 - [Postman Collections 2.1.0](https://schema.getpostman.com/json/collection/v2.1.0/docs/index.html)
 
-We plan to add support for:
-- [RAML](https://raml.org)
-
 Please note that this extension was developed for JSON-based APIs.
 We do not expect this extension to build usable API specification for non-JSON request or response bodies.
 
