@@ -344,7 +344,7 @@ class OpenApi3GeneratorTest {
 
         whenOpenApiObjectGenerated()
 
-        val params = openApiJsonPathContext.read<List<Map<*, *>>>("paths./products/{id}.get.parameters.*")
+        val params = openApiJsonPathContext.read<List<Map<*, *>>>("paths./metadata.get.parameters.*")
 
         then(params).anyMatch {
             it["name"] == "booleanParameter" &&
@@ -386,7 +386,7 @@ class OpenApi3GeneratorTest {
                 (it["schema"] as LinkedHashMap<*, *>)["type"] == "integer" &&
                 (it["schema"] as LinkedHashMap<*, *>)["enum"] == listOf(1, 2, 3)
         }
-        then(params).hasSize(9)
+        then(params).hasSize(8)
 
         thenOpenApiSpecIsValid()
     }
@@ -801,7 +801,7 @@ class OpenApi3GeneratorTest {
                 privateResource = false,
                 deprecated = false,
                 tags = setOf("tag1", "tag2"),
-                request = getProductRequestWithEnumValues(),
+                request = getMetadataRequestWithEnumValues(),
                 response = getProductResponse()
             )
         )
@@ -1279,8 +1279,11 @@ class OpenApi3GeneratorTest {
         )
     }
 
-    private fun getProductRequestWithEnumValues(): RequestModel {
-        return getProductRequest().copy(
+    private fun getMetadataRequestWithEnumValues(): RequestModel {
+        return RequestModel(
+            path = "/metadata",
+            method = HTTPMethod.GET,
+            securityRequirements = getJWTSecurityRequirement(),
             headers = listOf(
                 HeaderDescriptor(
                     name = "X-SOME-BOOLEAN",
@@ -1360,7 +1363,9 @@ class OpenApi3GeneratorTest {
                         enumValues = listOf("1", "2", "3")
                     )
                 )
-            )
+            ),
+            pathParameters = listOf(),
+            requestFields = listOf()
         )
     }
 
