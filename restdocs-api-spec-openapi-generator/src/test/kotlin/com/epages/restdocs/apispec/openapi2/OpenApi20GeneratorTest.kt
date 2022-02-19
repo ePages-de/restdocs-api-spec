@@ -463,12 +463,12 @@ class OpenApi20GeneratorTest {
 
     private fun thenParametersForGetMatchWithEnumValues(parameters: List<AbstractSerializableParameter<*>>, request: RequestModel) {
         thenParameterMatches(parameters, "path", request.pathParameters[0])
+        thenParameterEnumValuesMatches(parameters, "header", request.headers[0])
+        thenParameterEnumValuesMatches(parameters, "header", request.headers[1])
         thenParameterEnumValuesMatches(parameters, "query", request.requestParameters[0])
         thenParameterEnumValuesMatches(parameters, "query", request.requestParameters[1])
         thenParameterEnumValuesMatches(parameters, "query", request.requestParameters[2])
         thenParameterEnumValuesMatches(parameters, "query", request.requestParameters[3])
-        thenParameterEnumValuesMatches(parameters, "header", request.headers[0])
-        thenParameterEnumValuesMatches(parameters, "header", request.headers[1])
     }
 
     private fun thenParametersForPostMatch(parameters: List<AbstractSerializableParameter<*>>, request: RequestModel) {
@@ -485,7 +485,7 @@ class OpenApi20GeneratorTest {
     private fun thenParameterEnumValuesMatches(parameters: List<AbstractSerializableParameter<*>>, type: String, parameterDescriptor: AbstractParameterDescriptor) {
         val parameter = findParameterByTypeAndName(parameters, type, parameterDescriptor.name)
         then(parameter).isNotNull
-        then(parameter!!.enum).isEqualTo(parameterDescriptor.attributes.enumValues)
+        then(parameter!!.enumValue).isEqualTo(parameterDescriptor.attributes.enumValues)
     }
 
     private fun findParameterByTypeAndName(parameters: List<AbstractSerializableParameter<*>>, type: String, name: String): AbstractSerializableParameter<*>? {
@@ -1082,7 +1082,7 @@ class OpenApi20GeneratorTest {
                     optional = true,
                     ignored = false,
                     attributes = Attributes(
-                        enumValues = listOf("1", "2", "3")
+                        enumValues = listOf(0.1, 0.2, 0.3)
                     )
                 ),
                 ParameterDescriptor(
@@ -1092,7 +1092,7 @@ class OpenApi20GeneratorTest {
                     optional = true,
                     ignored = false,
                     attributes = Attributes(
-                        enumValues = listOf("1", "2", "3")
+                        enumValues = listOf(1, 2, 3)
                     )
                 )
             )
