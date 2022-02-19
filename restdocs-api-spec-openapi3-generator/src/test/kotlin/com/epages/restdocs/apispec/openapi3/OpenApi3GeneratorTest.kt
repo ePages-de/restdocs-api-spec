@@ -328,14 +328,14 @@ class OpenApi3GeneratorTest {
     fun `should fail for enum values request parameter with wrong type`() {
         givenResourcesWithRequestParameterWithWrongEnumValues()
 
-        assertThrows<NumberFormatException> { whenOpenApiObjectGenerated() }
+        assertThrows<ClassCastException> { whenOpenApiObjectGenerated() }
     }
 
     @Test
     fun `should fail for enum values header parameter with wrong type`() {
         givenResourcesWithHeaderParameterWithWrongEnumValues()
 
-        assertThrows<NumberFormatException> { whenOpenApiObjectGenerated() }
+        assertThrows<ClassCastException> { whenOpenApiObjectGenerated() }
     }
 
     @Test
@@ -346,26 +346,6 @@ class OpenApi3GeneratorTest {
 
         val params = openApiJsonPathContext.read<List<Map<*, *>>>("paths./metadata.get.parameters.*")
 
-        then(params).anyMatch {
-            it["name"] == "booleanParameter" &&
-                (it["schema"] as LinkedHashMap<*, *>)["type"] == "boolean" &&
-                (it["schema"] as LinkedHashMap<*, *>)["enum"] == listOf(true, false)
-        }
-        then(params).anyMatch {
-            it["name"] == "stringParameter" &&
-                (it["schema"] as LinkedHashMap<*, *>)["type"] == "string" &&
-                (it["schema"] as LinkedHashMap<*, *>)["enum"] == listOf("PV1", "PV2", "PV3")
-        }
-        then(params).anyMatch {
-            it["name"] == "numberParameter" &&
-                (it["schema"] as LinkedHashMap<*, *>)["type"] == "number" &&
-                (it["schema"] as LinkedHashMap<*, *>)["enum"] == listOf(1, 2, 3)
-        }
-        then(params).anyMatch {
-            it["name"] == "integerParameter" &&
-                (it["schema"] as LinkedHashMap<*, *>)["type"] == "integer" &&
-                (it["schema"] as LinkedHashMap<*, *>)["enum"] == listOf(1, 2, 3)
-        }
         then(params).anyMatch {
             it["name"] == "X-SOME-BOOLEAN" &&
                 (it["schema"] as LinkedHashMap<*, *>)["type"] == "boolean" &&
@@ -379,10 +359,30 @@ class OpenApi3GeneratorTest {
         then(params).anyMatch {
             it["name"] == "X-SOME-NUMBER" &&
                 (it["schema"] as LinkedHashMap<*, *>)["type"] == "number" &&
-                (it["schema"] as LinkedHashMap<*, *>)["enum"] == listOf(1, 2, 3)
+                (it["schema"] as LinkedHashMap<*, *>)["enum"] == listOf(1_000_001, 1_000_002, 1_000_003)
         }
         then(params).anyMatch {
             it["name"] == "X-SOME-INTEGER" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "integer" &&
+                (it["schema"] as LinkedHashMap<*, *>)["enum"] == listOf(1, 2, 3)
+        }
+        then(params).anyMatch {
+            it["name"] == "booleanParameter" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "boolean" &&
+                (it["schema"] as LinkedHashMap<*, *>)["enum"] == listOf(true, false)
+        }
+        then(params).anyMatch {
+            it["name"] == "stringParameter" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "string" &&
+                (it["schema"] as LinkedHashMap<*, *>)["enum"] == listOf("PV1", "PV2", "PV3")
+        }
+        then(params).anyMatch {
+            it["name"] == "numberParameter" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "number" &&
+                (it["schema"] as LinkedHashMap<*, *>)["enum"] == listOf(0.1, 0.2, 0.3)
+        }
+        then(params).anyMatch {
+            it["name"] == "integerParameter" &&
                 (it["schema"] as LinkedHashMap<*, *>)["type"] == "integer" &&
                 (it["schema"] as LinkedHashMap<*, *>)["enum"] == listOf(1, 2, 3)
         }
@@ -1291,7 +1291,7 @@ class OpenApi3GeneratorTest {
                     type = "BOOLEAN",
                     optional = true,
                     attributes = Attributes(
-                        enumValues = listOf("true", "false")
+                        enumValues = listOf(true, false)
                     )
                 ),
                 HeaderDescriptor(
@@ -1309,7 +1309,7 @@ class OpenApi3GeneratorTest {
                     type = "NUMBER",
                     optional = true,
                     attributes = Attributes(
-                        enumValues = listOf("1", "2", "3")
+                        enumValues = listOf(1_000_001, 1_000_002, 1_000_003)
                     )
                 ),
                 HeaderDescriptor(
@@ -1318,7 +1318,7 @@ class OpenApi3GeneratorTest {
                     type = "INTEGER",
                     optional = true,
                     attributes = Attributes(
-                        enumValues = listOf("1", "2", "3")
+                        enumValues = listOf(1, 2, 3)
                     )
                 )
             ),
@@ -1330,7 +1330,7 @@ class OpenApi3GeneratorTest {
                     optional = true,
                     ignored = false,
                     attributes = Attributes(
-                        enumValues = listOf("true", "false")
+                        enumValues = listOf(true, false)
                     )
                 ),
                 ParameterDescriptor(
@@ -1350,7 +1350,7 @@ class OpenApi3GeneratorTest {
                     optional = true,
                     ignored = false,
                     attributes = Attributes(
-                        enumValues = listOf("1", "2", "3")
+                        enumValues = listOf(0.1, 0.2, 0.3)
                     )
                 ),
                 ParameterDescriptor(
@@ -1360,7 +1360,7 @@ class OpenApi3GeneratorTest {
                     optional = true,
                     ignored = false,
                     attributes = Attributes(
-                        enumValues = listOf("1", "2", "3")
+                        enumValues = listOf(1, 2, 3)
                     )
                 )
             ),
