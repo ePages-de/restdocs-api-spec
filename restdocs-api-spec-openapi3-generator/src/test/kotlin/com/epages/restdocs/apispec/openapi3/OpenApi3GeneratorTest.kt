@@ -324,6 +324,73 @@ class OpenApi3GeneratorTest {
         thenOpenApiSpecIsValid()
     }
 
+    @Test
+    fun `should fail for enum values request parameter with wrong type`() {
+        givenResourcesWithRequestParameterWithWrongEnumValues()
+
+        assertThrows<ClassCastException> { whenOpenApiObjectGenerated() }
+    }
+
+    @Test
+    fun `should fail for enum values header parameter with wrong type`() {
+        givenResourcesWithHeaderParameterWithWrongEnumValues()
+
+        assertThrows<ClassCastException> { whenOpenApiObjectGenerated() }
+    }
+
+    @Test
+    fun `should include enum values`() {
+        givenResourcesWithEnumValues()
+
+        whenOpenApiObjectGenerated()
+
+        val params = openApiJsonPathContext.read<List<Map<*, *>>>("paths./metadata.get.parameters.*")
+
+        then(params).anyMatch {
+            it["name"] == "X-SOME-BOOLEAN" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "boolean" &&
+                (it["schema"] as LinkedHashMap<*, *>)["enum"] == listOf(true, false)
+        }
+        then(params).anyMatch {
+            it["name"] == "X-SOME-STRING" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "string" &&
+                (it["schema"] as LinkedHashMap<*, *>)["enum"] == listOf("HV1", "HV2")
+        }
+        then(params).anyMatch {
+            it["name"] == "X-SOME-NUMBER" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "number" &&
+                (it["schema"] as LinkedHashMap<*, *>)["enum"] == listOf(1_000_001, 1_000_002, 1_000_003)
+        }
+        then(params).anyMatch {
+            it["name"] == "X-SOME-INTEGER" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "integer" &&
+                (it["schema"] as LinkedHashMap<*, *>)["enum"] == listOf(1, 2, 3)
+        }
+        then(params).anyMatch {
+            it["name"] == "booleanParameter" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "boolean" &&
+                (it["schema"] as LinkedHashMap<*, *>)["enum"] == listOf(true, false)
+        }
+        then(params).anyMatch {
+            it["name"] == "stringParameter" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "string" &&
+                (it["schema"] as LinkedHashMap<*, *>)["enum"] == listOf("PV1", "PV2", "PV3")
+        }
+        then(params).anyMatch {
+            it["name"] == "numberParameter" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "number" &&
+                (it["schema"] as LinkedHashMap<*, *>)["enum"] == listOf(0.1, 0.2, 0.3)
+        }
+        then(params).anyMatch {
+            it["name"] == "integerParameter" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "integer" &&
+                (it["schema"] as LinkedHashMap<*, *>)["enum"] == listOf(1, 2, 3)
+        }
+        then(params).hasSize(8)
+
+        thenOpenApiSpecIsValid()
+    }
+
     fun thenResourceHasValidSchemaGeneratedFromRequestParameters(method: String) {
         val productGetByIdPath = "paths./products/{id}.$method"
         val getResponseSchemaRef = openApiJsonPathContext.read<String>("$productGetByIdPath.requestBody.content.application/x-www-form-urlencoded.schema.\$ref")
@@ -720,6 +787,51 @@ class OpenApi3GeneratorTest {
                 deprecated = false,
                 tags = setOf("tag1", "tag2"),
                 request = getProductRequestWithHeaderParameterWithWrongDefaultValue(),
+                response = getProductResponse()
+            )
+        )
+    }
+
+    private fun givenResourcesWithEnumValues() {
+        resources = listOf(
+            ResourceModel(
+                operationId = "test",
+                summary = "summary",
+                description = "description",
+                privateResource = false,
+                deprecated = false,
+                tags = setOf("tag1", "tag2"),
+                request = getMetadataRequestWithEnumValues(),
+                response = getProductResponse()
+            )
+        )
+    }
+
+    private fun givenResourcesWithRequestParameterWithWrongEnumValues() {
+        resources = listOf(
+            ResourceModel(
+                operationId = "test",
+                summary = "summary",
+                description = "description",
+                privateResource = false,
+                deprecated = false,
+                tags = setOf("tag1", "tag2"),
+                request = getProductRequestWithRequestParameterWithWrongEnumValues(),
+                response = getProductResponse()
+            )
+        )
+    }
+
+    private fun givenResourcesWithHeaderParameterWithWrongEnumValues() {
+        resources = listOf(
+            ResourceModel(
+                operationId = "test",
+                summary = "summary",
+                description = "description",
+                privateResource = false,
+                deprecated = false,
+                tags = setOf("tag1", "tag2"),
+                request = getProductRequestWithHeaderParameterWithWrongEnumValues(),
                 response = getProductResponse()
             )
         )
@@ -1162,6 +1274,129 @@ class OpenApi3GeneratorTest {
                     type = "BOOLEAN",
                     optional = true,
                     defaultValue = "not a boolean value"
+                )
+            )
+        )
+    }
+
+    private fun getMetadataRequestWithEnumValues(): RequestModel {
+        return RequestModel(
+            path = "/metadata",
+            method = HTTPMethod.GET,
+            securityRequirements = getJWTSecurityRequirement(),
+            headers = listOf(
+                HeaderDescriptor(
+                    name = "X-SOME-BOOLEAN",
+                    description = "a header boolean parameter",
+                    type = "BOOLEAN",
+                    optional = true,
+                    attributes = Attributes(
+                        enumValues = listOf(true, false)
+                    )
+                ),
+                HeaderDescriptor(
+                    name = "X-SOME-STRING",
+                    description = "a header string parameter",
+                    type = "STRING",
+                    optional = true,
+                    attributes = Attributes(
+                        enumValues = listOf("HV1", "HV2")
+                    )
+                ),
+                HeaderDescriptor(
+                    name = "X-SOME-NUMBER",
+                    description = "a header number parameter",
+                    type = "NUMBER",
+                    optional = true,
+                    attributes = Attributes(
+                        enumValues = listOf(1_000_001, 1_000_002, 1_000_003)
+                    )
+                ),
+                HeaderDescriptor(
+                    name = "X-SOME-INTEGER",
+                    description = "a header integer parameter",
+                    type = "INTEGER",
+                    optional = true,
+                    attributes = Attributes(
+                        enumValues = listOf(1, 2, 3)
+                    )
+                )
+            ),
+            requestParameters = listOf(
+                ParameterDescriptor(
+                    name = "booleanParameter",
+                    description = "a boolean parameter",
+                    type = "BOOLEAN",
+                    optional = true,
+                    ignored = false,
+                    attributes = Attributes(
+                        enumValues = listOf(true, false)
+                    )
+                ),
+                ParameterDescriptor(
+                    name = "stringParameter",
+                    description = "a string parameter",
+                    type = "STRING",
+                    optional = true,
+                    ignored = false,
+                    attributes = Attributes(
+                        enumValues = listOf("PV1", "PV2", "PV3")
+                    )
+                ),
+                ParameterDescriptor(
+                    name = "numberParameter",
+                    description = "a number parameter",
+                    type = "NUMBER",
+                    optional = true,
+                    ignored = false,
+                    attributes = Attributes(
+                        enumValues = listOf(0.1, 0.2, 0.3)
+                    )
+                ),
+                ParameterDescriptor(
+                    name = "integerParameter",
+                    description = "a integer parameter",
+                    type = "INTEGER",
+                    optional = true,
+                    ignored = false,
+                    attributes = Attributes(
+                        enumValues = listOf(1, 2, 3)
+                    )
+                )
+            ),
+            pathParameters = listOf(),
+            requestFields = listOf()
+        )
+    }
+
+    private fun getProductRequestWithRequestParameterWithWrongEnumValues(): RequestModel {
+        return getProductRequest().copy(
+            requestParameters = listOf(
+                ParameterDescriptor(
+                    name = "integerParameter",
+                    description = "a integer parameter",
+                    type = "INTEGER",
+                    optional = true,
+                    ignored = false,
+                    attributes = Attributes(
+                        enumValues = listOf("not a integer value")
+                    )
+                )
+            )
+        )
+    }
+
+    private fun getProductRequestWithHeaderParameterWithWrongEnumValues(): RequestModel {
+        return getProductRequest().copy(
+            headers = listOf(
+                HeaderDescriptor(
+                    name = "X-SOME-INTEGER",
+                    description = "a header integer parameter",
+                    type = "INTEGER",
+                    optional = true,
+                    attributes = Attributes(
+                        enumValues = listOf("not a integer value")
+                    )
                 )
             )
         )

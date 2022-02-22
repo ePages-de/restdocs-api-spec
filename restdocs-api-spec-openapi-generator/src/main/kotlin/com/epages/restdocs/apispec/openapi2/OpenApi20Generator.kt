@@ -418,6 +418,7 @@ object OpenApi20Generator {
             description = parameterDescriptor.description
             type = parameterDescriptor.type.toLowerCase()
             default = parameterDescriptor.defaultValue
+            enumValue = parameterDescriptor.attributes.enumValues.ifEmpty { null }
         }
     }
 
@@ -436,6 +437,7 @@ object OpenApi20Generator {
             required = parameterDescriptor.optional.not()
             type = parameterDescriptor.type.toLowerCase()
             default = parameterDescriptor.defaultValue
+            enumValue = parameterDescriptor.attributes.enumValues.ifEmpty { null }
         }
     }
 
@@ -446,6 +448,7 @@ object OpenApi20Generator {
             required = parameterDescriptor.optional.not()
             type = parameterDescriptor.type.toLowerCase()
             default = parameterDescriptor.defaultValue
+            enumValue = parameterDescriptor.attributes.enumValues.ifEmpty { null }
         }
     }
 
@@ -456,6 +459,7 @@ object OpenApi20Generator {
             required = headerDescriptor.optional.not()
             type = headerDescriptor.type.toLowerCase()
             default = headerDescriptor.defaultValue
+            enumValue = headerDescriptor.attributes.enumValues.ifEmpty { null }
         }
     }
 
