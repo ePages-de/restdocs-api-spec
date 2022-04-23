@@ -456,21 +456,15 @@ object OpenApi3Generator {
                     .forEach { this.addEnumItem(it) }
             }
             SimpleType.NUMBER.name.toLowerCase() -> NumberSchema().apply {
-                this._default(parameterDescriptor.defaultValue?.let { it as BigDecimal })
+                this._default(parameterDescriptor.defaultValue?.asBigDecimal())
                 parameterDescriptor.attributes.enumValues
-                    .map {
-                        when (it) {
-                            is Int -> it.toBigDecimal()
-                            is Double -> it.toBigDecimal()
-                            else -> it as BigDecimal
-                        }
-                    }
+                    .map { it.asBigDecimal() }
                     .forEach { this.addEnumItem(it) }
             }
             SimpleType.INTEGER.name.toLowerCase() -> IntegerSchema().apply {
-                this._default(parameterDescriptor.defaultValue?.let { it as Int })
+                this._default(parameterDescriptor.defaultValue?.asInt())
                 parameterDescriptor.attributes.enumValues
-                    .map { it as Int }
+                    .map { it.asInt() }
                     .forEach { this.addEnumItem(it) }
             }
             else -> throw IllegalArgumentException("Unknown type '${parameterDescriptor.type}'")
@@ -483,6 +477,24 @@ object OpenApi3Generator {
 
     private fun <T> List<T>.nullIfEmpty(): List<T>? {
         return if (this.isEmpty()) null else this
+    }
+
+    private fun Any.asInt(): Int {
+        return when (this) {
+            is Int -> this
+            is Long -> toInt()
+            else -> this as Int
+        }
+    }
+
+    private fun Any.asBigDecimal(): BigDecimal {
+        return when (this) {
+            is Int -> toBigDecimal()
+            is Long -> toBigDecimal()
+            is Double -> toBigDecimal()
+            is Float -> toBigDecimal()
+            else -> this as BigDecimal
+        }
     }
 
     private data class RequestModelWithOperationId(
