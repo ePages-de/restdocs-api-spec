@@ -45,8 +45,8 @@ val jacocoRuntime by configurations.creating
 dependencies {
     compileOnly(gradleKotlinDsl())
 
-    compile(kotlin("gradle-plugin"))
-    compile(kotlin("stdlib-jdk8"))
+    implementation(kotlin("gradle-plugin"))
+    implementation(kotlin("stdlib-jdk8"))
 
     implementation(project(":restdocs-api-spec-openapi-generator"))
     implementation(project(":restdocs-api-spec-openapi3-generator"))
@@ -60,7 +60,7 @@ dependencies {
 
     testImplementation("com.jayway.jsonpath:json-path:2.4.0")
 
-    testCompile(gradleTestKit())
+    testImplementation(gradleTestKit())
 
     jacocoRuntime("org.jacoco:org.jacoco.agent:0.8.2:runtime")
 }

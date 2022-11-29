@@ -121,7 +121,7 @@ The [ResourceSnippet](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apis
 
     dependencies {
         //..
-        testCompile('com.epages:restdocs-api-spec-mockmvc:0.16.0') //2.2
+        testImplementation('com.epages:restdocs-api-spec-mockmvc:0.16.0') //2.2
     }
 
     openapi { //2.3

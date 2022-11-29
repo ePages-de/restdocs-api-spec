@@ -6,7 +6,7 @@ import pl.allegro.tech.build.axion.release.domain.hooks.HooksConfig
 
 
 plugins {
-    id("com.github.kt3k.coveralls") version "2.8.2"
+    id("com.github.kt3k.coveralls") version "2.12.0"
     id("io.github.gradle-nexus.publish-plugin") version "1.0.0"
     id("org.jmailen.kotlinter") version "3.3.0" apply false
     id("pl.allegro.tech.build.axion-release") version "1.9.2"

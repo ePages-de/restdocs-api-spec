@@ -28,17 +28,17 @@ ext {
 }
 
 dependencies {
-	compile('org.springframework.boot:spring-boot-starter-data-jpa')
-	compile('org.springframework.boot:spring-boot-starter-data-rest')
-	runtime('com.h2database:h2')
-	testCompile('org.junit.jupiter:junit-jupiter-engine')
+	implementation('org.springframework.boot:spring-boot-starter-data-jpa')
+	implementation('org.springframework.boot:spring-boot-starter-data-rest')
+	runtimeOnly('com.h2database:h2')
+	testImplementation('org.junit.jupiter:junit-jupiter-engine')
 
-	testCompile('org.springframework.boot:spring-boot-starter-test')
-	testCompile('org.springframework.restdocs:spring-restdocs-mockmvc')
+	testImplementation('org.springframework.boot:spring-boot-starter-test')
+	testImplementation('org.springframework.restdocs:spring-restdocs-mockmvc')
 
-	testCompile('com.epages:restdocs-api-spec-mockmvc:0.11.2')
-//	testCompile project(':restdocs-api-spec-mockmvc') //enable for depending on the submodule directly
-	testCompile('com.google.guava:guava:23.0')
+	testImplementation('com.epages:restdocs-api-spec-mockmvc:0.11.2')
+//	testImplementation project(':restdocs-api-spec-mockmvc') //enable for depending on the submodule directly
+	testImplementation('com.google.guava:guava:23.0')
 }
 
 configurations.all {
