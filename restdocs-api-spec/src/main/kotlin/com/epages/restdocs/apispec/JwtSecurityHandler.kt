@@ -62,8 +62,12 @@ internal class JwtSecurityHandler : SecurityRequirementsExtractor {
             try {
                 val jwtMap = ObjectMapper().readValue<Map<String, Any>>(decodedPayload)
                 val scope = jwtMap["scope"]
+                // some of oauth2 authorization servers might return scope claims as a set of string
                 if (scope is List<*>) {
                     return scope as List<String>
+                }
+                if (scope is String) { // standard way of expressing scope claim
+                    return scope.trim().split("\\s+".toRegex())
                 }
             } catch (e: IOException) {
                 // probably not JWT
