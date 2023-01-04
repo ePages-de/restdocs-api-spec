@@ -262,7 +262,7 @@ object OpenApi3Generator {
                     )
                 }
             )
-        }.apply { addSecurityItemFromSecurityRequirements(firstModelForPathAndMethod.request.securityRequirements, oauth2SecuritySchemeDefinition) }
+        }.apply { addSecurityItemFromSecurityRequirements(firstModelForPathAndMethod.request.securityRequirements) }
     }
 
     private fun operationId(operationIds: List<String>): String {
