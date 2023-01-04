@@ -6,5 +6,5 @@ open class Oauth2Configuration(
     var flows: Array<String> = arrayOf(),
     var scopes: Map<String, String> = mapOf()
 ) {
-    fun securitySchemeName(flow: String) = "oauth2_$flow"
+    fun securitySchemeName() = "oauth2"
 }

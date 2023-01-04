@@ -501,8 +501,7 @@ class OpenApi3GeneratorTest {
         then(openApiJsonPathContext.read<Any>("$productGetByIdPath.responses.200.content.application/json.schema.\$ref")).isNotNull()
         then(openApiJsonPathContext.read<Any>("$productGetByIdPath.responses.200.content.application/json.examples.test.value")).isNotNull()
 
-        then(openApiJsonPathContext.read<List<List<String>>>("$productGetByIdPath.security[*].oauth2_clientCredentials").flatMap { it }).containsOnly("prod:r")
-        then(openApiJsonPathContext.read<List<List<String>>>("$productGetByIdPath.security[*].oauth2_authorizationCode").flatMap { it }).containsOnly("prod:r")
+        then(openApiJsonPathContext.read<List<List<String>>>("$productGetByIdPath.security[*].oauth2").flatMap { it }).containsOnly("prod:r")
     }
 
     private fun thenMultiplePathParametersExist() {

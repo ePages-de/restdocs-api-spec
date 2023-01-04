@@ -54,11 +54,11 @@ class RestdocsOpenApiTaskTest : RestdocsOpenApiTaskTestBase() {
 
     override fun thenSecurityDefinitionsFoundInOutputFile() {
         with(JsonPath.parse(outputFolder.resolve("$outputFileNamePrefix.$format").readText())) {
-            then(read<String>("securityDefinitions.oauth2_accessCode.scopes.prod:r")).isEqualTo("Some text")
-            then(read<String>("securityDefinitions.oauth2_accessCode.type")).isEqualTo("oauth2")
-            then(read<String>("securityDefinitions.oauth2_accessCode.tokenUrl")).isNotEmpty()
-            then(read<String>("securityDefinitions.oauth2_accessCode.authorizationUrl")).isNotEmpty()
-            then(read<String>("securityDefinitions.oauth2_accessCode.flow")).isNotEmpty()
+            then(read<String>("securityDefinitions.oauth2.scopes.prod:r")).isEqualTo("Some text")
+            then(read<String>("securityDefinitions.oauth2.type")).isEqualTo("oauth2")
+            then(read<String>("securityDefinitions.oauth2.tokenUrl")).isNotEmpty()
+            then(read<String>("securityDefinitions.oauth2.authorizationUrl")).isNotEmpty()
+            then(read<String>("securityDefinitions.oauth2.flow")).isNotEmpty()
         }
     }
 }
