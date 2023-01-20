@@ -327,6 +327,7 @@ object OpenApi20Generator {
                     SecurityType.OAUTH2 -> addSecurity(OAUTH2_SECURITY_NAME, securityRequirements2ScopesList(securityRequirements))
                     SecurityType.BASIC -> addSecurity(BASIC_SECURITY_NAME, null)
                     SecurityType.API_KEY -> addSecurity(API_KEY_SECURITY_NAME, null)
+                    SecurityType.JWT_BEARER -> { /* not specified for OpenApi 2.0 */ }
                 }
             }
         }

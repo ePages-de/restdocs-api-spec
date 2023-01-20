@@ -2,8 +2,8 @@ package com.epages.restdocs.apispec
 
 import org.springframework.restdocs.operation.preprocess.OperationRequestPreprocessor
 import org.springframework.restdocs.operation.preprocess.OperationResponsePreprocessor
-import org.springframework.restdocs.restassured3.RestAssuredRestDocumentation
-import org.springframework.restdocs.restassured3.RestDocumentationFilter
+import org.springframework.restdocs.restassured.RestAssuredRestDocumentation
+import org.springframework.restdocs.restassured.RestDocumentationFilter
 import org.springframework.restdocs.snippet.Snippet
 import java.util.function.Function
 

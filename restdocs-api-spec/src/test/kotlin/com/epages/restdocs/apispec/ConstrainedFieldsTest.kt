@@ -1,9 +1,9 @@
 package com.epages.restdocs.apispec
 
+import jakarta.validation.constraints.NotEmpty
 import org.assertj.core.api.BDDAssertions.then
 import org.junit.jupiter.api.Test
 import org.springframework.restdocs.constraints.Constraint
-import javax.validation.constraints.NotEmpty
 
 internal class ConstrainedFieldsTest {
 

@@ -20,6 +20,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion") {
         exclude("junit")
     }
+    testImplementation("org.springframework.boot:spring-boot-starter-validation:$springBootVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
     testImplementation("org.junit-pioneer:junit-pioneer:0.3.0")
     testImplementation("org.springframework.boot:spring-boot-starter-hateoas:$springBootVersion")
