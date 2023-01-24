@@ -1,6 +1,6 @@
 dist: focal
 before_install:
-  - sudo apt-get install -y openjdk-8-jdk
+  - sudo apt-get install -y openjdk-17-jdk
 before_cache:
 - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
 - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
@@ -25,7 +25,7 @@ env:
   global:
   - CI_NAME=travis-ci
   - SIGNING_KEYRING_FILE="${TRAVIS_BUILD_DIR}/secret-keys.gpg"
-  - JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+  - JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
   # coveralls
   - secure: "nOkY2AcR5Z7hKKzi+zCzmzPk+xiRRrJjGliDJnHnEO7g+iJ8SmT+thHuMFcXqvjxJ006LbR3GPB8M8qgFXFDPEUDRPppShi3waOm1ddlM2iXh9kbCoROoioyRO+F07deH6ExibkLbu/xq3WwAAw7lx/ZP+buc2R2VCbV0nLKP9iE4nHQX8msLgmU1LjWf0Au1Pgl2eWXV0J4/ZJOvcVu9hvBf1Ow4C7BNb0KZmMjeT9uMK0hiGpb9VVbwedOWfsbaFmqmKYqVKS8UtNmG+HBjvZfajrIARKRPc9w9uEvfl4E1H/J7PJLy2kOrCOauj8LMu6DduSrWcg08T5VnH51cavSAsWWG1ImTgEsUBNpllc9r1XLhQCLQ1TWCgGmleqYjZ2ySvg0MQpFjTgXMZC+aDkjZjcEeq3BgrncAR/bcG4ByrZBWyoEXDxBwoMZnkryTxK07UUgXRXdjJUldJ5CQW9oSfd+oEXKJyqQGNt0ob3S0sRS5uhrKniK+6Mwzxf6vXeYvn2fVP5j3hocUz4XzDJQoDDmJi6D4BpwksqJ81CNOHpyeDIOhdXxvA/J8DMCK0Q7tTSbnSOxItaht56CSxqqLSGax3/4Nr+5QX9jpmdJ03HdpP+MOuIl6dZCmE4/w1IFaFEfhpETPlnWZHl1BsOt7omDeW7yCttDq3Y1mXU="
   # gradle plugin portal
