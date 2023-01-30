@@ -217,7 +217,8 @@ internal class PostmanCollectionGeneratorTest {
                     method = HTTPMethod.DELETE,
                     headers = listOf(),
                     pathParameters = listOf(),
-                    requestParameters = listOf(),
+                    queryParameters = listOf(),
+                    formParameters = listOf(),
                     securityRequirements = null,
                     requestFields = listOf()
                 ),
@@ -326,7 +327,8 @@ internal class PostmanCollectionGeneratorTest {
             method = HTTPMethod.PATCH,
             headers = listOf(),
             pathParameters = listOf(),
-            requestParameters = listOf(),
+            queryParameters = listOf(),
+            formParameters = listOf(),
             securityRequirements = null,
             requestFields = listOf(
                 FieldDescriptor(
@@ -348,7 +350,8 @@ internal class PostmanCollectionGeneratorTest {
             method = HTTPMethod.PATCH,
             headers = listOf(),
             pathParameters = listOf(),
-            requestParameters = listOf(),
+            queryParameters = listOf(),
+            formParameters = listOf(),
             securityRequirements = null,
             requestFields = listOf(
                 FieldDescriptor(
@@ -406,7 +409,7 @@ internal class PostmanCollectionGeneratorTest {
                     ignored = false
                 )
             ),
-            requestParameters = listOf(
+            queryParameters = listOf(
                 ParameterDescriptor(
                     name = "locale",
                     description = "Localizes the product fields to the given locale code",
@@ -415,6 +418,7 @@ internal class PostmanCollectionGeneratorTest {
                     ignored = false
                 )
             ),
+            formParameters = listOf(),
             requestFields = listOf()
         )
     }

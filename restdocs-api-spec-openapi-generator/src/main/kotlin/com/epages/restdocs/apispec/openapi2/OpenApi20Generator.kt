@@ -288,14 +288,12 @@ object OpenApi20Generator {
                     firstModelForPathAndMethod
                 ).plus(
                     modelsWithSamePathAndMethod
-                        .filter { it.request.contentType != "application/x-www-form-urlencoded" }
-                        .flatMap { it.request.requestParameters }
+                        .flatMap { it.request.queryParameters }
                         .distinctBy { it.name }
                         .map { requestParameterDescriptor2QueryParameter(it) }
                 ).plus(
                     modelsWithSamePathAndMethod
-                        .filter { it.request.contentType == "application/x-www-form-urlencoded" }
-                        .flatMap { it.request.requestParameters }
+                        .flatMap { it.request.formParameters }
                         .distinctBy { it.name }
                         .map { requestParameterDescriptor2FormParameter(it) }
                 ).plus(
