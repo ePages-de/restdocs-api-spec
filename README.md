@@ -41,6 +41,7 @@ This is why we came up with this project.
 
 - [Motivation](#motivation)
 - [Getting started](#getting-started)
+    - [Version compatibility](#version-compatibility)
     - [Project structure](#project-structure)
     - [Build configuration](#build-configuration)
         - [Gradle](#gradle)
@@ -66,6 +67,15 @@ This is why we came up with this project.
 - [RAML](#raml)
 
 ## Getting started
+
+### Version compatibility
+
+Spring Boot and Spring REST Docs 3.0.0 introduced [breaking chances to how request parameters are documented: `RequestParameterSnippet` was split into `QueryParameterSnippet` and `FormParameterSnippet`.](https://github.com/spring-projects/spring-restdocs/issues/832)
+
+|Spring Boot version | restdocs-api-spec version|
+|---|---|
+|3.x|0.17.0 or later|
+|2.x|0.16.4|
 
 ### Project structure
 
