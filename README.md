@@ -2,7 +2,7 @@
 
 [![oss lifecycle](https://img.shields.io/badge/oss_lifecycle-maintenance-yellow.svg)](https://github.com/ePages-de/restdocs-api-spec/issues/204)
 ![](https://img.shields.io/github/license/ePages-de/restdocs-openapi.svg)
-[![Build Status](https://travis-ci.com/ePages-de/restdocs-api-spec.svg?branch=master)](https://travis-ci.com/ePages-de/restdocs-api-spec)
+[![Build Status](https://app.travis-ci.com/ePages-de/restdocs-api-spec.svg?branch=master)](https://app.travis-ci.com/github/ePages-de/restdocs-api-spec)
 [![Maven Central](https://img.shields.io/maven-central/v/com.epages/restdocs-api-spec)](https://search.maven.org/artifact/com.epages/restdocs-api-spec)
 [![Coverage Status](https://coveralls.io/repos/github/ePages-de/restdocs-api-spec/badge.svg?branch=master)](https://coveralls.io/github/ePages-de/restdocs-api-spec?branch=master)
 [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/restdocs-api-spec/Lobby)
