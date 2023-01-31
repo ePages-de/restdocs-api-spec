@@ -12,10 +12,11 @@ import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.payload.JsonFieldType
 import org.springframework.restdocs.payload.RequestFieldsSnippet
 import org.springframework.restdocs.payload.ResponseFieldsSnippet
+import org.springframework.restdocs.request.FormParametersSnippet
 import org.springframework.restdocs.request.ParameterDescriptor
 import org.springframework.restdocs.request.PathParametersSnippet
+import org.springframework.restdocs.request.QueryParametersSnippet
 import org.springframework.restdocs.request.RequestDocumentation.parameterWithName
-import org.springframework.restdocs.request.RequestParametersSnippet
 
 internal object DescriptorValidator {
 
@@ -46,14 +47,23 @@ internal object DescriptorValidator {
                     )
                 )
             }
-
             validateIfDescriptorsPresent(
-                requestParameters,
+                queryParameters,
                 operation
             ) {
-                RequestParameterSnippetWrapper(
+                QueryParameterSnippetWrapper(
                     toParameterDescriptors(
-                        requestParameters
+                        queryParameters
+                    )
+                )
+            }
+            validateIfDescriptorsPresent(
+                formParameters,
+                operation
+            ) {
+                FormParameterSnippetWrapper(
+                    toParameterDescriptors(
+                        formParameters
                     )
                 )
             }
@@ -159,8 +169,16 @@ internal object DescriptorValidator {
         }
     }
 
-    private class RequestParameterSnippetWrapper(descriptors: List<ParameterDescriptor>) :
-        RequestParametersSnippet(descriptors),
+    private class FormParameterSnippetWrapper(descriptors: List<ParameterDescriptor>) :
+        FormParametersSnippet(descriptors),
+        ValidateableSnippet {
+        override fun validate(operation: Operation) {
+            super.createModel(operation)
+        }
+    }
+
+    private class QueryParameterSnippetWrapper(descriptors: List<ParameterDescriptor>) :
+        QueryParametersSnippet(descriptors),
         ValidateableSnippet {
         override fun validate(operation: Operation) {
             super.createModel(operation)

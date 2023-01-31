@@ -102,7 +102,8 @@ abstract class ApiSpecTaskTest {
     "contentType" : null,
     "headers" : [ ],
     "pathParameters" : [ ],
-    "requestParameters" : [ ],
+    "queryParameters" : [ ],
+    "formParameters" : [ ],
     "requestFields" : [ ],
     "example" : null,
     "securityRequirements" : {
@@ -146,7 +147,8 @@ abstract class ApiSpecTaskTest {
       "default" : "a default value"
     } ],
     "pathParameters" : [ ],
-    "requestParameters" : [ ],
+    "queryParameters" : [ ],
+    "formParameters" : [ ],
     "requestFields" : [ ],
     "example" : null,
     "securityRequirements" : {
@@ -182,7 +184,8 @@ abstract class ApiSpecTaskTest {
     "contentType" : null,
     "headers" : [ ],
     "pathParameters" : [ ],
-    "requestParameters" : [ ],
+    "queryParameters" : [ ],
+    "formParameters" : [ ],
     "requestFields" : [ ],
     "example" : null,
     "securityRequirements" : null

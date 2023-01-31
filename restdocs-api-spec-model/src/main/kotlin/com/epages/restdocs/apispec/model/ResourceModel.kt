@@ -37,7 +37,8 @@ data class RequestModel(
     val securityRequirements: SecurityRequirements?,
     val headers: List<HeaderDescriptor>,
     val pathParameters: List<ParameterDescriptor>,
-    val requestParameters: List<ParameterDescriptor>,
+    val queryParameters: List<ParameterDescriptor>,
+    val formParameters: List<ParameterDescriptor>,
     val requestFields: List<FieldDescriptor>,
     val example: String? = null,
     val schema: Schema? = null

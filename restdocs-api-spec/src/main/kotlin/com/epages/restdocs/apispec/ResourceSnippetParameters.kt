@@ -26,7 +26,8 @@ data class ResourceSnippetParameters @JvmOverloads constructor(
     val responseFields: List<FieldDescriptor> = emptyList(),
     val links: List<LinkDescriptor> = emptyList(),
     val pathParameters: List<ParameterDescriptorWithType> = emptyList(),
-    val requestParameters: List<ParameterDescriptorWithType> = emptyList(),
+    val queryParameters: List<ParameterDescriptorWithType> = emptyList(),
+    val formParameters: List<ParameterDescriptorWithType> = emptyList(),
     val requestHeaders: List<HeaderDescriptorWithType> = emptyList(),
     val responseHeaders: List<HeaderDescriptorWithType> = emptyList(),
     val tags: Set<String> = emptySet()
@@ -200,7 +201,9 @@ class ResourceSnippetParametersBuilder : ResourceSnippetDetails() {
         private set
     var pathParameters: List<ParameterDescriptorWithType> = emptyList()
         private set
-    var requestParameters: List<ParameterDescriptorWithType> = emptyList()
+    var queryParameters: List<ParameterDescriptorWithType> = emptyList()
+        private set
+    var formParameters: List<ParameterDescriptorWithType> = emptyList()
         private set
     var requestHeaders: List<HeaderDescriptorWithType> = emptyList()
         private set
@@ -233,10 +236,18 @@ class ResourceSnippetParametersBuilder : ResourceSnippetDetails() {
         }
     )
 
-    fun requestParameters(vararg requestParameters: ParameterDescriptorWithType) = requestParameters(requestParameters.toList())
-    fun requestParameters(requestParameters: List<ParameterDescriptorWithType>) = apply { this.requestParameters = requestParameters }
-    fun requestParameters(vararg requestParameters: ParameterDescriptor) = requestParameters(
+    fun queryParameters(vararg requestParameters: ParameterDescriptorWithType) = queryParameters(requestParameters.toList())
+    fun queryParameters(requestParameters: List<ParameterDescriptorWithType>) = apply { this.queryParameters = requestParameters }
+    fun queryParameters(vararg requestParameters: ParameterDescriptor) = queryParameters(
         requestParameters.map {
+            ParameterDescriptorWithType.fromParameterDescriptor(it)
+        }
+    )
+
+    fun formParameters(vararg formParameters: ParameterDescriptorWithType) = formParameters(formParameters.toList())
+    fun formParameters(formParameters: List<ParameterDescriptorWithType>) = apply { this.formParameters = formParameters }
+    fun formParameters(vararg formParameters: ParameterDescriptor) = formParameters(
+        formParameters.map {
             ParameterDescriptorWithType.fromParameterDescriptor(it)
         }
     )
@@ -270,7 +281,8 @@ class ResourceSnippetParametersBuilder : ResourceSnippetDetails() {
         responseFields,
         links,
         pathParameters,
-        requestParameters,
+        queryParameters,
+        formParameters,
         requestHeaders,
         responseHeaders,
         tags

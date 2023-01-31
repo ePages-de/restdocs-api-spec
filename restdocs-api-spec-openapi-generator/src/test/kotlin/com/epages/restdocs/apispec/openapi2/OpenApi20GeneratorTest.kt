@@ -424,14 +424,14 @@ class OpenApi20GeneratorTest {
         val productResourceModel = api[0]
         val productPath = openapi.paths.getValue(productResourceModel.request.path)
 
-        thenParameterMatches(productPath.post.parameters as List<AbstractSerializableParameter<*>>, "formData", productResourceModel.request.requestParameters[0])
+        thenParameterMatches(productPath.post.parameters as List<AbstractSerializableParameter<*>>, "formData", productResourceModel.request.formParameters[0])
     }
 
     private fun thenPutRequestShouldHaveFormDataParameters(openapi: Swagger, api: List<ResourceModel>) {
         val productResourceModel = api[0]
         val productPath = openapi.paths.getValue(productResourceModel.request.path)
 
-        thenParameterMatches(productPath.put.parameters as List<AbstractSerializableParameter<*>>, "formData", productResourceModel.request.requestParameters[0])
+        thenParameterMatches(productPath.put.parameters as List<AbstractSerializableParameter<*>>, "formData", productResourceModel.request.formParameters[0])
     }
 
     private fun thenGetProductWith400ResponseIsGenerated(openapi: Swagger, api: List<ResourceModel>) {
@@ -447,16 +447,16 @@ class OpenApi20GeneratorTest {
 
     private fun thenParametersForGetMatch(parameters: List<AbstractSerializableParameter<*>>, request: RequestModel) {
         thenParameterMatches(parameters, "path", request.pathParameters[0])
-        thenParameterMatches(parameters, "query", request.requestParameters[0])
+        thenParameterMatches(parameters, "query", request.queryParameters[0])
         thenParameterMatches(parameters, "header", request.headers[0])
     }
 
     private fun thenParametersForGetMatchWithDefaultValue(parameters: List<AbstractSerializableParameter<*>>, request: RequestModel) {
         thenParameterMatches(parameters, "path", request.pathParameters[0])
-        thenParameterMatches(parameters, "query", request.requestParameters[0])
-        thenParameterMatches(parameters, "query", request.requestParameters[1])
-        thenParameterMatches(parameters, "query", request.requestParameters[2])
-        thenParameterMatches(parameters, "query", request.requestParameters[3])
+        thenParameterMatches(parameters, "query", request.queryParameters[0])
+        thenParameterMatches(parameters, "query", request.queryParameters[1])
+        thenParameterMatches(parameters, "query", request.queryParameters[2])
+        thenParameterMatches(parameters, "query", request.queryParameters[3])
         thenParameterMatches(parameters, "header", request.headers[0])
         thenParameterMatches(parameters, "header", request.headers[1])
     }
@@ -465,10 +465,10 @@ class OpenApi20GeneratorTest {
         thenParameterMatches(parameters, "path", request.pathParameters[0])
         thenParameterEnumValuesMatches(parameters, "header", request.headers[0])
         thenParameterEnumValuesMatches(parameters, "header", request.headers[1])
-        thenParameterEnumValuesMatches(parameters, "query", request.requestParameters[0])
-        thenParameterEnumValuesMatches(parameters, "query", request.requestParameters[1])
-        thenParameterEnumValuesMatches(parameters, "query", request.requestParameters[2])
-        thenParameterEnumValuesMatches(parameters, "query", request.requestParameters[3])
+        thenParameterEnumValuesMatches(parameters, "query", request.queryParameters[0])
+        thenParameterEnumValuesMatches(parameters, "query", request.queryParameters[1])
+        thenParameterEnumValuesMatches(parameters, "query", request.queryParameters[2])
+        thenParameterEnumValuesMatches(parameters, "query", request.queryParameters[3])
     }
 
     private fun thenParametersForPostMatch(parameters: List<AbstractSerializableParameter<*>>, request: RequestModel) {
@@ -904,7 +904,7 @@ class OpenApi20GeneratorTest {
                     ignored = false
                 )
             ),
-            requestParameters = listOf(
+            queryParameters = listOf(
                 ParameterDescriptor(
                     name = "locale",
                     description = "Localizes the product fields to the given locale code",
@@ -913,13 +913,14 @@ class OpenApi20GeneratorTest {
                     ignored = false
                 )
             ),
+            formParameters = listOf(),
             requestFields = listOf()
         )
     }
 
     private fun getProductRequestWithDifferentParameter(name: String, description: String): RequestModel {
         return getProductRequest().copy(
-            requestParameters = listOf(
+            queryParameters = listOf(
                 ParameterDescriptor(
                     name = name,
                     description = description,
@@ -940,7 +941,8 @@ class OpenApi20GeneratorTest {
             ),
             headers = listOf(),
             pathParameters = listOf(),
-            requestParameters = listOf(),
+            queryParameters = listOf(),
+            formParameters = listOf(),
             requestFields = listOf()
         )
     }
@@ -956,7 +958,8 @@ class OpenApi20GeneratorTest {
             ),
             headers = listOf(),
             pathParameters = listOf(),
-            requestParameters = listOf(),
+            queryParameters = listOf(),
+            formParameters = listOf(),
             requestFields = listOf()
         )
     }
@@ -972,7 +975,8 @@ class OpenApi20GeneratorTest {
             ),
             headers = listOf(),
             pathParameters = listOf(),
-            requestParameters = listOf(),
+            queryParameters = listOf(),
+            formParameters = listOf(),
             requestFields = listOf()
         )
     }
@@ -995,7 +999,7 @@ class OpenApi20GeneratorTest {
                     defaultValue = true
                 )
             ),
-            requestParameters = listOf(
+            queryParameters = listOf(
                 ParameterDescriptor(
                     name = "booleanParameter",
                     description = "a boolean parameter",
@@ -1054,7 +1058,7 @@ class OpenApi20GeneratorTest {
                     )
                 )
             ),
-            requestParameters = listOf(
+            queryParameters = listOf(
                 ParameterDescriptor(
                     name = "booleanParameter",
                     description = "a boolean parameter",
@@ -1108,7 +1112,8 @@ class OpenApi20GeneratorTest {
             securityRequirements = null,
             headers = listOf(),
             pathParameters = listOf(),
-            requestParameters = listOf(
+            queryParameters = listOf(),
+            formParameters = listOf(
                 ParameterDescriptor(
                     name = "locale",
                     description = "Localizes the product fields to the given locale code",
@@ -1143,7 +1148,8 @@ class OpenApi20GeneratorTest {
                 )
             ),
             pathParameters = listOf(),
-            requestParameters = listOf(),
+            queryParameters = listOf(),
+            formParameters = listOf(),
             requestFields = listOf(
                 FieldDescriptor(
                     path = "description",
@@ -1189,7 +1195,8 @@ class OpenApi20GeneratorTest {
                     ignored = false
                 )
             ),
-            requestParameters = listOf(),
+            queryParameters = listOf(),
+            formParameters = listOf(),
             requestFields = listOf()
         )
     }
@@ -1204,7 +1211,8 @@ class OpenApi20GeneratorTest {
             ),
             headers = listOf(),
             pathParameters = listOf(),
-            requestParameters = listOf(),
+            queryParameters = listOf(),
+            formParameters = listOf(),
             requestFields = listOf()
         )
     }
@@ -1219,7 +1227,8 @@ class OpenApi20GeneratorTest {
             ),
             headers = listOf(),
             pathParameters = listOf(),
-            requestParameters = listOf(),
+            queryParameters = listOf(),
+            formParameters = listOf(),
             requestFields = listOf()
         )
     }

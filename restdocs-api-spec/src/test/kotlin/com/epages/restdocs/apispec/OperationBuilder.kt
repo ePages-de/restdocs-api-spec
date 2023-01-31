@@ -13,7 +13,6 @@ import org.springframework.restdocs.operation.OperationRequestPart
 import org.springframework.restdocs.operation.OperationRequestPartFactory
 import org.springframework.restdocs.operation.OperationResponse
 import org.springframework.restdocs.operation.OperationResponseFactory
-import org.springframework.restdocs.operation.Parameters
 import org.springframework.restdocs.operation.StandardOperation
 import org.springframework.restdocs.snippet.RestDocumentationContextPlaceholderResolverFactory
 import org.springframework.restdocs.snippet.StandardWriterResolver
@@ -23,10 +22,9 @@ import org.springframework.restdocs.templates.TemplateEngine
 import org.springframework.restdocs.templates.TemplateFormats
 import org.springframework.restdocs.templates.mustache.AsciidoctorTableCellContentLambda
 import org.springframework.restdocs.templates.mustache.MustacheTemplateEngine
+import org.springframework.web.util.UriComponentsBuilder
 import java.io.File
 import java.net.URI
-import java.util.ArrayList
-import java.util.HashMap
 
 /**
  * Helper class to support testing snippets by providing a builder for the central Operation class
@@ -140,8 +138,6 @@ class OperationBuilder {
 
         private val headers = HttpHeaders()
 
-        private val parameters = Parameters()
-
         private val partBuilders = ArrayList<OperationRequestPartBuilder>()
 
         init {
@@ -155,7 +151,7 @@ class OperationBuilder {
             }
             return OperationRequestFactory().create(
                 this.requestUri, this.method,
-                this.content, this.headers, this.parameters, parts
+                this.content, this.headers, parts
             )
         }
 
@@ -178,13 +174,9 @@ class OperationBuilder {
             return this
         }
 
-        fun param(name: String, vararg values: String): OperationRequestBuilder {
+        fun queryParam(name: String, vararg values: String): OperationRequestBuilder {
             if (values.isNotEmpty()) {
-                for (value in values) {
-                    this.parameters.add(name, value)
-                }
-            } else {
-                this.parameters[name] = emptyList()
+                this.requestUri = UriComponentsBuilder.fromUri(requestUri).queryParam(name, values).build().toUri()
             }
             return this
         }
