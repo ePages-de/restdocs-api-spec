@@ -74,7 +74,7 @@ Spring Boot and Spring REST Docs 3.0.0 introduced [breaking chances to how reque
 
 |Spring Boot version | restdocs-api-spec version|
 |---|---|
-|3.x|0.17.0 or later|
+|3.x|0.17.1 or later|
 |2.x|0.16.4|
 
 ### Project structure
