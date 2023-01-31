@@ -236,8 +236,7 @@ object OpenApi3Generator {
                     firstModelForPathAndMethod
                 ).plus(
                     modelsWithSamePathAndMethod
-                        .filter { it.request.contentType != "application/x-www-form-urlencoded" }
-                        .flatMap { it.request.requestParameters }
+                        .flatMap { it.request.queryParameters }
                         .distinctBy { it.name }
                         .map { requestParameterDescriptor2Parameter(it) }
                 ).plus(
@@ -291,7 +290,7 @@ object OpenApi3Generator {
                 toMediaType(
                     requestFields = requests.flatMap { it ->
                         if (it.request.contentType == "application/x-www-form-urlencoded") {
-                            it.request.requestParameters.map { parameterDescriptor2FieldDescriptor(it) }
+                            it.request.formParameters.map { parameterDescriptor2FieldDescriptor(it) }
                         } else {
                             it.request.requestFields
                         }

@@ -911,7 +911,8 @@ class OpenApi3GeneratorTest {
                     method = HTTPMethod.DELETE,
                     headers = listOf(),
                     pathParameters = listOf(),
-                    requestParameters = listOf(),
+                    queryParameters = listOf(),
+                    formParameters = listOf(),
                     securityRequirements = null,
                     requestFields = listOf()
                 ),
@@ -1085,7 +1086,8 @@ class OpenApi3GeneratorTest {
             method = HTTPMethod.PATCH,
             headers = listOf(),
             pathParameters = listOf(),
-            requestParameters = listOf(),
+            queryParameters = listOf(),
+            formParameters = listOf(),
             schema = schema,
             securityRequirements = null,
             requestFields = listOf(
@@ -1114,7 +1116,8 @@ class OpenApi3GeneratorTest {
             method = HTTPMethod.PATCH,
             headers = listOf(),
             pathParameters = listOf(),
-            requestParameters = listOf(),
+            queryParameters = listOf(),
+            formParameters = listOf(),
             securityRequirements = null,
             requestFields = listOf(
                 FieldDescriptor(
@@ -1153,7 +1156,8 @@ class OpenApi3GeneratorTest {
             securityRequirements = getSecurityRequirement(),
             headers = emptyList(),
             pathParameters = emptyList(),
-            requestParameters = emptyList(),
+            queryParameters = emptyList(),
+            formParameters = emptyList(),
             requestFields = listOf()
         )
     }
@@ -1166,7 +1170,8 @@ class OpenApi3GeneratorTest {
             securityRequirements = getSecurityRequirement(),
             headers = emptyList(),
             pathParameters = emptyList(),
-            requestParameters = listOf(
+            queryParameters = listOf(),
+            formParameters = listOf(
                 ParameterDescriptor(
                     name = "locale",
                     description = "Localizes the product fields to the given locale code",
@@ -1206,7 +1211,7 @@ class OpenApi3GeneratorTest {
                     ignored = false
                 )
             ),
-            requestParameters = listOf(
+            queryParameters = listOf(
                 ParameterDescriptor(
                     name = "locale",
                     description = "Localizes the product fields to the given locale code",
@@ -1215,6 +1220,7 @@ class OpenApi3GeneratorTest {
                     ignored = false
                 )
             ),
+            formParameters = listOf(),
             requestFields = listOf()
         )
     }
@@ -1230,7 +1236,7 @@ class OpenApi3GeneratorTest {
 
     private fun getProductRequestWithDifferentParameter(name: String, description: String): RequestModel {
         return getProductRequest().copy(
-            requestParameters = listOf(
+            queryParameters = listOf(
                 ParameterDescriptor(
                     name = name,
                     description = description,
@@ -1309,7 +1315,7 @@ class OpenApi3GeneratorTest {
                     defaultValue = 2L
                 )
             ),
-            requestParameters = listOf(
+            queryParameters = listOf(
                 ParameterDescriptor(
                     name = "booleanParameter",
                     description = "a boolean parameter",
@@ -1388,7 +1394,7 @@ class OpenApi3GeneratorTest {
 
     private fun getProductRequestWithRequestParameterWithWrongDefaultValue(): RequestModel {
         return getProductRequest().copy(
-            requestParameters = listOf(
+            queryParameters = listOf(
                 ParameterDescriptor(
                     name = "booleanParameter",
                     description = "a boolean parameter",
@@ -1458,7 +1464,7 @@ class OpenApi3GeneratorTest {
                     )
                 )
             ),
-            requestParameters = listOf(
+            queryParameters = listOf(
                 ParameterDescriptor(
                     name = "booleanParameter",
                     description = "a boolean parameter",
@@ -1500,6 +1506,7 @@ class OpenApi3GeneratorTest {
                     )
                 )
             ),
+            formParameters = listOf(),
             pathParameters = listOf(),
             requestFields = listOf()
         )
@@ -1507,7 +1514,7 @@ class OpenApi3GeneratorTest {
 
     private fun getProductRequestWithRequestParameterWithWrongEnumValues(): RequestModel {
         return getProductRequest().copy(
-            requestParameters = listOf(
+            queryParameters = listOf(
                 ParameterDescriptor(
                     name = "integerParameter",
                     description = "a integer parameter",

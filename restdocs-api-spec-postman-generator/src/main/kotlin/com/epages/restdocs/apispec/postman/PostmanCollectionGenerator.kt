@@ -111,7 +111,7 @@ object PostmanCollectionGenerator {
                 }
                 .ifEmpty { null }
             query = modelsWithSamePathAndMethod
-                .flatMap { it.request.requestParameters }
+                .flatMap { it.request.queryParameters }
                 .distinctBy { it.name }
                 .map {
                     Query().apply {

@@ -12,7 +12,7 @@ plugins {
     id("pl.allegro.tech.build.axion-release") version "1.9.2"
     jacoco
     java
-    kotlin("jvm") version "1.4.20" apply false
+    kotlin("jvm") version "1.7.22" apply false
     `maven-publish`
 }
 
@@ -58,12 +58,12 @@ allprojects {
 subprojects {
 
     val jacksonVersion by extra { "2.12.2" }
-    val springBootVersion by extra { "2.1.9.RELEASE" }
-    val springRestDocsVersion by extra { "2.0.4.RELEASE" }
+    val springBootVersion by extra { "3.0.2" }
+    val springRestDocsVersion by extra { "3.0.0" }
     val junitVersion by extra { "5.4.2" }
 
     tasks.withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "1.8"
+        kotlinOptions.jvmTarget = "17"
     }
 
     tasks.withType<Test> {

@@ -14,6 +14,7 @@ import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.http.HttpHeaders.CONTENT_TYPE
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.OK
+import org.springframework.http.MediaType
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.restdocs.generate.RestDocumentationGenerator.ATTRIBUTE_NAME_URL_TEMPLATE
 import org.springframework.restdocs.headers.HeaderDocumentation
@@ -69,7 +70,7 @@ class ResourceSnippetTest {
         givenResponseFieldDescriptors()
         givenResponseSchemaName()
         givenPathParameterDescriptors()
-        givenRequestParameterDescriptors()
+        givenQueryParameterDescriptors()
         givenRequestAndResponseHeaderDescriptors()
         givenTag()
 
@@ -99,13 +100,13 @@ class ResourceSnippetTest {
         then(resourceSnippetJson.read<Boolean>("request.pathParameters[0].optional")).isFalse()
         then(resourceSnippetJson.read<Boolean>("request.pathParameters[0].ignored")).isFalse()
 
-        then(resourceSnippetJson.read<List<*>>("request.requestParameters")).hasSize(1)
-        then(resourceSnippetJson.read<String>("request.requestParameters[0].name")).isNotEmpty()
-        then(resourceSnippetJson.read<String>("request.requestParameters[0].description")).isNotEmpty()
-        then(resourceSnippetJson.read<String>("request.requestParameters[0].type")).isNotEmpty()
-        then(resourceSnippetJson.read<String>("request.requestParameters[0].default")).isNotEmpty()
-        then(resourceSnippetJson.read<Boolean>("request.requestParameters[0].optional")).isFalse()
-        then(resourceSnippetJson.read<Boolean>("request.requestParameters[0].ignored")).isFalse()
+        then(resourceSnippetJson.read<List<*>>("request.queryParameters")).hasSize(1)
+        then(resourceSnippetJson.read<String>("request.queryParameters[0].name")).isNotEmpty()
+        then(resourceSnippetJson.read<String>("request.queryParameters[0].description")).isNotEmpty()
+        then(resourceSnippetJson.read<String>("request.queryParameters[0].type")).isNotEmpty()
+        then(resourceSnippetJson.read<String>("request.queryParameters[0].default")).isNotEmpty()
+        then(resourceSnippetJson.read<Boolean>("request.queryParameters[0].optional")).isFalse()
+        then(resourceSnippetJson.read<Boolean>("request.queryParameters[0].ignored")).isFalse()
 
         then(resourceSnippetJson.read<List<String>>("request.securityRequirements.requiredScopes")).containsExactly("scope1", "scope2")
         then(resourceSnippetJson.read<String>("request.securityRequirements.type")).isEqualTo("OAUTH2")
@@ -124,6 +125,28 @@ class ResourceSnippetTest {
         then(resourceSnippetJson.read<String>("response.headers[0].default")).isNull()
         then(resourceSnippetJson.read<Boolean>("response.headers[0].optional")).isFalse()
         then(resourceSnippetJson.read<String>("response.headers[0].example")).isNotEmpty()
+    }
+
+    @Test
+    fun should_generate_resourcemodel_for_form_request_and_response_body() {
+        givenOperationWithRequestAndResponseBody(
+            responseContentType = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
+            content = "test-param=1"
+        )
+        givenFormParameterDescriptors()
+
+        whenResourceSnippetInvoked()
+
+        thenSnippetFileExists()
+        thenSnippetFileHasCommonRequestAttributes()
+
+        then(resourceSnippetJson.read<List<*>>("request.formParameters")).hasSize(1)
+        then(resourceSnippetJson.read<String>("request.formParameters[0].name")).isNotEmpty()
+        then(resourceSnippetJson.read<String>("request.formParameters[0].description")).isNotEmpty()
+        then(resourceSnippetJson.read<String>("request.formParameters[0].type")).isNotEmpty()
+        then(resourceSnippetJson.read<String>("request.formParameters[0].default")).isNotEmpty()
+        then(resourceSnippetJson.read<Boolean>("request.formParameters[0].optional")).isFalse()
+        then(resourceSnippetJson.read<Boolean>("request.formParameters[0].ignored")).isFalse()
     }
 
     @Test
@@ -149,22 +172,34 @@ class ResourceSnippetTest {
     }
 
     @Test
-    fun should_filter_ignored_parameters() {
-        givenOperationWithRequestParameters()
-        givenIgnoredAndNotIgnoredRequestParameterDescriptors()
+    fun should_filter_ignored_query_parameters() {
+        givenOperationWithQueryParameters()
+        givenIgnoredAndNotIgnoredQueryParameterDescriptors()
 
         whenResourceSnippetInvoked()
 
         thenSnippetFileExists()
-        then(resourceSnippetJson.read<List<*>>("request.requestParameters")).hasSize(1)
-        then(resourceSnippetJson.read<String>("request.requestParameters[0].name")).isEqualTo("describedParameter")
+        then(resourceSnippetJson.read<List<*>>("request.queryParameters")).hasSize(1)
+        then(resourceSnippetJson.read<String>("request.queryParameters[0].name")).isEqualTo("describedParameter")
+    }
+
+    @Test
+    fun should_filter_ignored_form_parameters() {
+        givenOperationWithFormParameters()
+        givenIgnoredAndNotIgnoredFormParameterDescriptors()
+
+        whenResourceSnippetInvoked()
+
+        thenSnippetFileExists()
+        then(resourceSnippetJson.read<List<*>>("request.formParameters")).hasSize(1)
+        then(resourceSnippetJson.read<String>("request.formParameters[0].name")).isEqualTo("describedParameter")
     }
 
     @Test
     fun should_generate_parameter_attributes() {
         givenOperationWithPathAndRequestParametersHasAttributes()
         givenPathParameterDescriptorsHasAttributes()
-        givenRequestParameterDescriptorsHasAttributes()
+        givenQueryParameterDescriptorsHasAttributes()
 
         whenResourceSnippetInvoked()
 
@@ -182,16 +217,42 @@ class ResourceSnippetTest {
             listOf("T1", "T2", "T3")
         )
 
-        then(resourceSnippetJson.read<List<*>>("request.requestParameters")).hasSize(2)
-        then(resourceSnippetJson.read<String>("request.requestParameters[0].name")).isEqualTo("numberParameter")
-        then(resourceSnippetJson.read<String>("request.requestParameters[0].type")).isEqualTo(SimpleType.INTEGER.name)
-        then(resourceSnippetJson.read<String>("request.requestParameters[0].description")).isEqualTo("number")
-        then(resourceSnippetJson.read<Boolean>("request.requestParameters[0].optional")).isFalse
-        then(resourceSnippetJson.read<String>("request.requestParameters[1].name")).isEqualTo("categoryParameter")
-        then(resourceSnippetJson.read<String>("request.requestParameters[1].type")).isEqualTo(SimpleType.STRING.name)
-        then(resourceSnippetJson.read<String>("request.requestParameters[1].description")).isEqualTo("category enum string")
-        then(resourceSnippetJson.read<Boolean>("request.requestParameters[1].optional")).isFalse
-        then(resourceSnippetJson.read<List<String>>("request.requestParameters[1].attributes.enumValues")).isEqualTo(
+        then(resourceSnippetJson.read<List<*>>("request.queryParameters")).hasSize(2)
+        then(resourceSnippetJson.read<String>("request.queryParameters[0].name")).isEqualTo("numberParameter")
+        then(resourceSnippetJson.read<String>("request.queryParameters[0].type")).isEqualTo(SimpleType.INTEGER.name)
+        then(resourceSnippetJson.read<String>("request.queryParameters[0].description")).isEqualTo("number")
+        then(resourceSnippetJson.read<Boolean>("request.queryParameters[0].optional")).isFalse
+        then(resourceSnippetJson.read<String>("request.queryParameters[1].name")).isEqualTo("categoryParameter")
+        then(resourceSnippetJson.read<String>("request.queryParameters[1].type")).isEqualTo(SimpleType.STRING.name)
+        then(resourceSnippetJson.read<String>("request.queryParameters[1].description")).isEqualTo("category enum string")
+        then(resourceSnippetJson.read<Boolean>("request.queryParameters[1].optional")).isFalse
+        then(resourceSnippetJson.read<List<String>>("request.queryParameters[1].attributes.enumValues")).isEqualTo(
+            listOf("C1", "C2", "C3")
+        )
+    }
+
+    @Test
+    fun should_generate_form_parameter_attributes() {
+        givenOperationWithRequestAndResponseBody(
+            responseContentType = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
+            content = "numberParameter=21&categoryParameter=C2"
+        )
+        givenFormParameterDescriptorsHasAttributes()
+
+        whenResourceSnippetInvoked()
+
+        thenSnippetFileExists()
+
+        then(resourceSnippetJson.read<List<*>>("request.formParameters")).hasSize(2)
+        then(resourceSnippetJson.read<String>("request.formParameters[0].name")).isEqualTo("numberParameter")
+        then(resourceSnippetJson.read<String>("request.formParameters[0].type")).isEqualTo(SimpleType.INTEGER.name)
+        then(resourceSnippetJson.read<String>("request.formParameters[0].description")).isEqualTo("number")
+        then(resourceSnippetJson.read<Boolean>("request.formParameters[0].optional")).isFalse
+        then(resourceSnippetJson.read<String>("request.formParameters[1].name")).isEqualTo("categoryParameter")
+        then(resourceSnippetJson.read<String>("request.formParameters[1].type")).isEqualTo(SimpleType.STRING.name)
+        then(resourceSnippetJson.read<String>("request.formParameters[1].description")).isEqualTo("category enum string")
+        then(resourceSnippetJson.read<Boolean>("request.formParameters[1].optional")).isFalse
+        then(resourceSnippetJson.read<List<String>>("request.formParameters[1].attributes.enumValues")).isEqualTo(
             listOf("C1", "C2", "C3")
         )
     }
@@ -259,8 +320,12 @@ class ResourceSnippetTest {
         parametersBuilder.pathParameters(parameterWithName("id").description("an id"))
     }
 
-    private fun givenRequestParameterDescriptors() {
-        parametersBuilder.requestParameters(parameterWithName("test-param").type(SimpleType.STRING).defaultValue("default-value").description("test param"))
+    private fun givenQueryParameterDescriptors() {
+        parametersBuilder.queryParameters(parameterWithName("test-param").type(SimpleType.STRING).defaultValue("default-value").description("test param"))
+    }
+
+    private fun givenFormParameterDescriptors() {
+        parametersBuilder.formParameters(parameterWithName("test-param").type(SimpleType.STRING).defaultValue("default-value").description("test param"))
     }
 
     private fun givenRequestAndResponseHeaderDescriptors() {
@@ -344,15 +409,33 @@ class ResourceSnippetTest {
         operation = operationBuilder.build()
     }
 
-    private fun givenOperationWithRequestParameters() {
+    private fun givenOperationWithQueryParameters() {
         val operationBuilder = OperationBuilder("test", rootOutputDirectory)
 
         operationBuilder
             .attribute(ATTRIBUTE_NAME_URL_TEMPLATE, "http://localhost:8080/some/{id}")
             .request("http://localhost:8080/some/123")
-            .param("describedParameter", "will", "be", "documented")
-            .param("obviousParameter", "wont", "be", "documented")
+            .queryParam("describedParameter", "will", "be", "documented")
+            .queryParam("obviousParameter", "wont", "be", "documented")
             .method("GET")
+
+        operationBuilder
+            .response()
+            .status(204)
+
+        operation = operationBuilder.build()
+    }
+
+    private fun givenOperationWithFormParameters() {
+        val operationBuilder = OperationBuilder("test", rootOutputDirectory)
+
+        operationBuilder
+            .attribute(ATTRIBUTE_NAME_URL_TEMPLATE, "http://localhost:8080/some/{id}")
+            .request("http://localhost:8080/some/123")
+            .method("GET")
+            .content(
+                "describedParameter=will,be,documented&obviousParameter=wont,be,documented"
+            )
 
         operationBuilder
             .response()
@@ -367,8 +450,8 @@ class ResourceSnippetTest {
         operationBuilder
             .attribute(ATTRIBUTE_NAME_URL_TEMPLATE, "http://localhost:8080/some/{no}/{type}")
             .request("http://localhost:8080/some/123/T1")
-            .param("numberParameter", "21")
-            .param("categoryParameter", "C2")
+            .queryParam("numberParameter", "21")
+            .queryParam("categoryParameter", "C2")
             .method("GET")
 
         operationBuilder
@@ -408,8 +491,15 @@ class ResourceSnippetTest {
         )
     }
 
-    private fun givenIgnoredAndNotIgnoredRequestParameterDescriptors() {
-        parametersBuilder.requestParameters(
+    private fun givenIgnoredAndNotIgnoredQueryParameterDescriptors() {
+        parametersBuilder.queryParameters(
+            parameterWithName("describedParameter").description("description"),
+            parameterWithName("obviousParameter").description("needs no documentation, too obvious").ignored()
+        )
+    }
+
+    private fun givenIgnoredAndNotIgnoredFormParameterDescriptors() {
+        parametersBuilder.formParameters(
             parameterWithName("describedParameter").description("description"),
             parameterWithName("obviousParameter").description("needs no documentation, too obvious").ignored()
         )
@@ -424,8 +514,8 @@ class ResourceSnippetTest {
         )
     }
 
-    private fun givenRequestParameterDescriptorsHasAttributes() {
-        parametersBuilder.requestParameters(
+    private fun givenQueryParameterDescriptorsHasAttributes() {
+        parametersBuilder.queryParameters(
             parameterWithName("numberParameter").type(SimpleType.INTEGER).description("number"),
             parameterWithName("categoryParameter").description("category enum string").attributes(
                 Attributes.key("enumValues").value(arrayOf("C1", "C2", "C3"))
@@ -433,13 +523,24 @@ class ResourceSnippetTest {
         )
     }
 
-    private fun givenOperationWithRequestAndResponseBody(responseContentType: String = APPLICATION_JSON_VALUE) {
+    private fun givenFormParameterDescriptorsHasAttributes() {
+        parametersBuilder.formParameters(
+            parameterWithName("numberParameter").type(SimpleType.INTEGER).description("number"),
+            parameterWithName("categoryParameter").description("category enum string").attributes(
+                Attributes.key("enumValues").value(arrayOf("C1", "C2", "C3"))
+            )
+        )
+    }
+
+    private fun givenOperationWithRequestAndResponseBody(
+        responseContentType: String = APPLICATION_JSON_VALUE,
+        content: String = "{\"comment\": \"some\"}"
+    ) {
         val operationBuilder = OperationBuilder("test", rootOutputDirectory)
             .attribute(ATTRIBUTE_NAME_URL_TEMPLATE, "http://localhost:8080/some/{id}")
-        val content = "{\"comment\": \"some\"}"
         operationBuilder
             .request("http://localhost:8080/some/123")
-            .param("test-param", "1")
+            .queryParam("test-param", "1")
             .method("POST")
             .header("X-SOME", "some")
             .header(AUTHORIZATION, "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzY29wZSI6WyJzY29wZTEiLCJzY29wZTIiXSwiZXhwIjoxNTA3NzU4NDk4LCJpYXQiOjE1MDc3MTUyOTgsImp0aSI6IjQyYTBhOTFhLWQ2ZWQtNDBjYy1iMTA2LWU5MGNkYWU0M2Q2ZCJ9.eWGo7Y124_Hdrr-bKX08d_oCfdgtlGXo9csz-hvRhRORJi_ZK7PIwM0ChqoLa4AhR-dJ86npid75GB9IxCW2f5E24FyZW2p5swpOpfkEAA4oFuj7jxHiaiqL_HFKKCRsVNAN3hGiSp9Hn3fde0-LlABqMaihdzZzHL-xm8-CqbXT-qBfuscDImZrZQZqhizpSEV4idbEMzZykggLASGoOIL0t0ycfe3yeuQkMUhzZmXuu08VM7zXwWnqfXCa-RmA6wC7ZnWqiJoi0vBr4BrlLR067YoUrT6pgRfiy2HZ0vEE_XY5SBtA-qI2QnlJb7eTk7pgFtoGkYdeOZ86k6GDVw")

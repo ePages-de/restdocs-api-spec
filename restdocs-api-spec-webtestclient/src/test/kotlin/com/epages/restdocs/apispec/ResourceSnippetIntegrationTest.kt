@@ -2,6 +2,7 @@ package com.epages.restdocs.apispec
 
 import com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName
 import com.epages.restdocs.apispec.ResourceDocumentation.resource
+import jakarta.validation.constraints.NotEmpty
 import org.hibernate.validator.constraints.Length
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.boot.SpringApplication
@@ -24,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
-import javax.validation.constraints.NotEmpty
 
 @ExtendWith(SpringExtension::class)
 @AutoConfigureRestDocs

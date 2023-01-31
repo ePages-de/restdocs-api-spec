@@ -2,6 +2,7 @@ package com.epages.restdocs.apispec
 
 import com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName
 import com.epages.restdocs.apispec.ResourceDocumentation.resource
+import jakarta.validation.constraints.NotEmpty
 import org.hibernate.validator.constraints.Length
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -11,9 +12,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.context.ConfigurableApplicationContext
+import org.springframework.hateoas.EntityModel
+import org.springframework.hateoas.IanaLinkRelations
 import org.springframework.hateoas.Link
-import org.springframework.hateoas.Resource
-import org.springframework.hateoas.mvc.BasicLinkBuilder
+import org.springframework.hateoas.server.mvc.BasicLinkBuilder.linkToCurrentMapping
 import org.springframework.http.HttpHeaders.ACCEPT
 import org.springframework.http.HttpHeaders.CONTENT_TYPE
 import org.springframework.http.ResponseEntity
@@ -29,7 +31,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
-import javax.validation.constraints.NotEmpty
 
 @ExtendWith(SpringExtension::class)
 @WebMvcTest
@@ -71,17 +72,17 @@ open class ResourceSnippetIntegrationTest {
                 @PathVariable otherId: Int?,
                 @RequestHeader("X-Custom-Header") customHeader: String,
                 @RequestBody testDataHolder: TestDataHolder
-            ): ResponseEntity<Resource<TestDataHolder>> {
-                val resource = Resource(testDataHolder.copy(id = UUID.randomUUID().toString()))
-                val link = BasicLinkBuilder.linkToCurrentMapping().slash("some").slash(someId).slash("other").slash(otherId).toUri().toString()
-                resource.add(Link(link, Link.REL_SELF))
-                resource.add(Link(link, "multiple"))
-                resource.add(Link(link, "multiple"))
+            ): ResponseEntity<EntityModel<TestDataHolder>> {
+                val resource = EntityModel.of(testDataHolder.copy(id = UUID.randomUUID().toString()))
+                val link = linkToCurrentMapping().slash("some").slash(someId).slash("other").slash(otherId).toUri().toString()
+                resource.add(Link.of(link, IanaLinkRelations.SELF))
+                resource.add(Link.of(link, "multiple"))
+                resource.add(Link.of(link, "multiple"))
 
                 return ResponseEntity
                     .ok()
                     .header("X-Custom-Header", customHeader)
-                    .body<Resource<TestDataHolder>>(resource)
+                    .body<EntityModel<TestDataHolder>>(resource)
             }
         }
     }

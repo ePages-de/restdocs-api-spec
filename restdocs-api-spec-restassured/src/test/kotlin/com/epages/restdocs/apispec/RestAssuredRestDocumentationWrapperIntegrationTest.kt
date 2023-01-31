@@ -25,8 +25,8 @@ import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
 import org.springframework.restdocs.payload.PayloadDocumentation.subsectionWithPath
 import org.springframework.restdocs.request.RequestDocumentation.parameterWithName
 import org.springframework.restdocs.request.RequestDocumentation.pathParameters
-import org.springframework.restdocs.restassured3.RestAssuredRestDocumentation
-import org.springframework.restdocs.restassured3.RestDocumentationFilter
+import org.springframework.restdocs.restassured.RestAssuredRestDocumentation
+import org.springframework.restdocs.restassured.RestDocumentationFilter
 import java.io.File
 
 @ExtendWith(RestDocumentationExtension::class)
