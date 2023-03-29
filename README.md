@@ -284,7 +284,7 @@ Here is an example:
 resultActions
   .andDo(
     MockMvcRestDocumentationWrapper.document(operationName,
-      requestFields(fieldDescriptors().getFieldDescriptors()),
+      requestFields(FieldDescriptors().getFieldDescriptors()),
       responseFields(
         fieldWithPath("comment").description("the comment"),
         fieldWithPath("flag").description("the flag"),
