@@ -474,9 +474,9 @@ openapi3 {
     version = '1.0.1'
     format = 'yaml'
     contact = {
-		name = 'John Doe'
-		email = 'john.doe@email.com'
-	}
+        name = 'John Doe'
+        email = 'john.doe@example.com'
+    }
     separatePublicApi = true
     outputFileNamePrefix = 'my-api-spec'
     oauth2SecuritySchemeDefinition = {
