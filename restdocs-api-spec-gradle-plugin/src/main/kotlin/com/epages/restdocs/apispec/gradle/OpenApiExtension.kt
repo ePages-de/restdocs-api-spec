@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.readValue
 import groovy.lang.Closure
+import io.swagger.v3.oas.models.info.Contact
 import io.swagger.v3.oas.models.servers.Server
 import org.gradle.api.Project
 import java.io.File
@@ -63,6 +64,7 @@ open class OpenApi3Extension(project: Project) : OpenApiBaseExtension(project) {
     override var outputFileNamePrefix = "openapi3"
 
     private var _servers: List<Server> = mutableListOf(Server().apply { url = "http://localhost" })
+    private var _contact: Contact? = null
 
     val servers
         get() = _servers
@@ -77,6 +79,13 @@ open class OpenApi3Extension(project: Project) : OpenApiBaseExtension(project) {
 
     fun setServers(serversActions: List<Closure<Server>>) {
         _servers = serversActions.map { project.configure(Server(), it) as Server }
+    }
+
+    val contact
+        get() = _contact
+
+    fun setContact(contact: Closure<Contact>) {
+        _contact = project.configure(Contact(), contact) as Contact
     }
 
     companion object {
