@@ -608,7 +608,7 @@ Given that the `master` branch on the upstream repository is in the state from w
 
 1. [Create release via the GitHub UI](https://github.com/ePages-de/restdocs-api-spec/releases/new) <br>
     Use the intended version number as "Tag version", e.g. "0.16.0".
-    This will automatically trigger a Travis build which publishes the JAR files for this release to Sonatype.
+    ~~This will automatically trigger a Travis build which publishes the JAR files for this release to Sonatype.~~
 2. Login to Sonatype and navigate to the [staging repositories](https://oss.sonatype.org/#stagingRepositories)
 3. Close the staging repository <br>
     Select the generated staging repository and close it.
