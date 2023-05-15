@@ -1,19 +1,18 @@
 
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.kt3k.gradle.plugin.CoverallsPluginExtension
 import pl.allegro.tech.build.axion.release.domain.TagNameSerializationConfig
 import pl.allegro.tech.build.axion.release.domain.hooks.HooksConfig
 
 
 plugins {
-    id("com.github.kt3k.coveralls") version "2.12.0"
+    `maven-publish`
     id("io.github.gradle-nexus.publish-plugin") version "1.0.0"
     id("org.jmailen.kotlinter") version "3.3.0" apply false
+    id("org.sonarqube") version "4.0.0.2929"
     id("pl.allegro.tech.build.axion-release") version "1.9.2"
     jacoco
     java
-    kotlin("jvm") version "1.4.20" apply false
-    `maven-publish`
+    kotlin("jvm") version "1.7.22" apply false
 }
 
 repositories {
@@ -58,12 +57,12 @@ allprojects {
 subprojects {
 
     val jacksonVersion by extra { "2.12.2" }
-    val springBootVersion by extra { "2.1.9.RELEASE" }
-    val springRestDocsVersion by extra { "2.0.4.RELEASE" }
+    val springBootVersion by extra { "3.0.2" }
+    val springRestDocsVersion by extra { "3.0.0" }
     val junitVersion by extra { "5.4.2" }
 
     tasks.withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "1.8"
+        kotlinOptions.jvmTarget = "17"
     }
 
     tasks.withType<Test> {
@@ -83,12 +82,6 @@ subprojects {
             }
         }
     }
-}
-
-//coverall multi module plugin configuration starts here
-configure<CoverallsPluginExtension> {
-    sourceDirs = nonSampleProjects.flatMap { it.sourceSets["main"].allSource.srcDirs }.filter { it.exists() }.map { it.path }
-    jacocoReportPath = "$buildDir/reports/jacoco/jacocoRootReport/jacocoRootReport.xml"
 }
 
 tasks {
@@ -115,11 +108,19 @@ tasks {
             xml.isEnabled = true
         }
     }
-    getByName("coveralls").dependsOn(jacocoRootReport)
+    getByName("sonar").dependsOn(jacocoRootReport)
 }
 
 nexusPublishing {
     repositories {
         sonatype ()
+    }
+}
+
+sonar {
+    properties {
+        property("sonar.projectKey", "ePages-de_restdocs-api-spec")
+        property("sonar.organization", "epages-de")
+        property("sonar.host.url", "https://sonarcloud.io")
     }
 }

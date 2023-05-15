@@ -2,11 +2,11 @@
 .gradle/
 .*
 !.gitignore
+!.github/
 .settings/
 build/
 out/
 bin/
-gradle.properties
 *.iml
 *.ipr
 *.iws
