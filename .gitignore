@@ -2,6 +2,7 @@
 .gradle/
 .*
 !.gitignore
+!.github/
 .settings/
 build/
 out/
