@@ -7,7 +7,6 @@
 build/
 out/
 bin/
-gradle.properties
 *.iml
 *.ipr
 *.iws
