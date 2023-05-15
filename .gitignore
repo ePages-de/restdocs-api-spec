@@ -1,10 +1,7 @@
 *.gpg
-
 .gradle/
 .*
 !.gitignore
-!.travis.yml
-!.circleci
 .settings/
 build/
 out/
