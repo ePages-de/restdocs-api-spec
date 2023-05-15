@@ -122,5 +122,6 @@ sonar {
         property("sonar.projectKey", "ePages-de_restdocs-api-spec")
         property("sonar.organization", "epages-de")
         property("sonar.host.url", "https://sonarcloud.io")
+        property("sonar.exclusions", "**/samples/**")
     }
 }
