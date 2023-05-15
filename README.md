@@ -2,9 +2,7 @@
 
 [![oss lifecycle](https://img.shields.io/badge/oss_lifecycle-maintenance-yellow.svg)](https://github.com/ePages-de/restdocs-api-spec/issues/204)
 ![](https://img.shields.io/github/license/ePages-de/restdocs-openapi.svg)
-[![Build Status](https://travis-ci.com/ePages-de/restdocs-api-spec.svg?branch=master)](https://travis-ci.com/ePages-de/restdocs-api-spec)
 [![Maven Central](https://img.shields.io/maven-central/v/com.epages/restdocs-api-spec)](https://search.maven.org/artifact/com.epages/restdocs-api-spec)
-[![Coverage Status](https://coveralls.io/repos/github/ePages-de/restdocs-api-spec/badge.svg?branch=master)](https://coveralls.io/github/ePages-de/restdocs-api-spec?branch=master)
 [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/restdocs-api-spec/Lobby)
 
 This is an extension that adds API specifications as an output format to [Spring REST Docs](https://projects.spring.io/spring-restdocs/).
@@ -41,6 +39,7 @@ This is why we came up with this project.
 
 - [Motivation](#motivation)
 - [Getting started](#getting-started)
+    - [Version compatibility](#version-compatibility)
     - [Project structure](#project-structure)
     - [Build configuration](#build-configuration)
         - [Gradle](#gradle)
@@ -66,6 +65,15 @@ This is why we came up with this project.
 - [RAML](#raml)
 
 ## Getting started
+
+### Version compatibility
+
+Spring Boot and Spring REST Docs 3.0.0 introduced [breaking chances to how request parameters are documented: `RequestParameterSnippet` was split into `QueryParameterSnippet` and `FormParameterSnippet`.](https://github.com/spring-projects/spring-restdocs/issues/832)
+
+|Spring Boot version | restdocs-api-spec version|
+|---|---|
+|3.x|0.17.1 or later|
+|2.x|0.16.4|
 
 ### Project structure
 
@@ -591,7 +599,7 @@ This section of the README is targeted at project maintainers.
 
 ### Publish project
 
-The project is published with the help of [TravisCI](./.travis.yml).
+~~The project is published with the help of [TravisCI](./.travis.yml).~~
 It's version number is determined by the Git tags (see [allegro/axion-release-plugin](https://axion-release-plugin.readthedocs.io)).
 The Java dependencies are published to Sonatype with the help of the [gradle-nexus/publish-plugin](https://github.com/gradle-nexus/publish-plugin) and the Maven Publish Plugin.
 The Gradle plugin is published to the [Gradle plugin portal](https://plugins.gradle.org/plugin/com.epages.restdocs-api-spec) with the help of the ['plugin-publish' plugin](https://plugins.gradle.org/plugin/com.gradle.plugin-publish) (see [docs.gradle.org](https://docs.gradle.org/current/userguide/publishing_gradle_plugins.html)).
@@ -600,7 +608,7 @@ Given that the `master` branch on the upstream repository is in the state from w
 
 1. [Create release via the GitHub UI](https://github.com/ePages-de/restdocs-api-spec/releases/new) <br>
     Use the intended version number as "Tag version", e.g. "0.16.0".
-    This will automatically trigger a Travis build which publishes the JAR files for this release to Sonatype.
+    ~~This will automatically trigger a Travis build which publishes the JAR files for this release to Sonatype.~~
 2. Login to Sonatype and navigate to the [staging repositories](https://oss.sonatype.org/#stagingRepositories)
 3. Close the staging repository <br>
     Select the generated staging repository and close it.
