@@ -1,6 +1,7 @@
 # Spring REST Docs API specification Integration
 
 [![oss lifecycle](https://img.shields.io/badge/oss_lifecycle-maintenance-yellow.svg)](https://github.com/ePages-de/restdocs-api-spec/issues/204)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=ePages-de_restdocs-api-spec&metric=coverage)](https://sonarcloud.io/summary/new_code?id=ePages-de_restdocs-api-spec)
 ![](https://img.shields.io/github/license/ePages-de/restdocs-openapi.svg)
 [![Maven Central](https://img.shields.io/maven-central/v/com.epages/restdocs-api-spec)](https://search.maven.org/artifact/com.epages/restdocs-api-spec)
 [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/restdocs-api-spec/Lobby)
@@ -62,7 +63,6 @@ This is why we came up with this project.
         - [OpenAPI 3.0.1](#openapi-301-1)
         - [Postman](#postman-1)
 - [Generate an HTML-based API reference from OpenAPI](#generate-an-html-based-api-reference-from-openapi)
-- [RAML](#raml)
 
 ## Getting started
 
@@ -94,7 +94,7 @@ The [ResourceSnippet](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apis
     * Using the [plugins DSL](https://docs.gradle.org/current/userguide/plugins.html#sec:plugins_block):
         ```groovy
         plugins {
-            id 'com.epages.restdocs-api-spec' version '0.16.0'
+            id 'com.epages.restdocs-api-spec' version '0.18.2'
         }
         ```
         Examples with Kotlin are also available [here](https://plugins.gradle.org/plugin/com.epages.restdocs-api-spec)
@@ -110,7 +110,7 @@ The [ResourceSnippet](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apis
             }
           }
           dependencies {
-            classpath "com.epages:restdocs-api-spec-gradle-plugin:0.16.0" //1.2
+            classpath "com.epages:restdocs-api-spec-gradle-plugin:0.18.2" //1.2
           }
         }
 
@@ -129,7 +129,7 @@ The [ResourceSnippet](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apis
 
     dependencies {
         //..
-        testImplementation('com.epages:restdocs-api-spec-mockmvc:0.16.0') //2.2
+        testImplementation('com.epages:restdocs-api-spec-mockmvc:0.18.2') //2.2
     }
 
     openapi { //2.3
@@ -569,52 +569,40 @@ redoc-cli bundle build/api-spec/openapi.json
 redoc-cli serve build/api-spec/openapi.json
 ```
 
-## RAML
-
-This project supersedes [restdocs-raml](https://github.com/ePages-de/restdocs-raml).
-So if you are coming from `restdocs-raml` you might want to switch to `restdocs-api-spec`.
-
-The API of both projects is fairly similar and it is easy to migrate.
-
-We plan to support RAML in the future.
-In the meantime you can use one of several ways to convert an OpenAPI specification to RAML.
-There are converters around that can help you to achieve this conversion.
-
-- [oas-raml-converter](https://github.com/mulesoft/oas-raml-converter) - an npm project that provides a CLI to convert between OpenAPI and RAML - it also provides an [online converter](https://mulesoft.github.io/oas-raml-converter/)
-- [api-matic](https://apimatic.io/transformer) - an online converter capable of converting between many api specifications
-
-In the [sample project](samples/restdocs-api-spec-sample) you find a build configuration that uses the [oas-raml-converter-docker](https://hub.docker.com/r/zaddo/oas-raml-converter-docker/) docker image and the [gradle-docker-plugin](https://github.com/bmuschko/gradle-docker-plugin) to leverage the `oas-raml-converter` to convert the output of the `openapi` task to RAML.
-Using this approach your gradle build can still output a RAML specification.
-
-See [openapi2raml.gradle](samples/restdocs-api-spec-sample/openapi2raml.gradle).
-
-```
-./gradlew restdocs-api-spec-sample:openapi
-./gradlew -b samples/restdocs-api-spec-sample/openapi2raml.gradle openapi2raml
-```
-
 ## Maintenance
 
 This section of the README is targeted at project maintainers.
 
 ### Publish project
 
-~~The project is published with the help of [TravisCI](./.travis.yml).~~
+The project is published with the help of [GitHub Actions](./.github/workflows).
 It's version number is determined by the Git tags (see [allegro/axion-release-plugin](https://axion-release-plugin.readthedocs.io)).
 The Java dependencies are published to Sonatype with the help of the [gradle-nexus/publish-plugin](https://github.com/gradle-nexus/publish-plugin) and the Maven Publish Plugin.
 The Gradle plugin is published to the [Gradle plugin portal](https://plugins.gradle.org/plugin/com.epages.restdocs-api-spec) with the help of the ['plugin-publish' plugin](https://plugins.gradle.org/plugin/com.gradle.plugin-publish) (see [docs.gradle.org](https://docs.gradle.org/current/userguide/publishing_gradle_plugins.html)).
 
 Given that the `master` branch on the upstream repository is in the state from which you want to create a release, execute the following steps:
 
-1. [Create release via the GitHub UI](https://github.com/ePages-de/restdocs-api-spec/releases/new) <br>
-    Use the intended version number as "Tag version", e.g. "0.16.0".
-    ~~This will automatically trigger a Travis build which publishes the JAR files for this release to Sonatype.~~
-2. Login to Sonatype and navigate to the [staging repositories](https://oss.sonatype.org/#stagingRepositories)
-3. Close the staging repository <br>
-    Select the generated staging repository and close it.
-    Check that there are no errors afterwards (e.g. missing signatures or Javadoc JARs).
-4. Release the repository <br>
-    Select the generated staging repository and release it.
-    Soon after, the release should be available in the ["Public Repositories" of ePages](https://oss.sonatype.org/service/local/repo_groups/public/content/com/epages/).
-5. Update documentation <br>
-    Create a new commit which updates the version numbers in the `README` file.
+**(1) Create release**
+
+[Create release via the GitHub UI](https://github.com/ePages-de/restdocs-api-spec/releases/new).
+
+Use the intended version number as "Tag version", e.g. "0.18.2".
+This will automatically trigger a GitHub Action build which publishes the JAR files for this release to Sonatype.
+
+**(2) Login to Sonatype**
+
+Login to Sonatype and navigate to the [staging repositories](https://oss.sonatype.org/#stagingRepositories).
+
+**(3) Close the staging repository**
+    
+Select the generated staging repository and close it.
+Check that there are no errors afterwards (e.g. missing signatures or Javadoc JARs).
+
+**(4) Release the repository**
+
+Select the generated staging repository and release it.
+After few minutes, the release should be available in the ["Public Repositories" of ePages](https://oss.sonatype.org/service/local/repo_groups/public/content/com/epages/).
+
+**(5) Update documentation**
+
+Create a new commit which updates the version numbers in the `README` file.
