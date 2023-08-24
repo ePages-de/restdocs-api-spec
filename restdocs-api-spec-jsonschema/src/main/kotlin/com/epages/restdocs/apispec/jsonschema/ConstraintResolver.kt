@@ -87,7 +87,6 @@ internal object ConstraintResolver {
             REQUIRED_CONSTRAINTS.contains(constraint.name)
         } || !fieldDescriptor.optional
 
-
     private fun findConstraints(fieldDescriptor: FieldDescriptor): List<Constraint> =
         fieldDescriptor.attributes.validationConstraints
 }
