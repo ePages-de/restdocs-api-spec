@@ -655,7 +655,7 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
             ),
 
             FieldDescriptor("lineItems[*].quantity.unit", "some", "STRING"),
-            FieldDescriptor("shippingAddress", "some", "OBJECT"),
+            FieldDescriptor("shippingAddress", "some", "OBJECT", true),
             FieldDescriptor("billingAddress", "some", "OBJECT"),
             FieldDescriptor(
                 "billingAddress.firstName", "some", "STRING",
@@ -732,6 +732,7 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
                 "pagePositive",
                 "some",
                 "NUMBER",
+                true,
                 attributes = Attributes(
                     listOf(
                         Constraint(
