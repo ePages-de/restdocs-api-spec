@@ -82,9 +82,10 @@ internal object ConstraintResolver {
             .minOrNull()
     }
 
-    internal fun isRequired(fieldDescriptor: FieldDescriptor): Boolean =
-        findConstraints(fieldDescriptor)
-            .any { constraint -> REQUIRED_CONSTRAINTS.contains(constraint.name) }
+    internal fun isRequired(fieldDescriptor: FieldDescriptor): Boolean = findConstraints(fieldDescriptor)
+        .any { constraint ->
+            REQUIRED_CONSTRAINTS.contains(constraint.name)
+        } || !fieldDescriptor.optional
 
     private fun findConstraints(fieldDescriptor: FieldDescriptor): List<Constraint> =
         fieldDescriptor.attributes.validationConstraints
