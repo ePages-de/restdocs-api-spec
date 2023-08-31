@@ -456,8 +456,6 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
             .build()
             .load()
             .build()
-//        schema = SchemaLoader.load(schemaString)
-//        schema = SchemaLoader.load(JSONObject(schemaString))
     }
 
     private fun givenFieldDescriptorWithPrimitiveArray() {
