@@ -208,22 +208,15 @@ class JsonSchemaFromFieldDescriptorsGenerator {
 
         fun jsonSchemaType(): Schema {
             val schemaBuilders = jsonSchemaPrimitiveTypes.map { typeToSchema(it) }
-            return if (schemaBuilders.size == 1) {
-                val builder = schemaBuilders.first().description(description)
-                checkNullable(builder)
-                builder.build()
-            } else {
-                val builder = oneOf(schemaBuilders.map { it.build() }).description(description)
-                checkNullable(builder)
-                builder.build()
-            }
+            return if (schemaBuilders.size == 1) schemaBuilders.first().description(description).checkNullable().build()
+            else oneOf(schemaBuilders.map { it.build() }).description(description).checkNullable().build()
         }
 
-        private fun checkNullable(builder: Schema.Builder<out Schema>): Schema.Builder<out Schema> {
+        private fun Schema.Builder<out Schema>.checkNullable(): Schema.Builder<out Schema> {
             if (optional) {
-                builder.nullable(true)
+                this.nullable(true)
             }
-            return builder
+            return this
         }
 
         fun merge(fieldDescriptor: FieldDescriptor): FieldDescriptorWithSchemaType {
