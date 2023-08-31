@@ -256,7 +256,7 @@ class JsonSchemaFromFieldDescriptorsGenerator {
 
         private fun arrayItemsSchema(): Schema {
             return attributes.itemsType
-                ?.let { typeToSchema(it.toLowerCase()).build() }
+                ?.let { typeToSchema(it.lowercase()).build() }
                 ?: CombinedSchema.oneOf(
                     listOf(
                         ObjectSchema.builder().build(),
@@ -285,7 +285,7 @@ class JsonSchemaFromFieldDescriptorsGenerator {
                 )
 
             private fun jsonSchemaPrimitiveTypeFromDescriptorType(fieldDescriptorType: String) =
-                fieldDescriptorType.toLowerCase()
+                fieldDescriptorType.lowercase()
                     .let { if (it == "varies") "empty" else it } // varies is used by spring rest docs if the type is ambiguous - in json schema we want to represent as empty
         }
     }
