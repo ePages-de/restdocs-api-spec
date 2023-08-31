@@ -15,6 +15,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.everit.json.schema.ArraySchema
 import org.everit.json.schema.BooleanSchema
 import org.everit.json.schema.CombinedSchema
+import org.everit.json.schema.CombinedSchema.oneOf
 import org.everit.json.schema.EmptySchema
 import org.everit.json.schema.EnumSchema
 import org.everit.json.schema.NullSchema
@@ -207,8 +208,22 @@ class JsonSchemaFromFieldDescriptorsGenerator {
 
         fun jsonSchemaType(): Schema {
             val schemaBuilders = jsonSchemaPrimitiveTypes.map { typeToSchema(it) }
-            return if (schemaBuilders.size == 1) schemaBuilders.first().description(description).build()
-            else CombinedSchema.oneOf(schemaBuilders.map { it.build() }).description(description).build()
+            return if (schemaBuilders.size == 1) {
+                val builder = schemaBuilders.first().description(description)
+                checkNullable(builder)
+                builder.build()
+            } else {
+                val builder = oneOf(schemaBuilders.map { it.build() }).description(description)
+                checkNullable(builder)
+                builder.build()
+            }
+        }
+
+        private fun checkNullable(builder: Schema.Builder<out Schema>): Schema.Builder<out Schema> {
+            if (optional) {
+                builder.nullable(true)
+            }
+            return builder
         }
 
         fun merge(fieldDescriptor: FieldDescriptor): FieldDescriptorWithSchemaType {

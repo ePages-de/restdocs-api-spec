@@ -19,6 +19,7 @@ import org.everit.json.schema.Schema
 import org.everit.json.schema.StringSchema
 import org.everit.json.schema.ValidationException
 import org.everit.json.schema.loader.SchemaLoader
+import org.everit.json.schema.loader.internal.DefaultSchemaClient
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.jupiter.api.Test
@@ -61,6 +62,7 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
         val shippingAddressSchema = objectSchema.propertySchemas["shippingAddress"]!!
         then(shippingAddressSchema).isInstanceOf(ObjectSchema::class.java)
         then(shippingAddressSchema.description).isNotEmpty()
+        then(shippingAddressSchema.isNullable).isTrue()
 
         then(objectSchema.definesProperty("billingAddress")).isTrue()
         val billingAddressSchema = objectSchema.propertySchemas["billingAddress"] as ObjectSchema
@@ -120,6 +122,7 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
         then(pagePositiveSchema.minimum.toInt()).isEqualTo(1)
         then(pagePositiveSchema.maximum).isNull()
         then(pagePositiveSchema.requiresInteger()).isTrue
+        then(pagePositiveSchema.isNullable).isTrue()
 
         then(objectSchema.definesProperty("page100_200")).isTrue
         then(objectSchema.propertySchemas["page100_200"]).isInstanceOf(NumberSchema::class.java)
@@ -445,7 +448,16 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
     private fun whenSchemaGenerated() {
         schemaString = generator.generateSchema(fieldDescriptors!!)
         println(schemaString)
-        schema = SchemaLoader.load(JSONObject(schemaString))
+        schema = SchemaLoader
+            .builder()
+            .nullableSupport(true)
+            .schemaJson(JSONObject(schemaString))
+            .schemaClient(DefaultSchemaClient())
+            .build()
+            .load()
+            .build()
+//        schema = SchemaLoader.load(schemaString)
+//        schema = SchemaLoader.load(JSONObject(schemaString))
     }
 
     private fun givenFieldDescriptorWithPrimitiveArray() {
