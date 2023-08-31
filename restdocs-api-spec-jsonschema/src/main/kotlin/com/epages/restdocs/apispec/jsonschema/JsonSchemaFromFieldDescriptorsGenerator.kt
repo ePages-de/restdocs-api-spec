@@ -207,7 +207,17 @@ class JsonSchemaFromFieldDescriptorsGenerator {
     ) : FieldDescriptor(path, description, type, optional, ignored, attributes) {
 
         fun jsonSchemaType(): Schema {
-            val schemaBuilders = jsonSchemaPrimitiveTypes.map { typeToSchema(it) }
+            val schemaBuilders: List<Schema.Builder<*>>
+            if (jsonSchemaPrimitiveTypes.size > 1 &&
+                optional &&
+                !jsonSchemaPrimitiveTypes.contains("null")
+            ) {
+                schemaBuilders = jsonSchemaPrimitiveTypes
+                    .plus(jsonSchemaPrimitiveTypeFromDescriptorType("null"))
+                    .map { typeToSchema(it) }
+            } else {
+                schemaBuilders = jsonSchemaPrimitiveTypes.map { typeToSchema(it) }
+            }
             return if (schemaBuilders.size == 1) schemaBuilders.first().description(description).checkNullable().build()
             else oneOf(schemaBuilders.map { it.build() }).description(description).checkNullable().build()
         }
@@ -238,7 +248,9 @@ class JsonSchemaFromFieldDescriptorsGenerator {
 
         private fun typeToSchema(type: String): Schema.Builder<*> =
             when (type) {
-                "null" -> NullSchema.builder()
+                "null" -> {
+                    NullSchema.builder().nullable()
+                }
                 "empty" -> EmptySchema.builder()
                 "object" -> ObjectSchema.builder()
                 "array" -> ArraySchema.builder().applyConstraints(this).allItemSchema(arrayItemsSchema())
@@ -253,6 +265,11 @@ class JsonSchemaFromFieldDescriptorsGenerator {
                 ).isSynthetic(true)
                 else -> throw IllegalArgumentException("unknown field type $type")
             }
+
+        private fun NullSchema.Builder.nullable(): NullSchema.Builder {
+            this.nullable(true)
+            return this
+        }
 
         private fun arrayItemsSchema(): Schema {
             return attributes.itemsType

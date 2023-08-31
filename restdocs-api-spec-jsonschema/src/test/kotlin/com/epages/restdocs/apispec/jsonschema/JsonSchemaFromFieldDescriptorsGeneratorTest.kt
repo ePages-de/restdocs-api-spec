@@ -599,9 +599,9 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
 
     private fun givenDifferentFieldDescriptorsWithSamePathAndDifferentTypes() {
         fieldDescriptors = listOf(
-            FieldDescriptor("id", "some", "STRING"),
-            FieldDescriptor("id", "some", "NULL"),
-            FieldDescriptor("id", "some", "BOOLEAN")
+            FieldDescriptor("id", "some", "STRING", true),
+            FieldDescriptor("id", "some", "NULL", true),
+            FieldDescriptor("id", "some", "BOOLEAN", true)
         )
     }
 
