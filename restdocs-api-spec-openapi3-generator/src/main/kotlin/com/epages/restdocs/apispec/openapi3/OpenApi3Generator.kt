@@ -14,6 +14,7 @@ import com.epages.restdocs.apispec.model.SimpleType
 import com.epages.restdocs.apispec.model.groupByPath
 import com.epages.restdocs.apispec.openapi3.SecuritySchemeGenerator.addSecurityDefinitions
 import com.epages.restdocs.apispec.openapi3.SecuritySchemeGenerator.addSecurityItemFromSecurityRequirements
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.swagger.v3.core.util.Json
 import io.swagger.v3.oas.models.Components
@@ -76,8 +77,38 @@ object OpenApi3Generator {
                 resources,
                 oauth2SecuritySchemeDefinition
             )
+
             extractDefinitions()
+            makeSubSchema()
             addSecurityDefinitions(oauth2SecuritySchemeDefinition)
+        }
+    }
+
+    private fun OpenAPI.makeSubSchema(){
+        val schemas = this.components.schemas
+        val subSchemas = mutableMapOf<String, Schema<Any>>()
+        schemas.forEach {
+            val schema = it.value
+            if(schema.properties != null){
+                makeSubSchema(subSchemas, schema.properties)
+            }
+        }
+
+        if(subSchemas.isNotEmpty()){
+            this.components.schemas.putAll(subSchemas)
+        }
+    }
+
+    private fun makeSubSchema(schemas: MutableMap<String, Schema<Any>>, properties: Map<String, Schema<Any>>) {
+        properties.asSequence().filter { it.value.title != null }.forEach {
+            val objectMapper = jacksonObjectMapper()
+            val subSchema = it.value
+            val strSubSchema = objectMapper.writeValueAsString(subSchema)
+            val copySchema = objectMapper.readValue(strSubSchema, subSchema.javaClass)
+            val schemaTitle = copySchema.title
+            subSchema.`$ref`("#/components/schemas/$schemaTitle")
+            schemas[schemaTitle] = copySchema
+            makeSubSchema(schemas, copySchema.properties)
         }
     }
 
@@ -132,6 +163,8 @@ object OpenApi3Generator {
                 schemasToKeys.getValue(it) to it
             }.toMap()
         }
+
+        this.components
     }
 
     private fun List<MediaType>.extractSchemas(
@@ -453,24 +486,28 @@ object OpenApi3Generator {
                     .map { it as Boolean }
                     .forEach { this.addEnumItem(it) }
             }
+
             SimpleType.STRING.name.toLowerCase() -> StringSchema().apply {
                 this._default(parameterDescriptor.defaultValue?.let { it as String })
                 parameterDescriptor.attributes.enumValues
                     .map { it as String }
                     .forEach { this.addEnumItem(it) }
             }
+
             SimpleType.NUMBER.name.toLowerCase() -> NumberSchema().apply {
                 this._default(parameterDescriptor.defaultValue?.asBigDecimal())
                 parameterDescriptor.attributes.enumValues
                     .map { it.asBigDecimal() }
                     .forEach { this.addEnumItem(it) }
             }
+
             SimpleType.INTEGER.name.toLowerCase() -> IntegerSchema().apply {
                 this._default(parameterDescriptor.defaultValue?.asInt())
                 parameterDescriptor.attributes.enumValues
                     .map { it.asInt() }
                     .forEach { this.addEnumItem(it) }
             }
+
             else -> throw IllegalArgumentException("Unknown type '${parameterDescriptor.type}'")
         }
     }
