@@ -84,17 +84,17 @@ object OpenApi3Generator {
         }
     }
 
-    private fun OpenAPI.makeSubSchema(){
+    private fun OpenAPI.makeSubSchema() {
         val schemas = this.components.schemas
         val subSchemas = mutableMapOf<String, Schema<Any>>()
         schemas.forEach {
             val schema = it.value
-            if(schema.properties != null){
+            if (schema.properties != null) {
                 makeSubSchema(subSchemas, schema.properties)
             }
         }
 
-        if(subSchemas.isNotEmpty()){
+        if (subSchemas.isNotEmpty()) {
             this.components.schemas.putAll(subSchemas)
         }
     }
