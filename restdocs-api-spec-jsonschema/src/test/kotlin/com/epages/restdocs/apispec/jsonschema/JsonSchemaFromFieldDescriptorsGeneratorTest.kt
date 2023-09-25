@@ -650,7 +650,7 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
                 listOf(
                     Constraint(
                         "javax.validation.constraints.Pattern",
-                        mapOf("pattern" to "[a-z]")
+                        mapOf("regexp" to "[a-z]")
                     )
                 )
             )
