@@ -31,10 +31,11 @@ class OpenApi3GeneratorTest {
     lateinit var openApiJsonPathContext: DocumentContext
 
     @Test
-    fun `should convert multi level schema medel to openapi`() {
+    fun `should convert multi level schema model to openapi`() {
         givenPutProductResourceModel()
+
         whenOpenApiObjectGenerated()
-        println(openApiJsonPathContext)
+
         val optionDTOPath = "components.schemas.OptionDTO"
         then(openApiJsonPathContext.read<LinkedHashMap<String, Any>>("$optionDTOPath.properties.name")).isNotNull()
         then(openApiJsonPathContext.read<LinkedHashMap<String, Any>>("$optionDTOPath.properties.id")).isNotNull()
