@@ -42,6 +42,22 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
 
     @Test
     @Throws(IOException::class)
+    fun should_generate_reuse_schema() {
+        givenFieldDescriptorsWithSchemaName()
+
+        whenSchemaGenerated()
+
+        then(schema).isInstanceOf(ObjectSchema::class.java)
+        val objectSchema = schema as ObjectSchema?
+        val postSchema = objectSchema?.propertySchemas?.get("post") as ObjectSchema
+        val shippingAddressSchema = postSchema.propertySchemas["shippingAddress"] as ObjectSchema
+        then(shippingAddressSchema.title).isEqualTo("Address")
+        val billingAddressSchema = postSchema.propertySchemas["billingAddress"] as ObjectSchema
+        then(billingAddressSchema.title).isEqualTo("Address")
+    }
+
+    @Test
+    @Throws(IOException::class)
     fun should_generate_complex_schema() {
         givenFieldDescriptorsWithConstraints()
 
@@ -786,6 +802,23 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
                 "some",
                 "enum", attributes = Attributes(enumValues = listOf("ENUM_VALUE_1", "ENUM_VALUE_2"))
             )
+        )
+    }
+
+    private fun givenFieldDescriptorsWithSchemaName() {
+
+        fieldDescriptors = listOf(
+            FieldDescriptor(
+                "post",
+                "some",
+                "OBJECT",
+            ),
+            FieldDescriptor("post.shippingAddress", "some", "OBJECT", attributes = Attributes(schemaName = "Address")),
+            FieldDescriptor("post.shippingAddress.firstName", "some", "STRING"),
+            FieldDescriptor("post.shippingAddress.valid", "some", "BOOLEAN"),
+            FieldDescriptor("post.billingAddress", "some", "OBJECT", attributes = Attributes(schemaName = "Address")),
+            FieldDescriptor("post.billingAddress.firstName", "some", "STRING"),
+            FieldDescriptor("post.billingAddress.valid", "some", "BOOLEAN"),
         )
     }
 

@@ -31,6 +31,17 @@ class OpenApi3GeneratorTest {
     lateinit var openApiJsonPathContext: DocumentContext
 
     @Test
+    fun `should convert multi level schema model to openapi`() {
+        givenPutProductResourceModel()
+
+        whenOpenApiObjectGenerated()
+
+        val optionDTOPath = "components.schemas.OptionDTO"
+        then(openApiJsonPathContext.read<LinkedHashMap<String, Any>>("$optionDTOPath.properties.name")).isNotNull()
+        then(openApiJsonPathContext.read<LinkedHashMap<String, Any>>("$optionDTOPath.properties.id")).isNotNull()
+    }
+
+    @Test
     fun `should convert single resource model to openapi`() {
         givenGetProductResourceModel()
 
@@ -928,6 +939,21 @@ class OpenApi3GeneratorTest {
         )
     }
 
+    private fun givenPutProductResourceModel() {
+        resources = listOf(
+            ResourceModel(
+                operationId = "test",
+                summary = "summary",
+                description = "description",
+                privateResource = false,
+                deprecated = false,
+                tags = setOf("tag1", "tag2"),
+                request = getProductPutRequest(),
+                response = getProductPutResponse(Schema("ProductPutResponse"))
+            )
+        )
+    }
+
     private fun givenGetProductResourceModel() {
         resources = listOf(
             ResourceModel(
@@ -1054,6 +1080,54 @@ class OpenApi3GeneratorTest {
         )
     }
 
+    private fun getProductPutResponse(schema: Schema? = null): ResponseModel {
+        return ResponseModel(
+            status = 200,
+            contentType = "application/json",
+            schema = schema,
+            headers = listOf(
+                HeaderDescriptor(
+                    name = "SIGNATURE",
+                    description = "This is some signature",
+                    type = "STRING",
+                    optional = false
+                )
+            ),
+            responseFields = listOf(
+                FieldDescriptor(
+                    path = "id",
+                    description = "product id",
+                    type = "STRING"
+                ),
+                FieldDescriptor(
+                    path = "option",
+                    description = "option",
+                    type = "OBJECT",
+                    attributes = Attributes(schemaName = "OptionDTO")
+                ),
+                FieldDescriptor(
+                    path = "option.id",
+                    description = "option id",
+                    type = "STRING"
+                ),
+                FieldDescriptor(
+                    path = "option.name",
+                    description = "option name",
+                    type = "STRING"
+                ),
+            ),
+            example = """
+                {
+                    "id": "pid12312",
+                    "option": {
+                        "id": "otid00001",
+                        "name": "Option name"
+                    }
+                }
+            """.trimIndent(),
+        )
+    }
+
     private fun getProductHalResponse(schema: Schema? = null): ResponseModel {
         return ResponseModel(
             status = 200,
@@ -1146,6 +1220,52 @@ class OpenApi3GeneratorTest {
                     }
                 ]
             """.trimIndent()
+        )
+    }
+
+    private fun getProductPutRequest(): RequestModel {
+        return RequestModel(
+            path = "/products/{id}",
+            method = HTTPMethod.PUT,
+            headers = listOf(),
+            pathParameters = listOf(),
+            queryParameters = listOf(),
+            formParameters = listOf(),
+            securityRequirements = null,
+            requestFields = listOf(
+                FieldDescriptor(
+                    path = "id",
+                    description = "product id",
+                    type = "STRING"
+                ),
+                FieldDescriptor(
+                    path = "option",
+                    description = "option",
+                    type = "OBJECT",
+                    attributes = Attributes(schemaName = "OptionDTO")
+                ),
+                FieldDescriptor(
+                    path = "option.id",
+                    description = "option id",
+                    type = "STRING"
+                ),
+                FieldDescriptor(
+                    path = "option.name",
+                    description = "option name",
+                    type = "STRING"
+                ),
+            ),
+            contentType = "application/json",
+            example = """
+                {
+                    "id": "pid12312",
+                    "option": {
+                        "id": "otid00001",
+                        "name": "Option name"
+                    }
+                }
+            """.trimIndent(),
+            schema = Schema("ProductPutRequest")
         )
     }
 
