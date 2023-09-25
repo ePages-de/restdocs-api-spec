@@ -168,11 +168,13 @@ class JsonSchemaFromFieldDescriptorsGenerator {
                     .build()
             )
         } else {
+            val schemaName = propertyField?.fieldDescriptor?.attributes?.schemaName
             builder.addPropertySchema(
                 propertyName,
                 traverse(
                     traversedSegments, fields,
                     ObjectSchema.builder()
+                        .title(schemaName)
                         .description(propertyField?.fieldDescriptor?.description) as ObjectSchema.Builder
                 )
             )
