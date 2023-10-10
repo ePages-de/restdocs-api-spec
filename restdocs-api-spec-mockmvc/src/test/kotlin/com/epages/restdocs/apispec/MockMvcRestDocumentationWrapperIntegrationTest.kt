@@ -17,6 +17,7 @@ import org.springframework.restdocs.hypermedia.HypermediaDocumentation.links
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
 import org.springframework.restdocs.operation.preprocess.OperationRequestPreprocessor
+import org.springframework.restdocs.payload.PayloadDocumentation.beneathPath
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
 import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
@@ -47,6 +48,15 @@ class MockMvcRestDocumentationWrapperIntegrationTest(@Autowired private val mock
         givenEndpointInvoked()
 
         whenDocumentedAsPrivateResource()
+
+        thenSnippetFileExists()
+    }
+
+    @Test
+    fun should_document_both_restdocs_and_resource_with_path() {
+        givenEndpointInvoked()
+
+        whenDocumentedWithPayloadSubsectionExtractor()
 
         thenSnippetFileExists()
     }
@@ -240,6 +250,39 @@ class MockMvcRestDocumentationWrapperIntegrationTest(@Autowired private val mock
                             fieldWithPath("count").description("the count"),
                             fieldWithPath("id").description("id"),
                             subsectionWithPath("_links").ignored()
+                        ),
+                        links(
+                            linkWithRel("self").description("some"),
+                            linkWithRel("multiple").description("multiple")
+                        )
+                    )
+                )
+            )
+    }
+
+    @Throws(Exception::class)
+    private fun whenDocumentedWithPayloadSubsectionExtractor() {
+        val operationRequestPreprocessor = OperationRequestPreprocessor { r -> r }
+        resultActions
+            .andDo(
+                MockMvcRestDocumentationWrapper.document(
+                    identifier = operationName,
+                    privateResource = true,
+                    requestPreprocessor = operationRequestPreprocessor,
+                    snippets = arrayOf(
+                        requestFields(fieldDescriptors().fieldDescriptors),
+                        responseFields(
+                            fieldWithPath("comment").description("the comment"),
+                            fieldWithPath("flag").description("the flag"),
+                            fieldWithPath("count").description("the count"),
+                            fieldWithPath("id").description("id"),
+                            subsectionWithPath("_links").ignored()
+                        ),
+                        responseFields(
+                            beneathPath("_links").withSubsectionId("beneath-links"),
+                            fieldWithPath("self").description("self link"),
+                            fieldWithPath("self.href").description("self link href"),
+                            subsectionWithPath("multiple").ignored(),
                         ),
                         links(
                             linkWithRel("self").description("some"),
