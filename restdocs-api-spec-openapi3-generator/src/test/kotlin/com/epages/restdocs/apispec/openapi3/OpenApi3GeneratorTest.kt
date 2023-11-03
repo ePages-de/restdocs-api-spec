@@ -1229,8 +1229,7 @@ class OpenApi3GeneratorTest {
             method = HTTPMethod.PUT,
             headers = listOf(),
             pathParameters = listOf(),
-            queryParameters = listOf(),
-            formParameters = listOf(),
+            requestParameters = listOf(),
             securityRequirements = null,
             requestFields = listOf(
                 FieldDescriptor(

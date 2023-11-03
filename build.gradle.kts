@@ -57,12 +57,12 @@ allprojects {
 subprojects {
 
     val jacksonVersion by extra { "2.12.2" }
-    val springBootVersion by extra { "3.0.2" }
-    val springRestDocsVersion by extra { "3.0.0" }
+    val springBootVersion by extra { "2.1.9.RELEASE" }
+    val springRestDocsVersion by extra { "2.0.4.RELEASE" }
     val junitVersion by extra { "5.4.2" }
 
     tasks.withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "17"
+        kotlinOptions.jvmTarget = "1.8"
     }
 
     tasks.withType<Test> {
