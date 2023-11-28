@@ -38,11 +38,12 @@ class MockMvcAutoRestDocumentationWrapperTest(@Autowired private val mockMvc: Mo
         )
 
         // create automated docs
-        MockMvcAutoRestDocumentationWrapper.createDocs(
+        resultActions.andDo(
+            MockMvcAutoRestDocumentationWrapper.createDocs(
             "join",
             "join/test",
             "join api test",
             resultActions
-        )
+        ))
     }
 }
