@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RestController
+import java.time.OffsetDateTime
 import java.util.UUID
 
 @ExtendWith(SpringExtension::class)
@@ -66,6 +67,23 @@ open class ResourceSnippetIntegrationTest {
                     .header("X-Custom-Header", customHeader)
                     .body<EntityModel<TestDataHolder>>(resource)
             }
+
+            @PostMapping(path = ["/join"])
+            fun join(
+                @RequestBody testDataHolder: TestJoinHolder
+            ): ResponseEntity<User> {
+                val user = User(
+                    1L,
+                    testDataHolder.loginId,
+                    testDataHolder.password,
+                    OffsetDateTime.now()
+                )
+
+
+                return ResponseEntity
+                    .ok()
+                    .body(user)
+            }
         }
     }
 
@@ -76,6 +94,18 @@ open class ResourceSnippetIntegrationTest {
         val count: Int = 0,
         @field:NotEmpty
         val id: String? = null
+    )
+
+    internal data class TestJoinHolder(
+        val loginId: String,
+        val password: String
+    )
+
+    internal class User(
+        val id: Long,
+        val loginId: String,
+        val password: String,
+        val createdAt: OffsetDateTime
     )
 }
 
