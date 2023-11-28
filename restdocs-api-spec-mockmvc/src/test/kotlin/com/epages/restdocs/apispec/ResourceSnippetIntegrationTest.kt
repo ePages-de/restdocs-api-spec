@@ -79,7 +79,6 @@ open class ResourceSnippetIntegrationTest {
                     OffsetDateTime.now()
                 )
 
-
                 return ResponseEntity
                     .ok()
                     .body(user)
