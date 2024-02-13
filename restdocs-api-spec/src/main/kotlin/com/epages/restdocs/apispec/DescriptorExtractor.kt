@@ -7,6 +7,9 @@ import org.springframework.restdocs.hypermedia.LinkDescriptor
 import org.springframework.restdocs.hypermedia.LinksSnippet
 import org.springframework.restdocs.payload.AbstractFieldsSnippet
 import org.springframework.restdocs.payload.FieldDescriptor
+import org.springframework.restdocs.payload.FieldPathPayloadSubsectionExtractor
+import org.springframework.restdocs.payload.PayloadDocumentation
+import org.springframework.restdocs.payload.PayloadSubsectionExtractor
 import org.springframework.restdocs.request.AbstractParametersSnippet
 import org.springframework.restdocs.request.ParameterDescriptor
 import org.springframework.restdocs.snippet.AbstractDescriptor
@@ -32,7 +35,17 @@ internal object DescriptorExtractor {
         try {
             val getFieldDescriptors = AbstractFieldsSnippet::class.java.getDeclaredMethod("getFieldDescriptors")
             getFieldDescriptors.isAccessible = true
-            return getFieldDescriptors.invoke(snippet) as List<FieldDescriptor>
+            var descriptors =  getFieldDescriptors.invoke(snippet) as List<FieldDescriptor>
+            val getSubsectionExtractor = AbstractFieldsSnippet::class.java.getDeclaredMethod("getSubsectionExtractor")
+            getSubsectionExtractor.isAccessible = true
+            val payloadSubsectionExtractor = getSubsectionExtractor.invoke(snippet) as PayloadSubsectionExtractor<*>?
+            if (payloadSubsectionExtractor is FieldPathPayloadSubsectionExtractor) {
+                val getFieldPath = FieldPathPayloadSubsectionExtractor::class.java.getDeclaredMethod("getFieldPath")
+                getFieldPath.isAccessible = true
+                val fieldPath = getFieldPath.invoke(payloadSubsectionExtractor) as String
+                descriptors = PayloadDocumentation.applyPathPrefix("$fieldPath.", descriptors)
+            }
+            return descriptors
         } catch (e: NoSuchMethodException) {
             e.printStackTrace()
         } catch (e: InvocationTargetException) {
