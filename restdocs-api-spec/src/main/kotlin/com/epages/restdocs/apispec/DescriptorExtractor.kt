@@ -35,7 +35,7 @@ internal object DescriptorExtractor {
         try {
             val getFieldDescriptors = AbstractFieldsSnippet::class.java.getDeclaredMethod("getFieldDescriptors")
             getFieldDescriptors.isAccessible = true
-            var descriptors =  getFieldDescriptors.invoke(snippet) as List<FieldDescriptor>
+            var descriptors = getFieldDescriptors.invoke(snippet) as List<FieldDescriptor>
             val getSubsectionExtractor = AbstractFieldsSnippet::class.java.getDeclaredMethod("getSubsectionExtractor")
             getSubsectionExtractor.isAccessible = true
             val payloadSubsectionExtractor = getSubsectionExtractor.invoke(snippet) as PayloadSubsectionExtractor<*>?
