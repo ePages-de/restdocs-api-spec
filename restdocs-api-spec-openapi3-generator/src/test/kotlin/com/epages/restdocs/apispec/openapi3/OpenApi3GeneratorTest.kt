@@ -1101,6 +1101,11 @@ class OpenApi3GeneratorTest {
                     type = "STRING"
                 ),
                 FieldDescriptor(
+                    path = "null_value",
+                    description = "null_value",
+                    type = "NULL"
+                ),
+                FieldDescriptor(
                     path = "option",
                     description = "option",
                     type = "OBJECT",

@@ -86,7 +86,7 @@ object OpenApi3Generator {
 
     private fun OpenAPI.makeSubSchema() {
         val schemas = this.components.schemas
-        val subSchemas = mutableMapOf<String, Schema<Any>>()
+        val subSchemas = mutableMapOf<String, Schema<Any>?>()
         schemas.forEach {
             val schema = it.value
             if (schema.properties != null) {
@@ -99,14 +99,14 @@ object OpenApi3Generator {
         }
     }
 
-    private fun makeSubSchema(schemas: MutableMap<String, Schema<Any>>, properties: Map<String, Schema<Any>>) {
-        properties.asSequence().filter { it.value.title != null }.forEach {
+    private fun makeSubSchema(schemas: MutableMap<String, Schema<Any>?>, properties: Map<String, Schema<Any>?>) {
+        properties.asSequence().filter { it.value?.title != null }.forEach {
             val objectMapper = jacksonObjectMapper()
             val subSchema = it.value
             val strSubSchema = objectMapper.writeValueAsString(subSchema)
-            val copySchema = objectMapper.readValue(strSubSchema, subSchema.javaClass)
+            val copySchema = objectMapper.readValue(strSubSchema, subSchema?.javaClass)
             val schemaTitle = copySchema.title
-            subSchema.`$ref`("#/components/schemas/$schemaTitle")
+            subSchema?.`$ref`("#/components/schemas/$schemaTitle")
             schemas[schemaTitle] = copySchema
             makeSubSchema(schemas, copySchema.properties)
         }
