@@ -313,6 +313,33 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
     }
 
     @Test
+    fun should_generate_schema_for_mixture_of_array_and_array_wildcard_paths() {
+        // Both without wildcard
+        fieldDescriptors = listOf(
+            FieldDescriptor("some[].foo", "some", "Object"),
+            FieldDescriptor("some[].bar", "some", "Object")
+        )
+
+        generateAndValidateSchema()
+
+        // Both with wildcard
+        fieldDescriptors = listOf(
+            FieldDescriptor("some[*].foo", "some", "Object"),
+            FieldDescriptor("some[*].bar", "some", "Object")
+        )
+
+        generateAndValidateSchema()
+
+        // Mixture of both
+        fieldDescriptors = listOf(
+            FieldDescriptor("some[].foo", "some", "Object"),
+            FieldDescriptor("some[*].bar", "some", "Object")
+        )
+
+        generateAndValidateSchema()
+    }
+
+    @Test
     fun should_generate_schema_for_enum_values() {
         givenFieldDescriptorWithEnum()
 
@@ -828,5 +855,34 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
 
     private fun thenSchemaDoesNotValidateJson(json: String) {
         thenThrownBy { thenSchemaValidatesJson(json) }.isInstanceOf(ValidationException::class.java)
+    }
+
+    private fun generateAndValidateSchema() {
+        val expectedSchema = """{
+  "type" : "object",
+  "properties" : {
+    "some" : {
+      "type" : "array",
+      "items" : {
+        "type" : "object",
+        "properties" : {
+          "bar" : {
+            "description" : "some",
+            "type" : "object"
+          },
+          "foo" : {
+            "description" : "some",
+            "type" : "object"
+          }
+        }
+      }
+    }
+  }
+}"""
+
+        whenSchemaGenerated()
+
+        thenSchemaIsValid()
+        then(schemaString).isEqualTo(expectedSchema)
     }
 }
