@@ -12,7 +12,7 @@ repositories {
 }
 
 dependencies {
-    compile(kotlin("stdlib-jdk8"))
+    implementation(kotlin("stdlib-jdk8"))
     implementation("com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion")
 }
 

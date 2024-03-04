@@ -38,6 +38,18 @@ class RestdocsOpenApi3TaskTest : RestdocsOpenApiTaskTestBase() {
     }
 
     @Test
+    fun `should run openapi task with contact`() {
+        givenBuildFileWithOpenApiClosureWithContact()
+        givenResourceSnippet()
+
+        whenPluginExecuted()
+
+        thenApiSpecTaskSuccessful()
+        thenOutputFileFound()
+        thenContactContainedInOutput()
+    }
+
+    @Test
     fun `should run openapi task with single server string`() {
         givenBuildFileWithOpenApiClosureWithSingleServerString()
         givenResourceSnippet()
@@ -67,6 +79,12 @@ class RestdocsOpenApi3TaskTest : RestdocsOpenApiTaskTestBase() {
         }
     }
 
+    private fun thenContactContainedInOutput() {
+        with(outputFileContext()) {
+            then(read<String>("info.contact.name")).isEqualTo("Test Contact")
+        }
+    }
+
     private fun thenHeaderWithDefaultValuesContainedInOutput() {
         with(outputFileContext()) {
             then(read<String>("paths./products/{id}.get.parameters[1].name")).isEqualTo("one")
@@ -84,6 +102,10 @@ class RestdocsOpenApi3TaskTest : RestdocsOpenApiTaskTestBase() {
 
     fun givenBuildFileWithOpenApiClosureWithSingleServer() {
         givenBuildFileWithOpenApiClosure("server", """{ url = 'http://some.api' }""")
+    }
+
+    fun givenBuildFileWithOpenApiClosureWithContact() {
+        givenBuildFileWithOpenApiClosure("contact", """{ name = 'Test Contact' }""")
     }
 
     override fun givenBuildFileWithOpenApiClosure() {
@@ -136,6 +158,7 @@ class RestdocsOpenApi3TaskTest : RestdocsOpenApiTaskTestBase() {
             baseBuildFile() + """
             openapi3 {
                 servers = [ { url = "http://some.api" } ]
+                contact = { name = "Test Contact" }
                 title = '$title'
                 description = '$description'
                 tagDescriptionsPropertiesFile = "tagDescriptions.yaml"

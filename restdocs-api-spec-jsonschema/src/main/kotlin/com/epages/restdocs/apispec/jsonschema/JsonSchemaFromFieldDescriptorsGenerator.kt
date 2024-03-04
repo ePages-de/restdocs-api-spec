@@ -15,6 +15,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.everit.json.schema.ArraySchema
 import org.everit.json.schema.BooleanSchema
 import org.everit.json.schema.CombinedSchema
+import org.everit.json.schema.CombinedSchema.oneOf
 import org.everit.json.schema.EmptySchema
 import org.everit.json.schema.EnumSchema
 import org.everit.json.schema.NullSchema
@@ -167,11 +168,13 @@ class JsonSchemaFromFieldDescriptorsGenerator {
                     .build()
             )
         } else {
+            val schemaName = propertyField?.fieldDescriptor?.attributes?.schemaName
             builder.addPropertySchema(
                 propertyName,
                 traverse(
                     traversedSegments, fields,
                     ObjectSchema.builder()
+                        .title(schemaName)
                         .description(propertyField?.fieldDescriptor?.description) as ObjectSchema.Builder
                 )
             )
@@ -206,9 +209,26 @@ class JsonSchemaFromFieldDescriptorsGenerator {
     ) : FieldDescriptor(path, description, type, optional, ignored, attributes) {
 
         fun jsonSchemaType(): Schema {
-            val schemaBuilders = jsonSchemaPrimitiveTypes.map { typeToSchema(it) }
-            return if (schemaBuilders.size == 1) schemaBuilders.first().description(description).build()
-            else CombinedSchema.oneOf(schemaBuilders.map { it.build() }).description(description).build()
+            val schemaBuilders: List<Schema.Builder<*>>
+            if (jsonSchemaPrimitiveTypes.size > 1 &&
+                optional &&
+                !jsonSchemaPrimitiveTypes.contains("null")
+            ) {
+                schemaBuilders = jsonSchemaPrimitiveTypes
+                    .plus(jsonSchemaPrimitiveTypeFromDescriptorType("null"))
+                    .map { typeToSchema(it) }
+            } else {
+                schemaBuilders = jsonSchemaPrimitiveTypes.map { typeToSchema(it) }
+            }
+            return if (schemaBuilders.size == 1) schemaBuilders.first().description(description).checkNullable().build()
+            else oneOf(schemaBuilders.map { it.build() }).description(description).checkNullable().build()
+        }
+
+        private fun Schema.Builder<out Schema>.checkNullable(): Schema.Builder<out Schema> {
+            if (optional) {
+                this.nullable(true)
+            }
+            return this
         }
 
         fun merge(fieldDescriptor: FieldDescriptor): FieldDescriptorWithSchemaType {
@@ -230,7 +250,9 @@ class JsonSchemaFromFieldDescriptorsGenerator {
 
         private fun typeToSchema(type: String): Schema.Builder<*> =
             when (type) {
-                "null" -> NullSchema.builder()
+                "null" -> {
+                    NullSchema.builder().nullable()
+                }
                 "empty" -> EmptySchema.builder()
                 "object" -> ObjectSchema.builder()
                 "array" -> ArraySchema.builder().applyConstraints(this).allItemSchema(arrayItemsSchema())
@@ -246,9 +268,14 @@ class JsonSchemaFromFieldDescriptorsGenerator {
                 else -> throw IllegalArgumentException("unknown field type $type")
             }
 
+        private fun NullSchema.Builder.nullable(): NullSchema.Builder {
+            this.nullable(true)
+            return this
+        }
+
         private fun arrayItemsSchema(): Schema {
             return attributes.itemsType
-                ?.let { typeToSchema(it.toLowerCase()).build() }
+                ?.let { typeToSchema(it.lowercase()).build() }
                 ?: CombinedSchema.oneOf(
                     listOf(
                         ObjectSchema.builder().build(),
@@ -277,7 +304,7 @@ class JsonSchemaFromFieldDescriptorsGenerator {
                 )
 
             private fun jsonSchemaPrimitiveTypeFromDescriptorType(fieldDescriptorType: String) =
-                fieldDescriptorType.toLowerCase()
+                fieldDescriptorType.lowercase()
                     .let { if (it == "varies") "empty" else it } // varies is used by spring rest docs if the type is ambiguous - in json schema we want to represent as empty
         }
     }

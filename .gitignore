@@ -1,15 +1,12 @@
 *.gpg
-
 .gradle/
 .*
 !.gitignore
-!.travis.yml
-!.circleci
+!.github/
 .settings/
 build/
 out/
 bin/
-gradle.properties
 *.iml
 *.ipr
 *.iws

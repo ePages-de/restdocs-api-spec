@@ -40,6 +40,7 @@ object OpenApi20Generator {
 
     private const val API_KEY_SECURITY_NAME = "api_key"
     private const val BASIC_SECURITY_NAME = "basic"
+    private const val OAUTH2_SECURITY_NAME = "oauth2"
     private val PATH_PARAMETER_PATTERN = """\{([^/}]+)}""".toRegex()
     internal fun generate(
         resources: List<ResourceModel>,
@@ -323,16 +324,10 @@ object OpenApi20Generator {
             val securityRequirements = firstModelForPathAndMethod.request.securityRequirements
             if (securityRequirements != null) {
                 when (securityRequirements.type) {
-                    SecurityType.OAUTH2 -> oauth2SecuritySchemeDefinition?.flows?.map {
-                        addSecurity(
-                            oauth2SecuritySchemeDefinition.securitySchemeName(it),
-                            securityRequirements2ScopesList(
-                                securityRequirements
-                            )
-                        )
-                    }
+                    SecurityType.OAUTH2 -> addSecurity(OAUTH2_SECURITY_NAME, securityRequirements2ScopesList(securityRequirements))
                     SecurityType.BASIC -> addSecurity(BASIC_SECURITY_NAME, null)
                     SecurityType.API_KEY -> addSecurity(API_KEY_SECURITY_NAME, null)
+                    SecurityType.JWT_BEARER -> { /* not specified for OpenApi 2.0 */ }
                 }
             }
         }
@@ -372,7 +367,7 @@ object OpenApi20Generator {
                     addScope(it, scopeAndDescriptions.getOrDefault(it, "No description"))
                 }
             }
-            openApi.addSecurityDefinition(oauth2SecuritySchemeDefinition.securitySchemeName(flow), oauth2Definition)
+            openApi.addSecurityDefinition(oauth2SecuritySchemeDefinition.securitySchemeName(), oauth2Definition)
         }
         if (hasAnyOperationWithSecurityName(
                 openApi,

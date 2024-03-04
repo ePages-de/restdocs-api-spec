@@ -11,14 +11,14 @@ val jacksonVersion: String by extra
 val junitVersion: String by extra
 
 dependencies {
-    compile(kotlin("stdlib-jdk8"))
+    implementation(kotlin("stdlib-jdk8"))
 
-    compile(project(":restdocs-api-spec-model"))
-    compile(project(":restdocs-api-spec-jsonschema"))
+    api(project(":restdocs-api-spec-model"))
+    api(project(":restdocs-api-spec-jsonschema"))
 
-    compile("io.swagger.core.v3:swagger-core:2.1.3")
-    compile("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
-    compile("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
+    api("io.swagger.core.v3:swagger-core:2.1.3")
+    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
 
     testImplementation("io.swagger:swagger-parser:2.0.0-rc1")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")

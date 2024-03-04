@@ -1,9 +1,9 @@
 # Spring REST Docs API specification Integration
 
+[![oss lifecycle](https://img.shields.io/badge/oss_lifecycle-maintenance-yellow.svg)](https://github.com/ePages-de/restdocs-api-spec/issues/204)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=ePages-de_restdocs-api-spec&metric=coverage)](https://sonarcloud.io/summary/new_code?id=ePages-de_restdocs-api-spec)
 ![](https://img.shields.io/github/license/ePages-de/restdocs-openapi.svg)
-[![Build Status](https://travis-ci.com/ePages-de/restdocs-api-spec.svg?branch=master)](https://travis-ci.com/ePages-de/restdocs-api-spec)
 [![Maven Central](https://img.shields.io/maven-central/v/com.epages/restdocs-api-spec)](https://search.maven.org/artifact/com.epages/restdocs-api-spec)
-[![Coverage Status](https://coveralls.io/repos/github/ePages-de/restdocs-api-spec/badge.svg?branch=master)](https://coveralls.io/github/ePages-de/restdocs-api-spec?branch=master)
 [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/restdocs-api-spec/Lobby)
 
 This is an extension that adds API specifications as an output format to [Spring REST Docs](https://projects.spring.io/spring-restdocs/).
@@ -40,6 +40,7 @@ This is why we came up with this project.
 
 - [Motivation](#motivation)
 - [Getting started](#getting-started)
+    - [Version compatibility](#version-compatibility)
     - [Project structure](#project-structure)
     - [Build configuration](#build-configuration)
         - [Gradle](#gradle)
@@ -62,16 +63,24 @@ This is why we came up with this project.
         - [OpenAPI 3.0.1](#openapi-301-1)
         - [Postman](#postman-1)
 - [Generate an HTML-based API reference from OpenAPI](#generate-an-html-based-api-reference-from-openapi)
-- [RAML](#raml)
 
 ## Getting started
+
+### Version compatibility
+
+Spring Boot and Spring REST Docs 3.0.0 introduced [breaking chances to how request parameters are documented: `RequestParameterSnippet` was split into `QueryParameterSnippet` and `FormParameterSnippet`.](https://github.com/spring-projects/spring-restdocs/issues/832)
+
+|Spring Boot version | restdocs-api-spec version|
+|---|---|
+|3.x|0.17.1 or later|
+|2.x|0.16.4|
 
 ### Project structure
 
 The project consists of the following main components:
 
 - [restdocs-api-spec](restdocs-api-spec) - contains the actual Spring REST Docs extension.
-This is most importantly the [ResourceDocumentation](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apispec/ResourceDocumentation.kt) which is the entrypoint to use the extension in your tests.
+This is most importantly the [ResourceDocumentation](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apispec/ResourceDocumentation.kt) which is the entry point to use the extension in your tests.
 The [ResourceSnippet](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apispec/ResourceSnippet.kt) is the snippet used to produce a json file `resource.json` containing all the details about the documented resource.
 - [restdocs-api-spec-mockmvc](restdocs-api-spec-mockmvc) - contains a wrapper for `MockMvcRestDocumentation` for easier migration to `restdocs-api-spec` from MockMvc tests that use plain `spring-rest-docs-mockmvc`.
 - [restdocs-api-spec-restassured](restdocs-api-spec-restassured) - contains a wrapper for `RestAssuredRestDocumentation` for easier migration to `restdocs-api-spec` from [Rest Assured](http://rest-assured.io) tests that use plain `spring-rest-docs-restassured`.
@@ -85,7 +94,7 @@ The [ResourceSnippet](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apis
     * Using the [plugins DSL](https://docs.gradle.org/current/userguide/plugins.html#sec:plugins_block):
         ```groovy
         plugins {
-            id 'com.epages.restdocs-api-spec' version '0.15.3'
+            id 'com.epages.restdocs-api-spec' version '0.18.2'
         }
         ```
         Examples with Kotlin are also available [here](https://plugins.gradle.org/plugin/com.epages.restdocs-api-spec)
@@ -101,7 +110,7 @@ The [ResourceSnippet](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apis
             }
           }
           dependencies {
-            classpath "com.epages:restdocs-api-spec-gradle-plugin:0.15.3" //1.2
+            classpath "com.epages:restdocs-api-spec-gradle-plugin:0.18.2" //1.2
           }
         }
 
@@ -111,7 +120,7 @@ The [ResourceSnippet](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apis
 2. Add required dependencies to your tests
     * *2.1* add the `mavenCentral` repository used to resolve the `com.epages:restdocs-api-spec` module of the project.
     * *2.2* add the actual `restdocs-api-spec-mockmvc` dependency to the test scope. Use `restdocs-api-spec-restassured` if you use `RestAssured` instead of `MockMvc`.
-    * *2.3* add configuration options for restdocs-api-spec-gradle-plugin`. See [Gradle plugin configuration](#gradle-plugin-configuration)
+    * *2.3* add configuration options for `restdocs-api-spec-gradle-plugin`. See [Gradle plugin configuration](#gradle-plugin-configuration)
     ```groovy
 
     repositories { //2.1
@@ -120,7 +129,7 @@ The [ResourceSnippet](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apis
 
     dependencies {
         //..
-        testCompile('com.epages:restdocs-api-spec-mockmvc:0.15.3') //2.2
+        testImplementation('com.epages:restdocs-api-spec-mockmvc:0.18.2') //2.2
     }
 
     openapi { //2.3
@@ -261,7 +270,7 @@ Here it is important to add the constraints under the key `validationConstraints
 
 #### MockMvc based tests
 
-For convenience when applying `restdocs-api-spec` to an existing project that uses Spring REST Docs, we introduced [com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apispec/MockMvcRestDocumentationWrapper.kt).
+For convenience when applying `restdocs-api-spec` to an existing project that uses Spring REST Docs, we introduced [com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper](restdocs-api-spec-mockmvc/src/main/kotlin/com/epages/restdocs/apispec/MockMvcRestDocumentationWrapper.kt).
 
 In your tests you can just replace calls to `MockMvcRestDocumentation.document` with the corresponding variant of `MockMvcRestDocumentationWrapper.document`.
 
@@ -273,7 +282,7 @@ Here is an example:
 resultActions
   .andDo(
     MockMvcRestDocumentationWrapper.document(operationName,
-      requestFields(fieldDescriptors().getFieldDescriptors()),
+      requestFields(new FieldDescriptors().getFieldDescriptors()),
       responseFields(
         fieldWithPath("comment").description("the comment"),
         fieldWithPath("flag").description("the flag"),
@@ -472,6 +481,10 @@ openapi3 {
     title = 'My API title'
     version = '1.0.1'
     format = 'yaml'
+    contact = {
+        name = 'John Doe'
+        email = 'john.doe@example.com'
+    }
     separatePublicApi = true
     outputFileNamePrefix = 'my-api-spec'
     oauth2SecuritySchemeDefinition = {
@@ -556,52 +569,40 @@ redoc-cli bundle build/api-spec/openapi.json
 redoc-cli serve build/api-spec/openapi.json
 ```
 
-## RAML
-
-This project supersedes [restdocs-raml](https://github.com/ePages-de/restdocs-raml).
-So if you are coming from `restdocs-raml` you might want to switch to `restdocs-api-spec`.
-
-The API of both projects is fairly similar and it is easy to migrate.
-
-We plan to support RAML in the future.
-In the meantime you can use one of several ways to convert an OpenAPI specification to RAML.
-There are converters around that can help you to achieve this conversion.
-
-- [oas-raml-converter](https://github.com/mulesoft/oas-raml-converter) - an npm project that provides a CLI to convert between OpenAPI and RAML - it also provides an [online converter](https://mulesoft.github.io/oas-raml-converter/)
-- [api-matic](https://apimatic.io/transformer) - an online converter capable of converting between many api specifications
-
-In the [sample project](samples/restdocs-api-spec-sample) you find a build configuration that uses the [oas-raml-converter-docker](https://hub.docker.com/r/zaddo/oas-raml-converter-docker/) docker image and the [gradle-docker-plugin](https://github.com/bmuschko/gradle-docker-plugin) to leverage the `oas-raml-converter` to convert the output of the `openapi` task to RAML.
-Using this approach your gradle build can still output a RAML specification.
-
-See [openapi2raml.gradle](samples/restdocs-api-spec-sample/openapi2raml.gradle).
-
-```
-./gradlew restdocs-api-spec-sample:openapi
-./gradlew -b samples/restdocs-api-spec-sample/openapi2raml.gradle openapi2raml
-```
-
 ## Maintenance
 
 This section of the README is targeted at project maintainers.
 
 ### Publish project
 
-The project is published with the help of [TravisCI](./.travis.yml).
+The project is published with the help of [GitHub Actions](./.github/workflows).
 It's version number is determined by the Git tags (see [allegro/axion-release-plugin](https://axion-release-plugin.readthedocs.io)).
 The Java dependencies are published to Sonatype with the help of the [gradle-nexus/publish-plugin](https://github.com/gradle-nexus/publish-plugin) and the Maven Publish Plugin.
 The Gradle plugin is published to the [Gradle plugin portal](https://plugins.gradle.org/plugin/com.epages.restdocs-api-spec) with the help of the ['plugin-publish' plugin](https://plugins.gradle.org/plugin/com.gradle.plugin-publish) (see [docs.gradle.org](https://docs.gradle.org/current/userguide/publishing_gradle_plugins.html)).
 
 Given that the `master` branch on the upstream repository is in the state from which you want to create a release, execute the following steps:
 
-1. [Create release via the GitHub UI](https://github.com/ePages-de/restdocs-api-spec/releases/new) <br>
-    Use the intended version number as "Tag version", e.g. "0.15.3".
-    This will automatically trigger a Travis build which publishes the JAR files for this release to Sonatype.
-2. Login to Sonatype and navigate to the [staging repositories](https://oss.sonatype.org/#stagingRepositories)
-3. Close the staging repository <br>
-    Select the generated staging repository and close it.
-    Check that there are no errors afterwards (e.g. missing signatures or Javadoc JARs).
-4. Release the repository <br>
-    Select the generated staging repository and release it.
-    Soon after, the release should be available in the ["Public Repositories" of ePages](https://oss.sonatype.org/service/local/repo_groups/public/content/com/epages/).
-5. Update documentation <br>
-    Create a new commit which updates the version numbers in the `README` file.
+**(1) Create release**
+
+[Create release via the GitHub UI](https://github.com/ePages-de/restdocs-api-spec/releases/new).
+
+Use the intended version number as "Tag version", e.g. "0.18.2".
+This will automatically trigger a GitHub Action build which publishes the JAR files for this release to Sonatype.
+
+**(2) Login to Sonatype**
+
+Login to Sonatype and navigate to the [staging repositories](https://oss.sonatype.org/#stagingRepositories).
+
+**(3) Close the staging repository**
+    
+Select the generated staging repository and close it.
+Check that there are no errors afterwards (e.g. missing signatures or Javadoc JARs).
+
+**(4) Release the repository**
+
+Select the generated staging repository and release it.
+After few minutes, the release should be available in the ["Public Repositories" of ePages](https://oss.sonatype.org/service/local/repo_groups/public/content/com/epages/).
+
+**(5) Update documentation**
+
+Create a new commit which updates the version numbers in the `README` file.

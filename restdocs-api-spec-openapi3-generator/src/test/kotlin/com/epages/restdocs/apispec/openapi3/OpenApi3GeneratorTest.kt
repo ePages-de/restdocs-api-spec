@@ -18,6 +18,7 @@ import com.jayway.jsonpath.JsonPath
 import com.jayway.jsonpath.Option
 import io.swagger.parser.OpenAPIParser
 import io.swagger.parser.models.ParseOptions
+import io.swagger.v3.oas.models.info.Contact
 import io.swagger.v3.oas.models.servers.Server
 import org.assertj.core.api.BDDAssertions.then
 import org.junit.jupiter.api.Test
@@ -28,6 +29,17 @@ class OpenApi3GeneratorTest {
     lateinit var resources: List<ResourceModel>
     lateinit var openApiSpecJsonString: String
     lateinit var openApiJsonPathContext: DocumentContext
+
+    @Test
+    fun `should convert multi level schema model to openapi`() {
+        givenPutProductResourceModel()
+
+        whenOpenApiObjectGenerated()
+
+        val optionDTOPath = "components.schemas.OptionDTO"
+        then(openApiJsonPathContext.read<LinkedHashMap<String, Any>>("$optionDTOPath.properties.name")).isNotNull()
+        then(openApiJsonPathContext.read<LinkedHashMap<String, Any>>("$optionDTOPath.properties.id")).isNotNull()
+    }
 
     @Test
     fun `should convert single resource model to openapi`() {
@@ -288,8 +300,39 @@ class OpenApi3GeneratorTest {
                 (it["schema"] as LinkedHashMap<*, *>)["default"] == 1
         }
         then(params).anyMatch {
+            it["name"] == "intNumberParameter" &&
+                it["description"] == "a int number parameter" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "number" &&
+                (it["schema"] as LinkedHashMap<*, *>)["default"] == 1
+        }
+        then(params).anyMatch {
+            it["name"] == "longNumberParameter" &&
+                it["description"] == "a long number parameter" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "number" &&
+                (it["schema"] as LinkedHashMap<*, *>)["default"] == 1
+        }
+        then(params).anyMatch {
+            it["name"] == "doubleNumberParameter" &&
+                it["description"] == "a double number parameter" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "number" &&
+                (it["schema"] as LinkedHashMap<*, *>)["default"] == 1.0
+        }
+        then(params).anyMatch {
+            it["name"] == "floatNumberParameter" &&
+                it["description"] == "a float number parameter" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "number" &&
+                (it["schema"] as LinkedHashMap<*, *>)["default"] == 1.0
+        }
+        then(params).anyMatch {
             it["name"] == "integerParameter" &&
                 it["description"] == "a integer parameter" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "integer" &&
+                (it["schema"] as LinkedHashMap<*, *>)["format"] == "int32" &&
+                (it["schema"] as LinkedHashMap<*, *>)["default"] == 2
+        }
+        then(params).anyMatch {
+            it["name"] == "longIntegerParameter" &&
+                it["description"] == "a long integer parameter" &&
                 (it["schema"] as LinkedHashMap<*, *>)["type"] == "integer" &&
                 (it["schema"] as LinkedHashMap<*, *>)["format"] == "int32" &&
                 (it["schema"] as LinkedHashMap<*, *>)["default"] == 2
@@ -313,13 +356,44 @@ class OpenApi3GeneratorTest {
                 (it["schema"] as LinkedHashMap<*, *>)["default"] == 1
         }
         then(params).anyMatch {
+            it["name"] == "X-SOME-INT-NUMBER" &&
+                it["description"] == "a header int number parameter" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "number" &&
+                (it["schema"] as LinkedHashMap<*, *>)["default"] == 1
+        }
+        then(params).anyMatch {
+            it["name"] == "X-SOME-LONG-NUMBER" &&
+                it["description"] == "a header long number parameter" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "number" &&
+                (it["schema"] as LinkedHashMap<*, *>)["default"] == 1
+        }
+        then(params).anyMatch {
+            it["name"] == "X-SOME-DOUBLE-NUMBER" &&
+                it["description"] == "a header double number parameter" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "number" &&
+                (it["schema"] as LinkedHashMap<*, *>)["default"] == 1.0
+        }
+        then(params).anyMatch {
+            it["name"] == "X-SOME-FLOAT-NUMBER" &&
+                it["description"] == "a header float number parameter" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "number" &&
+                (it["schema"] as LinkedHashMap<*, *>)["default"] == 1.0
+        }
+        then(params).anyMatch {
             it["name"] == "X-SOME-INTEGER" &&
                 it["description"] == "a header integer parameter" &&
                 (it["schema"] as LinkedHashMap<*, *>)["type"] == "integer" &&
                 (it["schema"] as LinkedHashMap<*, *>)["format"] == "int32" &&
                 (it["schema"] as LinkedHashMap<*, *>)["default"] == 2
         }
-        then(params).hasSize(9)
+        then(params).anyMatch {
+            it["name"] == "X-SOME-LONG-INTEGER" &&
+                it["description"] == "a header long integer parameter" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "integer" &&
+                (it["schema"] as LinkedHashMap<*, *>)["format"] == "int32" &&
+                (it["schema"] as LinkedHashMap<*, *>)["default"] == 2
+        }
+        then(params).hasSize(19)
 
         thenOpenApiSpecIsValid()
     }
@@ -439,8 +513,7 @@ class OpenApi3GeneratorTest {
         then(openApiJsonPathContext.read<Any>("$productGetByIdPath.responses.200.content.application/json.schema.\$ref")).isNotNull()
         then(openApiJsonPathContext.read<Any>("$productGetByIdPath.responses.200.content.application/json.examples.test.value")).isNotNull()
 
-        then(openApiJsonPathContext.read<List<List<String>>>("$productGetByIdPath.security[*].oauth2_clientCredentials").flatMap { it }).containsOnly("prod:r")
-        then(openApiJsonPathContext.read<List<List<String>>>("$productGetByIdPath.security[*].oauth2_authorizationCode").flatMap { it }).containsOnly("prod:r")
+        then(openApiJsonPathContext.read<List<List<String>>>("$productGetByIdPath.security[*].oauth2").flatMap { it }).containsOnly("prod:r")
     }
 
     private fun thenMultiplePathParametersExist() {
@@ -457,6 +530,7 @@ class OpenApi3GeneratorTest {
         then(openApiJsonPathContext.read<String>("info.title")).isEqualTo("API")
         then(openApiJsonPathContext.read<String>("info.description")).isEqualTo("API Description")
         then(openApiJsonPathContext.read<String>("info.version")).isEqualTo("1.0.0")
+        then(openApiJsonPathContext.read<String>("info.contact.name")).isEqualTo("Test Contact")
     }
 
     private fun thenTagFieldsPresent() {
@@ -517,7 +591,8 @@ class OpenApi3GeneratorTest {
             ),
             format = "json",
             description = "API Description",
-            tagDescriptions = mapOf("tag1" to "tag1 description", "tag2" to "tag2 description")
+            tagDescriptions = mapOf("tag1" to "tag1 description", "tag2" to "tag2 description"),
+            contact = Contact().apply { name = "Test Contact" }
         )
 
         println(openApiSpecJsonString)
@@ -864,6 +939,21 @@ class OpenApi3GeneratorTest {
         )
     }
 
+    private fun givenPutProductResourceModel() {
+        resources = listOf(
+            ResourceModel(
+                operationId = "test",
+                summary = "summary",
+                description = "description",
+                privateResource = false,
+                deprecated = false,
+                tags = setOf("tag1", "tag2"),
+                request = getProductPutRequest(),
+                response = getProductPutResponse(Schema("ProductPutResponse"))
+            )
+        )
+    }
+
     private fun givenGetProductResourceModel() {
         resources = listOf(
             ResourceModel(
@@ -990,6 +1080,54 @@ class OpenApi3GeneratorTest {
         )
     }
 
+    private fun getProductPutResponse(schema: Schema? = null): ResponseModel {
+        return ResponseModel(
+            status = 200,
+            contentType = "application/json",
+            schema = schema,
+            headers = listOf(
+                HeaderDescriptor(
+                    name = "SIGNATURE",
+                    description = "This is some signature",
+                    type = "STRING",
+                    optional = false
+                )
+            ),
+            responseFields = listOf(
+                FieldDescriptor(
+                    path = "id",
+                    description = "product id",
+                    type = "STRING"
+                ),
+                FieldDescriptor(
+                    path = "option",
+                    description = "option",
+                    type = "OBJECT",
+                    attributes = Attributes(schemaName = "OptionDTO")
+                ),
+                FieldDescriptor(
+                    path = "option.id",
+                    description = "option id",
+                    type = "STRING"
+                ),
+                FieldDescriptor(
+                    path = "option.name",
+                    description = "option name",
+                    type = "STRING"
+                ),
+            ),
+            example = """
+                {
+                    "id": "pid12312",
+                    "option": {
+                        "id": "otid00001",
+                        "name": "Option name"
+                    }
+                }
+            """.trimIndent(),
+        )
+    }
+
     private fun getProductHalResponse(schema: Schema? = null): ResponseModel {
         return ResponseModel(
             status = 200,
@@ -1082,6 +1220,51 @@ class OpenApi3GeneratorTest {
                     }
                 ]
             """.trimIndent()
+        )
+    }
+
+    private fun getProductPutRequest(): RequestModel {
+        return RequestModel(
+            path = "/products/{id}",
+            method = HTTPMethod.PUT,
+            headers = listOf(),
+            pathParameters = listOf(),
+            requestParameters = listOf(),
+            securityRequirements = null,
+            requestFields = listOf(
+                FieldDescriptor(
+                    path = "id",
+                    description = "product id",
+                    type = "STRING"
+                ),
+                FieldDescriptor(
+                    path = "option",
+                    description = "option",
+                    type = "OBJECT",
+                    attributes = Attributes(schemaName = "OptionDTO")
+                ),
+                FieldDescriptor(
+                    path = "option.id",
+                    description = "option id",
+                    type = "STRING"
+                ),
+                FieldDescriptor(
+                    path = "option.name",
+                    description = "option name",
+                    type = "STRING"
+                ),
+            ),
+            contentType = "application/json",
+            example = """
+                {
+                    "id": "pid12312",
+                    "option": {
+                        "id": "otid00001",
+                        "name": "Option name"
+                    }
+                }
+            """.trimIndent(),
+            schema = Schema("ProductPutRequest")
         )
     }
 
@@ -1206,11 +1389,46 @@ class OpenApi3GeneratorTest {
                     defaultValue = 1.toBigDecimal()
                 ),
                 HeaderDescriptor(
+                    name = "X-SOME-INT-NUMBER",
+                    description = "a header int number parameter",
+                    type = "NUMBER",
+                    optional = true,
+                    defaultValue = 1
+                ),
+                HeaderDescriptor(
+                    name = "X-SOME-LONG-NUMBER",
+                    description = "a header long number parameter",
+                    type = "NUMBER",
+                    optional = true,
+                    defaultValue = 1L
+                ),
+                HeaderDescriptor(
+                    name = "X-SOME-DOUBLE-NUMBER",
+                    description = "a header double number parameter",
+                    type = "NUMBER",
+                    optional = true,
+                    defaultValue = 1.0
+                ),
+                HeaderDescriptor(
+                    name = "X-SOME-FLOAT-NUMBER",
+                    description = "a header float number parameter",
+                    type = "NUMBER",
+                    optional = true,
+                    defaultValue = 1.toFloat()
+                ),
+                HeaderDescriptor(
                     name = "X-SOME-INTEGER",
                     description = "a header integer parameter",
                     type = "INTEGER",
                     optional = true,
                     defaultValue = 2
+                ),
+                HeaderDescriptor(
+                    name = "X-SOME-LONG-INTEGER",
+                    description = "a header long integer parameter",
+                    type = "INTEGER",
+                    optional = true,
+                    defaultValue = 2L
                 )
             ),
             requestParameters = listOf(
@@ -1239,12 +1457,52 @@ class OpenApi3GeneratorTest {
                     defaultValue = 1.toBigDecimal()
                 ),
                 ParameterDescriptor(
+                    name = "intNumberParameter",
+                    description = "a int number parameter",
+                    type = "NUMBER",
+                    optional = true,
+                    ignored = false,
+                    defaultValue = 1
+                ),
+                ParameterDescriptor(
+                    name = "longNumberParameter",
+                    description = "a long number parameter",
+                    type = "NUMBER",
+                    optional = true,
+                    ignored = false,
+                    defaultValue = 1L
+                ),
+                ParameterDescriptor(
+                    name = "doubleNumberParameter",
+                    description = "a double number parameter",
+                    type = "NUMBER",
+                    optional = true,
+                    ignored = false,
+                    defaultValue = 1.0
+                ),
+                ParameterDescriptor(
+                    name = "floatNumberParameter",
+                    description = "a float number parameter",
+                    type = "NUMBER",
+                    optional = true,
+                    ignored = false,
+                    defaultValue = 1.toFloat()
+                ),
+                ParameterDescriptor(
                     name = "integerParameter",
                     description = "a integer parameter",
                     type = "INTEGER",
                     optional = true,
                     ignored = false,
                     defaultValue = 2
+                ),
+                ParameterDescriptor(
+                    name = "longIntegerParameter",
+                    description = "a long integer parameter",
+                    type = "INTEGER",
+                    optional = true,
+                    ignored = false,
+                    defaultValue = 2L
                 )
             )
         )

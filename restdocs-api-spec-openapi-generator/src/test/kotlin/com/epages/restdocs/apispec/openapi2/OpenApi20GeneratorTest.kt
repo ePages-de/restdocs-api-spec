@@ -141,8 +141,8 @@ class OpenApi20GeneratorTest {
         val openapi = whenOpenApiObjectGenerated(api)
 
         with(openapi.securityDefinitions) {
-            then(this.containsKey("oauth2_accessCode"))
-            then(this["oauth2_accessCode"])
+            then(this.containsKey("oauth2"))
+            then(this["oauth2"])
                 .isEqualToComparingFieldByField(
                     OAuth2Definition().accessCode("http://example.com/authorize", "http://example.com/token")
                         .apply { addScope("prod:r", "No description") }
@@ -356,12 +356,12 @@ class OpenApi20GeneratorTest {
         then(productPath.get.operationId).isNotEmpty()
         then(productPath.get.consumes).contains(successfulGetProductModel.request.contentType)
 
-        then(productPath.get.security).hasSize(2)
+        then(productPath.get.security).hasSize(1)
 
         then(productPath.get.tags).containsOnly("tag1", "tag2")
 
         val combined = productPath.get.security.reduce { map1, map2 -> map1 + map2 }
-        then(combined).containsOnlyKeys("oauth2_application", "oauth2_accessCode")
+        then(combined).containsOnlyKeys("oauth2")
         then(combined.values).containsOnly(listOf("prod:r"))
 
         then(successfulGetResponse).isNotNull

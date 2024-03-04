@@ -19,6 +19,7 @@ import org.everit.json.schema.Schema
 import org.everit.json.schema.StringSchema
 import org.everit.json.schema.ValidationException
 import org.everit.json.schema.loader.SchemaLoader
+import org.everit.json.schema.loader.internal.DefaultSchemaClient
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.jupiter.api.Test
@@ -38,6 +39,22 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
     private var fieldDescriptors: List<FieldDescriptor>? = null
 
     private var schemaString: String? = null
+
+    @Test
+    @Throws(IOException::class)
+    fun should_generate_reuse_schema() {
+        givenFieldDescriptorsWithSchemaName()
+
+        whenSchemaGenerated()
+
+        then(schema).isInstanceOf(ObjectSchema::class.java)
+        val objectSchema = schema as ObjectSchema?
+        val postSchema = objectSchema?.propertySchemas?.get("post") as ObjectSchema
+        val shippingAddressSchema = postSchema.propertySchemas["shippingAddress"] as ObjectSchema
+        then(shippingAddressSchema.title).isEqualTo("Address")
+        val billingAddressSchema = postSchema.propertySchemas["billingAddress"] as ObjectSchema
+        then(billingAddressSchema.title).isEqualTo("Address")
+    }
 
     @Test
     @Throws(IOException::class)
@@ -61,6 +78,7 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
         val shippingAddressSchema = objectSchema.propertySchemas["shippingAddress"]!!
         then(shippingAddressSchema).isInstanceOf(ObjectSchema::class.java)
         then(shippingAddressSchema.description).isNotEmpty()
+        then(shippingAddressSchema.isNullable).isTrue()
 
         then(objectSchema.definesProperty("billingAddress")).isTrue()
         val billingAddressSchema = objectSchema.propertySchemas["billingAddress"] as ObjectSchema
@@ -120,6 +138,7 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
         then(pagePositiveSchema.minimum.toInt()).isEqualTo(1)
         then(pagePositiveSchema.maximum).isNull()
         then(pagePositiveSchema.requiresInteger()).isTrue
+        then(pagePositiveSchema.isNullable).isTrue()
 
         then(objectSchema.definesProperty("page100_200")).isTrue
         then(objectSchema.propertySchemas["page100_200"]).isInstanceOf(NumberSchema::class.java)
@@ -445,7 +464,14 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
     private fun whenSchemaGenerated() {
         schemaString = generator.generateSchema(fieldDescriptors!!)
         println(schemaString)
-        schema = SchemaLoader.load(JSONObject(schemaString))
+        schema = SchemaLoader
+            .builder()
+            .nullableSupport(true)
+            .schemaJson(JSONObject(schemaString))
+            .schemaClient(DefaultSchemaClient())
+            .build()
+            .load()
+            .build()
     }
 
     private fun givenFieldDescriptorWithPrimitiveArray() {
@@ -589,9 +615,9 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
 
     private fun givenDifferentFieldDescriptorsWithSamePathAndDifferentTypes() {
         fieldDescriptors = listOf(
-            FieldDescriptor("id", "some", "STRING"),
-            FieldDescriptor("id", "some", "NULL"),
-            FieldDescriptor("id", "some", "BOOLEAN")
+            FieldDescriptor("id", "some", "STRING", true),
+            FieldDescriptor("id", "some", "NULL", true),
+            FieldDescriptor("id", "some", "BOOLEAN", true)
         )
     }
 
@@ -624,7 +650,7 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
                 listOf(
                     Constraint(
                         "javax.validation.constraints.Pattern",
-                        mapOf("pattern" to "[a-z]")
+                        mapOf("regexp" to "[a-z]")
                     )
                 )
             )
@@ -655,7 +681,7 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
             ),
 
             FieldDescriptor("lineItems[*].quantity.unit", "some", "STRING"),
-            FieldDescriptor("shippingAddress", "some", "OBJECT"),
+            FieldDescriptor("shippingAddress", "some", "OBJECT", true),
             FieldDescriptor("billingAddress", "some", "OBJECT"),
             FieldDescriptor(
                 "billingAddress.firstName", "some", "STRING",
@@ -732,6 +758,7 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
                 "pagePositive",
                 "some",
                 "NUMBER",
+                true,
                 attributes = Attributes(
                     listOf(
                         Constraint(
@@ -775,6 +802,23 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
                 "some",
                 "enum", attributes = Attributes(enumValues = listOf("ENUM_VALUE_1", "ENUM_VALUE_2"))
             )
+        )
+    }
+
+    private fun givenFieldDescriptorsWithSchemaName() {
+
+        fieldDescriptors = listOf(
+            FieldDescriptor(
+                "post",
+                "some",
+                "OBJECT",
+            ),
+            FieldDescriptor("post.shippingAddress", "some", "OBJECT", attributes = Attributes(schemaName = "Address")),
+            FieldDescriptor("post.shippingAddress.firstName", "some", "STRING"),
+            FieldDescriptor("post.shippingAddress.valid", "some", "BOOLEAN"),
+            FieldDescriptor("post.billingAddress", "some", "OBJECT", attributes = Attributes(schemaName = "Address")),
+            FieldDescriptor("post.billingAddress.firstName", "some", "STRING"),
+            FieldDescriptor("post.billingAddress.valid", "some", "BOOLEAN"),
         )
     }
 
