@@ -81,7 +81,7 @@ data class HeaderDescriptor(
 
 open class FieldDescriptor(
     val path: String,
-    val description: String,
+    val description: String?,
     val type: String,
     val optional: Boolean = false,
     val ignored: Boolean = false,
