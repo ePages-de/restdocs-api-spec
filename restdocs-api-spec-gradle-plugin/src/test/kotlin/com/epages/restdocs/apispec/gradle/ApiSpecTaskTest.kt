@@ -115,7 +115,14 @@ abstract class ApiSpecTaskTest {
     "status" : 200,
     "contentType" : "application/hal+json",
     "headers" : [ ],
-    "responseFields" : [ ],
+    "responseFields" : [ {
+      "attributes" : { },
+      "description" : null,
+      "ignored" : false,
+      "path" : "name",
+      "type" : "STRING",
+      "optional" : false
+    } ],
     "example" : "{\n  \"name\" : \"Fancy pants\",\n  \"price\" : 49.99,\n  \"_links\" : {\n    \"self\" : {\n      \"href\" : \"http://localhost:8080/products/7\"\n    },\n    \"product\" : {\n      \"href\" : \"http://localhost:8080/products/7\"\n    }\n  }\n}"
   }
 }
@@ -160,7 +167,14 @@ abstract class ApiSpecTaskTest {
     "status" : 200,
     "contentType" : "application/hal+json",
     "headers" : [ ],
-    "responseFields" : [ ],
+    "responseFields" : [ {
+      "attributes" : { },
+      "description" : null,
+      "ignored" : false,
+      "path" : "name",
+      "type" : "STRING",
+      "optional" : false
+    } ],
     "example" : "{\n  \"name\" : \"Fancy pants\",\n  \"price\" : 49.99,\n  \"_links\" : {\n    \"self\" : {\n      \"href\" : \"http://localhost:8080/products/7\"\n    },\n    \"product\" : {\n      \"href\" : \"http://localhost:8080/products/7\"\n    }\n  }\n}"
   }
 }
@@ -194,7 +208,14 @@ abstract class ApiSpecTaskTest {
     "status" : 200,
     "contentType" : "application/hal+json",
     "headers" : [ ],
-    "responseFields" : [ ],
+    "responseFields" : [ {
+      "attributes" : { },
+      "description" : null,
+      "ignored" : false,
+      "path" : "name",
+      "type" : "STRING",
+      "optional" : false
+    } ],
     "example" : "{\n  \"name\" : \"Fancy pants\",\n  \"price\" : 49.99,\n  \"_links\" : {\n    \"self\" : {\n      \"href\" : \"http://localhost:8080/products/7\"\n    },\n    \"product\" : {\n      \"href\" : \"http://localhost:8080/products/7\"\n    }\n  }\n}"
   }
 }
