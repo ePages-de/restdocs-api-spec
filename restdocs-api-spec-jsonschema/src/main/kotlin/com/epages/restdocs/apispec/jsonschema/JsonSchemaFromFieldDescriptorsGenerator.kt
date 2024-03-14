@@ -196,7 +196,7 @@ class JsonSchemaFromFieldDescriptorsGenerator {
 
     internal class FieldDescriptorWithSchemaType(
         path: String,
-        description: String,
+        description: String?,
         type: String,
         optional: Boolean,
         ignored: Boolean,
