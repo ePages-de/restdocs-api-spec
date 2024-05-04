@@ -606,3 +606,4 @@ After few minutes, the release should be available in the ["Public Repositories"
 **(5) Update documentation**
 
 Create a new commit which updates the version numbers in the `README` file.
+...
