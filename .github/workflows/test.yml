@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+      - 'maintenance/**'
   pull_request:
     types: [opened, synchronize, reopened]
 
