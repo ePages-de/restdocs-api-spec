@@ -8,7 +8,7 @@ buildscript {
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-		classpath("com.epages:restdocs-api-spec-gradle-plugin:0.9.5")
+		classpath("com.epages:restdocs-api-spec-gradle-plugin:0.19.2")
 	}
 }
 
