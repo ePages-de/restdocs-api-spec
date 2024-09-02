@@ -1,6 +1,6 @@
 buildscript {
 	ext {
-		springBootVersion = '2.1.9.RELEASE'
+		springBootVersion = '3.0.0'
 	}
 	repositories {
 		mavenCentral()
@@ -21,8 +21,8 @@ repositories {
 	mavenCentral()
 }
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 17
+targetCompatibility = 17
 
 ext {
 	snippetsDir = file('build/generated-snippets')
@@ -35,7 +35,8 @@ dependencies {
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
 	testImplementation('org.springframework.restdocs:spring-restdocs-webtestclient')
 	testImplementation('io.projectreactor:reactor-test')
-	testImplementation('com.epages:restdocs-api-spec:0.11.2')
+
+	testImplementation project(':restdocs-api-spec-mockmvc')
 }
 
 openapi {

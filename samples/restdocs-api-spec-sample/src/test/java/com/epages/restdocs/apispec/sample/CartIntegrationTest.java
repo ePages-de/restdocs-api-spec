@@ -105,7 +105,7 @@ public class CartIntegrationTest extends BaseIntegrationTest {
     private void whenProductIsAddedToCart() throws Exception {
         resultActions = mockMvc.perform(post("/carts/{id}/products", cartId)
                 .contentType(TEXT_URI_LIST)
-                .content(entityLinks.linkForSingleResource(Product.class, productId).toUri().toString()));
+                .content(entityLinks.linkForItemResource(Product.class, productId).toUri().toString()));
     }
 
     private void whenCartIsCreated() throws Exception {
