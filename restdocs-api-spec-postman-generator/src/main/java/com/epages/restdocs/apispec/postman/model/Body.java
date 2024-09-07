@@ -32,6 +32,8 @@ public class Body {
     private String raw;
     @JsonProperty("urlencoded")
     private List<Urlencoded> urlencoded = new ArrayList<Urlencoded>();
+    @JsonProperty("formdata")
+    private List<FormData> formData = new ArrayList<FormData>();
 
     /**
      * Postman stores the type of data associated with this request in this field.
@@ -69,6 +71,16 @@ public class Body {
     @JsonProperty("urlencoded")
     public void setUrlencoded(List<Urlencoded> urlencoded) {
         this.urlencoded = urlencoded;
+    }
+
+    @JsonProperty("formdata")
+    public List<FormData> getFormData() {
+        return formData;
+    }
+
+    @JsonProperty("formdata")
+    public void setFormData(List<FormData> formData) {
+        this.formData = formData;
     }
 
     public enum Mode {
