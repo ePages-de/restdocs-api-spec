@@ -1,5 +1,6 @@
 package com.epages.restdocs.apispec.jsonschema
 
+import com.epages.restdocs.apispec.jsonschema.schema.FileSchema
 import com.epages.restdocs.apispec.model.Attributes
 import com.epages.restdocs.apispec.model.Constraint
 import com.epages.restdocs.apispec.model.FieldDescriptor
@@ -453,6 +454,31 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
         thenSchemaIsValid()
     }
 
+    @Test
+    fun should_generate_schema_for_file_values() {
+        givenFieldDescriptorWithFile()
+
+        whenSchemaGenerated()
+
+        then(schema).isInstanceOf(ObjectSchema::class.java)
+        val fileSchemaSource = (schema as ObjectSchema).propertySchemas["some"]!!
+        val fileSchema = FileSchema.builder()
+            .title(fileSchemaSource.title)
+            .description(fileSchemaSource.description)
+            .schemaLocation(fileSchemaSource.schemaLocation)
+            .nullable(fileSchemaSource.isNullable)
+            .readOnly(fileSchemaSource.isReadOnly)
+            .writeOnly(fileSchemaSource.isWriteOnly)
+            .unprocessedProperties(fileSchemaSource.unprocessedProperties)
+            .build()
+
+        then(fileSchema).isInstanceOf(FileSchema::class.java)
+        fileSchema as FileSchema
+        then(fileSchema.format).isEqualTo("binary")
+
+        thenSchemaIsValid()
+    }
+
     private fun thenSchemaIsValid() {
 
         val report = JsonSchemaFactory.byDefault()
@@ -822,8 +848,18 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
         )
     }
 
+    private fun givenFieldDescriptorWithFile() {
+        fieldDescriptors = listOf(FieldDescriptor("some","", "file"))
+    }
+
     private fun thenSchemaValidatesJson(json: String) {
-        schema!!.validate(if (json.startsWith("[")) JSONArray(json) else JSONObject(json))
+        schema!!.validate(
+            if (json.startsWith("[")) {
+                JSONArray(json)
+            } else {
+                JSONObject(json)
+            }
+        )
     }
 
     private fun thenSchemaDoesNotValidateJson(json: String) {
