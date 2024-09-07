@@ -220,7 +220,8 @@ internal class PostmanCollectionGeneratorTest {
                     queryParameters = listOf(),
                     formParameters = listOf(),
                     securityRequirements = null,
-                    requestFields = listOf()
+                    requestFields = listOf(),
+                    requestParts = listOf()
                 ),
                 response = ResponseModel(
                     status = 204,
@@ -337,6 +338,7 @@ internal class PostmanCollectionGeneratorTest {
                     type = "STRING"
                 )
             ),
+            requestParts = listOf(),
             contentType = "application/json",
             example = """{
                 "description": "Good stuff!"
@@ -370,6 +372,7 @@ internal class PostmanCollectionGeneratorTest {
                     type = "STRING"
                 )
             ),
+            requestParts = listOf(),
             contentType = "application/json-patch+json",
             example = """
                 [
@@ -419,7 +422,8 @@ internal class PostmanCollectionGeneratorTest {
                 )
             ),
             formParameters = listOf(),
-            requestFields = listOf()
+            requestFields = listOf(),
+            requestParts = listOf()
         )
     }
 

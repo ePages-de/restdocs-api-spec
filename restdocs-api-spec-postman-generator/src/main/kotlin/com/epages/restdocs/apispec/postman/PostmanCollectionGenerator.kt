@@ -1,9 +1,9 @@
 package com.epages.restdocs.apispec.postman
 
 import com.epages.restdocs.apispec.model.HeaderDescriptor
+import com.epages.restdocs.apispec.model.RequestPartFieldDescriptor
 import com.epages.restdocs.apispec.model.ResourceModel
 import com.epages.restdocs.apispec.model.groupByPath
-import com.epages.restdocs.apispec.postman.model.Body
 import com.epages.restdocs.apispec.postman.model.Collection
 import com.epages.restdocs.apispec.postman.model.Header
 import com.epages.restdocs.apispec.postman.model.Info
@@ -12,6 +12,8 @@ import com.epages.restdocs.apispec.postman.model.Query
 import com.epages.restdocs.apispec.postman.model.Request
 import com.epages.restdocs.apispec.postman.model.Response
 import com.epages.restdocs.apispec.postman.model.Src
+import com.epages.restdocs.apispec.postman.model.Body
+import com.epages.restdocs.apispec.postman.model.FormData
 import com.epages.restdocs.apispec.postman.model.Variable
 import java.net.URL
 
@@ -66,12 +68,7 @@ object PostmanCollectionGenerator {
         return Request().apply {
             method = firstModel.request.method
             this.url = toUrl(modelsWithSamePathAndMethod, url)
-            body = firstModel.request.example?.let {
-                Body().apply {
-                    raw = it
-                    mode = Body.Mode.RAW
-                }
-            }
+            body = toBody(modelsWithSamePathAndMethod)
             header = modelsWithSamePathAndMethod
                 .flatMap { it.request.headers }
                 .distinctBy { it.name }
@@ -120,6 +117,30 @@ object PostmanCollectionGenerator {
                     }
                 }
                 .ifEmpty { null }
+        }
+    }
+
+    private fun toBody(modelsWithSamePathAndMethod: List<ResourceModel>): Body? {
+        val firstModel = modelsWithSamePathAndMethod.first()
+        return if (firstModel.request.contentType == "multipart/form-data") {
+            Body().apply {
+                mode = Body.Mode.FORMDATA
+                formData = firstModel.request.requestParts.map {
+                    FormData().apply {
+                        key = it.name
+                        type = it.type
+                        src = emptyList()
+                        description = it.submittedFileName
+                    }
+                }
+            }
+        } else {
+            firstModel.request.example?.let {
+                Body().apply {
+                    raw = it
+                    mode = Body.Mode.RAW
+                }
+            }
         }
     }
 
