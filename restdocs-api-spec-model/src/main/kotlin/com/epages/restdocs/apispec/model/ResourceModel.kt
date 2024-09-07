@@ -1,7 +1,7 @@
 package com.epages.restdocs.apispec.model
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
-import java.util.Comparator
 
 data class ResourceModel(
     val operationId: String,
@@ -40,6 +40,7 @@ data class RequestModel(
     val queryParameters: List<ParameterDescriptor>,
     val formParameters: List<ParameterDescriptor>,
     val requestFields: List<FieldDescriptor>,
+    val requestParts: List<RequestPartFieldDescriptor>,
     val example: String? = null,
     val schema: Schema? = null
 )
@@ -86,6 +87,47 @@ open class FieldDescriptor(
     val optional: Boolean = false,
     val ignored: Boolean = false,
     val attributes: Attributes = Attributes()
+)
+
+open class RequestPartFieldDescriptor(
+    val name: String,
+    val submittedFileName: String?,
+    val content: ByteArray,
+    val headers: RequestPartHeaderDescriptor,
+    val optional: Boolean = false,
+    val ignored: Boolean = false,
+    val attributes: Attributes = Attributes()
+) {
+    companion object {
+        private val FILE_TYPES = listOf(
+            "application/msword",
+            "application/pdf",
+            "application/vnd.ms-excel",
+            "application/x-javascript",
+            "application/zip",
+            "image/jpeg",
+            "image/jpg",
+            "image/jpe",
+            "text/css",
+            "text/html",
+            "text/htm",
+            "text/plain",
+            "text/xml",
+            "text/xsl"
+        )
+    }
+    val type: String = when {
+        headers.contentType?.any { it in FILE_TYPES } == true -> "file"
+        else -> "string"
+    }
+}
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+data class RequestPartHeaderDescriptor(
+    @JsonProperty("Content-Type")
+    val contentType: List<String>?,
+    @JsonProperty("Content-Length")
+    val contentLength: List<Long>?,
 )
 
 data class Attributes(
