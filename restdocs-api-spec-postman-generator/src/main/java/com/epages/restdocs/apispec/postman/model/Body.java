@@ -17,7 +17,8 @@ import java.util.Map;
 @JsonPropertyOrder({
     "mode",
     "raw",
-    "urlencoded"
+    "urlencoded",
+    "formdata"
 })
 public class Body {
 
