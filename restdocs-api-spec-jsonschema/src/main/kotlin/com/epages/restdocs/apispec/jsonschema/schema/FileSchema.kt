@@ -1,14 +1,15 @@
 package com.epages.restdocs.apispec.jsonschema.schema
 
-import org.everit.json.schema.EmptySchema
+import org.everit.json.schema.StringSchema
 import org.everit.json.schema.internal.JSONPrinter
 
 class FileSchema(
     builder: BinarySchemaBuilder
-) : EmptySchema(builder) {
+) : StringSchema(builder) {
 
     val format: String = builder.format
-    class BinarySchemaBuilder : EmptySchema.Builder() {
+
+    class BinarySchemaBuilder : StringSchema.Builder() {
 
         internal var format: String = "binary"
 
