@@ -62,7 +62,6 @@ public class CartController {
 
     @PostMapping(value = "/{cartId}/products", consumes = TEXT_URI_LIST_VALUE)
     public ResponseEntity<CartResourceResourceAssembler.CartResource> addProducts(@PathVariable Long cartId, @RequestBody CollectionModel<Object> resource) {
-        System.out.println("resource = " + resource);
         return cartRepository.findById(cartId)
                 .map(cart -> {
                     resource.getLinks().stream()
