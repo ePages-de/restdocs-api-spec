@@ -1,17 +1,21 @@
 package com.epages.restdocs.apispec.sample;
 
-import org.springframework.data.rest.webmvc.RepositoryRestController;
-import org.springframework.hateoas.EntityLinks;
-import org.springframework.hateoas.Resources;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.Optional;
+import org.springframework.data.rest.webmvc.BasePathAwareController;
+import org.springframework.data.rest.webmvc.RepositoryRestController;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.server.EntityLinks;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import static org.springframework.data.rest.webmvc.RestMediaTypes.TEXT_URI_LIST_VALUE;
 
 @RepositoryRestController
-@RequestMapping("/carts")
+@BasePathAwareController("/carts")
 public class CartController {
 
     private final CartRepository cartRepository;
@@ -32,14 +36,14 @@ public class CartController {
     @PostMapping
     public ResponseEntity<CartResourceResourceAssembler.CartResource> create() {
         Cart cart = cartRepository.save(new Cart());
-        return ResponseEntity.created(entityLinks.linkForSingleResource(cart).toUri())
-                .body(cartResourceResourceAssembler.toResource(cart));
+        return ResponseEntity.created(entityLinks.linkForItemResource(Cart.class, cart.getId()).toUri())
+                .body(cartResourceResourceAssembler.toModel(cart));
     }
 
     @GetMapping("/{cartId}")
     public ResponseEntity<CartResourceResourceAssembler.CartResource> get(@PathVariable Long cartId) {
         return cartRepository.findById(cartId)
-                .map(cartResourceResourceAssembler::toResource)
+                .map(cartResourceResourceAssembler::toModel)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -51,13 +55,13 @@ public class CartController {
                     cart.setOrdered(true);
                     return cartRepository.save(cart);
                 })
-                .map(cartResourceResourceAssembler::toResource)
+                .map(cartResourceResourceAssembler::toModel)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping(value = "/{cartId}/products", consumes = TEXT_URI_LIST_VALUE)
-    public ResponseEntity<CartResourceResourceAssembler.CartResource> addProducts(@PathVariable Long cartId, @RequestBody Resources<Object> resource) {
+    public ResponseEntity<CartResourceResourceAssembler.CartResource> addProducts(@PathVariable Long cartId, @RequestBody CollectionModel<Object> resource) {
         return cartRepository.findById(cartId)
                 .map(cart -> {
                     resource.getLinks().stream()
@@ -69,7 +73,7 @@ public class CartController {
                             .forEach(product -> cart.getProducts().add(product));
                     return cartRepository.save(cart);
                 })
-                .map(cartResourceResourceAssembler::toResource)
+                .map(cartResourceResourceAssembler::toModel)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
