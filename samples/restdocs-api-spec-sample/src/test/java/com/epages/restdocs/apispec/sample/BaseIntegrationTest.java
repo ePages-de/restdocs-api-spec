@@ -1,15 +1,21 @@
 package com.epages.restdocs.apispec.sample;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.EntityLinks;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.hateoas.server.EntityLinks;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.http.HttpHeaders.LOCATION;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 
+@SpringBootTest
+@Transactional
+@AutoConfigureMockMvc
 class BaseIntegrationTest {
 
     @Autowired MockMvc mockMvc;
@@ -26,7 +32,7 @@ class BaseIntegrationTest {
 
     String productId;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         cartsRepository.deleteAll();
         productRepository.deleteAll();

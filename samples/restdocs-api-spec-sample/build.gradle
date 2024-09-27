@@ -1,6 +1,6 @@
 buildscript {
 	ext {
-		springBootVersion = '2.1.9.RELEASE'
+		springBootVersion = '3.0.0'
 	}
 	repositories {
 		mavenCentral()
@@ -8,7 +8,7 @@ buildscript {
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-		classpath("com.epages:restdocs-api-spec-gradle-plugin:0.9.5")
+		classpath("com.epages:restdocs-api-spec-gradle-plugin:0.19.2")
 	}
 }
 
@@ -17,7 +17,8 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 apply plugin: 'com.epages.restdocs-api-spec'
 
-sourceCompatibility = 1.8
+sourceCompatibility = 17
+targetCompatibility = 17
 
 repositories {
 	mavenCentral()
@@ -30,15 +31,16 @@ ext {
 dependencies {
 	implementation('org.springframework.boot:spring-boot-starter-data-jpa')
 	implementation('org.springframework.boot:spring-boot-starter-data-rest')
+	implementation('org.springframework.boot:spring-boot-starter-validation')
 	runtimeOnly('com.h2database:h2')
+
 	testImplementation('org.junit.jupiter:junit-jupiter-engine')
 
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
 	testImplementation('org.springframework.restdocs:spring-restdocs-mockmvc')
 
-	testImplementation('com.epages:restdocs-api-spec-mockmvc:0.11.2')
-//	testImplementation project(':restdocs-api-spec-mockmvc') //enable for depending on the submodule directly
-	testImplementation('com.google.guava:guava:23.0')
+	testImplementation project(':restdocs-api-spec-mockmvc') // enable for depending on the submodule directly
+	testImplementation('com.google.guava:guava:33.3.1-jre')
 }
 
 configurations.all {

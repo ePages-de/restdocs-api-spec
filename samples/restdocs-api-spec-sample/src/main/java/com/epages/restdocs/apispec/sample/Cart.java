@@ -1,33 +1,39 @@
 package com.epages.restdocs.apispec.sample;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.springframework.hateoas.Identifiable;
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.hateoas.RepresentationModel;
 
+import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.math.BigDecimal.ZERO;
-import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
-public class Cart implements Identifiable<Long> {
+public class Cart extends RepresentationModel<Cart> {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     private List<Product> products = new ArrayList<>();
 
     @JsonIgnore
     private boolean ordered;
 
-    @Override
+    protected Cart() {
+    }
+
+    public Cart(List<Product> products) {
+        this.products = products;
+    }
+
     public Long getId() {
         return id;
     }

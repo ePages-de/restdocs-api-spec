@@ -1,4 +1,4 @@
-  spring:
-    output:
-      ansi:
-        enabled: 'ALWAYS'
+spring:
+  output:
+    ansi:
+      enabled: 'ALWAYS'
