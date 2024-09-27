@@ -42,7 +42,7 @@ dependencies {
 	testImplementation('org.springframework.restdocs:spring-restdocs-mockmvc')
 
 	testImplementation project(':restdocs-api-spec-mockmvc') // enable for depending on the submodule directly
-	testImplementation('com.google.guava:guava:32.0.0-android')
+	testImplementation('com.google.guava:guava:33.3.1-jre')
 }
 
 configurations.all {
