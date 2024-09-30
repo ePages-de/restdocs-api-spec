@@ -8,6 +8,7 @@ repositories {
 }
 
 val springBootVersion: String by extra
+val jacksonVersion: String by extra
 val springRestDocsVersion: String by extra
 val junitVersion: String by extra
 
@@ -16,6 +17,9 @@ dependencies {
 
     api(project(":restdocs-api-spec"))
     implementation("org.springframework.restdocs:spring-restdocs-mockmvc:$springRestDocsVersion")
+    implementation("org.springframework.boot:spring-boot-starter-web:$springBootVersion")
+    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion") {
         exclude("junit")
