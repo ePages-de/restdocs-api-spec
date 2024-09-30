@@ -6,6 +6,7 @@ import com.epages.restdocs.apispec.model.HTTPMethod
 import com.epages.restdocs.apispec.model.HeaderDescriptor
 import com.epages.restdocs.apispec.model.Oauth2Configuration
 import com.epages.restdocs.apispec.model.ParameterDescriptor
+import com.epages.restdocs.apispec.model.RequestPartFieldDescriptor
 import com.epages.restdocs.apispec.model.ResourceModel
 import com.epages.restdocs.apispec.model.ResponseModel
 import com.epages.restdocs.apispec.model.Schema
@@ -312,7 +313,12 @@ object OpenApi20Generator {
                             firstModelForPathAndMethod.request.schema
                         )
                     )
-                ).nullIfEmpty()
+                ).plus(
+                    modelsWithSamePathAndMethod
+                        .flatMap { it.request.requestParts }
+                        .map { part2Parameters(it) }
+                )
+                    .nullIfEmpty()
             responses = responsesByStatusCode(
                 modelsWithSamePathAndMethod
             )
@@ -475,6 +481,16 @@ object OpenApi20Generator {
             }
         } else {
             null
+        }
+    }
+
+    private fun part2Parameters(partDescriptor: RequestPartFieldDescriptor): FormParameter {
+        return FormParameter().apply {
+            name = partDescriptor.name
+            description = partDescriptor.submittedFileName
+            required = partDescriptor.optional
+            type = partDescriptor.type
+            default = partDescriptor.content
         }
     }
 

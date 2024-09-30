@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junitpioneer.jupiter.TempDirectory
 import java.lang.Boolean.FALSE
+import java.util.LinkedList
 
 @ExtendWith(TempDirectory::class)
 class RestdocsOpenApi3TaskTest : RestdocsOpenApiTaskTestBase() {
@@ -73,6 +74,18 @@ class RestdocsOpenApi3TaskTest : RestdocsOpenApiTaskTestBase() {
         thenHeaderWithDefaultValuesContainedInOutput()
     }
 
+    @Test
+    fun `should run openapi task with request parts`() {
+        givenBuildFileWithOpenApiClosureWithSingleServerString()
+        givenResourceSnippetWithRequestParts()
+
+        whenPluginExecuted()
+
+        thenApiSpecTaskSuccessful()
+        thenOutputFileFound()
+        thenRequestPartsContainedInOutput()
+    }
+
     private fun thenSingleServerContainedInOutput() {
         with(outputFileContext()) {
             then(read<List<String>>("servers[*].url")).containsOnly("http://some.api")
@@ -93,6 +106,17 @@ class RestdocsOpenApi3TaskTest : RestdocsOpenApiTaskTestBase() {
             then(read<String>("paths./products/{id}.get.parameters[1].schema.type")).isEqualTo("string")
             then(read<String>("paths./products/{id}.get.parameters[1].schema.default")).isEqualTo("a default value")
             then(read<String>("paths./products/{id}.get.parameters[1].example")).isEqualTo("one")
+        }
+    }
+
+    private fun thenRequestPartsContainedInOutput() {
+        with(outputFileContext()) {
+            then(read<LinkedHashMap<Any, Any>>("paths./products/photo/{id}.post.requestBody.content.multipart/form-data.schema")).isNotEmpty()
+            val multipartSchemaKey = read<LinkedHashMap<Any, Any>>("components.schemas").keys.toList()[0]
+            then(read<String>("components.schemas.${multipartSchemaKey}.required[0]")).isEqualTo("photo")
+            then(read<String>("components.schemas.${multipartSchemaKey}.type")).isEqualTo("object")
+            then(read<String>("components.schemas.${multipartSchemaKey}.properties.photo.type")).isEqualTo("string")
+            then(read<String>("components.schemas.${multipartSchemaKey}.properties.photo.format")).isEqualTo("binary")
         }
     }
 

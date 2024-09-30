@@ -928,7 +928,8 @@ class OpenApi3GeneratorTest {
                     queryParameters = listOf(),
                     formParameters = listOf(),
                     securityRequirements = null,
-                    requestFields = listOf()
+                    requestFields = listOf(),
+                    requestParts = listOf()
                 ),
                 response = ResponseModel(
                     status = 204,
@@ -1185,6 +1186,7 @@ class OpenApi3GeneratorTest {
                     attributes = Attributes(enumValues = listOf("FIRST_VALUE", "SECOND_VALUE", "THIRD_VALUE"))
                 )
             ),
+            requestParts = listOf(),
             contentType = "application/json",
             example = """{
                 "description": "Good stuff!",
@@ -1218,6 +1220,7 @@ class OpenApi3GeneratorTest {
                     type = "STRING"
                 )
             ),
+            requestParts = listOf(),
             contentType = "application/json-patch+json",
             example = """
                 [
@@ -1263,6 +1266,7 @@ class OpenApi3GeneratorTest {
                     type = "STRING"
                 ),
             ),
+            requestParts = listOf(),
             contentType = "application/json",
             example = """
                 {
@@ -1286,7 +1290,8 @@ class OpenApi3GeneratorTest {
             pathParameters = emptyList(),
             queryParameters = emptyList(),
             formParameters = emptyList(),
-            requestFields = listOf()
+            requestFields = listOf(),
+            requestParts = listOf()
         )
     }
 
@@ -1310,6 +1315,7 @@ class OpenApi3GeneratorTest {
             ),
             schema = schema,
             requestFields = listOf(),
+            requestParts = listOf(),
             example = """
                     locale=pl&irrelevant=true
             """.trimIndent()
@@ -1349,7 +1355,8 @@ class OpenApi3GeneratorTest {
                 )
             ),
             formParameters = listOf(),
-            requestFields = listOf()
+            requestFields = listOf(),
+            requestParts = listOf(),
         )
     }
 
@@ -1636,7 +1643,8 @@ class OpenApi3GeneratorTest {
             ),
             formParameters = listOf(),
             pathParameters = listOf(),
-            requestFields = listOf()
+            requestFields = listOf(),
+            requestParts = listOf(),
         )
     }
 
