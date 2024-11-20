@@ -9,16 +9,24 @@ repositories {
 }
 
 val jacksonVersion: String by extra
+val springVersion: String by extra
 val springBootVersion: String by extra
 val springRestDocsVersion: String by extra
 val junitVersion: String by extra
 
+
 dependencies {
+
+
     implementation(kotlin("stdlib-jdk8"))
     implementation(kotlin("reflect"))
 
     implementation("org.springframework.restdocs:spring-restdocs-core:$springRestDocsVersion")
-    implementation("org.springframework.boot:spring-boot-starter-web:$springBootVersion")
+
+    implementation("org.springframework:spring-web:$springVersion")
+    implementation("org.springframework:spring-context:$springVersion")
+    implementation("jakarta.servlet:jakarta.servlet-api:6.0.0")
+
     implementation("org.springframework.boot:spring-boot-starter-validation:$springBootVersion")
     implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
@@ -26,6 +34,8 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion") {
         exclude("junit")
     }
+    testImplementation("org.springframework.boot:spring-boot-starter-web:$springBootVersion")
+
     testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
     testImplementation("org.junit-pioneer:junit-pioneer:0.2.2")
     testImplementation("org.springframework.boot:spring-boot-starter-hateoas:$springBootVersion")

@@ -58,6 +58,7 @@ subprojects {
 
     val jacksonVersion by extra { "2.12.2" }
     val springBootVersion by extra { "3.0.2" }
+    val springVersion by extra { "6.0.4" }
     val springRestDocsVersion by extra { "3.0.0" }
     val junitVersion by extra { "5.4.2" }
 
