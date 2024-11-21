@@ -7,6 +7,7 @@ import com.epages.restdocs.apispec.model.HTTPMethod
 import com.epages.restdocs.apispec.model.HeaderDescriptor
 import com.epages.restdocs.apispec.model.Oauth2Configuration
 import com.epages.restdocs.apispec.model.ParameterDescriptor
+import com.epages.restdocs.apispec.model.RequestPartFieldDescriptor
 import com.epages.restdocs.apispec.model.RequestModel
 import com.epages.restdocs.apispec.model.ResourceModel
 import com.epages.restdocs.apispec.model.ResponseModel
@@ -329,7 +330,11 @@ object OpenApi3Generator {
                     requestFields = requests.flatMap { it ->
                         if (it.request.contentType == "application/x-www-form-urlencoded") {
                             it.request.formParameters.map { parameterDescriptor2FieldDescriptor(it) }
-                        } else {
+                        }
+                        else if (it.request.contentType == "multipart/form-data") {
+                            it.request.requestParts.map { partDescriptor2FieldDescriptor(it) }
+                        }
+                        else {
                             it.request.requestFields
                         }
                     },
@@ -440,6 +445,19 @@ object OpenApi3Generator {
             optional = parameterDescriptor.optional,
             ignored = parameterDescriptor.ignored,
             attributes = parameterDescriptor.attributes
+        )
+    }
+
+    private fun partDescriptor2FieldDescriptor(
+        partDescriptor: RequestPartFieldDescriptor
+    ): FieldDescriptor {
+        return FieldDescriptor(
+            path = partDescriptor.name,
+            description = partDescriptor.submittedFileName ?: "",
+            type = partDescriptor.type,
+            optional = partDescriptor.optional,
+            ignored = partDescriptor.optional,
+            attributes = partDescriptor.attributes
         )
     }
 

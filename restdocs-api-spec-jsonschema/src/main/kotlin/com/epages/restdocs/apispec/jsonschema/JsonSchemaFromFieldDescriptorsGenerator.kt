@@ -8,6 +8,7 @@ import com.epages.restdocs.apispec.jsonschema.ConstraintResolver.maybeMinSizeArr
 import com.epages.restdocs.apispec.jsonschema.ConstraintResolver.maybePattern
 import com.epages.restdocs.apispec.jsonschema.ConstraintResolver.minInteger
 import com.epages.restdocs.apispec.jsonschema.ConstraintResolver.minLengthString
+import com.epages.restdocs.apispec.jsonschema.schema.FileSchema
 import com.epages.restdocs.apispec.model.Attributes
 import com.epages.restdocs.apispec.model.FieldDescriptor
 import com.fasterxml.jackson.databind.SerializationFeature
@@ -265,6 +266,7 @@ class JsonSchemaFromFieldDescriptorsGenerator {
                         EnumSchema.builder().possibleValues(this.attributes.enumValues).build()
                     )
                 ).isSynthetic(true)
+                "file" -> FileSchema.builder()
                 else -> throw IllegalArgumentException("unknown field type $type")
             }
 

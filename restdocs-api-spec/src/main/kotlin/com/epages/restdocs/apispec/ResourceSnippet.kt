@@ -8,6 +8,7 @@ import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.restdocs.RestDocumentationContext
 import org.springframework.restdocs.generate.RestDocumentationGenerator.ATTRIBUTE_NAME_URL_TEMPLATE
 import org.springframework.restdocs.operation.Operation
+import org.springframework.restdocs.operation.OperationRequestPart
 import org.springframework.restdocs.payload.FieldDescriptor
 import org.springframework.restdocs.snippet.PlaceholderResolverFactory
 import org.springframework.restdocs.snippet.RestDocumentationContextPlaceholderResolverFactory
@@ -48,6 +49,7 @@ class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetPara
 
         val hasRequestBody = operation.request.contentAsString.isNotEmpty()
         val hasResponseBody = operation.response.contentAsString.isNotEmpty()
+        val hasPart = operation.request.parts.isNotEmpty()
 
         val securityRequirements = SecurityRequirementsHandler().extractSecurityRequirements(operation)
 
@@ -68,13 +70,14 @@ class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetPara
             request = RequestModel(
                 path = getUriPath(operation),
                 method = operation.request.method.name(),
-                contentType = if (hasRequestBody) getContentTypeOrDefault(operation.request.headers) else null,
+                contentType = if (hasRequestBody || hasPart) getContentTypeOrDefault(operation.request.headers) else null,
                 headers = resourceSnippetParameters.requestHeaders.withExampleValues(operation.request.headers),
                 pathParameters = resourceSnippetParameters.pathParameters.filter { !it.isIgnored },
                 queryParameters = resourceSnippetParameters.queryParameters.filter { !it.isIgnored },
                 formParameters = resourceSnippetParameters.formParameters.filter { !it.isIgnored },
                 schema = resourceSnippetParameters.requestSchema,
                 requestFields = if (hasRequestBody) resourceSnippetParameters.requestFields.filter { !it.isIgnored } else emptyList(),
+                requestParts = operation.request.parts.toList(),
                 example = if (hasRequestBody) operation.request.contentAsString else null,
                 securityRequirements = securityRequirements
             ),
@@ -139,6 +142,7 @@ class ResourceSnippet(private val resourceSnippetParameters: ResourceSnippetPara
         val queryParameters: List<ParameterDescriptorWithType>,
         val formParameters: List<ParameterDescriptorWithType>,
         val requestFields: List<FieldDescriptor>,
+        val requestParts: List<OperationRequestPart>,
         val example: String?,
         val securityRequirements: SecurityRequirements?
     )

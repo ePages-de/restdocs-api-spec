@@ -914,7 +914,8 @@ class OpenApi20GeneratorTest {
                 )
             ),
             formParameters = listOf(),
-            requestFields = listOf()
+            requestFields = listOf(),
+            requestParts = listOf()
         )
     }
 
@@ -943,7 +944,8 @@ class OpenApi20GeneratorTest {
             pathParameters = listOf(),
             queryParameters = listOf(),
             formParameters = listOf(),
-            requestFields = listOf()
+            requestFields = listOf(),
+            requestParts = listOf()
         )
     }
 
@@ -960,7 +962,8 @@ class OpenApi20GeneratorTest {
             pathParameters = listOf(),
             queryParameters = listOf(),
             formParameters = listOf(),
-            requestFields = listOf()
+            requestFields = listOf(),
+            requestParts = listOf()
         )
     }
 
@@ -977,7 +980,8 @@ class OpenApi20GeneratorTest {
             pathParameters = listOf(),
             queryParameters = listOf(),
             formParameters = listOf(),
-            requestFields = listOf()
+            requestFields = listOf(),
+            requestParts = listOf()
         )
     }
 
@@ -1123,6 +1127,7 @@ class OpenApi20GeneratorTest {
                 )
             ),
             requestFields = listOf(),
+            requestParts = listOf(),
             example = """
                     locale=pl&irrelevant=true
             """.trimIndent()
@@ -1173,6 +1178,7 @@ class OpenApi20GeneratorTest {
                     attributes = Attributes(enumValues = listOf("FIRST_VALUE", "SECOND_VALUE", "THIRD_VALUE"))
                 )
             ),
+            requestParts = listOf(),
             example = getProductPayloadExample()
         )
     }
@@ -1197,7 +1203,8 @@ class OpenApi20GeneratorTest {
             ),
             queryParameters = listOf(),
             formParameters = listOf(),
-            requestFields = listOf()
+            requestFields = listOf(),
+            requestParts = listOf()
         )
     }
 
@@ -1213,7 +1220,8 @@ class OpenApi20GeneratorTest {
             pathParameters = listOf(),
             queryParameters = listOf(),
             formParameters = listOf(),
-            requestFields = listOf()
+            requestFields = listOf(),
+            requestParts = listOf()
         )
     }
 
@@ -1229,7 +1237,8 @@ class OpenApi20GeneratorTest {
             pathParameters = listOf(),
             queryParameters = listOf(),
             formParameters = listOf(),
-            requestFields = listOf()
+            requestFields = listOf(),
+            requestParts = listOf()
         )
     }
 

@@ -63,6 +63,36 @@ class PostmanTaskTest : ApiSpecTaskTest() {
         thenOutputFileForPublicResourceSpecificationFound()
     }
 
+    @Test
+    fun `should run postman task with request parts`() {
+        title = "my custom title"
+        version = "2.0.0"
+        baseUrl = "https://example.com:8080/api"
+
+        givenBuildFileWithPostmanClosure()
+        givenResourceSnippetWithRequestParts()
+
+        whenPluginExecuted()
+
+        thenApiSpecTaskSuccessful()
+        thenOutputFileFound()
+        thenOutputFileForPublicResourceSpecificationNotFound()
+
+        with(outputFileContext()) {
+            then(read<String>("info.name")).isEqualTo(title)
+            then(read<String>("info.version")).isEqualTo(version)
+            then(read<String>("item[0].request.url.protocol")).isEqualTo("https")
+            then(read<String>("item[0].request.url.host")).isEqualTo("example.com")
+            then(read<String>("item[0].request.url.port")).isEqualTo("8080")
+            then(read<String>("item[0].request.url.path")).isEqualTo("/api/products/photo/:id")
+            then(read<String>("item[0].request.header[1].value")).isEqualTo("multipart/form-data")
+            then(read<String>("item[0].request.body.mode")).isEqualTo("formdata")
+            then(read<String>("item[0].request.body.formdata[0].key")).isEqualTo("photo")
+            then(read<String>("item[0].request.body.formdata[0].type")).isEqualTo("file")
+            then(read<List<String>>("item[0].request.body.formdata[0].src")).isEmpty()
+        }
+    }
+
     private fun givenBuildFileWithPostmanClosure() {
         buildFile.writeText(
             baseBuildFile() + """

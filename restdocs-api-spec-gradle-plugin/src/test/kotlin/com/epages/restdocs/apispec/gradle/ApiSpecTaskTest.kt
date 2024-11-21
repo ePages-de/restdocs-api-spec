@@ -105,6 +105,7 @@ abstract class ApiSpecTaskTest {
     "queryParameters" : [ ],
     "formParameters" : [ ],
     "requestFields" : [ ],
+    "requestParts" : [ ],
     "example" : null,
     "securityRequirements" : {
       "type": "OAUTH2",
@@ -150,6 +151,7 @@ abstract class ApiSpecTaskTest {
     "queryParameters" : [ ],
     "formParameters" : [ ],
     "requestFields" : [ ],
+    "requestParts" : [ ],
     "example" : null,
     "securityRequirements" : {
       "type": "OAUTH2",
@@ -187,6 +189,7 @@ abstract class ApiSpecTaskTest {
     "queryParameters" : [ ],
     "formParameters" : [ ],
     "requestFields" : [ ],
+    "requestParts" : [ ],
     "example" : null,
     "securityRequirements" : null
   },
@@ -233,5 +236,62 @@ abstract class ApiSpecTaskTest {
 
     protected fun givenBuildFileWithoutApiSpecClosure() {
         buildFile.writeText(baseBuildFile())
+    }
+
+    fun givenResourceSnippetWithRequestParts() {
+        val operationDir = File(snippetsFolder, "some-operation").apply { mkdir() }
+        File(operationDir, "resource.json").writeText(
+            """
+                {
+  "operationId" : "product-photo-upload",
+  "summary" : null,
+  "description" : null,
+  "privateResource" : false,
+  "deprecated" : false,
+  "request" : {
+    "path" : "/products/photo/{id}",
+    "method" : "POST",
+    "contentType" : "multipart/form-data",
+    "headers" : [ {
+      "name" : "one",
+      "attributes" : { },
+      "description" : "Override request header param",
+      "type" : "STRING",
+      "optional" : true,
+      "example" : "one",
+      "default" : "a default value"
+    } ],
+    "pathParameters" : [ ],
+    "queryParameters" : [ ],
+    "formParameters" : [ ],
+    "requestFields" : [ ],
+    "requestParts" : [
+        {
+            "content" : "dGVzdA==",
+            "headers" : {
+                "Content-Type" : [ "image/jpeg" ],
+                "Content-Length" : [ "123" ]
+            },
+            "name" : "photo",
+            "submittedFileName" : "photo.jpg",
+            "contentAsString" : "photo"
+        }
+    ],
+    "example" : null,
+    "securityRequirements" : {
+      "type": "OAUTH2",
+      "requiredScopes": ["prod:r"]
+    }
+  },
+  "response" : {
+    "status" : 200,
+    "contentType" : "application/hal+json",
+    "headers" : [ ],
+    "responseFields" : [ ],
+    "example" : "{\n  \"name\" : \"Fancy pants\",\n  \"price\" : 49.99,\n  \"_links\" : {\n    \"self\" : {\n      \"href\" : \"http://localhost:8080/products/7\"\n    },\n    \"product\" : {\n      \"href\" : \"http://localhost:8080/products/7\"\n    }\n  }\n}"
+  }
+}
+            """.trimIndent()
+        )
     }
 }
