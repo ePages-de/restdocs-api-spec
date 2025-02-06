@@ -86,7 +86,7 @@ object OpenApi3Generator {
 
     private fun OpenAPI.makeSubSchema() {
         val schemas = this.components.schemas
-        val subSchemas = mutableMapOf<String, Schema<Any>?>()
+        val subSchemas = LinkedHashMap<String, Schema<Any>?>()
         schemas.forEach {
             val schema = it.value
             if (schema.properties != null) {
@@ -138,8 +138,8 @@ object OpenApi3Generator {
         )
 
     private fun OpenAPI.extractDefinitions() {
-        val schemasToKeys = HashMap<Schema<Any>, String>()
-        val operationToPathKey = HashMap<Operation, String>()
+        val schemasToKeys = LinkedHashMap<Schema<Any>, String>()
+        val operationToPathKey = LinkedHashMap<Operation, String>()
 
         paths.map { it.key to it.value.readOperations() }
             .forEach { (path, operations) ->
