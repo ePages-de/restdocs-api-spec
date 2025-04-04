@@ -16,7 +16,7 @@ import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuild
 @SpringBootTest
 @Transactional
 @AutoConfigureMockMvc
-class BaseIntegrationTest {
+public class BaseIntegrationTest {
 
     @Autowired MockMvc mockMvc;
 
