@@ -24,10 +24,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@AutoConfigureMockMvc
-@AutoConfigureRestDocs
-@SpringBootTest
 @ExtendWith(SpringExtension.class)
+@AutoConfigureRestDocs
 public class CartIntegrationTest extends BaseIntegrationTest {
 
     String cartId;
