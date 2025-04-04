@@ -1,4 +1,5 @@
 buildscript {
+	ext.kotlin_version = '2.1.20'
 	ext {
 		springBootVersion = '3.0.0'
 	}
@@ -9,16 +10,19 @@ buildscript {
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
 		classpath("com.epages:restdocs-api-spec-gradle-plugin:0.19.2")
+		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 	}
 }
 
 apply plugin: 'java'
+apply plugin: 'kotlin'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 apply plugin: 'com.epages.restdocs-api-spec'
 
-sourceCompatibility = 17
-targetCompatibility = 17
+kotlin {
+	jvmToolchain(17)
+}
 
 repositories {
 	mavenCentral()
@@ -32,6 +36,7 @@ dependencies {
 	implementation('org.springframework.boot:spring-boot-starter-data-jpa')
 	implementation('org.springframework.boot:spring-boot-starter-data-rest')
 	implementation('org.springframework.boot:spring-boot-starter-validation')
+	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 	runtimeOnly('com.h2database:h2')
 
 	testImplementation('org.junit.jupiter:junit-jupiter-engine')
