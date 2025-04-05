@@ -111,6 +111,15 @@ object MockMvcRestDocumentationWrapper : RestDocumentationWrapper() {
     }
 
     @JvmStatic
+    fun document(
+        identifier: String,
+        resourceSnippetParametersBuilder: ResourceSnippetParametersBuilder
+    ): RestDocumentationResultHandler {
+        var resource = ResourceDocumentation.resource(resourceSnippetParametersBuilder.build())
+        return document(identifier, null, null, false, false, null, null, Function.identity(), resource)
+    }
+
+    @JvmStatic
     fun resourceDetails(): ResourceSnippetDetails {
         return ResourceSnippetParametersBuilder()
     }
