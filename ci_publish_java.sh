@@ -86,7 +86,7 @@ fi
 
 # Determine where to publish the Java archives
 if [[ "${PUBLISH_TO_SONATYPE}" == "true" ]]; then
-	PUBLISH_GRADLE_TASK="publishToSonatype"
+	PUBLISH_GRADLE_TASK="publishToSonatype closeSonatypeStagingRepository"
 else
 	PUBLISH_GRADLE_TASK="publishToMavenLocal"
 fi
