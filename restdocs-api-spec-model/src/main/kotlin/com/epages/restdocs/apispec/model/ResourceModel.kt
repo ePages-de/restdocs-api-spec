@@ -1,5 +1,6 @@
 package com.epages.restdocs.apispec.model
 
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import java.util.Comparator
 
@@ -26,7 +27,7 @@ fun List<ResourceModel>.groupByPath(): Map<String, List<ResourceModel>> {
         .groupBy { it.request.path }
 }
 
-data class Schema(
+data class Schema @JsonCreator constructor(
     val name: String
 )
 
