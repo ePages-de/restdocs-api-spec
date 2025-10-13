@@ -21,8 +21,8 @@ repositories {
 	mavenCentral()
 }
 
-sourceCompatibility = 17
-targetCompatibility = 17
+sourceCompatibility = 21
+targetCompatibility = 21
 
 ext {
 	snippetsDir = file('build/generated-snippets')

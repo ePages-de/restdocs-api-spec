@@ -50,6 +50,10 @@ allprojects {
         apply(plugin = "jacoco")
         apply(plugin = "maven-publish")
         apply(plugin = "org.jmailen.kotlinter")
+
+        java {
+            toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+        }
     }
 }
 
@@ -63,7 +67,7 @@ subprojects {
     val disabledKtlintRules by extra { arrayOf("max-line-length") }
 
     tasks.withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "17"
+        kotlinOptions.jvmTarget = "21"
     }
 
     tasks.withType<Test> {
@@ -81,6 +85,11 @@ subprojects {
                 html.required.set(false)
                 xml.required.set(false)
             }
+        }
+
+        tasks.withType<JavaCompile> {
+            targetCompatibility = "21"
+            sourceCompatibility = "21"
         }
     }
 }
