@@ -77,35 +77,26 @@ subprojects {
         tasks.withType<JacocoReport> {
             dependsOn("test")
             reports {
-                html.isEnabled = true
-                xml.isEnabled = true
+                html.required.set(false)
+                xml.required.set(false)
             }
         }
     }
 }
 
 tasks {
-    val jacocoMerge by creating(JacocoMerge::class) {
-        executionData = files(nonSampleProjects.map { File(it.buildDir, "/jacoco/test.exec") })
-        doFirst {
-            executionData = files(executionData.filter { it.exists() })
-        }
-    }
-
     val jacocoTestReport = this.getByName("jacocoTestReport")
     jacocoTestReport.dependsOn(nonSampleProjects.map { it.tasks["jacocoTestReport"] })
-    jacocoMerge.dependsOn(jacocoTestReport)
 
     val jacocoRootReport by creating(JacocoReport::class) {
         description = "Generates an aggregate report from all subprojects"
         group = "Coverage reports"
-        dependsOn(jacocoMerge)
         sourceDirectories.setFrom(files(nonSampleProjects.flatMap { it.sourceSets["main"].allSource.srcDirs.filter { it.exists() && !it.path.endsWith("restdocs-api-spec-postman-generator/src/main/java") } } ))
         classDirectories.setFrom(files(nonSampleProjects.flatMap { it.sourceSets["main"].output }.filter { !it.path.endsWith("restdocs-api-spec-postman-generator/build/classes/java/main") } ))
-        executionData(jacocoMerge.destinationFile)
+        executionData(files(nonSampleProjects.map { File(it.buildDir, "/jacoco/test.exec") }))
         reports {
-            html.isEnabled = true
-            xml.isEnabled = true
+            html.required.set(false)
+            xml.required.set(false)
         }
     }
     getByName("sonar").dependsOn(jacocoRootReport)
