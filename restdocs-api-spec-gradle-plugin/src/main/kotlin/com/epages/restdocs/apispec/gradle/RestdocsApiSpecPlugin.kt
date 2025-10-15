@@ -2,14 +2,17 @@ package com.epages.restdocs.apispec.gradle
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.create
+import org.gradle.api.tasks.TaskProvider
+import org.gradle.kotlin.dsl.register
 
 open class RestdocsApiSpecPlugin : Plugin<Project> {
 
-    private fun <T : ApiSpecTask> T.applyWithCommonConfiguration(block: T.() -> Unit): T {
-        dependsOn("check")
-        group = "documentation"
-        block()
+    private fun <T : ApiSpecTask> TaskProvider<T>.applyWithCommonConfiguration(block: T.() -> Unit): TaskProvider<T> {
+        configure {
+            dependsOn("check")
+            group = "documentation"
+            block()
+        }
         return this
     }
 
@@ -21,19 +24,19 @@ open class RestdocsApiSpecPlugin : Plugin<Project> {
 
             afterEvaluate {
                 val openapi = extensions.findByName(OpenApiExtension.name) as OpenApiExtension
-                tasks.create<OpenApiTask>("openapi").applyWithCommonConfiguration {
+                tasks.register<OpenApiTask>("openapi").applyWithCommonConfiguration {
                     description = "Aggregate resource fragments into an OpenAPI 2 specification"
                     applyExtension(openapi)
                 }
 
                 val openapi3 = extensions.findByName(OpenApi3Extension.name) as OpenApi3Extension
-                tasks.create<OpenApi3Task>("openapi3").applyWithCommonConfiguration {
+                tasks.register<OpenApi3Task>("openapi3").applyWithCommonConfiguration {
                     description = "Aggregate resource fragments into an OpenAPI 3 specification"
                     applyExtension(openapi3)
                 }
 
                 val postman = extensions.findByName(PostmanExtension.name) as PostmanExtension
-                tasks.create<PostmanTask>("postman").applyWithCommonConfiguration {
+                tasks.register<PostmanTask>("postman").applyWithCommonConfiguration {
                     description = "Aggregate resource fragments into an OpenAPI 3 specification"
                     applyExtension(postman)
                 }

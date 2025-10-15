@@ -273,7 +273,7 @@ object OpenApi20Generator {
 
     private fun resourceModels2Operation(
         modelsWithSamePathAndMethod: List<ResourceModel>,
-        oauth2SecuritySchemeDefinition: Oauth2Configuration?
+        @Suppress("unused") oauth2SecuritySchemeDefinition: Oauth2Configuration?
     ): Operation {
         val firstModelForPathAndMethod = modelsWithSamePathAndMethod.first()
         return Operation().apply {
@@ -409,7 +409,7 @@ object OpenApi20Generator {
         return PathParameter().apply {
             name = parameterDescriptor.name
             description = parameterDescriptor.description
-            type = parameterDescriptor.type.toLowerCase()
+            type = parameterDescriptor.type.lowercase()
             default = parameterDescriptor.defaultValue
             enumValue = parameterDescriptor.attributes.enumValues.ifEmpty { null }
         }
@@ -428,7 +428,7 @@ object OpenApi20Generator {
             name = parameterDescriptor.name
             description = parameterDescriptor.description
             required = parameterDescriptor.optional.not()
-            type = parameterDescriptor.type.toLowerCase()
+            type = parameterDescriptor.type.lowercase()
             default = parameterDescriptor.defaultValue
             enumValue = parameterDescriptor.attributes.enumValues.ifEmpty { null }
         }
@@ -439,7 +439,7 @@ object OpenApi20Generator {
             name = parameterDescriptor.name
             description = parameterDescriptor.description
             required = parameterDescriptor.optional.not()
-            type = parameterDescriptor.type.toLowerCase()
+            type = parameterDescriptor.type.lowercase()
             default = parameterDescriptor.defaultValue
             enumValue = parameterDescriptor.attributes.enumValues.ifEmpty { null }
         }
@@ -450,7 +450,7 @@ object OpenApi20Generator {
             name = headerDescriptor.name
             description = headerDescriptor.description
             required = headerDescriptor.optional.not()
-            type = headerDescriptor.type.toLowerCase()
+            type = headerDescriptor.type.lowercase()
             default = headerDescriptor.defaultValue
             enumValue = headerDescriptor.attributes.enumValues.ifEmpty { null }
         }
@@ -482,7 +482,7 @@ object OpenApi20Generator {
         return Response().apply {
             description = ""
             headers = responseModel.headers
-                .map { it.name to PropertyBuilder.build(it.type.toLowerCase(), null, null).description(it.description) }
+                .map { it.name to PropertyBuilder.build(it.type.lowercase(), null, null).description(it.description) }
                 .toMap()
                 .nullIfEmpty()
             examples = mapOf(responseModel.contentType to responseModel.example).nullIfEmpty()

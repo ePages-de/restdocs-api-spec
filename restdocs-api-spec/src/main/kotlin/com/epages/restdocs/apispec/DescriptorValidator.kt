@@ -154,7 +154,7 @@ internal object DescriptorValidator {
                         .firstOrNull { d.path == it["path"] }
                         ?.get("type")
                         ?.let { it as String }
-                        ?.let { JsonFieldType.valueOf(it.toUpperCase()) }
+                        ?.let { JsonFieldType.valueOf(it.uppercase()) }
                         ?.let { d.type(it) }
                 }
             }

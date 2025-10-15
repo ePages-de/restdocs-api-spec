@@ -129,7 +129,7 @@ class WebTestClientRestDocumentationWrapperIntegrationTest(@Autowired val webTes
             .contentType(APPLICATION_JSON)
             .header("X-Custom-Header", "test")
             .accept(APPLICATION_JSON)
-            .syncBody(
+            .bodyValue(
                 """{
                             "comment": "some",
                             "flag": $flagValue,

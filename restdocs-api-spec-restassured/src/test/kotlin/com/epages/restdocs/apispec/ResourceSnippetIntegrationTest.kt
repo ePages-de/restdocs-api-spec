@@ -45,7 +45,7 @@ open class ResourceSnippetIntegrationTest {
     protected var serverPort: Int? = null
 
     @BeforeEach
-    fun setUp(restDocumentation: RestDocumentationContextProvider) {
+    fun setUp(@Suppress("unused") restDocumentation: RestDocumentationContextProvider) {
         app = ResourceSnippetIntegrationTest.TestApplication()
         app.main(arrayOf("--server.port=0"))
         serverPort = app.applicationContext.environment.getProperty("local.server.port")?.toInt()

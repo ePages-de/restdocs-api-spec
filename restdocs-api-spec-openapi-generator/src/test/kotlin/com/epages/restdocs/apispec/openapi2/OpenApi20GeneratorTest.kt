@@ -369,25 +369,28 @@ class OpenApi20GeneratorTest {
         for (header in responseHeaders) {
             then(successfulGetResponse.headers.get(header.name)!!).isNotNull
             then(successfulGetResponse.headers.get(header.name)!!.description).isEqualTo(header.description)
-            then(successfulGetResponse.headers.get(header.name)!!.type).isEqualTo(header.type.toLowerCase())
+            then(successfulGetResponse.headers.get(header.name)!!.type).isEqualTo(header.type.lowercase())
         }
 
         then(
             successfulGetResponse
                 .examples.get(successfulGetProductModel.response.contentType)
         ).isEqualTo(successfulGetProductModel.response.example)
+        @Suppress("UNCHECKED_CAST")
         thenParametersForGetMatch(productPath.get.parameters as List<AbstractSerializableParameter<*>>, successfulGetProductModel.request)
     }
 
     private fun thenGetProductWith200ResponseIsGeneratedWithDefaultValue(openapi: Swagger, api: List<ResourceModel>) {
         val successfulGetProductModel = api[0]
         val productPath = openapi.paths.getValue(successfulGetProductModel.request.path)
+        @Suppress("UNCHECKED_CAST")
         thenParametersForGetMatchWithDefaultValue(productPath.get.parameters as List<AbstractSerializableParameter<*>>, successfulGetProductModel.request)
     }
 
     private fun thenGetProductWith200ResponseIsGeneratedWithEnumValues(openapi: Swagger, api: List<ResourceModel>) {
         val successfulGetProductModel = api[0]
         val productPath = openapi.paths.getValue(successfulGetProductModel.request.path)
+        @Suppress("UNCHECKED_CAST")
         thenParametersForGetMatchWithEnumValues(productPath.get.parameters as List<AbstractSerializableParameter<*>>, successfulGetProductModel.request)
     }
 
@@ -403,6 +406,7 @@ class OpenApi20GeneratorTest {
             successfulPostResponse!!
                 .examples.get(successfulPostProductModel.response.contentType)
         ).isEqualTo(successfulPostProductModel.response.example)
+        @Suppress("UNCHECKED_CAST")
         thenParametersForPostMatch(productPath.post.parameters as List<AbstractSerializableParameter<*>>, successfulPostProductModel.request)
 
         thenRequestAndResponseSchemataAreReferenced(productPath, successfulPostResponse, openapi.definitions)
@@ -424,6 +428,7 @@ class OpenApi20GeneratorTest {
         val productResourceModel = api[0]
         val productPath = openapi.paths.getValue(productResourceModel.request.path)
 
+        @Suppress("UNCHECKED_CAST")
         thenParameterMatches(productPath.post.parameters as List<AbstractSerializableParameter<*>>, "formData", productResourceModel.request.formParameters[0])
     }
 
@@ -431,6 +436,7 @@ class OpenApi20GeneratorTest {
         val productResourceModel = api[0]
         val productPath = openapi.paths.getValue(productResourceModel.request.path)
 
+        @Suppress("UNCHECKED_CAST")
         thenParameterMatches(productPath.put.parameters as List<AbstractSerializableParameter<*>>, "formData", productResourceModel.request.formParameters[0])
     }
 
@@ -442,6 +448,7 @@ class OpenApi20GeneratorTest {
             productPath.get.responses.get(badGetProductModel.response.status.toString())!!
                 .examples.get(badGetProductModel.response.contentType)
         ).isEqualTo(badGetProductModel.response.example)
+        @Suppress("UNCHECKED_CAST")
         thenParametersForGetMatch(productPath.get.parameters as List<AbstractSerializableParameter<*>>, badGetProductModel.request)
     }
 
@@ -479,7 +486,7 @@ class OpenApi20GeneratorTest {
         val parameter = findParameterByTypeAndName(parameters, type, parameterDescriptor.name)
         then(parameter).isNotNull
         then(parameter!!.description).isEqualTo(parameterDescriptor.description)
-        then(parameter!!.default).isEqualTo(parameterDescriptor.defaultValue)
+        then(parameter.default).isEqualTo(parameterDescriptor.defaultValue)
     }
 
     private fun thenParameterEnumValuesMatches(parameters: List<AbstractSerializableParameter<*>>, type: String, parameterDescriptor: AbstractParameterDescriptor) {

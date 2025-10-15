@@ -259,7 +259,7 @@ object OpenApi3Generator {
 
     private fun resourceModels2Operation(
         modelsWithSamePathAndMethod: List<ResourceModel>,
-        oauth2SecuritySchemeDefinition: Oauth2Configuration?
+        @Suppress("unused") oauth2SecuritySchemeDefinition: Oauth2Configuration?
     ): Operation {
         val firstModelForPathAndMethod = modelsWithSamePathAndMethod.first()
         val operationIds = modelsWithSamePathAndMethod.map { model -> model.operationId }
@@ -479,29 +479,29 @@ object OpenApi3Generator {
     }
 
     private fun simpleTypeToSchema(parameterDescriptor: AbstractParameterDescriptor): Schema<*>? {
-        return when (parameterDescriptor.type.toLowerCase()) {
-            SimpleType.BOOLEAN.name.toLowerCase() -> BooleanSchema().apply {
+        return when (parameterDescriptor.type.lowercase()) {
+            SimpleType.BOOLEAN.name.lowercase() -> BooleanSchema().apply {
                 this._default(parameterDescriptor.defaultValue?.let { it as Boolean })
                 parameterDescriptor.attributes.enumValues
                     .map { it as Boolean }
                     .forEach { this.addEnumItem(it) }
             }
 
-            SimpleType.STRING.name.toLowerCase() -> StringSchema().apply {
+            SimpleType.STRING.name.lowercase() -> StringSchema().apply {
                 this._default(parameterDescriptor.defaultValue?.let { it as String })
                 parameterDescriptor.attributes.enumValues
                     .map { it as String }
                     .forEach { this.addEnumItem(it) }
             }
 
-            SimpleType.NUMBER.name.toLowerCase() -> NumberSchema().apply {
+            SimpleType.NUMBER.name.lowercase() -> NumberSchema().apply {
                 this._default(parameterDescriptor.defaultValue?.asBigDecimal())
                 parameterDescriptor.attributes.enumValues
                     .map { it.asBigDecimal() }
                     .forEach { this.addEnumItem(it) }
             }
 
-            SimpleType.INTEGER.name.toLowerCase() -> IntegerSchema().apply {
+            SimpleType.INTEGER.name.lowercase() -> IntegerSchema().apply {
                 this._default(parameterDescriptor.defaultValue?.asInt())
                 parameterDescriptor.attributes.enumValues
                     .map { it.asInt() }

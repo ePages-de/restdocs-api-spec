@@ -13,7 +13,7 @@ import com.epages.restdocs.apispec.postman.model.Request
 import com.epages.restdocs.apispec.postman.model.Response
 import com.epages.restdocs.apispec.postman.model.Src
 import com.epages.restdocs.apispec.postman.model.Variable
-import java.net.URL
+import java.net.URI
 
 object PostmanCollectionGenerator {
 
@@ -83,14 +83,14 @@ object PostmanCollectionGenerator {
     private fun toUrl(modelsWithSamePathAndMethod: List<ResourceModel>, url: String): Url {
         val urlStartWithVariable = url.startsWith("{{")
         val baseUrl = when (urlStartWithVariable) {
-            true -> URL("http://$url")
-            else -> URL(url)
+            true -> URI.create("http://$url")
+            else -> URI.create(url)
         }
 
         return Url().apply {
             protocol = when (urlStartWithVariable) {
                 true -> null
-                else -> baseUrl.protocol
+                else -> baseUrl.scheme
             }
             host = baseUrl.host
             port = when (baseUrl.port) {

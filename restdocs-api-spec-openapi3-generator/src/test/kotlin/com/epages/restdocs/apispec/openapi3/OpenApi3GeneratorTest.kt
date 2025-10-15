@@ -215,7 +215,7 @@ class OpenApi3GeneratorTest {
 
         whenOpenApiObjectGenerated()
 
-        thenResourceHasFormDataInRequestBodyAndNotAsQueryParameters(method.toString().toLowerCase())
+        thenResourceHasFormDataInRequestBodyAndNotAsQueryParameters(method.toString().lowercase())
     }
 
     @Test
@@ -226,7 +226,7 @@ class OpenApi3GeneratorTest {
 
         whenOpenApiObjectGenerated()
 
-        thenResourceHasFormDataInRequestBodyAndNotAsQueryParameters(method.toString().toLowerCase())
+        thenResourceHasFormDataInRequestBodyAndNotAsQueryParameters(method.toString().lowercase())
     }
 
     @Test
@@ -237,7 +237,7 @@ class OpenApi3GeneratorTest {
 
         whenOpenApiObjectGenerated()
 
-        thenResourceHasValidSchemaGeneratedFromRequestParameters(method.toString().toLowerCase())
+        thenResourceHasValidSchemaGeneratedFromRequestParameters(method.toString().lowercase())
     }
 
     @Test
