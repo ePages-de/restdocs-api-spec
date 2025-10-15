@@ -21,7 +21,7 @@ dependencies {
 
     testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
     testImplementation("com.github.java-json-tools:json-schema-validator:2.2.10")
-    testImplementation("com.jayway.jsonpath:json-path:2.4.0")
+    testImplementation("com.jayway.jsonpath:json-path:2.9.0")
     testImplementation("org.assertj:assertj-core:3.10.0")
     testImplementation("javax.validation:validation-api:2.0.1.Final")
 }

@@ -14,11 +14,11 @@ dependencies {
 
     api(project(":restdocs-api-spec-model"))
     api(project(":restdocs-api-spec-jsonschema"))
-    api("io.swagger:swagger-core:1.5.22")
+    api("io.swagger:swagger-core:1.6.16")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.12.2")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.2")
 
-    testImplementation("io.swagger:swagger-parser:1.0.36")
+    testImplementation("io.swagger:swagger-parser:1.0.75")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
     testImplementation("org.assertj:assertj-core:3.10.0")
 }
