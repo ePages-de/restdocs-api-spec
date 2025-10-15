@@ -18,6 +18,7 @@ dependencies {
 
     implementation(project(":restdocs-api-spec"))
     implementation("org.springframework.restdocs:spring-restdocs-webtestclient:$springRestDocsVersion")
+    implementation("org.springframework:spring-webflux:6.2.11")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion") {
         exclude("junit")
