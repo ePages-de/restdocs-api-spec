@@ -88,12 +88,12 @@ tasks {
     val jacocoTestReport = this.getByName("jacocoTestReport")
     jacocoTestReport.dependsOn(nonSampleProjects.map { it.tasks["jacocoTestReport"] })
 
-    val jacocoRootReport by creating(JacocoReport::class) {
+    val jacocoRootReport by registering(JacocoReport::class) {
         description = "Generates an aggregate report from all subprojects"
         group = "Coverage reports"
         sourceDirectories.setFrom(files(nonSampleProjects.flatMap { it.sourceSets["main"].allSource.srcDirs.filter { it.exists() && !it.path.endsWith("restdocs-api-spec-postman-generator/src/main/java") } } ))
         classDirectories.setFrom(files(nonSampleProjects.flatMap { it.sourceSets["main"].output }.filter { !it.path.endsWith("restdocs-api-spec-postman-generator/build/classes/java/main") } ))
-        executionData(files(nonSampleProjects.map { File(it.buildDir, "/jacoco/test.exec") }))
+        executionData(files(nonSampleProjects.map { it.layout.buildDirectory.file("jacoco/test.exec") }))
         reports {
             html.required.set(false)
             xml.required.set(false)
