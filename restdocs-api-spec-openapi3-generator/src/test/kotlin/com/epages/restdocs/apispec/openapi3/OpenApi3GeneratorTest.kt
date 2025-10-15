@@ -17,9 +17,9 @@ import com.jayway.jsonpath.DocumentContext
 import com.jayway.jsonpath.JsonPath
 import com.jayway.jsonpath.Option
 import io.swagger.parser.OpenAPIParser
-import io.swagger.parser.models.ParseOptions
 import io.swagger.v3.oas.models.info.Contact
 import io.swagger.v3.oas.models.servers.Server
+import io.swagger.v3.parser.core.models.ParseOptions
 import org.assertj.core.api.BDDAssertions.then
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
