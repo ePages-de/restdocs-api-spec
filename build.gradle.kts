@@ -62,10 +62,10 @@ allprojects {
 
 subprojects {
 
-    val jacksonVersion by extra { "2.12.2" }
-    val springBootVersion by extra { "3.2.0" }
+    val jacksonVersion by extra { "2.19.2" }
+    val springBootVersion by extra { "3.5.7" }
     val springRestDocsVersion by extra { "3.0.5" }
-    val junitVersion by extra { "5.4.2" }
+    val junitVersion by extra { "5.12.2" }
     val disabledKtlintRules by extra { arrayOf("max-line-length") }
 
     tasks.withType<KotlinCompile> {

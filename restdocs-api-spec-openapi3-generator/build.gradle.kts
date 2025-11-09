@@ -23,7 +23,8 @@ dependencies {
 
     testImplementation("io.swagger.parser.v3:swagger-parser:2.1.34")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
-    testImplementation("org.assertj:assertj-core:3.10.0")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("org.assertj:assertj-core:3.27.6")
 
     testImplementation("com.jayway.jsonpath:json-path:2.9.0")
 }

@@ -21,7 +21,8 @@ dependencies {
 
     testImplementation("io.swagger:swagger-parser:1.0.75")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
-    testImplementation("org.assertj:assertj-core:3.10.0")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("org.assertj:assertj-core:3.27.6")
 }
 
 publishing {

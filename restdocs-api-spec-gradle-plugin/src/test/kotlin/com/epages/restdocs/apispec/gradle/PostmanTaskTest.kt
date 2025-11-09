@@ -2,10 +2,7 @@ package com.epages.restdocs.apispec.gradle
 
 import org.assertj.core.api.BDDAssertions.then
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.junitpioneer.jupiter.TempDirectory
 
-@ExtendWith(TempDirectory::class)
 class PostmanTaskTest : ApiSpecTaskTest() {
     override val taskName = "postman"
 

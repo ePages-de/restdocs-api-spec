@@ -56,8 +56,9 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
 
     testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
-    testImplementation("org.junit-pioneer:junit-pioneer:0.3.0")
-    testImplementation("org.assertj:assertj-core:3.10.0")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("org.junit-pioneer:junit-pioneer:2.3.0")
+    testImplementation("org.assertj:assertj-core:3.27.6")
 
     testImplementation("com.jayway.jsonpath:json-path:2.9.0")
 

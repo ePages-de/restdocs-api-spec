@@ -8,7 +8,7 @@ import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junitpioneer.jupiter.TempDirectory
+import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
@@ -35,13 +35,15 @@ abstract class ApiSpecTaskTest {
 
     abstract val taskName: String
 
+    @TempDir
+    @JvmField
+    var tempDir: Path? = null
+
     @BeforeEach
-    fun init(
-        @TempDirectory.TempDir tempDir: Path,
-    ) {
+    fun init() {
         with(tempDir) {
-            testProjectDir = tempDir
-            buildFile = resolve("build.gradle").toFile()
+            testProjectDir = tempDir!!
+            buildFile = this!!.resolve("build.gradle").toFile()
             snippetsFolder = resolve("build/generated-snippets").toFile().apply { mkdirs() }
             outputFolder = resolve("build/api-spec").toFile()
 

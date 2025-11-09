@@ -9,7 +9,7 @@ import org.assertj.core.api.BDDAssertions.thenThrownBy
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.junitpioneer.jupiter.TempDirectory
+import org.junit.jupiter.api.io.TempDir
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.http.HttpHeaders.CONTENT_TYPE
 import org.springframework.http.HttpStatus
@@ -26,7 +26,6 @@ import java.io.File
 import java.io.IOException
 import java.nio.file.Path
 
-@ExtendWith(TempDirectory::class)
 class ResourceSnippetTest {
     lateinit var operation: Operation
 
@@ -39,11 +38,13 @@ class ResourceSnippetTest {
 
     private lateinit var resourceSnippetJson: DocumentContext
 
+    @TempDir
+    @JvmField
+    var tempDir: Path? = null
+
     @BeforeEach
-    fun init(
-        @TempDirectory.TempDir tempDir: Path,
-    ) {
-        rootOutputDirectory = tempDir.toFile()
+    fun init() {
+        rootOutputDirectory = tempDir!!.toFile()
     }
 
     @Test

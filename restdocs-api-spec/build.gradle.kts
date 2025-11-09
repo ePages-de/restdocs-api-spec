@@ -28,10 +28,11 @@ dependencies {
         exclude("junit")
     }
     testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
-    testImplementation("org.junit-pioneer:junit-pioneer:0.2.2")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("org.junit-pioneer:junit-pioneer:2.3.0")
     testImplementation("org.springframework.boot:spring-boot-starter-hateoas:$springBootVersion")
     testImplementation("org.hibernate.validator:hibernate-validator:6.0.10.Final")
-    testImplementation("org.assertj:assertj-core:3.10.0")
+    testImplementation("org.assertj:assertj-core:3.27.6")
     testImplementation("com.jayway.jsonpath:json-path:2.3.0")
 
     testImplementation("com.github.java-json-tools:json-schema-validator:2.2.10")

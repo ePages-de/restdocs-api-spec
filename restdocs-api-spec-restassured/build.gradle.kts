@@ -21,7 +21,8 @@ dependencies {
         exclude("junit")
     }
     testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
-    testImplementation("org.junit-pioneer:junit-pioneer:0.3.0")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("org.junit-pioneer:junit-pioneer:2.3.0")
     testImplementation("org.springframework.boot:spring-boot-starter-validation:$springBootVersion")
     testImplementation("org.springframework.boot:spring-boot-starter-hateoas:$springBootVersion")
 }

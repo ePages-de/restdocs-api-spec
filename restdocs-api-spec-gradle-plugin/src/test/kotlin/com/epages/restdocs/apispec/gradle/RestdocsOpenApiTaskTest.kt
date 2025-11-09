@@ -3,9 +3,7 @@ package com.epages.restdocs.apispec.gradle
 import com.jayway.jsonpath.JsonPath
 import org.assertj.core.api.BDDAssertions.then
 import org.junit.jupiter.api.extension.ExtendWith
-import org.junitpioneer.jupiter.TempDirectory
 
-@ExtendWith(TempDirectory::class)
 class RestdocsOpenApiTaskTest : RestdocsOpenApiTaskTestBase() {
     override val taskName = "openapi"
 
