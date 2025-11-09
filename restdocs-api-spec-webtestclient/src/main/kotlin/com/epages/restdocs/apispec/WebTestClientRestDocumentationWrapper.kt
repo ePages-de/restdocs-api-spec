@@ -9,7 +9,6 @@ import java.util.function.Consumer
 import java.util.function.Function
 
 object WebTestClientRestDocumentationWrapper : RestDocumentationWrapper() {
-
     @JvmOverloads
     @JvmStatic
     fun <T> document(
@@ -18,14 +17,13 @@ object WebTestClientRestDocumentationWrapper : RestDocumentationWrapper() {
         requestPreprocessor: OperationRequestPreprocessor? = null,
         responsePreprocessor: OperationResponsePreprocessor? = null,
         snippetFilter: Function<List<Snippet>, List<Snippet>> = Function.identity(),
-        vararg snippets: Snippet
+        vararg snippets: Snippet,
     ): Consumer<EntityExchangeResult<T>> {
-
         val enhancedSnippets =
             enhanceSnippetsWithResourceSnippet(
                 resourceDetails = resourceDetails,
                 snippetFilter = snippetFilter,
-                snippets = snippets
+                snippets = snippets,
             )
 
         if (requestPreprocessor != null && responsePreprocessor != null) {
@@ -33,7 +31,7 @@ object WebTestClientRestDocumentationWrapper : RestDocumentationWrapper() {
                 identifier,
                 requestPreprocessor,
                 responsePreprocessor,
-                *enhancedSnippets
+                *enhancedSnippets,
             )
         } else if (requestPreprocessor != null) {
             return WebTestClientRestDocumentation.document(identifier, requestPreprocessor, *enhancedSnippets)
@@ -55,62 +53,54 @@ object WebTestClientRestDocumentationWrapper : RestDocumentationWrapper() {
         requestPreprocessor: OperationRequestPreprocessor? = null,
         responsePreprocessor: OperationResponsePreprocessor? = null,
         snippetFilter: Function<List<Snippet>, List<Snippet>> = Function.identity(),
-        vararg snippets: Snippet
-    ): Consumer<EntityExchangeResult<T>> {
-        return document(
+        vararg snippets: Snippet,
+    ): Consumer<EntityExchangeResult<T>> =
+        document(
             identifier = identifier,
-            resourceDetails = resourceDetails()
-                .description(description)
-                .summary(summary)
-                .privateResource(privateResource)
-                .deprecated(deprecated),
+            resourceDetails =
+                resourceDetails()
+                    .description(description)
+                    .summary(summary)
+                    .privateResource(privateResource)
+                    .deprecated(deprecated),
             requestPreprocessor = requestPreprocessor,
             responsePreprocessor = responsePreprocessor,
             snippetFilter = snippetFilter,
-            snippets = snippets
+            snippets = snippets,
         )
-    }
 
     @JvmStatic
     fun <T> document(
         identifier: String,
         requestPreprocessor: OperationRequestPreprocessor,
-        vararg snippets: Snippet
-    ): Consumer<EntityExchangeResult<T>> {
-        return document(identifier, null, null, false, false, requestPreprocessor, snippets = snippets)
-    }
+        vararg snippets: Snippet,
+    ): Consumer<EntityExchangeResult<T>> = document(identifier, null, null, false, false, requestPreprocessor, snippets = snippets)
 
     @JvmStatic
     fun <T> document(
         identifier: String,
         description: String,
         privateResource: Boolean,
-        vararg snippets: Snippet
-    ): Consumer<EntityExchangeResult<T>> {
-        return document(identifier, description, null, privateResource, snippets = snippets)
-    }
+        vararg snippets: Snippet,
+    ): Consumer<EntityExchangeResult<T>> = document(identifier, description, null, privateResource, snippets = snippets)
 
     @JvmStatic
     fun <T> document(
         identifier: String,
         responsePreprocessor: OperationResponsePreprocessor,
-        vararg snippets: Snippet
-    ): Consumer<EntityExchangeResult<T>> {
-        return document(identifier, null, null, false, false, responsePreprocessor = responsePreprocessor, snippets = snippets)
-    }
+        vararg snippets: Snippet,
+    ): Consumer<EntityExchangeResult<T>> =
+        document(identifier, null, null, false, false, responsePreprocessor = responsePreprocessor, snippets = snippets)
 
     @JvmStatic
     fun <T> document(
         identifier: String,
         requestPreprocessor: OperationRequestPreprocessor,
         responsePreprocessor: OperationResponsePreprocessor,
-        vararg snippets: Snippet
-    ): Consumer<EntityExchangeResult<T>> {
-        return document(identifier, null, null, false, false, requestPreprocessor, responsePreprocessor, snippets = snippets)
-    }
+        vararg snippets: Snippet,
+    ): Consumer<EntityExchangeResult<T>> =
+        document(identifier, null, null, false, false, requestPreprocessor, responsePreprocessor, snippets = snippets)
 
     @JvmStatic
-    fun resourceDetails(): ResourceSnippetDetails {
-        return ResourceSnippetParametersBuilder()
-    }
+    fun resourceDetails(): ResourceSnippetDetails = ResourceSnippetParametersBuilder()
 }

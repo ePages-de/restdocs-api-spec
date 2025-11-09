@@ -7,48 +7,49 @@ import org.junitpioneer.jupiter.TempDirectory
 
 @ExtendWith(TempDirectory::class)
 class RestdocsOpenApiTaskTest : RestdocsOpenApiTaskTestBase() {
-
     override val taskName = "openapi"
 
     override fun givenBuildFileWithOpenApiClosure() {
         buildFile.writeText(
-            baseBuildFile() + """
-            openapi {
-                host = '$host'
-                basePath = '$basePath'
-                schemes = ${schemes.joinToString(",", "['", "']")}
-                title = '$title'
-                description = '$description'
-                tagDescriptionsPropertiesFile = "tagDescriptions.yaml"
-                version = '$version'
-                format = '$format'
-                separatePublicApi = $separatePublicApi
-                outputFileNamePrefix = '$outputFileNamePrefix'
-            }
-            """.trimIndent()
+            baseBuildFile() +
+                """
+                openapi {
+                    host = '$host'
+                    basePath = '$basePath'
+                    schemes = ${schemes.joinToString(",", "['", "']")}
+                    title = '$title'
+                    description = '$description'
+                    tagDescriptionsPropertiesFile = "tagDescriptions.yaml"
+                    version = '$version'
+                    format = '$format'
+                    separatePublicApi = $separatePublicApi
+                    outputFileNamePrefix = '$outputFileNamePrefix'
+                }
+                """.trimIndent(),
         )
     }
 
     override fun givenBuildFileWithOpenApiClosureAndSecurityDefinitions() {
         buildFile.writeText(
-            baseBuildFile() + """
-            openapi {
-                host = '$host'
-                basePath = '$basePath'
-                schemes = ${schemes.joinToString(",", "['", "']")}
-                title = '$title'
-                version = '$version'
-                format = '$format'
-                separatePublicApi = $separatePublicApi
-                outputFileNamePrefix = '$outputFileNamePrefix'
-                oauth2SecuritySchemeDefinition = {
-                    flows = ['accessCode']
-                    tokenUrl = 'http://example.com/token'
-                    authorizationUrl = 'http://example.com/authorize'
-                    scopeDescriptionsPropertiesFile = "scopeDescriptions.yaml"
+            baseBuildFile() +
+                """
+                openapi {
+                    host = '$host'
+                    basePath = '$basePath'
+                    schemes = ${schemes.joinToString(",", "['", "']")}
+                    title = '$title'
+                    version = '$version'
+                    format = '$format'
+                    separatePublicApi = $separatePublicApi
+                    outputFileNamePrefix = '$outputFileNamePrefix'
+                    oauth2SecuritySchemeDefinition = {
+                        flows = ['accessCode']
+                        tokenUrl = 'http://example.com/token'
+                        authorizationUrl = 'http://example.com/authorize'
+                        scopeDescriptionsPropertiesFile = "scopeDescriptions.yaml"
+                    }
                 }
-            }
-            """.trimIndent()
+                """.trimIndent(),
         )
     }
 

@@ -10,7 +10,6 @@ import org.gradle.api.tasks.TaskAction
 import java.io.File
 
 abstract class ApiSpecTask : DefaultTask() {
-
     @Input
     var separatePublicApi: Boolean = false
 
@@ -40,11 +39,12 @@ abstract class ApiSpecTask : DefaultTask() {
 
     @TaskAction
     fun aggregateResourceModels() {
-
-        val resourceModels = snippetsDirectoryFile.walkTopDown()
-            .filter { it.name == "resource.json" }
-            .map { objectMapper.readValue<ResourceModel>(it.readText()) }
-            .toList()
+        val resourceModels =
+            snippetsDirectoryFile
+                .walkTopDown()
+                .filter { it.name == "resource.json" }
+                .map { objectMapper.readValue<ResourceModel>(it.readText()) }
+                .toList()
 
         writeSpecificationFile(outputFileNamePrefix, generateSpecification(resourceModels))
 
@@ -54,7 +54,10 @@ abstract class ApiSpecTask : DefaultTask() {
         }
     }
 
-    private fun writeSpecificationFile(outputFilenamePrefix: String, content: String) {
+    private fun writeSpecificationFile(
+        outputFilenamePrefix: String,
+        content: String,
+    ) {
         outputDirectoryFile.mkdir()
         File(outputDirectoryFile, "$outputFilenamePrefix.${outputFileExtension()}").writeText(content)
     }

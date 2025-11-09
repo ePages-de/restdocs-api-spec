@@ -33,7 +33,6 @@ import java.util.UUID
 @WebMvcTest
 @AutoConfigureRestDocs
 open class ResourceSnippetIntegrationTest {
-
     val operationName = "test-${System.currentTimeMillis()}"
 
     lateinit var resultActions: ResultActions
@@ -41,22 +40,29 @@ open class ResourceSnippetIntegrationTest {
     @SpringBootApplication
     open class TestApplication {
         lateinit var applicationContext: ConfigurableApplicationContext
+
         fun main(args: Array<String>) {
             applicationContext = SpringApplication.run(TestApplication::class.java, *args)
         }
 
         @RestController
         internal open class TestController {
-
             @PostMapping(path = ["/some/{someId}/other/{otherId}"])
             fun doSomething(
                 @PathVariable someId: String,
                 @PathVariable otherId: Int?,
                 @RequestHeader("X-Custom-Header") customHeader: String,
-                @RequestBody testDataHolder: TestDataHolder
+                @RequestBody testDataHolder: TestDataHolder,
             ): ResponseEntity<EntityModel<TestDataHolder>> {
                 val resource = EntityModel.of(testDataHolder.copy(id = UUID.randomUUID().toString()))
-                val link = linkToCurrentMapping().slash("some").slash(someId).slash("other").slash(otherId).toUri().toString()
+                val link =
+                    linkToCurrentMapping()
+                        .slash("some")
+                        .slash(someId)
+                        .slash("other")
+                        .slash(otherId)
+                        .toUri()
+                        .toString()
                 resource.add(Link.of(link, IanaLinkRelations.SELF))
                 resource.add(Link.of(link, "multiple"))
                 resource.add(Link.of(link, "multiple"))
@@ -75,7 +81,7 @@ open class ResourceSnippetIntegrationTest {
         val flag: Boolean = false,
         val count: Int = 0,
         @field:NotEmpty
-        val id: String? = null
+        val id: String? = null,
     )
 }
 
@@ -84,13 +90,14 @@ fun fieldDescriptors(): FieldDescriptors {
     return ResourceDocumentation.fields(
         fields.withPath("comment").description("the comment").optional(),
         fields.withPath("flag").description("the flag"),
-        fields.withMappedPath("count", "count").description("the count")
+        fields.withMappedPath("count", "count").description("the count"),
     )
 }
 
-fun buildFullResourceSnippet(): ResourceSnippet {
-    return resource(
-        ResourceSnippetParameters.builder()
+fun buildFullResourceSnippet(): ResourceSnippet =
+    resource(
+        ResourceSnippetParameters
+            .builder()
             .description("description")
             .summary("summary")
             .deprecated(true)
@@ -99,20 +106,15 @@ fun buildFullResourceSnippet(): ResourceSnippet {
             .responseFields(fieldDescriptors().and(fieldWithPath("id").description("id")))
             .requestHeaders(
                 headerWithName("X-Custom-Header").description("A custom header"),
-                headerWithName(ACCEPT).description("Accept")
-            )
-            .responseHeaders(
+                headerWithName(ACCEPT).description("Accept"),
+            ).responseHeaders(
                 headerWithName("X-Custom-Header").description("A custom header"),
-                headerWithName(CONTENT_TYPE).description("ContentType")
-            )
-            .pathParameters(
+                headerWithName(CONTENT_TYPE).description("ContentType"),
+            ).pathParameters(
                 parameterWithName("someId").description("some id"),
-                parameterWithName("otherId").description("otherId id").type(SimpleType.INTEGER)
-            )
-            .links(
+                parameterWithName("otherId").description("otherId id").type(SimpleType.INTEGER),
+            ).links(
                 linkWithRel("self").description("some"),
-                linkWithRel("multiple").description("multiple")
-            )
-            .build()
+                linkWithRel("multiple").description("multiple"),
+            ).build(),
     )
-}

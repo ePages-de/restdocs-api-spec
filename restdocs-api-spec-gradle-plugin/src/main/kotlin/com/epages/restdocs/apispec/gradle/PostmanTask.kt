@@ -8,7 +8,6 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
 open class PostmanTask : ApiSpecTask() {
-
     @Input
     @Optional
     lateinit var title: String
@@ -29,8 +28,8 @@ open class PostmanTask : ApiSpecTask() {
                 resources = resourceModels,
                 title = title,
                 version = apiVersion,
-                baseUrl = baseUrl
-            )
+                baseUrl = baseUrl,
+            ),
         )
 
     fun applyExtension(extension: PostmanExtension) {

@@ -11,23 +11,25 @@ data class ResourceModel(
     val deprecated: Boolean,
     val tags: Set<String> = emptySet(),
     val request: RequestModel,
-    val response: ResponseModel
+    val response: ResponseModel,
 )
 
-fun List<ResourceModel>.groupByPath(): Map<String, List<ResourceModel>> {
-    return this.sortedWith(
-        // by first path segment, then path length, then path
-        Comparator.comparing<ResourceModel, String> {
-            it.request.path.split("/").firstOrNull { s -> s.isNotEmpty() }.orEmpty()
-        }
-            .thenComparing(Comparator.comparingInt<ResourceModel> { it.request.path.count { c -> c == '/' } })
-            .thenComparing(Comparator.comparing<ResourceModel, String> { it.request.path })
-    )
-        .groupBy { it.request.path }
-}
+fun List<ResourceModel>.groupByPath(): Map<String, List<ResourceModel>> =
+    this
+        .sortedWith(
+            // by first path segment, then path length, then path
+            Comparator
+                .comparing<ResourceModel, String> {
+                    it.request.path
+                        .split("/")
+                        .firstOrNull { s -> s.isNotEmpty() }
+                        .orEmpty()
+                }.thenComparing(Comparator.comparingInt<ResourceModel> { it.request.path.count { c -> c == '/' } })
+                .thenComparing(Comparator.comparing<ResourceModel, String> { it.request.path }),
+        ).groupBy { it.request.path }
 
 data class Schema(
-    val name: String
+    val name: String,
 )
 
 data class RequestModel(
@@ -41,7 +43,7 @@ data class RequestModel(
     val formParameters: List<ParameterDescriptor>,
     val requestFields: List<FieldDescriptor>,
     val example: String? = null,
-    val schema: Schema? = null
+    val schema: Schema? = null,
 )
 
 data class ResponseModel(
@@ -50,14 +52,14 @@ data class ResponseModel(
     val headers: List<HeaderDescriptor>,
     val responseFields: List<FieldDescriptor>,
     val example: String? = null,
-    val schema: Schema? = null
+    val schema: Schema? = null,
 )
 
 enum class SimpleType {
     STRING,
     INTEGER,
     NUMBER,
-    BOOLEAN
+    BOOLEAN,
 }
 
 interface AbstractParameterDescriptor {
@@ -76,7 +78,7 @@ data class HeaderDescriptor(
     @JsonProperty("default") override val defaultValue: Any? = null,
     override val optional: Boolean,
     val example: String? = null,
-    override val attributes: Attributes = Attributes()
+    override val attributes: Attributes = Attributes(),
 ) : AbstractParameterDescriptor
 
 open class FieldDescriptor(
@@ -85,7 +87,7 @@ open class FieldDescriptor(
     val type: String,
     val optional: Boolean = false,
     val ignored: Boolean = false,
-    val attributes: Attributes = Attributes()
+    val attributes: Attributes = Attributes(),
 )
 
 data class Attributes(
@@ -97,7 +99,7 @@ data class Attributes(
 
 data class Constraint(
     val name: String,
-    val configuration: Map<String, Any>
+    val configuration: Map<String, Any>,
 )
 
 data class ParameterDescriptor(
@@ -107,19 +109,19 @@ data class ParameterDescriptor(
     @JsonProperty("default") override val defaultValue: Any? = null,
     override val optional: Boolean,
     val ignored: Boolean,
-    override val attributes: Attributes = Attributes()
+    override val attributes: Attributes = Attributes(),
 ) : AbstractParameterDescriptor
 
 data class SecurityRequirements(
     val type: SecurityType,
-    val requiredScopes: List<String>? = null
+    val requiredScopes: List<String>? = null,
 )
 
 enum class SecurityType {
     OAUTH2,
     BASIC,
     API_KEY,
-    JWT_BEARER
+    JWT_BEARER,
 }
 
 enum class HTTPMethod {
@@ -129,5 +131,5 @@ enum class HTTPMethod {
     DELETE,
     PATCH,
     HEAD,
-    OPTIONS
+    OPTIONS,
 }

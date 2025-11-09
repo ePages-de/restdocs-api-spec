@@ -8,7 +8,6 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
 open class OpenApi3Task : OpenApiBaseTask() {
-
     @Input
     @Optional
     var servers: List<Server> = listOf()
@@ -23,8 +22,8 @@ open class OpenApi3Task : OpenApiBaseTask() {
         contact = extension.contact
     }
 
-    override fun generateSpecification(resourceModels: List<ResourceModel>): String {
-        return OpenApi3Generator.generateAndSerialize(
+    override fun generateSpecification(resourceModels: List<ResourceModel>): String =
+        OpenApi3Generator.generateAndSerialize(
             resources = resourceModels,
             servers = servers,
             title = title,
@@ -33,7 +32,6 @@ open class OpenApi3Task : OpenApiBaseTask() {
             version = apiVersion,
             oauth2SecuritySchemeDefinition = oauth2SecuritySchemeDefinition,
             format = format,
-            contact = contact
+            contact = contact,
         )
-    }
 }

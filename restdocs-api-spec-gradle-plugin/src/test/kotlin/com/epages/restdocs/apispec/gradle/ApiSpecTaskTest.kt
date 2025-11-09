@@ -15,7 +15,6 @@ import java.nio.file.Path
 import kotlin.streams.toList
 
 abstract class ApiSpecTaskTest {
-
     lateinit var snippetsFolder: File
     lateinit var outputFolder: File
     lateinit var buildFile: File
@@ -37,7 +36,9 @@ abstract class ApiSpecTaskTest {
     abstract val taskName: String
 
     @BeforeEach
-    fun init(@TempDirectory.TempDir tempDir: Path) {
+    fun init(
+        @TempDirectory.TempDir tempDir: Path,
+    ) {
         with(tempDir) {
             testProjectDir = tempDir
             buildFile = resolve("build.gradle").toFile()
@@ -62,29 +63,33 @@ abstract class ApiSpecTaskTest {
 
     private fun Path.initializeGradleProperties() {
         // jacoco agent configuration
-        resolve("gradle.properties").toFile()
+        resolve("gradle.properties")
+            .toFile()
             .writeText(File("build/testkit/testkit-gradle.properties").readText())
     }
 
     protected fun whenPluginExecuted() {
-        result = GradleRunner.create()
-            .withProjectDir(testProjectDir.toFile())
-            .withArguments("--info", "--stacktrace", taskName)
-            .withPluginClasspath()
-            .withDebug(true)
-            .build()
+        result =
+            GradleRunner
+                .create()
+                .withProjectDir(testProjectDir.toFile())
+                .withArguments("--info", "--stacktrace", taskName)
+                .withPluginClasspath()
+                .withDebug(true)
+                .build()
     }
 
     protected fun outputFileContext(): DocumentContext =
         JsonPath.parse(outputFolder.resolve("$outputFileNamePrefix.$format").readText().also { println(it) })
 
-    fun baseBuildFile() = """
+    fun baseBuildFile() =
+        """
         plugins {
             id 'java'
             id 'com.epages.restdocs-api-spec'
         }
 
-    """.trimIndent()
+        """.trimIndent()
 
     protected fun givenResourceSnippet() {
         val operationDir = File(snippetsFolder, "some-operation").apply { mkdir() }
@@ -119,7 +124,7 @@ abstract class ApiSpecTaskTest {
     "example" : "{\n  \"name\" : \"Fancy pants\",\n  \"price\" : 49.99,\n  \"_links\" : {\n    \"self\" : {\n      \"href\" : \"http://localhost:8080/products/7\"\n    },\n    \"product\" : {\n      \"href\" : \"http://localhost:8080/products/7\"\n    }\n  }\n}"
   }
 }
-            """.trimIndent()
+            """.trimIndent(),
         )
     }
 
@@ -164,7 +169,7 @@ abstract class ApiSpecTaskTest {
     "example" : "{\n  \"name\" : \"Fancy pants\",\n  \"price\" : 49.99,\n  \"_links\" : {\n    \"self\" : {\n      \"href\" : \"http://localhost:8080/products/7\"\n    },\n    \"product\" : {\n      \"href\" : \"http://localhost:8080/products/7\"\n    }\n  }\n}"
   }
 }
-            """.trimIndent()
+            """.trimIndent(),
         )
     }
 
@@ -198,7 +203,7 @@ abstract class ApiSpecTaskTest {
     "example" : "{\n  \"name\" : \"Fancy pants\",\n  \"price\" : 49.99,\n  \"_links\" : {\n    \"self\" : {\n      \"href\" : \"http://localhost:8080/products/7\"\n    },\n    \"product\" : {\n      \"href\" : \"http://localhost:8080/products/7\"\n    }\n  }\n}"
   }
 }
-            """.trimIndent()
+            """.trimIndent(),
         )
     }
 
@@ -222,13 +227,13 @@ abstract class ApiSpecTaskTest {
     }
 
     protected fun thenExpectedFileFound(expectedFile: String) {
-        BDDAssertions.then(outputFolder.resolve(expectedFile))
+        BDDAssertions
+            .then(outputFolder.resolve(expectedFile))
             .describedAs(
                 "Output file not found '$expectedFile' - output dir contains ${Files.list(outputFolder.toPath()).map {
                     it.toFile().path
-                }.toList()}"
-            )
-            .exists()
+                }.toList()}",
+            ).exists()
     }
 
     protected fun givenBuildFileWithoutApiSpecClosure() {

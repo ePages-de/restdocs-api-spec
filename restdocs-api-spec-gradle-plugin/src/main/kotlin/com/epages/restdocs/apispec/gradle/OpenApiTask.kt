@@ -6,7 +6,6 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
 open class OpenApiTask : OpenApiBaseTask() {
-
     @Input
     @Optional
     var basePath: String? = null
@@ -24,8 +23,8 @@ open class OpenApiTask : OpenApiBaseTask() {
         schemes = extension.schemes
     }
 
-    override fun generateSpecification(resourceModels: List<ResourceModel>): String {
-        return OpenApi20Generator.generateAndSerialize(
+    override fun generateSpecification(resourceModels: List<ResourceModel>): String =
+        OpenApi20Generator.generateAndSerialize(
             resources = resourceModels,
             basePath = basePath,
             host = host,
@@ -35,7 +34,6 @@ open class OpenApiTask : OpenApiBaseTask() {
             tagDescriptions = tagDescriptions,
             version = apiVersion,
             oauth2SecuritySchemeDefinition = oauth2SecuritySchemeDefinition,
-            format = format
+            format = format,
         )
-    }
 }

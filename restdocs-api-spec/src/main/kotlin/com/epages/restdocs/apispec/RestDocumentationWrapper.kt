@@ -16,102 +16,99 @@ import org.springframework.restdocs.snippet.Snippet
 import java.util.function.Function
 
 abstract class RestDocumentationWrapper {
-
     protected fun enhanceSnippetsWithResourceSnippet(
         resourceDetails: ResourceSnippetDetails,
         snippetFilter: Function<List<Snippet>, List<Snippet>>,
-        vararg snippets: Snippet
+        vararg snippets: Snippet,
     ): Array<Snippet> {
-
-        val enhancedSnippets = if (snippets.none { it is ResourceSnippet }) { // No ResourceSnippet, so we configure our own based on the info of the other snippets
-            val resourceParameters = createBuilder(resourceDetails)
-                .requestFields(
-                    snippets.filter { it is RequestFieldsSnippet }
-                        .flatMap {
-                            DescriptorExtractor.extractDescriptorsFor<FieldDescriptor>(
-                                it
-                            )
-                        }
-                )
-                .responseFields(
-                    snippets.filter { it is ResponseFieldsSnippet }
-                        .flatMap {
-                            DescriptorExtractor.extractDescriptorsFor<FieldDescriptor>(
-                                it
-                            )
-                        }
-                )
-                .links(
-                    snippets.filter { it is LinksSnippet }
-                        .flatMap {
-                            DescriptorExtractor.extractDescriptorsFor<LinkDescriptor>(
-                                it
-                            )
-                        }
-                )
-                .queryParameters(
-                    *snippets.filter { it is QueryParametersSnippet }
-                        .flatMap {
-                            DescriptorExtractor.extractDescriptorsFor<ParameterDescriptor>(
-                                it
-                            )
-                        }
-                        .toTypedArray()
-                )
-                .formParameters(
-                    *snippets.filter { it is FormParametersSnippet }
-                        .flatMap {
-                            DescriptorExtractor.extractDescriptorsFor<ParameterDescriptor>(
-                                it
-                            )
-                        }
-                        .toTypedArray()
-                )
-                .pathParameters(
-                    *snippets.filter { it is PathParametersSnippet }
-                        .flatMap {
-                            DescriptorExtractor.extractDescriptorsFor<ParameterDescriptor>(
-                                it
-                            )
-                        }
-                        .toTypedArray()
-                )
-                .requestHeaders(
-                    *snippets.filter { it is RequestHeadersSnippet }
-                        .flatMap {
-                            DescriptorExtractor.extractDescriptorsFor<HeaderDescriptor>(
-                                it
-                            )
-                        }
-                        .toTypedArray()
-                )
-                .responseHeaders(
-                    *snippets.filter { it is ResponseHeadersSnippet }
-                        .flatMap {
-                            DescriptorExtractor.extractDescriptorsFor<HeaderDescriptor>(
-                                it
-                            )
-                        }
-                        .toTypedArray()
-                )
-                .build()
-            snippets.toList() + ResourceDocumentation.resource(resourceParameters)
-        } else snippets.toList()
+        val enhancedSnippets =
+            if (snippets.none { it is ResourceSnippet }) { // No ResourceSnippet, so we configure our own based on the info of the other snippets
+                val resourceParameters =
+                    createBuilder(resourceDetails)
+                        .requestFields(
+                            snippets
+                                .filter { it is RequestFieldsSnippet }
+                                .flatMap {
+                                    DescriptorExtractor.extractDescriptorsFor<FieldDescriptor>(
+                                        it,
+                                    )
+                                },
+                        ).responseFields(
+                            snippets
+                                .filter { it is ResponseFieldsSnippet }
+                                .flatMap {
+                                    DescriptorExtractor.extractDescriptorsFor<FieldDescriptor>(
+                                        it,
+                                    )
+                                },
+                        ).links(
+                            snippets
+                                .filter { it is LinksSnippet }
+                                .flatMap {
+                                    DescriptorExtractor.extractDescriptorsFor<LinkDescriptor>(
+                                        it,
+                                    )
+                                },
+                        ).queryParameters(
+                            *snippets
+                                .filter { it is QueryParametersSnippet }
+                                .flatMap {
+                                    DescriptorExtractor.extractDescriptorsFor<ParameterDescriptor>(
+                                        it,
+                                    )
+                                }.toTypedArray(),
+                        ).formParameters(
+                            *snippets
+                                .filter { it is FormParametersSnippet }
+                                .flatMap {
+                                    DescriptorExtractor.extractDescriptorsFor<ParameterDescriptor>(
+                                        it,
+                                    )
+                                }.toTypedArray(),
+                        ).pathParameters(
+                            *snippets
+                                .filter { it is PathParametersSnippet }
+                                .flatMap {
+                                    DescriptorExtractor.extractDescriptorsFor<ParameterDescriptor>(
+                                        it,
+                                    )
+                                }.toTypedArray(),
+                        ).requestHeaders(
+                            *snippets
+                                .filter { it is RequestHeadersSnippet }
+                                .flatMap {
+                                    DescriptorExtractor.extractDescriptorsFor<HeaderDescriptor>(
+                                        it,
+                                    )
+                                }.toTypedArray(),
+                        ).responseHeaders(
+                            *snippets
+                                .filter { it is ResponseHeadersSnippet }
+                                .flatMap {
+                                    DescriptorExtractor.extractDescriptorsFor<HeaderDescriptor>(
+                                        it,
+                                    )
+                                }.toTypedArray(),
+                        ).build()
+                snippets.toList() + ResourceDocumentation.resource(resourceParameters)
+            } else {
+                snippets.toList()
+            }
 
         return snippetFilter.apply(enhancedSnippets).toTypedArray()
     }
 
-    internal fun createBuilder(resourceDetails: ResourceSnippetDetails): ResourceSnippetParametersBuilder {
-        return when (resourceDetails) {
+    internal fun createBuilder(resourceDetails: ResourceSnippetDetails): ResourceSnippetParametersBuilder =
+        when (resourceDetails) {
             is ResourceSnippetParametersBuilder -> resourceDetails
-            else -> ResourceSnippetParametersBuilder()
-                .description(resourceDetails.description)
-                .requestSchema(resourceDetails.requestSchema)
-                .responseSchema(resourceDetails.responseSchema)
-                .summary(resourceDetails.summary)
-                .privateResource(resourceDetails.privateResource)
-                .deprecated(resourceDetails.deprecated)
-                .tags(*resourceDetails.tags.toTypedArray())
+            else ->
+                ResourceSnippetParametersBuilder()
+                    .description(resourceDetails.description)
+                    .requestSchema(resourceDetails.requestSchema)
+                    .responseSchema(resourceDetails.responseSchema)
+                    .summary(resourceDetails.summary)
+                    .privateResource(resourceDetails.privateResource)
+                    .deprecated(resourceDetails.deprecated)
+                    .tags(*resourceDetails.tags.toTypedArray())
         }
-    }
 }

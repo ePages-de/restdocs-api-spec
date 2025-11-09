@@ -28,7 +28,6 @@ import java.nio.file.Path
 
 @ExtendWith(TempDirectory::class)
 class ResourceSnippetTest {
-
     lateinit var operation: Operation
 
     private val parametersBuilder = ResourceSnippetParametersBuilder()
@@ -41,7 +40,9 @@ class ResourceSnippetTest {
     private lateinit var resourceSnippetJson: DocumentContext
 
     @BeforeEach
-    fun init(@TempDirectory.TempDir tempDir: Path) {
+    fun init(
+        @TempDirectory.TempDir tempDir: Path,
+    ) {
         rootOutputDirectory = tempDir.toFile()
     }
 
@@ -131,7 +132,7 @@ class ResourceSnippetTest {
     fun should_generate_resourcemodel_for_form_request_and_response_body() {
         givenOperationWithRequestAndResponseBody(
             responseContentType = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
-            content = "test-param=1"
+            content = "test-param=1",
         )
         givenFormParameterDescriptors()
 
@@ -214,7 +215,7 @@ class ResourceSnippetTest {
         then(resourceSnippetJson.read<String>("request.pathParameters[1].description")).isEqualTo("type enum string")
         then(resourceSnippetJson.read<Boolean>("request.pathParameters[1].optional")).isFalse
         then(resourceSnippetJson.read<List<String>>("request.pathParameters[1].attributes.enumValues")).isEqualTo(
-            listOf("T1", "T2", "T3")
+            listOf("T1", "T2", "T3"),
         )
 
         then(resourceSnippetJson.read<List<*>>("request.queryParameters")).hasSize(2)
@@ -227,7 +228,7 @@ class ResourceSnippetTest {
         then(resourceSnippetJson.read<String>("request.queryParameters[1].description")).isEqualTo("category enum string")
         then(resourceSnippetJson.read<Boolean>("request.queryParameters[1].optional")).isFalse
         then(resourceSnippetJson.read<List<String>>("request.queryParameters[1].attributes.enumValues")).isEqualTo(
-            listOf("C1", "C2", "C3")
+            listOf("C1", "C2", "C3"),
         )
     }
 
@@ -235,7 +236,7 @@ class ResourceSnippetTest {
     fun should_generate_form_parameter_attributes() {
         givenOperationWithRequestAndResponseBody(
             responseContentType = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
-            content = "numberParameter=21&categoryParameter=C2"
+            content = "numberParameter=21&categoryParameter=C2",
         )
         givenFormParameterDescriptorsHasAttributes()
 
@@ -253,7 +254,7 @@ class ResourceSnippetTest {
         then(resourceSnippetJson.read<String>("request.formParameters[1].description")).isEqualTo("category enum string")
         then(resourceSnippetJson.read<Boolean>("request.formParameters[1].optional")).isFalse
         then(resourceSnippetJson.read<List<String>>("request.formParameters[1].attributes.enumValues")).isEqualTo(
-            listOf("C1", "C2", "C3")
+            listOf("C1", "C2", "C3"),
         )
     }
 
@@ -321,15 +322,25 @@ class ResourceSnippetTest {
     }
 
     private fun givenQueryParameterDescriptors() {
-        parametersBuilder.queryParameters(parameterWithName("test-param").type(SimpleType.STRING).defaultValue("default-value").description("test param"))
+        parametersBuilder.queryParameters(
+            parameterWithName("test-param").type(SimpleType.STRING).defaultValue("default-value").description("test param"),
+        )
     }
 
     private fun givenFormParameterDescriptors() {
-        parametersBuilder.formParameters(parameterWithName("test-param").type(SimpleType.STRING).defaultValue("default-value").description("test param"))
+        parametersBuilder.formParameters(
+            parameterWithName("test-param").type(SimpleType.STRING).defaultValue("default-value").description("test param"),
+        )
     }
 
     private fun givenRequestAndResponseHeaderDescriptors() {
-        val headerDescriptor = ResourceDocumentation.headerWithName("X-SOME").type(SimpleType.STRING).defaultValue("default-value").description("some")
+        val headerDescriptor =
+            ResourceDocumentation
+                .headerWithName(
+                    "X-SOME",
+                ).type(SimpleType.STRING)
+                .defaultValue("default-value")
+                .description("some")
         parametersBuilder.requestHeaders(headerDescriptor)
         parametersBuilder.responseHeaders(HeaderDocumentation.headerWithName("X-SOME").description("some"))
     }
@@ -347,8 +358,9 @@ class ResourceSnippetTest {
     private fun generatedSnippetFile(operationName: String) = File(rootOutputDirectory, "$operationName/resource.json")
 
     private fun givenOperationWithoutBody() {
-        val operationBuilder = OperationBuilder("test", rootOutputDirectory)
-            .attribute(ATTRIBUTE_NAME_URL_TEMPLATE, "http://localhost:8080/some/{id}")
+        val operationBuilder =
+            OperationBuilder("test", rootOutputDirectory)
+                .attribute(ATTRIBUTE_NAME_URL_TEMPLATE, "http://localhost:8080/some/{id}")
         operationBuilder
             .request("http://localhost:8080/some/123")
             .method("POST")
@@ -370,25 +382,27 @@ class ResourceSnippetTest {
     }
 
     private fun givenOperationWithNamePlaceholders() {
-        operation = OperationBuilder("{class-name}/{method-name}", rootOutputDirectory)
-            .attribute(ATTRIBUTE_NAME_URL_TEMPLATE, "http://localhost:8080/some/{id}")
-            .testClass(ResourceSnippetTest::class.java)
-            .testMethodName("getSomeById")
-            .request("http://localhost:8080/some/123")
-            .method("POST")
-            .header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-            .content("{\"comment\": \"some\"}")
-            .build()
+        operation =
+            OperationBuilder("{class-name}/{method-name}", rootOutputDirectory)
+                .attribute(ATTRIBUTE_NAME_URL_TEMPLATE, "http://localhost:8080/some/{id}")
+                .testClass(ResourceSnippetTest::class.java)
+                .testMethodName("getSomeById")
+                .request("http://localhost:8080/some/123")
+                .method("POST")
+                .header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+                .content("{\"comment\": \"some\"}")
+                .build()
     }
 
     private fun givenOperationWithRequestBody() {
-        operation = OperationBuilder("test", rootOutputDirectory)
-            .attribute(ATTRIBUTE_NAME_URL_TEMPLATE, "http://localhost:8080/some/{id}")
-            .request("http://localhost:8080/some/123")
-            .method("POST")
-            .header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-            .content("{\"comment\": \"some\"}")
-            .build()
+        operation =
+            OperationBuilder("test", rootOutputDirectory)
+                .attribute(ATTRIBUTE_NAME_URL_TEMPLATE, "http://localhost:8080/some/{id}")
+                .request("http://localhost:8080/some/123")
+                .method("POST")
+                .header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+                .content("{\"comment\": \"some\"}")
+                .build()
     }
 
     private fun givenOperationWithRequestBodyAndIgnoredRequestField() {
@@ -434,7 +448,7 @@ class ResourceSnippetTest {
             .request("http://localhost:8080/some/123")
             .method("GET")
             .content(
-                "describedParameter=will,be,documented&obviousParameter=wont,be,documented"
+                "describedParameter=will,be,documented&obviousParameter=wont,be,documented",
             )
 
         operationBuilder
@@ -480,28 +494,28 @@ class ResourceSnippetTest {
     private fun givenIgnoredAndNotIgnoredRequestFieldDescriptors() {
         parametersBuilder.requestFields(
             fieldWithPath("comment").description("description"),
-            fieldWithPath("ignored").description("description").ignored()
+            fieldWithPath("ignored").description("description").ignored(),
         )
     }
 
     private fun givenIgnoredAndNotIgnoredResponseFieldDescriptors() {
         parametersBuilder.responseFields(
             fieldWithPath("comment").description("description"),
-            fieldWithPath("ignored").description("description").ignored()
+            fieldWithPath("ignored").description("description").ignored(),
         )
     }
 
     private fun givenIgnoredAndNotIgnoredQueryParameterDescriptors() {
         parametersBuilder.queryParameters(
             parameterWithName("describedParameter").description("description"),
-            parameterWithName("obviousParameter").description("needs no documentation, too obvious").ignored()
+            parameterWithName("obviousParameter").description("needs no documentation, too obvious").ignored(),
         )
     }
 
     private fun givenIgnoredAndNotIgnoredFormParameterDescriptors() {
         parametersBuilder.formParameters(
             parameterWithName("describedParameter").description("description"),
-            parameterWithName("obviousParameter").description("needs no documentation, too obvious").ignored()
+            parameterWithName("obviousParameter").description("needs no documentation, too obvious").ignored(),
         )
     }
 
@@ -509,8 +523,8 @@ class ResourceSnippetTest {
         parametersBuilder.pathParameters(
             parameterWithName("no").type(SimpleType.INTEGER).description("number"),
             parameterWithName("type").description("type enum string").attributes(
-                Attributes.key("enumValues").value(arrayOf("T1", "T2", "T3"))
-            )
+                Attributes.key("enumValues").value(arrayOf("T1", "T2", "T3")),
+            ),
         )
     }
 
@@ -518,8 +532,8 @@ class ResourceSnippetTest {
         parametersBuilder.queryParameters(
             parameterWithName("numberParameter").type(SimpleType.INTEGER).description("number"),
             parameterWithName("categoryParameter").description("category enum string").attributes(
-                Attributes.key("enumValues").value(arrayOf("C1", "C2", "C3"))
-            )
+                Attributes.key("enumValues").value(arrayOf("C1", "C2", "C3")),
+            ),
         )
     }
 
@@ -527,24 +541,27 @@ class ResourceSnippetTest {
         parametersBuilder.formParameters(
             parameterWithName("numberParameter").type(SimpleType.INTEGER).description("number"),
             parameterWithName("categoryParameter").description("category enum string").attributes(
-                Attributes.key("enumValues").value(arrayOf("C1", "C2", "C3"))
-            )
+                Attributes.key("enumValues").value(arrayOf("C1", "C2", "C3")),
+            ),
         )
     }
 
     private fun givenOperationWithRequestAndResponseBody(
         responseContentType: String = APPLICATION_JSON_VALUE,
-        content: String = "{\"comment\": \"some\"}"
+        content: String = "{\"comment\": \"some\"}",
     ) {
-        val operationBuilder = OperationBuilder("test", rootOutputDirectory)
-            .attribute(ATTRIBUTE_NAME_URL_TEMPLATE, "http://localhost:8080/some/{id}")
+        val operationBuilder =
+            OperationBuilder("test", rootOutputDirectory)
+                .attribute(ATTRIBUTE_NAME_URL_TEMPLATE, "http://localhost:8080/some/{id}")
         operationBuilder
             .request("http://localhost:8080/some/123")
             .queryParam("test-param", "1")
             .method("POST")
             .header("X-SOME", "some")
-            .header(AUTHORIZATION, "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzY29wZSI6WyJzY29wZTEiLCJzY29wZTIiXSwiZXhwIjoxNTA3NzU4NDk4LCJpYXQiOjE1MDc3MTUyOTgsImp0aSI6IjQyYTBhOTFhLWQ2ZWQtNDBjYy1iMTA2LWU5MGNkYWU0M2Q2ZCJ9.eWGo7Y124_Hdrr-bKX08d_oCfdgtlGXo9csz-hvRhRORJi_ZK7PIwM0ChqoLa4AhR-dJ86npid75GB9IxCW2f5E24FyZW2p5swpOpfkEAA4oFuj7jxHiaiqL_HFKKCRsVNAN3hGiSp9Hn3fde0-LlABqMaihdzZzHL-xm8-CqbXT-qBfuscDImZrZQZqhizpSEV4idbEMzZykggLASGoOIL0t0ycfe3yeuQkMUhzZmXuu08VM7zXwWnqfXCa-RmA6wC7ZnWqiJoi0vBr4BrlLR067YoUrT6pgRfiy2HZ0vEE_XY5SBtA-qI2QnlJb7eTk7pgFtoGkYdeOZ86k6GDVw")
-            .header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+            .header(
+                AUTHORIZATION,
+                "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzY29wZSI6WyJzY29wZTEiLCJzY29wZTIiXSwiZXhwIjoxNTA3NzU4NDk4LCJpYXQiOjE1MDc3MTUyOTgsImp0aSI6IjQyYTBhOTFhLWQ2ZWQtNDBjYy1iMTA2LWU5MGNkYWU0M2Q2ZCJ9.eWGo7Y124_Hdrr-bKX08d_oCfdgtlGXo9csz-hvRhRORJi_ZK7PIwM0ChqoLa4AhR-dJ86npid75GB9IxCW2f5E24FyZW2p5swpOpfkEAA4oFuj7jxHiaiqL_HFKKCRsVNAN3hGiSp9Hn3fde0-LlABqMaihdzZzHL-xm8-CqbXT-qBfuscDImZrZQZqhizpSEV4idbEMzZykggLASGoOIL0t0ycfe3yeuQkMUhzZmXuu08VM7zXwWnqfXCa-RmA6wC7ZnWqiJoi0vBr4BrlLR067YoUrT6pgRfiy2HZ0vEE_XY5SBtA-qI2QnlJb7eTk7pgFtoGkYdeOZ86k6GDVw",
+            ).header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
             .content(content)
         operationBuilder
             .response()
@@ -561,7 +578,7 @@ class ResourceSnippetTest {
             parametersBuilder
                 .description("some description")
                 .summary("some summary")
-                .build()
+                .build(),
         ).document(operation)
     }
 

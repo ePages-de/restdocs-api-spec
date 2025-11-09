@@ -10,7 +10,9 @@ import io.swagger.v3.oas.models.servers.Server
 import org.gradle.api.Project
 import java.io.File
 
-abstract class OpenApiBaseExtension(project: Project) : ApiSpecExtension(project) {
+abstract class OpenApiBaseExtension(
+    project: Project,
+) : ApiSpecExtension(project) {
     override var outputDirectory = "build/api-spec"
 
     private val objectMapper = ObjectMapper(YAMLFactory())
@@ -33,21 +35,22 @@ abstract class OpenApiBaseExtension(project: Project) : ApiSpecExtension(project
         }
     }
 
-    fun tagDescriptions(): Map<String, String> {
-        return tagDescriptionsPropertiesFile?.let { objectMapper.readValue(project.file(it)) } ?: emptyMap()
-    }
+    fun tagDescriptions(): Map<String, String> =
+        tagDescriptionsPropertiesFile?.let { objectMapper.readValue(project.file(it)) } ?: emptyMap()
 
-    private fun scopeDescriptionSource(scopeDescriptionsPropertiesFile: File): Map<String, String> {
-        return scopeDescriptionsPropertiesFile.let { objectMapper.readValue(it) }
-    }
+    private fun scopeDescriptionSource(scopeDescriptionsPropertiesFile: File): Map<String, String> =
+        scopeDescriptionsPropertiesFile.let {
+            objectMapper.readValue(it)
+        }
 }
 
 class PluginOauth2Configuration(
-    var scopeDescriptionsPropertiesFile: String? = null
+    var scopeDescriptionsPropertiesFile: String? = null,
 ) : Oauth2Configuration()
 
-open class OpenApiExtension(project: Project) : OpenApiBaseExtension(project) {
-
+open class OpenApiExtension(
+    project: Project,
+) : OpenApiBaseExtension(project) {
     override var outputFileNamePrefix = "openapi"
 
     var host: String = "localhost"
@@ -55,12 +58,13 @@ open class OpenApiExtension(project: Project) : OpenApiBaseExtension(project) {
     var schemes: Array<String> = arrayOf("http")
 
     companion object {
-        const val name = "openapi"
+        const val NAME = "openapi"
     }
 }
 
-open class OpenApi3Extension(project: Project) : OpenApiBaseExtension(project) {
-
+open class OpenApi3Extension(
+    project: Project,
+) : OpenApiBaseExtension(project) {
     override var outputFileNamePrefix = "openapi3"
 
     private var _servers: List<Server> = mutableListOf(Server().apply { url = "http://localhost" })
@@ -89,6 +93,6 @@ open class OpenApi3Extension(project: Project) : OpenApiBaseExtension(project) {
     }
 
     companion object {
-        const val name = "openapi3"
+        const val NAME = "openapi3"
     }
 }

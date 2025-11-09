@@ -9,10 +9,10 @@ import java.lang.Boolean.FALSE
 
 @ExtendWith(TempDirectory::class)
 class RestdocsOpenApi3TaskTest : RestdocsOpenApiTaskTestBase() {
-
     override val taskName = "openapi3"
 
     override var outputFileNamePrefix = "openapi3"
+
     @Test
     override fun `should run openapi task`() {
         super.`should run openapi task`()
@@ -134,46 +134,52 @@ class RestdocsOpenApi3TaskTest : RestdocsOpenApiTaskTestBase() {
                     ]
                 ]
             }
-            ]""".trimMargin()
+            ]
+            """.trimMargin(),
         )
     }
 
-    private fun givenBuildFileWithOpenApiClosure(serverConfigurationFieldName: String, serversSection: String) {
+    private fun givenBuildFileWithOpenApiClosure(
+        serverConfigurationFieldName: String,
+        serversSection: String,
+    ) {
         buildFile.writeText(
-            baseBuildFile() + """
-            openapi3 {
-                $serverConfigurationFieldName = $serversSection
-                title = '$title'
-                version = '$version'
-                format = '$format'
-                separatePublicApi = $separatePublicApi
-                outputFileNamePrefix = '$outputFileNamePrefix'
-            }
-            """.trimIndent()
+            baseBuildFile() +
+                """
+                openapi3 {
+                    $serverConfigurationFieldName = $serversSection
+                    title = '$title'
+                    version = '$version'
+                    format = '$format'
+                    separatePublicApi = $separatePublicApi
+                    outputFileNamePrefix = '$outputFileNamePrefix'
+                }
+                """.trimIndent(),
         )
     }
 
     override fun givenBuildFileWithOpenApiClosureAndSecurityDefinitions() {
         buildFile.writeText(
-            baseBuildFile() + """
-            openapi3 {
-                servers = [ { url = "http://some.api" } ]
-                contact = { name = "Test Contact" }
-                title = '$title'
-                description = '$description'
-                tagDescriptionsPropertiesFile = "tagDescriptions.yaml"
-                version = '$version'
-                format = '$format'
-                separatePublicApi = $separatePublicApi
-                outputFileNamePrefix = '$outputFileNamePrefix'
-                oauth2SecuritySchemeDefinition = {
-                    flows = ['authorizationCode']
-                    tokenUrl = 'http://example.com/token'
-                    authorizationUrl = 'http://example.com/authorize'
-                    scopeDescriptionsPropertiesFile = "scopeDescriptions.yaml"
+            baseBuildFile() +
+                """
+                openapi3 {
+                    servers = [ { url = "http://some.api" } ]
+                    contact = { name = "Test Contact" }
+                    title = '$title'
+                    description = '$description'
+                    tagDescriptionsPropertiesFile = "tagDescriptions.yaml"
+                    version = '$version'
+                    format = '$format'
+                    separatePublicApi = $separatePublicApi
+                    outputFileNamePrefix = '$outputFileNamePrefix'
+                    oauth2SecuritySchemeDefinition = {
+                        flows = ['authorizationCode']
+                        tokenUrl = 'http://example.com/token'
+                        authorizationUrl = 'http://example.com/authorize'
+                        scopeDescriptionsPropertiesFile = "scopeDescriptions.yaml"
+                    }
                 }
-            }
-            """.trimIndent()
+                """.trimIndent(),
         )
     }
 

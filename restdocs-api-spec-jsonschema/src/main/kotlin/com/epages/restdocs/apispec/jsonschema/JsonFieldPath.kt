@@ -5,9 +5,8 @@ import java.util.regex.Pattern
 
 internal class JsonFieldPath private constructor(
     private val segments: List<String>,
-    val fieldDescriptor: JsonSchemaFromFieldDescriptorsGenerator.FieldDescriptorWithSchemaType
+    val fieldDescriptor: JsonSchemaFromFieldDescriptorsGenerator.FieldDescriptorWithSchemaType,
 ) {
-
     fun remainingSegments(traversedSegments: List<String>): List<String> {
         val result: List<String> = mutableListOf()
         for (i in 0..segments.size) {
@@ -18,17 +17,16 @@ internal class JsonFieldPath private constructor(
         return result
     }
 
-    override fun toString(): String {
-        return this.fieldDescriptor.path
-    }
+    override fun toString(): String = this.fieldDescriptor.path
 
     companion object {
+        private val BRACKETS_AND_ARRAY_PATTERN =
+            Pattern
+                .compile("\\[\'(.+?)\'\\]|\\[([0-9]+|\\*){0,1}\\]")
 
-        private val BRACKETS_AND_ARRAY_PATTERN = Pattern
-            .compile("\\[\'(.+?)\'\\]|\\[([0-9]+|\\*){0,1}\\]")
-
-        private val ARRAY_INDEX_PATTERN = Pattern
-            .compile("\\[([0-9]+|\\*){0,1}\\]")
+        private val ARRAY_INDEX_PATTERN =
+            Pattern
+                .compile("\\[([0-9]+|\\*){0,1}\\]")
 
         fun compile(descriptor: JsonSchemaFromFieldDescriptorsGenerator.FieldDescriptorWithSchemaType): JsonFieldPath {
             val segments =
@@ -36,9 +34,7 @@ internal class JsonFieldPath private constructor(
             return JsonFieldPath(segments, descriptor)
         }
 
-        fun isArraySegment(segment: String): Boolean {
-            return ARRAY_INDEX_PATTERN.matcher(segment).find()
-        }
+        fun isArraySegment(segment: String): Boolean = ARRAY_INDEX_PATTERN.matcher(segment).find()
 
         private fun extractSegments(path: String): List<String> {
             val matcher = BRACKETS_AND_ARRAY_PATTERN.matcher(path)
@@ -50,8 +46,8 @@ internal class JsonFieldPath private constructor(
                 if (previous != matcher.start()) {
                     segments.addAll(
                         extractDotSeparatedSegments(
-                            path.substring(previous, matcher.start())
-                        )
+                            path.substring(previous, matcher.start()),
+                        ),
                     )
                 }
                 if (matcher.group(1) != null) {
@@ -65,8 +61,8 @@ internal class JsonFieldPath private constructor(
             if (previous < path.length) {
                 segments.addAll(
                     extractDotSeparatedSegments(
-                        path.substring(previous)
-                    )
+                        path.substring(previous),
+                    ),
                 )
             }
 

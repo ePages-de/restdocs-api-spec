@@ -31,18 +31,22 @@ import java.io.File
 
 @ExtendWith(RestDocumentationExtension::class)
 class RestAssuredRestDocumentationWrapperIntegrationTest : ResourceSnippetIntegrationTest() {
-
     private lateinit var spec: RequestSpecification
 
     @BeforeEach
     fun setUpSpec(restDocumentation: RestDocumentationContextProvider) {
-        spec = RequestSpecBuilder()
-            .addFilter(RestAssuredRestDocumentation.documentationConfiguration(restDocumentation))
-            .build()
+        spec =
+            RequestSpecBuilder()
+                .addFilter(RestAssuredRestDocumentation.documentationConfiguration(restDocumentation))
+                .build()
     }
 
-    private fun givenEndpointInvoked(documentationFilter: Filter, flagValue: String = "true") {
-        RestAssured.given(spec)
+    private fun givenEndpointInvoked(
+        documentationFilter: Filter,
+        flagValue: String = "true",
+    ) {
+        RestAssured
+            .given(spec)
             .filter(documentationFilter)
             .baseUri("http://localhost")
             .port(requireNotNull(serverPort) { IllegalStateException("Server port is not available!") })
@@ -52,14 +56,14 @@ class RestAssuredRestDocumentationWrapperIntegrationTest : ResourceSnippetIntegr
             .header("X-Custom-Header", "test")
             .accept(MediaTypes.HAL_JSON_VALUE)
             .body(
-                """{
-                            "comment": "some",
-                            "flag": $flagValue,
-                            "count": 1
-                        }
-                """.trimIndent()
-            )
-            .`when`()
+                """
+                {
+                    "comment": "some",
+                    "flag": $flagValue,
+                    "count": 1
+                }
+                """.trimIndent(),
+            ).`when`()
             .post("/some/{someId}/other/{otherId}")
             .then()
             .statusCode(200)
@@ -116,84 +120,82 @@ class RestAssuredRestDocumentationWrapperIntegrationTest : ResourceSnippetIntegr
     fun should_document_request_with_null_field() {
         assertThatCode {
             givenEndpointInvoked(this.whenResourceSnippetDocumentedWithRequestAndResponseFields(), "null")
-        }
-            .doesNotThrowAnyException()
+        }.doesNotThrowAnyException()
     }
 
-    private fun whenResourceSnippetDocumentedWithoutParameters(): RestDocumentationFilter {
-        return RestAssuredRestDocumentationWrapper.document(identifier = operationName, snippets = arrayOf(ResourceDocumentation.resource()))
-    }
+    private fun whenResourceSnippetDocumentedWithoutParameters(): RestDocumentationFilter =
+        RestAssuredRestDocumentationWrapper.document(identifier = operationName, snippets = arrayOf(ResourceDocumentation.resource()))
 
-    private fun whenResourceSnippetDocumentedWithDescription(): RestDocumentationFilter {
-        return RestAssuredRestDocumentationWrapper.document(identifier = operationName, snippets = arrayOf(ResourceDocumentation.resource("A description")))
-    }
-
-    private fun whenResourceSnippetDocumentedWithRequestAndResponseFields(): RestDocumentationFilter {
-        return RestAssuredRestDocumentationWrapper.document(
+    private fun whenResourceSnippetDocumentedWithDescription(): RestDocumentationFilter =
+        RestAssuredRestDocumentationWrapper.document(
             identifier = operationName,
-            snippets = arrayOf(buildFullResourceSnippet())
+            snippets = arrayOf(ResourceDocumentation.resource("A description")),
         )
-    }
+
+    private fun whenResourceSnippetDocumentedWithRequestAndResponseFields(): RestDocumentationFilter =
+        RestAssuredRestDocumentationWrapper.document(
+            identifier = operationName,
+            snippets = arrayOf(buildFullResourceSnippet()),
+        )
 
     @Throws(Exception::class)
-    private fun whenDocumentedWithRestdocsAndResource(): RestDocumentationFilter {
-        return RestAssuredRestDocumentationWrapper.document(
+    private fun whenDocumentedWithRestdocsAndResource(): RestDocumentationFilter =
+        RestAssuredRestDocumentationWrapper.document(
             identifier = operationName,
-            snippets = arrayOf(
-                pathParameters(
-                    parameterWithName("someId").description("someId"),
-                    parameterWithName("otherId").description("otherId")
+            snippets =
+                arrayOf(
+                    pathParameters(
+                        parameterWithName("someId").description("someId"),
+                        parameterWithName("otherId").description("otherId"),
+                    ),
+                    requestFields(fieldDescriptors().fieldDescriptors),
+                    requestHeaders(
+                        headerWithName("X-Custom-Header").description("some custom header"),
+                    ),
+                    responseFields(
+                        fieldWithPath("comment").description("the comment"),
+                        fieldWithPath("flag").description("the flag"),
+                        fieldWithPath("count").description("the count"),
+                        fieldWithPath("id").description("id"),
+                        subsectionWithPath("_links").ignored(),
+                    ),
+                    responseHeaders(
+                        headerWithName("X-Custom-Header").description("some custom header"),
+                    ),
+                    links(
+                        linkWithRel("self").description("some"),
+                        linkWithRel("multiple").description("multiple"),
+                    ),
                 ),
-                requestFields(fieldDescriptors().fieldDescriptors),
-                requestHeaders(
-                    headerWithName("X-Custom-Header").description("some custom header")
-                ),
-                responseFields(
-                    fieldWithPath("comment").description("the comment"),
-                    fieldWithPath("flag").description("the flag"),
-                    fieldWithPath("count").description("the count"),
-                    fieldWithPath("id").description("id"),
-                    subsectionWithPath("_links").ignored()
-                ),
-                responseHeaders(
-                    headerWithName("X-Custom-Header").description("some custom header")
-                ),
-                links(
-                    linkWithRel("self").description("some"),
-                    linkWithRel("multiple").description("multiple")
-                )
-            )
         )
-    }
 
     @Throws(Exception::class)
-    private fun whenDocumentedWithRamlSnippet(): RestDocumentationFilter {
-        return RestAssuredRestDocumentationWrapper.document(
+    private fun whenDocumentedWithRamlSnippet(): RestDocumentationFilter =
+        RestAssuredRestDocumentationWrapper.document(
             identifier = operationName,
-            snippets = arrayOf(buildFullResourceSnippet())
+            snippets = arrayOf(buildFullResourceSnippet()),
         )
-    }
 
     @Throws(Exception::class)
-    private fun whenDocumentedWithAllFieldsLinksIgnored(): RestDocumentationFilter {
-        return RestAssuredRestDocumentationWrapper.document(
+    private fun whenDocumentedWithAllFieldsLinksIgnored(): RestDocumentationFilter =
+        RestAssuredRestDocumentationWrapper.document(
             identifier = operationName,
-            snippets = arrayOf(
-                requestFields(fieldDescriptors().fieldDescriptors),
-                responseFields(
-                    fieldWithPath("comment").ignored(),
-                    fieldWithPath("flag").ignored(),
-                    fieldWithPath("count").ignored(),
-                    fieldWithPath("id").ignored(),
-                    subsectionWithPath("_links").ignored()
+            snippets =
+                arrayOf(
+                    requestFields(fieldDescriptors().fieldDescriptors),
+                    responseFields(
+                        fieldWithPath("comment").ignored(),
+                        fieldWithPath("flag").ignored(),
+                        fieldWithPath("count").ignored(),
+                        fieldWithPath("id").ignored(),
+                        subsectionWithPath("_links").ignored(),
+                    ),
+                    links(
+                        linkWithRel("self").optional().ignored(),
+                        linkWithRel("multiple").optional().ignored(),
+                    ),
                 ),
-                links(
-                    linkWithRel("self").optional().ignored(),
-                    linkWithRel("multiple").optional().ignored()
-                )
-            )
         )
-    }
 
     @Throws(Exception::class)
     private fun whenDocumentedAsPrivateResource(): RestDocumentationFilter {
@@ -202,20 +204,21 @@ class RestAssuredRestDocumentationWrapperIntegrationTest : ResourceSnippetIntegr
             identifier = operationName,
             privateResource = true,
             requestPreprocessor = operationRequestPreprocessor,
-            snippets = arrayOf(
-                requestFields(fieldDescriptors().fieldDescriptors),
-                responseFields(
-                    fieldWithPath("comment").description("the comment"),
-                    fieldWithPath("flag").description("the flag"),
-                    fieldWithPath("count").description("the count"),
-                    fieldWithPath("id").description("id"),
-                    subsectionWithPath("_links").ignored()
+            snippets =
+                arrayOf(
+                    requestFields(fieldDescriptors().fieldDescriptors),
+                    responseFields(
+                        fieldWithPath("comment").description("the comment"),
+                        fieldWithPath("flag").description("the flag"),
+                        fieldWithPath("count").description("the count"),
+                        fieldWithPath("id").description("id"),
+                        subsectionWithPath("_links").ignored(),
+                    ),
+                    links(
+                        linkWithRel("self").description("some"),
+                        linkWithRel("multiple").description("multiple"),
+                    ),
                 ),
-                links(
-                    linkWithRel("self").description("some"),
-                    linkWithRel("multiple").description("multiple")
-                )
-            )
         )
     }
 
@@ -224,25 +227,28 @@ class RestAssuredRestDocumentationWrapperIntegrationTest : ResourceSnippetIntegr
         val operationRequestPreprocessor = OperationRequestPreprocessor { r -> r }
         return RestAssuredRestDocumentationWrapper.document(
             identifier = operationName,
-            resourceDetails = RestAssuredRestDocumentationWrapper.resourceDetails()
-                .description("The Resource")
-                .privateResource(true)
-                .tag("some-tag"),
+            resourceDetails =
+                RestAssuredRestDocumentationWrapper
+                    .resourceDetails()
+                    .description("The Resource")
+                    .privateResource(true)
+                    .tag("some-tag"),
             requestPreprocessor = operationRequestPreprocessor,
-            snippets = arrayOf(
-                requestFields(fieldDescriptors().fieldDescriptors),
-                responseFields(
-                    fieldWithPath("comment").description("the comment"),
-                    fieldWithPath("flag").description("the flag"),
-                    fieldWithPath("count").description("the count"),
-                    fieldWithPath("id").description("id"),
-                    subsectionWithPath("_links").ignored()
+            snippets =
+                arrayOf(
+                    requestFields(fieldDescriptors().fieldDescriptors),
+                    responseFields(
+                        fieldWithPath("comment").description("the comment"),
+                        fieldWithPath("flag").description("the flag"),
+                        fieldWithPath("count").description("the count"),
+                        fieldWithPath("id").description("id"),
+                        subsectionWithPath("_links").ignored(),
+                    ),
+                    links(
+                        linkWithRel("self").description("some"),
+                        linkWithRel("multiple").description("multiple"),
+                    ),
                 ),
-                links(
-                    linkWithRel("self").description("some"),
-                    linkWithRel("multiple").description("multiple")
-                )
-            )
         )
     }
 

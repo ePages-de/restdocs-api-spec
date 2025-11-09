@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test
 import org.springframework.restdocs.constraints.Constraint
 
 internal class ConstrainedFieldsTest {
-
     @Test
     @Suppress("UNCHECKED_CAST")
     fun `should resolve constraints`() {
@@ -43,7 +42,6 @@ internal class ConstrainedFieldsTest {
     private data class SomeWithConstraints(
         @field:NotEmpty
         val nonEmpty: String,
-
-        val nested: SomeWithConstraints?
+        val nested: SomeWithConstraints?,
     )
 }

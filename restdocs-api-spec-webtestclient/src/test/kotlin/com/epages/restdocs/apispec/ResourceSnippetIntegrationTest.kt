@@ -29,7 +29,6 @@ import java.util.UUID
 @ExtendWith(SpringExtension::class)
 @AutoConfigureRestDocs
 open class ResourceSnippetIntegrationTest {
-
     val operationName = "test-${System.currentTimeMillis()}"
 
     lateinit var bodyContentSpec: WebTestClient.BodyContentSpec
@@ -37,6 +36,7 @@ open class ResourceSnippetIntegrationTest {
     @SpringBootApplication
     open class TestApplication {
         lateinit var applicationContext: ConfigurableApplicationContext
+
         fun main(args: Array<String>) {
             applicationContext = SpringApplication.run(TestApplication::class.java, *args)
         }
@@ -44,14 +44,13 @@ open class ResourceSnippetIntegrationTest {
         @RestController
         @Suppress("UNUSED_PARAMETER")
         internal open class TestController {
-
             @PostMapping(path = ["/some/{someId}/other/{otherId}"])
             fun doSomething(
                 @PathVariable someId: String,
                 @PathVariable otherId: Int?,
                 @RequestHeader("X-Custom-Header") customHeader: String,
                 @RequestBody testDataHolder: TestDataHolder,
-                serverHttpRequest: ServerHttpRequest
+                serverHttpRequest: ServerHttpRequest,
             ): ResponseEntity<TestDataHolder> {
                 val responseData = testDataHolder.copy(id = UUID.randomUUID().toString())
 
@@ -72,12 +71,12 @@ open class ResourceSnippetIntegrationTest {
     }
 
     internal data class Link(
-        val href: String
+        val href: String,
     )
 
     internal data class LinksHolder(
         var self: Link,
-        var multiple: List<Link>
+        var multiple: List<Link>,
     )
 
     internal data class TestDataHolder(
@@ -87,7 +86,7 @@ open class ResourceSnippetIntegrationTest {
         val count: Int = 0,
         @field:NotEmpty
         val id: String? = null,
-        var _links: LinksHolder? = null
+        var _links: LinksHolder? = null,
     ) {
         constructor(comment: String, flag: Boolean, count: Int, id: String) : this(comment, flag, count, id, null)
     }
@@ -98,13 +97,14 @@ fun fieldDescriptors(): FieldDescriptors {
     return ResourceDocumentation.fields(
         fields.withPath("comment").description("the comment").optional(),
         fields.withPath("flag").description("the flag"),
-        fields.withMappedPath("count", "count").description("the count")
+        fields.withMappedPath("count", "count").description("the count"),
     )
 }
 
-fun buildFullResourceSnippet(): ResourceSnippet {
-    return resource(
-        ResourceSnippetParameters.builder()
+fun buildFullResourceSnippet(): ResourceSnippet =
+    resource(
+        ResourceSnippetParameters
+            .builder()
             .description("description")
             .summary("summary")
             .deprecated(true)
@@ -113,20 +113,15 @@ fun buildFullResourceSnippet(): ResourceSnippet {
             .responseFields(fieldDescriptors().and(fieldWithPath("id").description("id")))
             .requestHeaders(
                 headerWithName("X-Custom-Header").description("A custom header"),
-                headerWithName(ACCEPT).description("Accept")
-            )
-            .responseHeaders(
+                headerWithName(ACCEPT).description("Accept"),
+            ).responseHeaders(
                 headerWithName("X-Custom-Header").description("A custom header"),
-                headerWithName(CONTENT_TYPE).description("ContentType")
-            )
-            .pathParameters(
+                headerWithName(CONTENT_TYPE).description("ContentType"),
+            ).pathParameters(
                 parameterWithName("someId").description("some id"),
-                parameterWithName("otherId").description("otherId id").type(SimpleType.INTEGER)
-            )
-            .links(
+                parameterWithName("otherId").description("otherId id").type(SimpleType.INTEGER),
+            ).links(
                 linkWithRel("self").description("some"),
-                linkWithRel("multiple").description("multiple")
-            )
-            .build()
+                linkWithRel("multiple").description("multiple"),
+            ).build(),
     )
-}

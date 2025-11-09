@@ -12,7 +12,6 @@ import java.util.function.Function
  * It is a wrapper and replacement for RestAssuredRestDocumentation that transparently adds a ResourceSnippet with the descriptors provided in the given snippets.
  */
 object RestAssuredRestDocumentationWrapper : RestDocumentationWrapper() {
-
     @JvmOverloads @JvmStatic
     fun document(
         identifier: String,
@@ -20,14 +19,13 @@ object RestAssuredRestDocumentationWrapper : RestDocumentationWrapper() {
         requestPreprocessor: OperationRequestPreprocessor? = null,
         responsePreprocessor: OperationResponsePreprocessor? = null,
         snippetFilter: Function<List<Snippet>, List<Snippet>> = Function.identity(),
-        vararg snippets: Snippet
+        vararg snippets: Snippet,
     ): RestDocumentationFilter {
-
         val enhancedSnippets =
             enhanceSnippetsWithResourceSnippet(
                 resourceDetails = resourceDetails,
                 snippetFilter = snippetFilter,
-                snippets = snippets
+                snippets = snippets,
             )
 
         if (requestPreprocessor != null && responsePreprocessor != null) {
@@ -35,7 +33,7 @@ object RestAssuredRestDocumentationWrapper : RestDocumentationWrapper() {
                 identifier,
                 requestPreprocessor,
                 responsePreprocessor,
-                *enhancedSnippets
+                *enhancedSnippets,
             )
         } else if (requestPreprocessor != null) {
             return RestAssuredRestDocumentation.document(identifier, requestPreprocessor, *enhancedSnippets)
@@ -56,62 +54,54 @@ object RestAssuredRestDocumentationWrapper : RestDocumentationWrapper() {
         requestPreprocessor: OperationRequestPreprocessor? = null,
         responsePreprocessor: OperationResponsePreprocessor? = null,
         snippetFilter: Function<List<Snippet>, List<Snippet>> = Function.identity(),
-        vararg snippets: Snippet
-    ): RestDocumentationFilter {
-        return document(
+        vararg snippets: Snippet,
+    ): RestDocumentationFilter =
+        document(
             identifier = identifier,
-            resourceDetails = ResourceSnippetParametersBuilder()
-                .description(description)
-                .summary(summary)
-                .privateResource(privateResource)
-                .deprecated(deprecated),
+            resourceDetails =
+                ResourceSnippetParametersBuilder()
+                    .description(description)
+                    .summary(summary)
+                    .privateResource(privateResource)
+                    .deprecated(deprecated),
             requestPreprocessor = requestPreprocessor,
             responsePreprocessor = responsePreprocessor,
             snippetFilter = snippetFilter,
-            snippets = snippets
+            snippets = snippets,
         )
-    }
 
     @JvmStatic
     fun document(
         identifier: String,
         requestPreprocessor: OperationRequestPreprocessor,
-        vararg snippets: Snippet
-    ): RestDocumentationFilter {
-        return document(identifier, null, null, false, false, requestPreprocessor, snippets = snippets)
-    }
+        vararg snippets: Snippet,
+    ): RestDocumentationFilter = document(identifier, null, null, false, false, requestPreprocessor, snippets = snippets)
 
     @JvmStatic
     fun document(
         identifier: String,
         description: String,
         privateResource: Boolean,
-        vararg snippets: Snippet
-    ): RestDocumentationFilter {
-        return document(identifier, description, null, privateResource, snippets = snippets)
-    }
+        vararg snippets: Snippet,
+    ): RestDocumentationFilter = document(identifier, description, null, privateResource, snippets = snippets)
 
     @JvmStatic
     fun document(
         identifier: String,
         responsePreprocessor: OperationResponsePreprocessor,
-        vararg snippets: Snippet
-    ): RestDocumentationFilter {
-        return document(identifier, null, null, false, false, responsePreprocessor = responsePreprocessor, snippets = snippets)
-    }
+        vararg snippets: Snippet,
+    ): RestDocumentationFilter =
+        document(identifier, null, null, false, false, responsePreprocessor = responsePreprocessor, snippets = snippets)
 
     @JvmStatic
     fun document(
         identifier: String,
         requestPreprocessor: OperationRequestPreprocessor,
         responsePreprocessor: OperationResponsePreprocessor,
-        vararg snippets: Snippet
-    ): RestDocumentationFilter {
-        return document(identifier, null, null, false, false, requestPreprocessor, responsePreprocessor, snippets = snippets)
-    }
+        vararg snippets: Snippet,
+    ): RestDocumentationFilter =
+        document(identifier, null, null, false, false, requestPreprocessor, responsePreprocessor, snippets = snippets)
 
     @JvmStatic
-    fun resourceDetails(): ResourceSnippetDetails {
-        return ResourceSnippetParametersBuilder()
-    }
+    fun resourceDetails(): ResourceSnippetDetails = ResourceSnippetParametersBuilder()
 }

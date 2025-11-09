@@ -20,16 +20,14 @@ import java.util.Collections.emptyList
 
 @Suppress("UNCHECKED_CAST")
 internal object DescriptorExtractor {
-
-    fun <T : AbstractDescriptor<T>> extractDescriptorsFor(snippet: Snippet): List<T> {
-        return when (snippet) {
+    fun <T : AbstractDescriptor<T>> extractDescriptorsFor(snippet: Snippet): List<T> =
+        when (snippet) {
             is AbstractFieldsSnippet -> extractFields(snippet) as List<T>
             is LinksSnippet -> extractLinks(snippet) as List<T>
             is AbstractHeadersSnippet -> extractHeaders(snippet) as List<T>
             is AbstractParametersSnippet -> extractParameters(snippet) as List<T>
             else -> emptyList()
         }
-    }
 
     private fun extractFields(snippet: AbstractFieldsSnippet): List<FieldDescriptor> {
         try {
