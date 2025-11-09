@@ -61,7 +61,7 @@ class JsonSchemaFromFieldDescriptorsGenerator {
                     ?: groups
                         .firstOrNull { it.path == fieldDescriptor.path }
                         ?.let { groups - it + it.merge(fieldDescriptor) } // merge the type with the descriptor with the same name
-                    ?: groups + fieldDescriptor // it is new just add it
+                    ?: (groups + fieldDescriptor) // it is new just add it
             }
 
     private fun unWrapRootArray(
@@ -103,7 +103,7 @@ class JsonSchemaFromFieldDescriptorsGenerator {
         builder: ObjectSchema.Builder,
     ): Schema {
         val groupedFields = groupFieldsByFirstRemainingPathSegment(traversedSegments, jsonFieldPaths)
-        groupedFields.forEach { propertyName, fieldList ->
+        groupedFields.forEach { (propertyName, fieldList) ->
 
             val newTraversedSegments = (traversedSegments + propertyName).toMutableList()
             fieldList

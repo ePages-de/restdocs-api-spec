@@ -24,18 +24,16 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
 
-    testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion") {
-        exclude("junit")
-    }
+    testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.junit-pioneer:junit-pioneer:2.3.0")
     testImplementation("org.springframework.boot:spring-boot-starter-hateoas:$springBootVersion")
     testImplementation("org.hibernate.validator:hibernate-validator:6.0.10.Final")
     testImplementation("org.assertj:assertj-core:3.27.6")
-    testImplementation("com.jayway.jsonpath:json-path:2.3.0")
+    testImplementation("com.jayway.jsonpath:json-path:2.10.0")
 
-    testImplementation("com.github.java-json-tools:json-schema-validator:2.2.10")
+    testImplementation("com.github.java-json-tools:json-schema-validator:2.2.14")
     testImplementation("com.github.erosb:everit-json-schema:1.11.0")
 }
 

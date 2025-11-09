@@ -1,4 +1,5 @@
 
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jmailen.gradle.kotlinter.tasks.LintTask
 import pl.allegro.tech.build.axion.release.domain.TagNameSerializationConfig
@@ -69,7 +70,7 @@ subprojects {
     val disabledKtlintRules by extra { arrayOf("max-line-length") }
 
     tasks.withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "21"
+        compilerOptions.jvmTarget.set(JvmTarget.JVM_21)
     }
 
     tasks.withType<Test> {

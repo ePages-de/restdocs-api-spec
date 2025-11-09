@@ -26,7 +26,7 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.assertj:assertj-core:3.27.6")
 
-    testImplementation("com.jayway.jsonpath:json-path:2.9.0")
+    testImplementation("com.jayway.jsonpath:json-path:2.10.0")
 }
 
 publishing {
