@@ -9,8 +9,8 @@ plugins {
     `maven-publish`
     id("io.github.gradle-nexus.publish-plugin") version "1.0.0"
     id("org.jmailen.kotlinter") version "5.2.0" apply false
-    id("org.sonarqube") version "4.0.0.2929"
-    id("pl.allegro.tech.build.axion-release") version "1.9.2"
+    id("org.sonarqube") version "7.0.1.6134"
+    id("pl.allegro.tech.build.axion-release") version "1.21.0"
     jacoco
     java
     kotlin("jvm") version "1.9.25" apply false
@@ -21,17 +21,18 @@ repositories {
 }
 
 scmVersion {
-    tag(closureOf<TagNameSerializationConfig> {
-        prefix = ""
-    })
 
-    hooks(closureOf<HooksConfig> {
+    tag {
+        prefix.set("")
+    }
+
+    hooks {
         pre("fileUpdate", mapOf(
                 "file" to "README.md",
                 "pattern" to "{v,p -> /('$'v)/}",
                 "replacement" to """{v, p -> "'$'v"}]))"""))
         pre("commit")
-    })
+    }
 }
 
 val scmVer = scmVersion.version
