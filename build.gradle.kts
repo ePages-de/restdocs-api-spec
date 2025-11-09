@@ -13,7 +13,7 @@ plugins {
     id("pl.allegro.tech.build.axion-release") version "1.21.0"
     jacoco
     java
-    kotlin("jvm") version "1.9.25" apply false
+    kotlin("jvm") version "2.0.21" apply false
 }
 
 repositories {
