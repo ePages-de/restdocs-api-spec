@@ -3,7 +3,6 @@ package com.epages.restdocs.apispec.gradle
 import com.jayway.jsonpath.JsonPath
 import org.assertj.core.api.BDDAssertions.then
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import java.lang.Boolean.FALSE
 
 class RestdocsOpenApi3TaskTest : RestdocsOpenApiTaskTestBase() {

@@ -19,72 +19,74 @@ import org.springframework.restdocs.request.QueryParametersSnippet
 import org.springframework.restdocs.request.RequestDocumentation.parameterWithName
 
 internal object DescriptorValidator {
-
-    fun validatePresentParameters(snippetParameters: ResourceSnippetParameters, operation: Operation) {
+    fun validatePresentParameters(
+        snippetParameters: ResourceSnippetParameters,
+        operation: Operation,
+    ) {
         with(snippetParameters) {
             validateIfDescriptorsPresent(
                 requestFields,
-                operation
+                operation,
             ) { RequestFieldsSnippetWrapper(requestFields) }
 
             validateIfDescriptorsPresent(
                 links,
-                operation
+                operation,
             ) { LinksSnippetWrapper(links) }
 
             validateIfDescriptorsPresent(
                 responseFieldsWithLinks,
-                operation
+                operation,
             ) { ResponseFieldsSnippetWrapper(responseFieldsWithLinks) }
 
             validateIfDescriptorsPresent(
                 pathParameters,
-                operation
+                operation,
             ) {
                 PathParametersSnippetWrapper(
                     toParameterDescriptors(
-                        pathParameters
-                    )
+                        pathParameters,
+                    ),
                 )
             }
             validateIfDescriptorsPresent(
                 queryParameters,
-                operation
+                operation,
             ) {
                 QueryParameterSnippetWrapper(
                     toParameterDescriptors(
-                        queryParameters
-                    )
+                        queryParameters,
+                    ),
                 )
             }
             validateIfDescriptorsPresent(
                 formParameters,
-                operation
+                operation,
             ) {
                 FormParameterSnippetWrapper(
                     toParameterDescriptors(
-                        formParameters
-                    )
+                        formParameters,
+                    ),
                 )
             }
             validateIfDescriptorsPresent(
                 requestHeaders,
-                operation
+                operation,
             ) {
                 RequestHeadersSnippetWrapper(
                     toHeaderDescriptors(
-                        requestHeaders
-                    )
+                        requestHeaders,
+                    ),
                 )
             }
             validateIfDescriptorsPresent(
                 responseHeaders,
-                operation
+                operation,
             ) {
                 ResponseHeadersSnippetWrapper(
                     toHeaderDescriptors(
-                        responseHeaders
-                    )
+                        responseHeaders,
+                    ),
                 )
             }
         }
@@ -92,14 +94,16 @@ internal object DescriptorValidator {
 
     private fun toParameterDescriptors(parameters: List<ParameterDescriptorWithType>) =
         parameters.map { p ->
-            parameterWithName(p.name).description(p.description)
+            parameterWithName(p.name)
+                .description(p.description)
                 .apply { if (p.optional) optional() }
                 .apply { if (p.isIgnored) ignored() }
         }
 
     private fun toHeaderDescriptors(requestHeaders: List<HeaderDescriptorWithType>) =
         requestHeaders.map { h ->
-            headerWithName(h.name).description(h.description)
+            headerWithName(h.name)
+                .description(h.description)
                 .apply { if (h.optional) optional() }
         }
 
@@ -110,7 +114,7 @@ internal object DescriptorValidator {
     private fun validateIfDescriptorsPresent(
         descriptors: List<Any>,
         operation: Operation,
-        validateableSnippetFactory: () -> ValidateableSnippet
+        validateableSnippetFactory: () -> ValidateableSnippet,
     ) {
         if (descriptors.isNotEmpty()) validateableSnippetFactory().validate(operation)
     }
@@ -120,11 +124,11 @@ internal object DescriptorValidator {
      *
      * This is baked into [org.springframework.restdocs.payload.AbstractFieldsSnippet.createModel] and is not accessible separately.
      */
-    private class RequestFieldsSnippetWrapper(val descriptors: List<FieldDescriptor>) :
-        RequestFieldsSnippet(descriptors),
+    private class RequestFieldsSnippetWrapper(
+        val descriptors: List<FieldDescriptor>,
+    ) : RequestFieldsSnippet(descriptors),
         ValidateableSnippet,
         FieldTypeExtractor {
-
         @Suppress("UNCHECKED_CAST")
         override fun validate(operation: Operation) {
             val model = super.createModel(operation)
@@ -132,11 +136,11 @@ internal object DescriptorValidator {
         }
     }
 
-    private class ResponseFieldsSnippetWrapper(val descriptors: List<FieldDescriptor>) :
-        ResponseFieldsSnippet(descriptors),
+    private class ResponseFieldsSnippetWrapper(
+        val descriptors: List<FieldDescriptor>,
+    ) : ResponseFieldsSnippet(descriptors),
         ValidateableSnippet,
         FieldTypeExtractor {
-
         @Suppress("UNCHECKED_CAST")
         override fun validate(operation: Operation) {
             val model = super.createModel(operation)
@@ -150,8 +154,10 @@ internal object DescriptorValidator {
      * see https://github.com/spring-projects/spring-restdocs/commit/a2a9a7cb0fe86c30016091d977aa2f7f521c96c0
      */
     private interface FieldTypeExtractor {
-
-        fun applyFieldTypes(fieldsModel: List<Map<String, Any>>, descriptors: List<FieldDescriptor>) {
+        fun applyFieldTypes(
+            fieldsModel: List<Map<String, Any>>,
+            descriptors: List<FieldDescriptor>,
+        ) {
             descriptors.forEach { d ->
                 if (d.type == null) {
                     fieldsModel
@@ -165,48 +171,54 @@ internal object DescriptorValidator {
         }
     }
 
-    private class PathParametersSnippetWrapper(descriptors: List<ParameterDescriptor>) :
-        PathParametersSnippet(descriptors),
+    private class PathParametersSnippetWrapper(
+        descriptors: List<ParameterDescriptor>,
+    ) : PathParametersSnippet(descriptors),
         ValidateableSnippet {
         override fun validate(operation: Operation) {
             super.createModel(operation)
         }
     }
 
-    private class FormParameterSnippetWrapper(descriptors: List<ParameterDescriptor>) :
-        FormParametersSnippet(descriptors),
+    private class FormParameterSnippetWrapper(
+        descriptors: List<ParameterDescriptor>,
+    ) : FormParametersSnippet(descriptors),
         ValidateableSnippet {
         override fun validate(operation: Operation) {
             super.createModel(operation)
         }
     }
 
-    private class QueryParameterSnippetWrapper(descriptors: List<ParameterDescriptor>) :
-        QueryParametersSnippet(descriptors),
+    private class QueryParameterSnippetWrapper(
+        descriptors: List<ParameterDescriptor>,
+    ) : QueryParametersSnippet(descriptors),
         ValidateableSnippet {
         override fun validate(operation: Operation) {
             super.createModel(operation)
         }
     }
 
-    private class RequestHeadersSnippetWrapper(descriptors: List<HeaderDescriptor>) :
-        RequestHeadersSnippet(descriptors),
+    private class RequestHeadersSnippetWrapper(
+        descriptors: List<HeaderDescriptor>,
+    ) : RequestHeadersSnippet(descriptors),
         ValidateableSnippet {
         override fun validate(operation: Operation) {
             this.createModel(operation)
         }
     }
 
-    private class ResponseHeadersSnippetWrapper(descriptors: List<HeaderDescriptor>) :
-        ResponseHeadersSnippet(descriptors),
+    private class ResponseHeadersSnippetWrapper(
+        descriptors: List<HeaderDescriptor>,
+    ) : ResponseHeadersSnippet(descriptors),
         ValidateableSnippet {
         override fun validate(operation: Operation) {
             this.createModel(operation)
         }
     }
 
-    private class LinksSnippetWrapper(descriptors: List<LinkDescriptor>) :
-        LinksSnippet(HypermediaDocumentation.halLinks(), descriptors),
+    private class LinksSnippetWrapper(
+        descriptors: List<LinkDescriptor>,
+    ) : LinksSnippet(HypermediaDocumentation.halLinks(), descriptors),
         ValidateableSnippet {
         override fun validate(operation: Operation) {
             this.createModel(operation)

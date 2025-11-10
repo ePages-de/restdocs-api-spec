@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     kotlin("jvm")
     signing
@@ -12,7 +10,6 @@ repositories {
 val springBootVersion: String by extra
 val springRestDocsVersion: String by extra
 val junitVersion: String by extra
-val disabledKtlintRules: Array<String> by extra
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
@@ -73,8 +70,4 @@ signing {
 java {
     withJavadocJar()
     withSourcesJar()
-}
-
-kotlinter {
-    disabledRules = disabledKtlintRules
 }

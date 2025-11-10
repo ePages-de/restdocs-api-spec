@@ -15,7 +15,6 @@ import org.springframework.restdocs.request.ParameterDescriptor
 import org.springframework.restdocs.snippet.AbstractDescriptor
 import org.springframework.restdocs.snippet.Snippet
 import java.lang.reflect.InvocationTargetException
-import java.util.ArrayList
 import java.util.Collections.emptyList
 
 @Suppress("UNCHECKED_CAST")

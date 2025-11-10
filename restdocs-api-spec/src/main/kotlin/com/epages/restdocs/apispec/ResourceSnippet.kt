@@ -150,7 +150,7 @@ class ResourceSnippet(
     )
 
     private data class RequestModel(
-        val path: String,
+        val path: String?,
         val method: String,
         val contentType: String?,
         val schema: Schema? = null,

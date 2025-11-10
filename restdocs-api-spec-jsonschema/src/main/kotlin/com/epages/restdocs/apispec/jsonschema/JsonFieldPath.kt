@@ -1,6 +1,5 @@
 package com.epages.restdocs.apispec.jsonschema
 
-import java.util.ArrayList
 import java.util.regex.Pattern
 
 internal class JsonFieldPath private constructor(

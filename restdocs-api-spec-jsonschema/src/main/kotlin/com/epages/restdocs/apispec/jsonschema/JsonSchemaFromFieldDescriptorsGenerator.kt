@@ -25,7 +25,6 @@ import org.everit.json.schema.Schema
 import org.everit.json.schema.StringSchema
 import org.everit.json.schema.internal.JSONPrinter
 import java.io.StringWriter
-import java.util.ArrayList
 import java.util.Collections.emptyList
 import java.util.function.Predicate
 

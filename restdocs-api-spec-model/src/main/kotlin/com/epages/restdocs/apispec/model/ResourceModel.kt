@@ -1,7 +1,6 @@
 package com.epages.restdocs.apispec.model
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import java.util.Comparator
 
 data class ResourceModel(
     val operationId: String,
@@ -24,8 +23,8 @@ fun List<ResourceModel>.groupByPath(): Map<String, List<ResourceModel>> =
                         .split("/")
                         .firstOrNull { s -> s.isNotEmpty() }
                         .orEmpty()
-                }.thenComparing(Comparator.comparingInt<ResourceModel> { it.request.path.count { c -> c == '/' } })
-                .thenComparing(Comparator.comparing<ResourceModel, String> { it.request.path }),
+                }.thenComparing(Comparator.comparingInt { it.request.path.count { c -> c == '/' } })
+                .thenComparing(Comparator.comparing { it.request.path }),
         ).groupBy { it.request.path }
 
 data class Schema(

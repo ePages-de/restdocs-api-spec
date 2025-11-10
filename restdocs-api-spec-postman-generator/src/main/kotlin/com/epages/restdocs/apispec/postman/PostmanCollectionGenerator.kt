@@ -16,28 +16,29 @@ import com.epages.restdocs.apispec.postman.model.Variable
 import java.net.URL
 
 object PostmanCollectionGenerator {
-
     fun generate(
         resources: List<ResourceModel>,
         title: String = "API",
         version: String = "1.0.0",
-        baseUrl: String = "http://localhost"
-    ): Collection {
-        return Collection().apply {
-            info = Info().apply {
-                this.name = title
-                this.version = version
-                this.schema = "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-            }
+        baseUrl: String = "http://localhost",
+    ): Collection =
+        Collection().apply {
+            info =
+                Info().apply {
+                    this.name = title
+                    this.version = version
+                    this.schema = "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+                }
             item = collectItems(resources, baseUrl)
         }
-    }
 
     private fun collectItems(
         resourceModels: List<ResourceModel>,
-        url: String
-    ): List<Item> {
-        return resourceModels.groupByPath().values
+        url: String,
+    ): List<Item> =
+        resourceModels
+            .groupByPath()
+            .values
             .flatMap { it.groupBy { models -> models.request.method }.values }
             .map { modelsWithSamePathAndMethod ->
                 val firstModel = modelsWithSamePathAndMethod.first()
@@ -46,98 +47,115 @@ object PostmanCollectionGenerator {
                     name = firstModel.request.path
                     description = firstModel.description
                     request = toRequest(modelsWithSamePathAndMethod, url)
-                    response = modelsWithSamePathAndMethod.map {
-                        Response().apply {
-                            id = it.operationId
-                            name = it.operationId
-                            originalRequest = toRequest(listOf(it), url)
-                            code = it.response.status
-                            body = it.response.example
-                            header = it.response.headers.toItemHeader(it.response.contentType)
-                                .ifEmpty { null }
+                    response =
+                        modelsWithSamePathAndMethod.map {
+                            Response().apply {
+                                id = it.operationId
+                                name = it.operationId
+                                originalRequest = toRequest(listOf(it), url)
+                                code = it.response.status
+                                body = it.response.example
+                                header =
+                                    it.response.headers
+                                        .toItemHeader(it.response.contentType)
+                                        .ifEmpty { null }
+                            }
                         }
-                    }
                 }
             }
-    }
 
-    private fun toRequest(modelsWithSamePathAndMethod: List<ResourceModel>, url: String): Request {
+    private fun toRequest(
+        modelsWithSamePathAndMethod: List<ResourceModel>,
+        url: String,
+    ): Request {
         val firstModel = modelsWithSamePathAndMethod.first()
         return Request().apply {
             method = firstModel.request.method
             this.url = toUrl(modelsWithSamePathAndMethod, url)
-            body = firstModel.request.example?.let {
-                Body().apply {
-                    raw = it
-                    mode = Body.Mode.RAW
+            body =
+                firstModel.request.example?.let {
+                    Body().apply {
+                        raw = it
+                        mode = Body.Mode.RAW
+                    }
                 }
-            }
-            header = modelsWithSamePathAndMethod
-                .flatMap { it.request.headers }
-                .distinctBy { it.name }
-                .toItemHeader(modelsWithSamePathAndMethod.map { it.request.contentType }.firstOrNull())
-                .ifEmpty { null }
+            header =
+                modelsWithSamePathAndMethod
+                    .flatMap { it.request.headers }
+                    .distinctBy { it.name }
+                    .toItemHeader(modelsWithSamePathAndMethod.map { it.request.contentType }.firstOrNull())
+                    .ifEmpty { null }
         }
     }
 
-    private fun toUrl(modelsWithSamePathAndMethod: List<ResourceModel>, url: String): Url {
+    private fun toUrl(
+        modelsWithSamePathAndMethod: List<ResourceModel>,
+        url: String,
+    ): Url {
         val urlStartWithVariable = url.startsWith("{{")
-        val baseUrl = when (urlStartWithVariable) {
-            true -> URL("http://$url")
-            else -> URL(url)
-        }
+        val baseUrl =
+            when (urlStartWithVariable) {
+                true -> URL("http://$url")
+                else -> URL(url)
+            }
 
         return Url().apply {
-            protocol = when (urlStartWithVariable) {
-                true -> null
-                else -> baseUrl.protocol
-            }
+            protocol =
+                when (urlStartWithVariable) {
+                    true -> null
+                    else -> baseUrl.protocol
+                }
             host = baseUrl.host
-            port = when (baseUrl.port) {
-                -1 -> null
-                else -> baseUrl.port.toString()
-            }
-            path = baseUrl.path + modelsWithSamePathAndMethod.first().request.path.replace(Regex("(?<!\\{)\\{([^}]+)\\}(?!\\})")) {
-                it.value.replace('{', ':').removeSuffix("}")
-            }
-            variable = modelsWithSamePathAndMethod
-                .flatMap { it.request.pathParameters }
-                .distinctBy { it.name }
-                .map {
-                    Variable().apply {
-                        key = it.name
-                        description = it.description
-                    }
+            port =
+                when (baseUrl.port) {
+                    -1 -> null
+                    else -> baseUrl.port.toString()
                 }
-                .ifEmpty { null }
-            query = modelsWithSamePathAndMethod
-                .flatMap { it.request.queryParameters }
-                .distinctBy { it.name }
-                .map {
-                    Query().apply {
-                        key = it.name
-                        description = it.description
-                    }
+            path = baseUrl.path +
+                modelsWithSamePathAndMethod.first().request.path.replace(Regex("(?<!\\{)\\{([^}]+)\\}(?!\\})")) {
+                    it.value.replace('{', ':').removeSuffix("}")
                 }
-                .ifEmpty { null }
+            variable =
+                modelsWithSamePathAndMethod
+                    .flatMap { it.request.pathParameters }
+                    .distinctBy { it.name }
+                    .map {
+                        Variable().apply {
+                            key = it.name
+                            description = it.description
+                        }
+                    }.ifEmpty { null }
+            query =
+                modelsWithSamePathAndMethod
+                    .flatMap { it.request.queryParameters }
+                    .distinctBy { it.name }
+                    .map {
+                        Query().apply {
+                            key = it.name
+                            description = it.description
+                        }
+                    }.ifEmpty { null }
         }
     }
 
-    private fun List<HeaderDescriptor>.toItemHeader(contentType: String?): List<Header> {
-        return this.map {
-            Header().apply {
-                key = it.name
-                value = it.example
-                description = it.description
-            }
-        }.let {
-            if (contentType != null && this.none { h -> h.name.equals("Content-Type", ignoreCase = true) })
-                it + Header().apply {
-                    key = "Content-Type"
-                    value = contentType
+    private fun List<HeaderDescriptor>.toItemHeader(contentType: String?): List<Header> =
+        this
+            .map {
+                Header().apply {
+                    key = it.name
+                    value = it.example
+                    description = it.description
                 }
-            else it
-        }
-    }
+            }.let {
+                if (contentType != null && this.none { h -> h.name.equals("Content-Type", ignoreCase = true) }) {
+                    it +
+                        Header().apply {
+                            key = "Content-Type"
+                            value = contentType
+                        }
+                } else {
+                    it
+                }
+            }
 }
 typealias Url = Src

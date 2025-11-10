@@ -12,7 +12,6 @@ import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
-import kotlin.streams.toList
 
 abstract class ApiSpecTaskTest {
     lateinit var snippetsFolder: File

@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 val jacksonVersion: String by extra
 
 plugins {
@@ -10,8 +8,6 @@ plugins {
 repositories {
     mavenCentral()
 }
-
-val disabledKtlintRules: Array<String> by extra
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
@@ -57,8 +53,4 @@ signing {
 java {
     withJavadocJar()
     withSourcesJar()
-}
-
-kotlinter {
-    disabledRules = disabledKtlintRules
 }
