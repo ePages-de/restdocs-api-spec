@@ -39,6 +39,7 @@ pluginBundle {
 
 val jacksonVersion: String by extra
 val junitVersion: String by extra
+val disabledKtlintRules: Array<String> by extra
 
 val jacocoRuntime by configurations.creating
 
@@ -101,3 +102,7 @@ val configureGradlePluginCredentials by tasks.registering {
 }
 
 tasks["publishPlugins"].dependsOn(configureGradlePluginCredentials)
+
+kotlinter {
+    disabledRules = disabledKtlintRules
+}

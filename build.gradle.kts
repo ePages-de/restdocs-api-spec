@@ -60,6 +60,7 @@ subprojects {
     val springBootVersion by extra { "3.2.0" }
     val springRestDocsVersion by extra { "3.0.0" }
     val junitVersion by extra { "5.4.2" }
+    val disabledKtlintRules by extra { arrayOf("max-line-length") }
 
     tasks.withType<KotlinCompile> {
         kotlinOptions.jvmTarget = "17"

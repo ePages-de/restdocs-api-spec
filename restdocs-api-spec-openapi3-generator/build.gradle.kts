@@ -9,6 +9,7 @@ repositories {
 
 val jacksonVersion: String by extra
 val junitVersion: String by extra
+val disabledKtlintRules: Array<String> by extra
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
@@ -66,4 +67,8 @@ signing {
 java {
     withJavadocJar()
     withSourcesJar()
+}
+
+kotlinter {
+    disabledRules = disabledKtlintRules
 }

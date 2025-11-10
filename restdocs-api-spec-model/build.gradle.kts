@@ -11,6 +11,8 @@ repositories {
     mavenCentral()
 }
 
+val disabledKtlintRules: Array<String> by extra
+
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation("com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion")
@@ -55,4 +57,8 @@ signing {
 java {
     withJavadocJar()
     withSourcesJar()
+}
+
+kotlinter {
+    disabledRules = disabledKtlintRules
 }

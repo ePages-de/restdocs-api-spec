@@ -9,6 +9,7 @@ repositories {
 
 val junitVersion: String by extra
 val jacksonVersion: String by extra
+val disabledKtlintRules: Array<String> by extra
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
@@ -66,4 +67,8 @@ java {
 
 tasks.withType<Javadoc> {
     (options as StandardJavadocDocletOptions).addStringOption("Xdoclint:none", "-quiet")
+}
+
+kotlinter {
+    disabledRules = disabledKtlintRules
 }
