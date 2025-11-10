@@ -412,7 +412,11 @@ class OpenApi20GeneratorTest {
         thenRequestAndResponseSchemataAreReferenced(productPath, successfulPostResponse, openapi.definitions)
     }
 
-    private fun thenRequestAndResponseSchemataAreReferenced(productPath: Path, successfulPostResponse: Response, definitions: Map<String, Model>) {
+    private fun thenRequestAndResponseSchemataAreReferenced(
+        productPath: Path,
+        successfulPostResponse: Response,
+        definitions: Map<String, Model>
+    ) {
         val requestBody = productPath.post.parameters.filter { it.`in` == "body" }.first() as BodyParameter
         val requestSchemaRef = requestBody.schema.reference
         then(requestSchemaRef).startsWith("${SCHEMA_JSONPATH_PREFIX}products")
@@ -482,14 +486,22 @@ class OpenApi20GeneratorTest {
         thenParameterMatches(parameters, "header", request.headers[0])
     }
 
-    private fun thenParameterMatches(parameters: List<AbstractSerializableParameter<*>>, type: String, parameterDescriptor: AbstractParameterDescriptor) {
+    private fun thenParameterMatches(
+        parameters: List<AbstractSerializableParameter<*>>,
+        type: String,
+        parameterDescriptor: AbstractParameterDescriptor
+    ) {
         val parameter = findParameterByTypeAndName(parameters, type, parameterDescriptor.name)
         then(parameter).isNotNull
         then(parameter!!.description).isEqualTo(parameterDescriptor.description)
         then(parameter.default).isEqualTo(parameterDescriptor.defaultValue)
     }
 
-    private fun thenParameterEnumValuesMatches(parameters: List<AbstractSerializableParameter<*>>, type: String, parameterDescriptor: AbstractParameterDescriptor) {
+    private fun thenParameterEnumValuesMatches(
+        parameters: List<AbstractSerializableParameter<*>>,
+        type: String,
+        parameterDescriptor: AbstractParameterDescriptor
+    ) {
         val parameter = findParameterByTypeAndName(parameters, type, parameterDescriptor.name)
         then(parameter).isNotNull
         then(parameter!!.enumValue).isEqualTo(parameterDescriptor.attributes.enumValues)

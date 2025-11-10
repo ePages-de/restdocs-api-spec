@@ -183,7 +183,11 @@ object OpenApi3Generator {
             }
     }
 
-    private fun extractOrFindSchema(schemasToKeys: MutableMap<Schema<Any>, String>, schema: Schema<Any>, schemaNameGenerator: (Schema<Any>) -> String): Schema<Any> {
+    private fun extractOrFindSchema(
+        schemasToKeys: MutableMap<Schema<Any>, String>,
+        schema: Schema<Any>,
+        schemaNameGenerator: (Schema<Any>) -> String
+    ): Schema<Any> {
         val schemaKey = if (schemasToKeys.containsKey(schema)) {
             schemasToKeys[schema]!!
         } else {

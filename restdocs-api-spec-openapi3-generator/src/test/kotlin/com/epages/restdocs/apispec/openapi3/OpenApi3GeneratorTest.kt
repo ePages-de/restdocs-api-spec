@@ -1277,7 +1277,9 @@ class OpenApi3GeneratorTest {
         )
     }
 
-    private fun getProductRequestWithMultiplePathParameters(getSecurityRequirement: () -> SecurityRequirements = ::getOAuth2SecurityRequirement): RequestModel {
+    private fun getProductRequestWithMultiplePathParameters(
+        getSecurityRequirement: () -> SecurityRequirements = ::getOAuth2SecurityRequirement
+    ): RequestModel {
         return RequestModel(
             path = "/products/{id}-{subId}",
             method = HTTPMethod.GET,
@@ -1290,7 +1292,11 @@ class OpenApi3GeneratorTest {
         )
     }
 
-    private fun productRequestAsFormData(method: HTTPMethod, schema: Schema? = null, getSecurityRequirement: () -> SecurityRequirements = ::getOAuth2SecurityRequirement): RequestModel {
+    private fun productRequestAsFormData(
+        method: HTTPMethod,
+        schema: Schema? = null,
+        getSecurityRequirement: () -> SecurityRequirements = ::getOAuth2SecurityRequirement
+    ): RequestModel {
         return RequestModel(
             path = "/products/{id}",
             method = method,

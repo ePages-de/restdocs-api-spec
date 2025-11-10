@@ -456,7 +456,11 @@ object OpenApi20Generator {
         }
     }
 
-    private fun requestFieldDescriptor2Parameter(fieldDescriptors: List<FieldDescriptor>, examples: Map<String, String>, requestSchema: Schema?): BodyParameter? {
+    private fun requestFieldDescriptor2Parameter(
+        fieldDescriptors: List<FieldDescriptor>,
+        examples: Map<String, String>,
+        requestSchema: Schema?
+    ): BodyParameter? {
         val firstExample = examples.entries.sortedBy { it.key.length }.map { it.value }.firstOrNull()
         return if (!fieldDescriptors.isEmpty()) {
             val parsedSchema: Model = Json.mapper().readValue(JsonSchemaFromFieldDescriptorsGenerator().generateSchema(fieldDescriptors = fieldDescriptors))

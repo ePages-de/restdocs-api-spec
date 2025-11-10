@@ -107,7 +107,11 @@ internal object DescriptorValidator {
         fun validate(operation: Operation)
     }
 
-    private fun validateIfDescriptorsPresent(descriptors: List<Any>, operation: Operation, validateableSnippetFactory: () -> ValidateableSnippet) {
+    private fun validateIfDescriptorsPresent(
+        descriptors: List<Any>,
+        operation: Operation,
+        validateableSnippetFactory: () -> ValidateableSnippet
+    ) {
         if (descriptors.isNotEmpty()) validateableSnippetFactory().validate(operation)
     }
 
