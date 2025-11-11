@@ -1,7 +1,9 @@
 
+import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jmailen.gradle.kotlinter.tasks.LintTask
+import org.springframework.boot.gradle.tasks.bundling.BootJar
 import pl.allegro.tech.build.axion.release.domain.TagNameSerializationConfig
 import pl.allegro.tech.build.axion.release.domain.hooks.HooksConfig
 
@@ -15,6 +17,7 @@ plugins {
     jacoco
     java
     kotlin("jvm") version "2.2.21" apply false
+    id("org.springframework.boot") version "4.0.0"
 }
 
 repositories {
@@ -66,13 +69,6 @@ allprojects {
 
 subprojects {
 
-    val jacksonVersion by extra { "3.0.2" }
-    val jackson2Version by extra { "2.20.1" }
-    val jacksonAnnotationsVersion by extra { "2.20" }
-    val springBootVersion by extra { "4.0.0-RC2" }
-    val springRestDocsVersion by extra { "4.0.0-RC1" }
-    val springRestDocsRestAssuredVersion by extra { "4.0.0-M3" }
-    val junitVersion by extra { "6.0.1" }
     val jmustacheVersion by extra { "1.16" }
 
     tasks.withType<KotlinCompile> {
@@ -153,4 +149,8 @@ sonar {
         property("sonar.host.url", "https://sonarcloud.io")
         property("sonar.exclusions", "**/samples/**")
     }
+}
+
+tasks.withType<BootJar> {
+    enabled = false
 }

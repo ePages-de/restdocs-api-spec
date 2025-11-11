@@ -1,3 +1,6 @@
+import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
+import kotlin.apply
+
 plugins {
     kotlin("jvm")
     signing
@@ -7,30 +10,30 @@ repositories {
     mavenCentral()
 }
 
-val springBootVersion: String by extra
-val springRestDocsVersion: String by extra
-val junitVersion: String by extra
+apply(plugin = "io.spring.dependency-management")
+the<DependencyManagementExtension>().apply {
+    imports {
+        mavenBom(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
+    }
+}
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
 
     implementation(project(":restdocs-api-spec"))
-    implementation("org.springframework.restdocs:spring-restdocs-webtestclient:$springRestDocsVersion")
-    implementation("org.springframework:spring-webflux:7.0.0-RC3")
+    implementation("org.springframework.restdocs:spring-restdocs-webtestclient")
+    implementation("org.springframework:spring-webflux")
 
-    testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion") {
-        exclude("junit")
-    }
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.hibernate.validator:hibernate-validator:9.0.1.Final")
-    testImplementation("org.springframework.boot:spring-boot-starter-validation:$springBootVersion")
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
+    testImplementation("org.springframework.boot:spring-boot-starter-validation")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testImplementation("org.junit-pioneer:junit-pioneer:2.3.0")
-    testImplementation("org.springframework.boot:spring-boot-starter-web:$springBootVersion")
-    testImplementation("org.springframework.boot:spring-boot-restdocs:$springBootVersion")
-    testImplementation("org.springframework.boot:spring-boot-starter-hateoas:$springBootVersion")
-    testImplementation("org.springframework.boot:spring-boot-starter-webflux-test:$springBootVersion")
-    testImplementation("io.projectreactor:reactor-core:3.8.0-RC1")
+    testImplementation("org.springframework.boot:spring-boot-starter-web")
+    testImplementation("org.springframework.boot:spring-boot-restdocs")
+    testImplementation("org.springframework.boot:spring-boot-starter-hateoas")
+    testImplementation("org.springframework.boot:spring-boot-starter-webflux-test")
+    testImplementation("io.projectreactor:reactor-core")
     testImplementation(testFixtures(project(":restdocs-api-spec")))
 }
 

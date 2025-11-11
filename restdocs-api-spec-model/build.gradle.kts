@@ -1,5 +1,5 @@
-val jacksonVersion: String by extra
-val jacksonAnnotationsVersion: String by extra
+import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
+import kotlin.apply
 
 plugins {
     kotlin("jvm")
@@ -10,9 +10,16 @@ repositories {
     mavenCentral()
 }
 
+apply(plugin = "io.spring.dependency-management")
+the<DependencyManagementExtension>().apply {
+    imports {
+        mavenBom(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
+    }
+}
+
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-    implementation("com.fasterxml.jackson.core:jackson-annotations:$jacksonAnnotationsVersion")
+    implementation("com.fasterxml.jackson.core:jackson-annotations")
 }
 
 publishing {

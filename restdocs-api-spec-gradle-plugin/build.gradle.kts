@@ -1,3 +1,6 @@
+import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
+import kotlin.apply
+
 repositories {
     mavenCentral()
 }
@@ -7,6 +10,13 @@ plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
     id("com.gradle.plugin-publish") version "0.21.0"
+}
+
+apply(plugin = "io.spring.dependency-management")
+the<DependencyManagementExtension>().apply {
+    imports {
+        mavenBom(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
+    }
 }
 
 gradlePlugin {
@@ -36,9 +46,6 @@ pluginBundle {
     }
 }
 
-val jacksonVersion: String by extra
-val junitVersion: String by extra
-
 val jacocoRuntime by configurations.creating
 
 dependencies {
@@ -50,14 +57,13 @@ dependencies {
     implementation(project(":restdocs-api-spec-openapi-generator"))
     implementation(project(":restdocs-api-spec-openapi3-generator"))
     implementation(project(":restdocs-api-spec-postman-generator"))
-    implementation("tools.jackson.core:jackson-databind:$jacksonVersion")
-    implementation("tools.jackson.module:jackson-module-kotlin:$jacksonVersion")
-    implementation("tools.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion")
+    implementation("tools.jackson.core:jackson-databind")
+    implementation("tools.jackson.module:jackson-module-kotlin")
+    implementation("tools.jackson.dataformat:jackson-dataformat-yaml")
 
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testImplementation("org.junit-pioneer:junit-pioneer:2.3.0")
-    testImplementation("org.assertj:assertj-core:3.27.6")
+    testImplementation("org.assertj:assertj-core")
 
     testImplementation("com.jayway.jsonpath:json-path:2.10.0")
 

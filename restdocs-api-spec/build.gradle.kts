@@ -1,3 +1,6 @@
+import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
+import org.springframework.boot.gradle.tasks.bundling.BootJar
+
 plugins {
     kotlin("jvm")
     `java-test-fixtures`
@@ -7,37 +10,39 @@ repositories {
     mavenCentral()
 }
 
-val jacksonVersion: String by extra
-val springBootVersion: String by extra
-val springRestDocsVersion: String by extra
-val junitVersion: String by extra
 val jmustacheVersion: String by extra
+
+apply(plugin = "io.spring.dependency-management")
+the<DependencyManagementExtension>().apply {
+    imports {
+        mavenBom(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
+    }
+}
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(kotlin("reflect"))
 
-    implementation("org.springframework.restdocs:spring-restdocs-core:$springRestDocsVersion")
-    implementation("org.springframework.boot:spring-boot-starter-web:$springBootVersion")
-    implementation("org.springframework.boot:spring-boot-starter-validation:$springBootVersion")
-    implementation("tools.jackson.core:jackson-databind:$jacksonVersion")
-    implementation("tools.jackson.module:jackson-module-kotlin:$jacksonVersion")
+    implementation("org.springframework.restdocs:spring-restdocs-core")
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("tools.jackson.core:jackson-databind")
+    implementation("tools.jackson.module:jackson-module-kotlin")
     implementation("com.samskivert:jmustache:$jmustacheVersion")
 
-    testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion")
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testImplementation("org.junit-pioneer:junit-pioneer:2.3.0")
-    testImplementation("org.springframework.boot:spring-boot-starter-hateoas:$springBootVersion")
-    testImplementation("org.hibernate.validator:hibernate-validator:6.0.10.Final")
-    testImplementation("org.assertj:assertj-core:3.27.6")
+    testImplementation("org.springframework.boot:spring-boot-starter-hateoas")
+    testImplementation("org.hibernate.validator:hibernate-validator")
+    testImplementation("org.assertj:assertj-core")
     testImplementation("com.jayway.jsonpath:json-path:2.10.0")
 
     testImplementation("com.github.java-json-tools:json-schema-validator:2.2.14")
     testImplementation("com.github.erosb:everit-json-schema:1.11.0")
 
-    testFixturesApi("org.springframework.boot:spring-boot-starter-web:$springBootVersion")
-    testFixturesApi("org.springframework.boot:spring-boot-starter-hateoas:$springBootVersion")
+    testFixturesApi("org.springframework.boot:spring-boot-starter-web")
+    testFixturesApi("org.springframework.boot:spring-boot-starter-hateoas")
 }
 
 publishing {
@@ -83,4 +88,8 @@ java {
 
 kotlinter {
     ignoreLintFailures = true
+}
+
+tasks.withType<BootJar> {
+    enabled = false
 }

@@ -1,3 +1,6 @@
+import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
+import kotlin.apply
+
 plugins {
     kotlin("jvm")
     signing
@@ -7,10 +10,12 @@ repositories {
     mavenCentral()
 }
 
-val jacksonVersion: String by extra
-val jackson2Version: String by extra
-val junitVersion: String by extra
-val springBootVersion: String by extra
+apply(plugin = "io.spring.dependency-management")
+the<DependencyManagementExtension>().apply {
+    imports {
+        mavenBom(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
+    }
+}
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
@@ -19,16 +24,16 @@ dependencies {
     api(project(":restdocs-api-spec-jsonschema"))
 
     api("io.swagger.core.v3:swagger-core:2.2.37")
-    implementation("tools.jackson.core:jackson-databind:$jacksonVersion")
-    implementation("tools.jackson.module:jackson-module-kotlin:$jacksonVersion")
-    implementation("tools.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion")
-    implementation("org.springframework.boot:spring-boot-jackson2:$springBootVersion")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jackson2Version")
+    implementation("tools.jackson.core:jackson-databind")
+    implementation("tools.jackson.module:jackson-module-kotlin")
+    implementation("tools.jackson.dataformat:jackson-dataformat-yaml")
+    implementation("org.springframework.boot:spring-boot-jackson2")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
     testImplementation("io.swagger.parser.v3:swagger-parser:2.1.34")
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testImplementation("org.assertj:assertj-core:3.27.6")
+    testImplementation("org.assertj:assertj-core")
 
     testImplementation("com.jayway.jsonpath:json-path:2.10.0")
 }

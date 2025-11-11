@@ -1,3 +1,6 @@
+import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
+import kotlin.apply
+
 plugins {
     kotlin("jvm")
     signing
@@ -7,23 +10,25 @@ repositories {
     mavenCentral()
 }
 
-val junitVersion: String by extra
-val jacksonVersion: String by extra
-val jackson2Version: String by extra
-val springBootVersion: String by extra
+apply(plugin = "io.spring.dependency-management")
+the<DependencyManagementExtension>().apply {
+    imports {
+        mavenBom(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
+    }
+}
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
 
     implementation(project(":restdocs-api-spec-model"))
-    implementation("tools.jackson.core:jackson-databind:$jacksonVersion")
-    implementation("tools.jackson.module:jackson-module-kotlin:$jacksonVersion")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jackson2Version")
-    implementation("org.springframework.boot:spring-boot-jackson2:$springBootVersion")
+    implementation("tools.jackson.core:jackson-databind")
+    implementation("tools.jackson.module:jackson-module-kotlin")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    implementation("org.springframework.boot:spring-boot-jackson2")
 
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testImplementation("org.assertj:assertj-core:3.27.6")
+    testImplementation("org.assertj:assertj-core")
     testImplementation("com.jayway.jsonpath:json-path:2.10.0")
     testImplementation("com.github.java-json-tools:json-schema-validator:2.2.14")
 }
