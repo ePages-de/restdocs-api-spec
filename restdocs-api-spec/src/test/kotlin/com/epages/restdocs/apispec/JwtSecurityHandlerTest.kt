@@ -75,6 +75,8 @@ class JwtSecurityHandlerTest {
     private fun givenRequestWithOAuth2JwtInAuthorizationHeader() {
         operation =
             OperationBuilder()
+                .testClass(JwtSecurityHandlerTest::class.java)
+                .testMethodName("givenRequestWithOAuth2JwtInAuthorizationHeader")
                 .request("/some")
                 .header(
                     AUTHORIZATION,
@@ -85,6 +87,8 @@ class JwtSecurityHandlerTest {
     private fun givenRequestWithStandardOAuth2JwtInAuthorizationHeader() {
         operation =
             OperationBuilder()
+                .testClass(JwtSecurityHandlerTest::class.java)
+                .testMethodName("givenRequestWithStandardOAuth2JwtInAuthorizationHeader")
                 .request("/some")
                 .header(
                     AUTHORIZATION,
@@ -95,6 +99,8 @@ class JwtSecurityHandlerTest {
     private fun givenRequestWithNonOAuth2JwtInAuthorizationHeader() {
         operation =
             OperationBuilder()
+                .testClass(JwtSecurityHandlerTest::class.java)
+                .testMethodName("givenRequestWithNonOAuth2JwtInAuthorizationHeader")
                 .request("/some")
                 .header(
                     AUTHORIZATION,
@@ -106,6 +112,8 @@ class JwtSecurityHandlerTest {
     private fun givenRequestWithNonJwtInAuthorizationHeader() {
         operation =
             OperationBuilder()
+                .testClass(JwtSecurityHandlerTest::class.java)
+                .testMethodName("givenRequestWithoutAuthorizationHeader")
                 .request("/some")
                 .header(AUTHORIZATION, "Bearer ey")
                 .build()
@@ -114,6 +122,8 @@ class JwtSecurityHandlerTest {
     private fun givenRequestWithoutAuthorizationHeader() {
         operation =
             OperationBuilder()
+                .testClass(JwtSecurityHandlerTest::class.java)
+                .testMethodName("givenRequestWithoutAuthorizationHeader")
                 .request("/some")
                 .build()
     }
@@ -121,6 +131,8 @@ class JwtSecurityHandlerTest {
     private fun givenRequestWithBasicAuthHeader() {
         operation =
             OperationBuilder()
+                .testClass(JwtSecurityHandlerTest::class.java)
+                .testMethodName("givenRequestWithBasicAuthHeader")
                 .request("/some")
                 .header(AUTHORIZATION, "Basic dGVzdDpwd2QK")
                 .build()

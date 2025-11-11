@@ -21,74 +21,48 @@ abstract class RestDocumentationWrapper {
         snippetFilter: Function<List<Snippet>, List<Snippet>>,
         vararg snippets: Snippet,
     ): Array<Snippet> {
+        // No ResourceSnippet, so we configure our own based on the info of the other snippets
         val enhancedSnippets =
-            if (snippets.none { it is ResourceSnippet }) { // No ResourceSnippet, so we configure our own based on the info of the other snippets
+            if (snippets.none { it is ResourceSnippet }) {
                 val resourceParameters =
                     createBuilder(resourceDetails)
                         .requestFields(
                             snippets
                                 .filter { it is RequestFieldsSnippet }
-                                .flatMap {
-                                    DescriptorExtractor.extractDescriptorsFor<FieldDescriptor>(
-                                        it,
-                                    )
-                                },
+                                .flatMap { DescriptorExtractor.extractDescriptorsFor(it) },
                         ).responseFields(
                             snippets
                                 .filter { it is ResponseFieldsSnippet }
-                                .flatMap {
-                                    DescriptorExtractor.extractDescriptorsFor<FieldDescriptor>(
-                                        it,
-                                    )
-                                },
+                                .flatMap { DescriptorExtractor.extractDescriptorsFor(it) },
                         ).links(
                             snippets
                                 .filter { it is LinksSnippet }
-                                .flatMap {
-                                    DescriptorExtractor.extractDescriptorsFor<LinkDescriptor>(
-                                        it,
-                                    )
-                                },
+                                .flatMap { DescriptorExtractor.extractDescriptorsFor(it) },
                         ).queryParameters(
                             *snippets
                                 .filter { it is QueryParametersSnippet }
-                                .flatMap {
-                                    DescriptorExtractor.extractDescriptorsFor<ParameterDescriptor>(
-                                        it,
-                                    )
-                                }.toTypedArray(),
+                                .flatMap { DescriptorExtractor.extractDescriptorsFor<ParameterDescriptor>(it) }
+                                .toTypedArray(),
                         ).formParameters(
                             *snippets
                                 .filter { it is FormParametersSnippet }
-                                .flatMap {
-                                    DescriptorExtractor.extractDescriptorsFor<ParameterDescriptor>(
-                                        it,
-                                    )
-                                }.toTypedArray(),
+                                .flatMap { DescriptorExtractor.extractDescriptorsFor<ParameterDescriptor>(it) }
+                                .toTypedArray(),
                         ).pathParameters(
                             *snippets
                                 .filter { it is PathParametersSnippet }
-                                .flatMap {
-                                    DescriptorExtractor.extractDescriptorsFor<ParameterDescriptor>(
-                                        it,
-                                    )
-                                }.toTypedArray(),
+                                .flatMap { DescriptorExtractor.extractDescriptorsFor<ParameterDescriptor>(it) }
+                                .toTypedArray(),
                         ).requestHeaders(
                             *snippets
                                 .filter { it is RequestHeadersSnippet }
-                                .flatMap {
-                                    DescriptorExtractor.extractDescriptorsFor<HeaderDescriptor>(
-                                        it,
-                                    )
-                                }.toTypedArray(),
+                                .flatMap { DescriptorExtractor.extractDescriptorsFor<HeaderDescriptor>(it) }
+                                .toTypedArray(),
                         ).responseHeaders(
                             *snippets
                                 .filter { it is ResponseHeadersSnippet }
-                                .flatMap {
-                                    DescriptorExtractor.extractDescriptorsFor<HeaderDescriptor>(
-                                        it,
-                                    )
-                                }.toTypedArray(),
+                                .flatMap { DescriptorExtractor.extractDescriptorsFor<HeaderDescriptor>(it) }
+                                .toTypedArray(),
                         ).build()
                 snippets.toList() + ResourceDocumentation.resource(resourceParameters)
             } else {

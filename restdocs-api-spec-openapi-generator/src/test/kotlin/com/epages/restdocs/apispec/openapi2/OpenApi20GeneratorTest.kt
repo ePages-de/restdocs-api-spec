@@ -15,7 +15,6 @@ import com.epages.restdocs.apispec.model.Schema
 import com.epages.restdocs.apispec.model.SecurityRequirements
 import com.epages.restdocs.apispec.model.SecurityType.BASIC
 import com.epages.restdocs.apispec.model.SecurityType.OAUTH2
-import com.fasterxml.jackson.module.kotlin.readValue
 import io.swagger.models.Model
 import io.swagger.models.Path
 import io.swagger.models.Response
@@ -31,6 +30,8 @@ import io.swagger.util.Json
 import org.assertj.core.api.Assertions.tuple
 import org.assertj.core.api.BDDAssertions.then
 import org.junit.jupiter.api.Test
+import tools.jackson.module.kotlin.jsonMapper
+import tools.jackson.module.kotlin.readValue
 
 private const val SCHEMA_JSONPATH_PREFIX = "#/definitions/"
 
@@ -295,8 +296,14 @@ class OpenApi20GeneratorTest {
         OpenApi20Generator.extractOrFindSchema(schemaNameAndSchemaMap, shopsSchema, OpenApi20Generator.generateSchemaName("/shops"))
     }
 
-    private fun givenModel(fieldDescriptors: List<FieldDescriptor>): Model =
-        Json.mapper().readValue(JsonSchemaFromFieldDescriptorsGenerator().generateSchema(fieldDescriptors = fieldDescriptors))
+    private fun givenModel(fieldDescriptors: List<FieldDescriptor>): Model {
+        val objectMapper = Json.mapper()
+        val valueType = objectMapper.typeFactory.constructType(Model::class.java)
+        return objectMapper.readValue(
+            JsonSchemaFromFieldDescriptorsGenerator().generateSchema(fieldDescriptors = fieldDescriptors),
+            valueType,
+        )
+    }
 
     private fun givenFieldDescriptors(attributePath: String): List<FieldDescriptor> =
         listOf(

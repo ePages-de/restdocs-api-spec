@@ -1,9 +1,9 @@
 package com.epages.restdocs.apispec
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import org.springframework.http.HttpHeaders
 import org.springframework.restdocs.operation.Operation
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.module.kotlin.readValue
 import java.io.IOException
 import java.util.Base64
 import java.util.Collections.emptyList
@@ -29,8 +29,7 @@ internal class JwtSecurityHandler : SecurityRequirementsExtractor {
 
     private fun getJWT(operation: Operation) =
         operation.request.headers
-            .filterKeys { it == HttpHeaders.AUTHORIZATION }
-            .flatMap { it.value }
+            .getOrEmpty(HttpHeaders.AUTHORIZATION)
             .filter { it.startsWith("Bearer ") }
             .map { it.replace("Bearer ", "") }
 
@@ -43,7 +42,7 @@ internal class JwtSecurityHandler : SecurityRequirementsExtractor {
                 return ObjectMapper()
                     .readValue<Map<String, Any>>(decodedJwtHeader)
                     .containsKey("alg")
-            } catch (e: IOException) {
+            } catch (_: IOException) {
                 // probably not JWT
             }
         }
@@ -70,7 +69,7 @@ internal class JwtSecurityHandler : SecurityRequirementsExtractor {
                 if (scope is String) { // standard way of expressing scope claim
                     return scope.trim().split("\\s+".toRegex())
                 }
-            } catch (e: IOException) {
+            } catch (_: IOException) {
                 // probably not JWT
             }
         }

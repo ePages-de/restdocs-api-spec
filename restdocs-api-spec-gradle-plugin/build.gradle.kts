@@ -36,7 +36,6 @@ pluginBundle {
     }
 }
 
-
 val jacksonVersion: String by extra
 val junitVersion: String by extra
 
@@ -51,8 +50,9 @@ dependencies {
     implementation(project(":restdocs-api-spec-openapi-generator"))
     implementation(project(":restdocs-api-spec-openapi3-generator"))
     implementation(project(":restdocs-api-spec-postman-generator"))
-    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
+    implementation("tools.jackson.core:jackson-databind:$jacksonVersion")
+    implementation("tools.jackson.module:jackson-module-kotlin:$jacksonVersion")
+    implementation("tools.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion")
 
     testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
@@ -76,7 +76,11 @@ val createTestKitFiles by tasks.registering {
 
     doLast {
         outputDir.get().asFile.mkdirs()
-        val destFile = project.layout.buildDirectory.file("jacoco/test.exec").get().asFile.path
+        val destFile =
+            project.layout.buildDirectory
+                .file("jacoco/test.exec")
+                .get()
+                .asFile.path
         val outFile = outputDir.get().file("testkit-gradle.properties").asFile
         outFile.writeText("org.gradle.jvmargs=-javaagent:${jacocoRuntime.asPath}=destfile=$destFile")
     }

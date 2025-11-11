@@ -11,7 +11,6 @@ import com.epages.restdocs.apispec.model.ResponseModel
 import com.epages.restdocs.apispec.model.Schema
 import com.epages.restdocs.apispec.model.SecurityRequirements
 import com.epages.restdocs.apispec.model.SecurityType
-import com.fasterxml.jackson.module.kotlin.readValue
 import io.swagger.models.Info
 import io.swagger.models.Model
 import io.swagger.models.ModelImpl
@@ -144,12 +143,7 @@ object OpenApi20Generator {
                 }
         }
 
-        swagger.definitions =
-            schemasToKeys.keys
-                .map {
-                    schemasToKeys.getValue(it) to it
-                }.toMap()
-
+        swagger.definitions = schemasToKeys.keys.associateBy { schemasToKeys.getValue(it) }
         return swagger
     }
 
@@ -191,15 +185,15 @@ object OpenApi20Generator {
     ): Map<String, Path> =
         groupByPath(resources)
             .entries
-            .map {
+            .associate {
                 it.key to
                     resourceModels2Path(
                         it.value,
                         oauth2SecuritySchemeDefinition,
                     )
-            }.toMap()
+            }
 
-    private fun groupByPath(resources: List<ResourceModel>): Map<String, List<ResourceModel>> =
+    private fun groupByPath(resources: List<ResourceModel>) =
         resources
             .sortedWith(
                 // by first path segment, then path length, then path
@@ -208,8 +202,8 @@ object OpenApi20Generator {
                         .split("/")
                         .firstOrNull { s -> s.isNotEmpty() }
                         .orEmpty()
-                }.thenComparing(comparingInt<ResourceModel> { it.request.path.count { c -> c == '/' } })
-                    .thenComparing(comparing<ResourceModel, String> { it.request.path }),
+                }.thenComparing(comparingInt { it.request.path.count { c -> c == '/' } })
+                    .thenComparing(comparing { it.request.path }),
             ).groupBy { it.request.path }
 
     private fun groupByHttpMethod(resources: List<ResourceModel>): Map<HTTPMethod, List<ResourceModel>> =
@@ -334,8 +328,7 @@ object OpenApi20Generator {
                                 modelsWithSamePathAndMethod.flatMap { it.request.requestFields },
                                 modelsWithSamePathAndMethod
                                     .filter { it.request.contentType != null && it.request.example != null }
-                                    .map { it.request.contentType!! to it.request.example!! }
-                                    .toMap(),
+                                    .associate { it.request.contentType!! to it.request.example!! },
                                 firstModelForPathAndMethod.request.schema,
                             ),
                         ),
@@ -509,6 +502,7 @@ object OpenApi20Generator {
             val parsedSchema: Model =
                 Json.mapper().readValue(
                     JsonSchemaFromFieldDescriptorsGenerator().generateSchema(fieldDescriptors = fieldDescriptors),
+                    Model::class.java,
                 )
             parsedSchema.example = firstExample // a schema can only have one example
             parsedSchema.reference = requestSchema?.name
@@ -533,15 +527,16 @@ object OpenApi20Generator {
             description = ""
             headers =
                 responseModel.headers
-                    .map { it.name to PropertyBuilder.build(it.type.lowercase(), null, null).description(it.description) }
-                    .toMap()
-                    .nullIfEmpty()
+                    .associate {
+                        it.name to PropertyBuilder.build(it.type.lowercase(), null, null).description(it.description)
+                    }.nullIfEmpty()
             examples = mapOf(responseModel.contentType to responseModel.example).nullIfEmpty()
             responseSchema =
                 if (!responseModel.responseFields.isEmpty()) {
                     val parsedSchema: Model =
                         Json.mapper().readValue(
                             JsonSchemaFromFieldDescriptorsGenerator().generateSchema(fieldDescriptors = responseModel.responseFields),
+                            Model::class.java,
                         )
                     parsedSchema.reference = responseModel.schema?.name
                     parsedSchema

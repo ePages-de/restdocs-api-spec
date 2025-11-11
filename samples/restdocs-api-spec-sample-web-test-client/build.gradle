@@ -1,6 +1,6 @@
 buildscript {
 	ext {
-		springBootVersion = '3.5.7'
+		springBootVersion = '4.0.0-RC2'
 	}
 	repositories {
 		mavenCentral()
@@ -36,10 +36,12 @@ dependencies {
 
 	testImplementation('org.junit.jupiter:junit-jupiter-engine')
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
+	testImplementation('org.springframework.boot:spring-boot-webclient-test')
+	testImplementation('org.springframework.boot:spring-boot-webflux-test')
 	testImplementation('org.springframework.restdocs:spring-restdocs-webtestclient')
 	testImplementation('io.projectreactor:reactor-test')
 
-	testImplementation project(':restdocs-api-spec-mockmvc')
+	testImplementation project(':restdocs-api-spec')
 }
 
 openapi {

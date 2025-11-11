@@ -17,13 +17,14 @@ dependencies {
     api(project(":restdocs-api-spec"))
     implementation("org.springframework.restdocs:spring-restdocs-mockmvc:$springRestDocsVersion")
 
-    testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion") {
-        exclude("junit")
-    }
+    testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion")
+    testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test:$springBootVersion")
+    testImplementation("org.springframework.boot:spring-boot-restdocs:$springBootVersion")
     testImplementation("org.springframework.boot:spring-boot-starter-validation:$springBootVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.junit-pioneer:junit-pioneer:2.3.0")
+    testImplementation(testFixtures(project(":restdocs-api-spec")))
     testImplementation("org.springframework.boot:spring-boot-starter-hateoas:$springBootVersion")
 }
 

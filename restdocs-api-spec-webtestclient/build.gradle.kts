@@ -16,19 +16,22 @@ dependencies {
 
     implementation(project(":restdocs-api-spec"))
     implementation("org.springframework.restdocs:spring-restdocs-webtestclient:$springRestDocsVersion")
-    implementation("org.springframework:spring-webflux:6.2.11")
+    implementation("org.springframework:spring-webflux:7.0.0-RC3")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion") {
         exclude("junit")
     }
-    testImplementation("org.hibernate.validator:hibernate-validator:8.0.0.Final")
+    testImplementation("org.hibernate.validator:hibernate-validator:9.0.1.Final")
     testImplementation("org.springframework.boot:spring-boot-starter-validation:$springBootVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.junit-pioneer:junit-pioneer:2.3.0")
     testImplementation("org.springframework.boot:spring-boot-starter-web:$springBootVersion")
+    testImplementation("org.springframework.boot:spring-boot-restdocs:$springBootVersion")
     testImplementation("org.springframework.boot:spring-boot-starter-hateoas:$springBootVersion")
-    testImplementation("io.projectreactor:reactor-core:3.2.8.RELEASE")
+    testImplementation("org.springframework.boot:spring-boot-starter-webflux-test:$springBootVersion")
+    testImplementation("io.projectreactor:reactor-core:3.8.0-RC1")
+    testImplementation(testFixtures(project(":restdocs-api-spec")))
 }
 
 publishing {

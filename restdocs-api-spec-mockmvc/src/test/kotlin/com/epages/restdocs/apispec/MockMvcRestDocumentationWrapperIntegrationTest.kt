@@ -1,20 +1,25 @@
 package com.epages.restdocs.apispec
 
+import com.epages.apispec.restdocs.HalTestUtils
 import com.epages.restdocs.apispec.ResourceDocumentation.resource
 import org.assertj.core.api.Assertions.assertThatCode
 import org.assertj.core.api.BDDAssertions.then
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
 import org.springframework.hateoas.MediaTypes.HAL_JSON
 import org.springframework.http.MediaType.APPLICATION_JSON
+import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter
+import org.springframework.restdocs.RestDocumentationContextProvider
+import org.springframework.restdocs.RestDocumentationExtension
 import org.springframework.restdocs.headers.HeaderDocumentation.headerWithName
 import org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders
 import org.springframework.restdocs.headers.HeaderDocumentation.responseHeaders
 import org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel
 import org.springframework.restdocs.hypermedia.HypermediaDocumentation.links
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document
+import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
 import org.springframework.restdocs.operation.preprocess.OperationRequestPreprocessor
 import org.springframework.restdocs.payload.PayloadDocumentation.beneathPath
@@ -24,17 +29,41 @@ import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
 import org.springframework.restdocs.payload.PayloadDocumentation.subsectionWithPath
 import org.springframework.restdocs.request.RequestDocumentation.parameterWithName
 import org.springframework.restdocs.request.RequestDocumentation.pathParameters
-import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.test.web.servlet.setup.MockMvcBuilders
+import org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder
+import org.springframework.web.context.WebApplicationContext
+import tools.jackson.databind.json.JsonMapper
 import java.io.File
 
-@ExtendWith(SpringExtension::class)
+@ExtendWith(value = [RestDocumentationExtension::class])
 @WebMvcTest
-class MockMvcRestDocumentationWrapperIntegrationTest(
-    @Autowired private val mockMvc: MockMvc,
-) : ResourceSnippetIntegrationTest() {
+class MockMvcRestDocumentationWrapperIntegrationTest : ResourceSnippetIntegrationTest() {
+    private lateinit var mockMvc: MockMvc
+
+    private lateinit var mapper: JsonMapper
+
+    @BeforeEach
+    fun setUpModule() {
+    }
+
+    @BeforeEach
+    fun setUp(
+        webApplicationContext: WebApplicationContext,
+        restDocumentation: RestDocumentationContextProvider,
+    ) {
+        this.mapper = HalTestUtils.halMapper()
+        this.mockMvc =
+            MockMvcBuilders
+                .standaloneSetup(webApplicationContext, TestApplication.TestController())
+                .apply<StandaloneMockMvcBuilder>(documentationConfiguration(restDocumentation))
+                .setMessageConverters(
+                    JacksonJsonHttpMessageConverter(this.mapper),
+                ).build()
+    }
+
     @Test
     fun should_document_both_restdocs_and_resource() {
         givenEndpointInvoked()

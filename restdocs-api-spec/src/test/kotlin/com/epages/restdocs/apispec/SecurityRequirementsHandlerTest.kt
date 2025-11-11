@@ -45,6 +45,8 @@ class SecurityRequirementsHandlerTest {
     private fun givenRequestWithBasicAuthHeader() {
         operation =
             OperationBuilder()
+                .testClass(SecurityRequirementsHandlerTest::class.java)
+                .testMethodName("shouldReturnBasicSecurityRequirements")
                 .request("/some")
                 .header(HttpHeaders.AUTHORIZATION, "Basic dGVzdDpwd2QK")
                 .build()
@@ -53,6 +55,8 @@ class SecurityRequirementsHandlerTest {
     private fun givenRequestWithJwtInAuthorizationHeader() {
         operation =
             OperationBuilder()
+                .testClass(SecurityRequirementsHandlerTest::class.java)
+                .testMethodName("shouldReturnOauthSecurityRequirements")
                 .request("/some")
                 .header(
                     HttpHeaders.AUTHORIZATION,
@@ -63,6 +67,8 @@ class SecurityRequirementsHandlerTest {
     private fun givenRequestWithoutAuthorizationHeader() {
         operation =
             OperationBuilder()
+                .testClass(SecurityRequirementsHandlerTest::class.java)
+                .testMethodName("shouldReturnNullWhenNoRequirementsRecognized")
                 .request("/some")
                 .build()
     }

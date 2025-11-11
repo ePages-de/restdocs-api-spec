@@ -7,12 +7,12 @@ import org.hibernate.validator.constraints.Length
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
 import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.hateoas.EntityModel
 import org.springframework.hateoas.IanaLinkRelations
 import org.springframework.hateoas.Link
+import org.springframework.hateoas.server.EntityLinks
 import org.springframework.hateoas.server.mvc.BasicLinkBuilder.linkToCurrentMapping
 import org.springframework.http.HttpHeaders.ACCEPT
 import org.springframework.http.HttpHeaders.CONTENT_TYPE
@@ -31,7 +31,6 @@ import java.util.UUID
 
 @ExtendWith(SpringExtension::class)
 @WebMvcTest
-@AutoConfigureRestDocs
 open class ResourceSnippetIntegrationTest {
     val operationName = "test-${System.currentTimeMillis()}"
 
@@ -70,7 +69,7 @@ open class ResourceSnippetIntegrationTest {
                 return ResponseEntity
                     .ok()
                     .header("X-Custom-Header", customHeader)
-                    .body<EntityModel<TestDataHolder>>(resource)
+                    .body(resource)
             }
         }
     }

@@ -9,9 +9,11 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
 import org.springframework.context.ConfigurableApplicationContext
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.hateoas.EntityModel
 import org.springframework.hateoas.IanaLinkRelations
 import org.springframework.hateoas.Link
@@ -34,20 +36,19 @@ import java.util.UUID
 
 @ExtendWith(SpringExtension::class)
 @WebMvcTest
-@AutoConfigureRestDocs
 open class ResourceSnippetIntegrationTest {
     val operationName = "test-${System.currentTimeMillis()}"
 
     lateinit var resultActions: ResultActions
 
-    private lateinit var app: ResourceSnippetIntegrationTest.TestApplication
+    private lateinit var app: TestApplication
     protected var serverPort: Int? = null
 
     @BeforeEach
     fun setUp(
         @Suppress("unused") restDocumentation: RestDocumentationContextProvider,
     ) {
-        app = ResourceSnippetIntegrationTest.TestApplication()
+        app = TestApplication()
         app.main(arrayOf("--server.port=0"))
         serverPort =
             app.applicationContext.environment
@@ -66,6 +67,15 @@ open class ResourceSnippetIntegrationTest {
 
         fun main(args: Array<String>) {
             applicationContext = SpringApplication.run(TestApplication::class.java, *args)
+        }
+
+        @Configuration
+        internal open class JacksonConfiguration {
+            @Bean
+            open fun jsonMapperBuilderCustomizer(): JsonMapperBuilderCustomizer =
+                JsonMapperBuilderCustomizer { builder ->
+                    builder.configureForJackson2()
+                }
         }
 
         @RestController

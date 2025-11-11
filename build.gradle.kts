@@ -14,7 +14,7 @@ plugins {
     id("pl.allegro.tech.build.axion-release") version "1.21.0"
     jacoco
     java
-    kotlin("jvm") version "2.0.21" apply false
+    kotlin("jvm") version "2.2.21" apply false
 }
 
 repositories {
@@ -28,10 +28,14 @@ scmVersion {
     }
 
     hooks {
-        pre("fileUpdate", mapOf(
+        pre(
+            "fileUpdate",
+            mapOf(
                 "file" to "README.md",
                 "pattern" to "{v,p -> /('$'v)/}",
-                "replacement" to """{v, p -> "'$'v"}]))"""))
+                "replacement" to """{v, p -> "'$'v"}]))""",
+            ),
+        )
         pre("commit")
     }
 }
@@ -40,7 +44,7 @@ val scmVer = scmVersion.version
 
 fun Project.isSampleProject() = this.name.contains("sample")
 
-val nonSampleProjects =  subprojects.filterNot { it.isSampleProject() }
+val nonSampleProjects = subprojects.filterNot { it.isSampleProject() }
 
 allprojects {
 
@@ -60,13 +64,16 @@ allprojects {
     }
 }
 
-
 subprojects {
 
-    val jacksonVersion by extra { "2.19.2" }
-    val springBootVersion by extra { "3.5.7" }
-    val springRestDocsVersion by extra { "3.0.5" }
-    val junitVersion by extra { "5.12.2" }
+    val jacksonVersion by extra { "3.0.2" }
+    val jackson2Version by extra { "2.20.1" }
+    val jacksonAnnotationsVersion by extra { "2.20" }
+    val springBootVersion by extra { "4.0.0-RC2" }
+    val springRestDocsVersion by extra { "4.0.0-RC1" }
+    val springRestDocsRestAssuredVersion by extra { "4.0.0-M3" }
+    val junitVersion by extra { "6.0.1" }
+    val jmustacheVersion by extra { "1.16" }
 
     tasks.withType<KotlinCompile> {
         compilerOptions.jvmTarget.set(JvmTarget.JVM_21)
@@ -103,8 +110,24 @@ tasks {
     val jacocoRootReport by registering(JacocoReport::class) {
         description = "Generates an aggregate report from all subprojects"
         group = "Coverage reports"
-        sourceDirectories.setFrom(files(nonSampleProjects.flatMap { it.sourceSets["main"].allSource.srcDirs.filter { it.exists() && !it.path.endsWith("restdocs-api-spec-postman-generator/src/main/java") } } ))
-        classDirectories.setFrom(files(nonSampleProjects.flatMap { it.sourceSets["main"].output }.filter { !it.path.endsWith("restdocs-api-spec-postman-generator/build/classes/java/main") } ))
+        sourceDirectories.setFrom(
+            files(
+                nonSampleProjects.flatMap {
+                    it.sourceSets["main"].allSource.srcDirs.filter {
+                        it.exists() &&
+                            !it.path.endsWith("restdocs-api-spec-postman-generator/src/main/java")
+                    }
+                },
+            ),
+        )
+        classDirectories.setFrom(
+            files(
+                nonSampleProjects
+                    .flatMap {
+                        it.sourceSets["main"].output
+                    }.filter { !it.path.endsWith("restdocs-api-spec-postman-generator/build/classes/java/main") },
+            ),
+        )
         executionData(files(nonSampleProjects.map { it.layout.buildDirectory.file("jacoco/test.exec") }))
         reports {
             html.required.set(false)

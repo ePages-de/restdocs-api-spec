@@ -1,13 +1,13 @@
 package com.epages.restdocs.apispec.gradle
 
 import com.epages.restdocs.apispec.model.Oauth2Configuration
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
-import com.fasterxml.jackson.module.kotlin.readValue
 import groovy.lang.Closure
 import io.swagger.v3.oas.models.info.Contact
 import io.swagger.v3.oas.models.servers.Server
 import org.gradle.api.Project
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.dataformat.yaml.YAMLFactory
+import tools.jackson.module.kotlin.readValue
 import java.io.File
 
 abstract class OpenApiBaseExtension(

@@ -14,8 +14,8 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(project(":restdocs-api-spec-model"))
     implementation("com.github.erosb:everit-json-schema:1.11.0")
-    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
+    implementation("tools.jackson.core:jackson-databind:$jacksonVersion")
+    implementation("tools.jackson.module:jackson-module-kotlin:$jacksonVersion")
 
     testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")

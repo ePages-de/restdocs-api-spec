@@ -1,6 +1,6 @@
 buildscript {
 	ext {
-		springBootVersion = '3.5.7'
+		springBootVersion = '4.0.0-RC2'
 	}
 	repositories {
 		mavenCentral()
@@ -42,6 +42,8 @@ dependencies {
 
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
 	testImplementation('org.springframework.restdocs:spring-restdocs-mockmvc')
+    testImplementation('org.springframework.boot:spring-boot-starter-webmvc-test')
+    testImplementation('org.springframework.boot:spring-boot-restdocs')
 
 	testImplementation project(':restdocs-api-spec-mockmvc') // enable for depending on the submodule directly
 	testImplementation('com.google.guava:guava:33.3.1-jre')

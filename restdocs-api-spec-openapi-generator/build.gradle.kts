@@ -8,6 +8,8 @@ repositories {
 }
 
 val junitVersion: String by extra
+val jacksonVersion: String by extra
+val springBootVersion: String by extra
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
@@ -15,8 +17,10 @@ dependencies {
     api(project(":restdocs-api-spec-model"))
     api(project(":restdocs-api-spec-jsonschema"))
     api("io.swagger:swagger-core:1.6.16")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.12.2")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.2")
+    implementation("org.springframework.boot:spring-boot-jackson2:$springBootVersion")
+    implementation("tools.jackson.core:jackson-databind:$jacksonVersion")
+    implementation("tools.jackson.module:jackson-module-kotlin:$jacksonVersion")
+    implementation("tools.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion")
 
     testImplementation("io.swagger:swagger-parser:1.0.75")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")

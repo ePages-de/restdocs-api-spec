@@ -1,12 +1,13 @@
 package com.epages.restdocs.apispec.gradle
 
 import com.epages.restdocs.apispec.model.ResourceModel
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
+import tools.jackson.databind.DeserializationFeature
+import tools.jackson.module.kotlin.jacksonMapperBuilder
+import tools.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.module.kotlin.readValue
 import java.io.File
 
 abstract class ApiSpecTask : DefaultTask() {
@@ -28,7 +29,7 @@ abstract class ApiSpecTask : DefaultTask() {
     private val snippetsDirectoryFile
         get() = project.file(snippetsDirectory)
 
-    private val objectMapper = jacksonObjectMapper().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+    private val objectMapper = jacksonMapperBuilder().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build()
 
     open fun applyExtension(extension: ApiSpecExtension) {
         outputDirectory = extension.outputDirectory

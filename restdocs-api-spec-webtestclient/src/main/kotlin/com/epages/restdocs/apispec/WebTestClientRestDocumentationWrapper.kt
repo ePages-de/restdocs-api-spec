@@ -11,7 +11,7 @@ import java.util.function.Function
 object WebTestClientRestDocumentationWrapper : RestDocumentationWrapper() {
     @JvmOverloads
     @JvmStatic
-    fun <T> document(
+    fun <T : Any> document(
         identifier: String,
         resourceDetails: ResourceSnippetDetails,
         requestPreprocessor: OperationRequestPreprocessor? = null,
@@ -44,7 +44,7 @@ object WebTestClientRestDocumentationWrapper : RestDocumentationWrapper() {
 
     @JvmOverloads
     @JvmStatic
-    fun <T> document(
+    fun <T : Any> document(
         identifier: String,
         description: String? = null,
         summary: String? = null,
@@ -70,14 +70,14 @@ object WebTestClientRestDocumentationWrapper : RestDocumentationWrapper() {
         )
 
     @JvmStatic
-    fun <T> document(
+    fun <T : Any> document(
         identifier: String,
         requestPreprocessor: OperationRequestPreprocessor,
         vararg snippets: Snippet,
     ): Consumer<EntityExchangeResult<T>> = document(identifier, null, null, false, false, requestPreprocessor, snippets = snippets)
 
     @JvmStatic
-    fun <T> document(
+    fun <T : Any> document(
         identifier: String,
         description: String,
         privateResource: Boolean,
@@ -85,7 +85,7 @@ object WebTestClientRestDocumentationWrapper : RestDocumentationWrapper() {
     ): Consumer<EntityExchangeResult<T>> = document(identifier, description, null, privateResource, snippets = snippets)
 
     @JvmStatic
-    fun <T> document(
+    fun <T : Any> document(
         identifier: String,
         responsePreprocessor: OperationResponsePreprocessor,
         vararg snippets: Snippet,
@@ -93,7 +93,7 @@ object WebTestClientRestDocumentationWrapper : RestDocumentationWrapper() {
         document(identifier, null, null, false, false, responsePreprocessor = responsePreprocessor, snippets = snippets)
 
     @JvmStatic
-    fun <T> document(
+    fun <T : Any> document(
         identifier: String,
         requestPreprocessor: OperationRequestPreprocessor,
         responsePreprocessor: OperationResponsePreprocessor,

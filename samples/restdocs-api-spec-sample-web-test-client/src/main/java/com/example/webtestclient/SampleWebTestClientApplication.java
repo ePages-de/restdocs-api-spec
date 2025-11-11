@@ -17,7 +17,7 @@ public class SampleWebTestClientApplication {
 
 	@Bean
 	public RouterFunction<ServerResponse> routerFunction() {
-		return RouterFunctions.route(RequestPredicates.GET("/"), (request) -> ServerResponse.status(HttpStatus.OK).syncBody("Hello, World"));
+		return RouterFunctions.route(RequestPredicates.GET("/"), (request) -> ServerResponse.status(HttpStatus.OK).bodyValue("Hello, World"));
 	}
 
 	public static void main(String[] args) {

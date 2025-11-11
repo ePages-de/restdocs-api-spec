@@ -13,6 +13,7 @@ import com.epages.restdocs.apispec.postman.model.Request
 import com.epages.restdocs.apispec.postman.model.Response
 import com.epages.restdocs.apispec.postman.model.Src
 import com.epages.restdocs.apispec.postman.model.Variable
+import java.net.URI
 import java.net.URL
 
 object PostmanCollectionGenerator {
@@ -95,8 +96,8 @@ object PostmanCollectionGenerator {
         val urlStartWithVariable = url.startsWith("{{")
         val baseUrl =
             when (urlStartWithVariable) {
-                true -> URL("http://$url")
-                else -> URL(url)
+                true -> URI.create("http://$url").toURL()
+                else -> URI.create(url).toURL()
             }
 
         return Url().apply {
@@ -112,7 +113,7 @@ object PostmanCollectionGenerator {
                     else -> baseUrl.port.toString()
                 }
             path = baseUrl.path +
-                modelsWithSamePathAndMethod.first().request.path.replace(Regex("(?<!\\{)\\{([^}]+)\\}(?!\\})")) {
+                modelsWithSamePathAndMethod.first().request.path.replace(Regex("(?<!\\{)\\{([^}]+)}(?!})")) {
                     it.value.replace('{', ':').removeSuffix("}")
                 }
             variable =

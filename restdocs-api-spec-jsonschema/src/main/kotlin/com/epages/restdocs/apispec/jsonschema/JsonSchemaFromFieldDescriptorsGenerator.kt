@@ -10,8 +10,6 @@ import com.epages.restdocs.apispec.jsonschema.ConstraintResolver.minInteger
 import com.epages.restdocs.apispec.jsonschema.ConstraintResolver.minLengthString
 import com.epages.restdocs.apispec.model.Attributes
 import com.epages.restdocs.apispec.model.FieldDescriptor
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.everit.json.schema.ArraySchema
 import org.everit.json.schema.BooleanSchema
 import org.everit.json.schema.CombinedSchema
@@ -24,6 +22,9 @@ import org.everit.json.schema.ObjectSchema
 import org.everit.json.schema.Schema
 import org.everit.json.schema.StringSchema
 import org.everit.json.schema.internal.JSONPrinter
+import tools.jackson.databind.SerializationFeature
+import tools.jackson.module.kotlin.jacksonMapperBuilder
+import tools.jackson.module.kotlin.jacksonObjectMapper
 import java.io.StringWriter
 import java.util.Collections.emptyList
 import java.util.function.Predicate
@@ -89,7 +90,7 @@ class JsonSchemaFromFieldDescriptorsGenerator {
     }
 
     private fun toFormattedString(schema: Schema): String {
-        val objectMapper = jacksonObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
+        val objectMapper = jacksonMapperBuilder().enable(SerializationFeature.INDENT_OUTPUT).build()
         return StringWriter().use {
             schema.describeTo(JSONPrinter(it))
             objectMapper.writeValueAsString(objectMapper.readTree(it.toString()))

@@ -1,11 +1,11 @@
 package com.epages.restdocs.apispec
 
+import com.samskivert.mustache.Mustache
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.restdocs.ManualRestDocumentation
 import org.springframework.restdocs.RestDocumentationContext
-import org.springframework.restdocs.mustache.Mustache
 import org.springframework.restdocs.operation.Operation
 import org.springframework.restdocs.operation.OperationRequest
 import org.springframework.restdocs.operation.OperationRequestFactory
@@ -133,14 +133,16 @@ class OperationBuilder {
             ManualRestDocumentation(
                 this.outputDirectory.absolutePath,
             )
-        manualRestDocumentation.beforeTest(this.testClass, this.testMethodName)
+        if (testClass != null && testMethodName != null) {
+            manualRestDocumentation.beforeTest(this.testClass!!, this.testMethodName!!)
+        }
         return manualRestDocumentation.beforeOperation()
     }
 
     /**
      * Basic builder API for creating an [OperationRequest].
      */
-    inner class OperationRequestBuilder constructor(
+    inner class OperationRequestBuilder(
         uri: String,
     ) {
         private var requestUri = URI.create("http://localhost/")
@@ -227,7 +229,7 @@ class OperationBuilder {
         /**
          * Basic builder API for creating an [OperationRequestPart].
          */
-        inner class OperationRequestPartBuilder constructor(
+        inner class OperationRequestPartBuilder(
             private val name: String,
             private val content: ByteArray,
         ) {

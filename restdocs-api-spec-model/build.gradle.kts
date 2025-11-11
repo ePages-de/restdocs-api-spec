@@ -1,4 +1,5 @@
 val jacksonVersion: String by extra
+val jacksonAnnotationsVersion: String by extra
 
 plugins {
     kotlin("jvm")
@@ -11,7 +12,7 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-    implementation("com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion")
+    implementation("com.fasterxml.jackson.core:jackson-annotations:$jacksonAnnotationsVersion")
 }
 
 publishing {

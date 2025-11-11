@@ -9,13 +9,17 @@ repositories {
 
 val junitVersion: String by extra
 val jacksonVersion: String by extra
+val jackson2Version: String by extra
+val springBootVersion: String by extra
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
 
     implementation(project(":restdocs-api-spec-model"))
-    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
+    implementation("tools.jackson.core:jackson-databind:$jacksonVersion")
+    implementation("tools.jackson.module:jackson-module-kotlin:$jacksonVersion")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jackson2Version")
+    implementation("org.springframework.boot:spring-boot-jackson2:$springBootVersion")
 
     testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")

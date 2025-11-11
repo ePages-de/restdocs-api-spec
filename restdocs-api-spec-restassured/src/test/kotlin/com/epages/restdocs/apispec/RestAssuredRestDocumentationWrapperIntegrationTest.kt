@@ -1,5 +1,6 @@
 package com.epages.restdocs.apispec
 
+import com.epages.apispec.restdocs.HalTestUtils
 import io.restassured.RestAssured
 import io.restassured.builder.RequestSpecBuilder
 import io.restassured.filter.Filter
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.hateoas.MediaTypes
+import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter
 import org.springframework.restdocs.RestDocumentationContextProvider
 import org.springframework.restdocs.RestDocumentationExtension
 import org.springframework.restdocs.headers.HeaderDocumentation.headerWithName
@@ -27,6 +29,10 @@ import org.springframework.restdocs.request.RequestDocumentation.parameterWithNa
 import org.springframework.restdocs.request.RequestDocumentation.pathParameters
 import org.springframework.restdocs.restassured.RestAssuredRestDocumentation
 import org.springframework.restdocs.restassured.RestDocumentationFilter
+import org.springframework.test.web.servlet.setup.MockMvcBuilders
+import org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder
+import org.springframework.web.context.WebApplicationContext
+import tools.jackson.databind.json.JsonMapper
 import java.io.File
 
 @ExtendWith(RestDocumentationExtension::class)

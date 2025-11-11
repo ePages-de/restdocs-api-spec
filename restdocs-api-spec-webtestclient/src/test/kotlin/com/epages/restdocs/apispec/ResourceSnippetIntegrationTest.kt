@@ -1,14 +1,19 @@
 package com.epages.restdocs.apispec
 
+import com.epages.apispec.restdocs.HalTestUtils
 import com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName
 import com.epages.restdocs.apispec.ResourceDocumentation.resource
+import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.validation.constraints.NotEmpty
 import org.hibernate.validator.constraints.Length
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs
+import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer
+import org.springframework.boot.restdocs.test.autoconfigure.AutoConfigureRestDocs
 import org.springframework.context.ConfigurableApplicationContext
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.hateoas.MediaTypes.HAL_JSON_VALUE
 import org.springframework.http.HttpHeaders.ACCEPT
 import org.springframework.http.HttpHeaders.CONTENT_TYPE
@@ -37,6 +42,13 @@ open class ResourceSnippetIntegrationTest {
     open class TestApplication {
         lateinit var applicationContext: ConfigurableApplicationContext
 
+        @Configuration
+        internal open class JacksonConfiguration {
+            @Bean
+            open fun jsonMapperBuilderCustomizer(): JsonMapperBuilderCustomizer =
+                JsonMapperBuilderCustomizer { builder -> HalTestUtils.halMapperBuilder(builder) }
+        }
+
         fun main(args: Array<String>) {
             applicationContext = SpringApplication.run(TestApplication::class.java, *args)
         }
@@ -49,9 +61,9 @@ open class ResourceSnippetIntegrationTest {
                 @PathVariable someId: String,
                 @PathVariable otherId: Int?,
                 @RequestHeader("X-Custom-Header") customHeader: String,
-                @RequestBody testDataHolder: TestDataHolder,
+                @RequestBody testDataHolder: WebClientTestDataHolder,
                 serverHttpRequest: ServerHttpRequest,
-            ): ResponseEntity<TestDataHolder> {
+            ): ResponseEntity<WebClientTestDataHolder> {
                 val responseData = testDataHolder.copy(id = UUID.randomUUID().toString())
 
                 // temporary hack until spring hateoas supports webflux officially.
@@ -79,21 +91,21 @@ open class ResourceSnippetIntegrationTest {
         var multiple: List<Link>,
     )
 
-    internal data class TestDataHolder(
+    internal data class WebClientTestDataHolder(
         @field:Length(min = 1, max = 255)
         val comment: String? = null,
         val flag: Boolean = false,
         val count: Int = 0,
         @field:NotEmpty
         val id: String? = null,
-        var _links: LinksHolder? = null,
+        @field:JsonProperty("_links") var _links: LinksHolder? = null,
     ) {
         constructor(comment: String, flag: Boolean, count: Int, id: String) : this(comment, flag, count, id, null)
     }
 }
 
 fun fieldDescriptors(): FieldDescriptors {
-    val fields = ConstrainedFields(ResourceSnippetIntegrationTest.TestDataHolder::class.java)
+    val fields = ConstrainedFields(ResourceSnippetIntegrationTest.WebClientTestDataHolder::class.java)
     return ResourceDocumentation.fields(
         fields.withPath("comment").description("the comment").optional(),
         fields.withPath("flag").description("the flag"),

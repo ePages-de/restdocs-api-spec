@@ -3,11 +3,17 @@ package com.epages.restdocs.apispec
 import com.epages.restdocs.apispec.ResourceDocumentation.resource
 import org.assertj.core.api.Assertions.assertThatCode
 import org.assertj.core.api.BDDAssertions.then
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
+import org.springframework.boot.webflux.test.autoconfigure.WebFluxTest
+import org.springframework.context.ApplicationContext
 import org.springframework.http.MediaType.APPLICATION_JSON
+import org.springframework.restdocs.RestDocumentationContextProvider
+import org.springframework.restdocs.RestDocumentationExtension
 import org.springframework.restdocs.headers.HeaderDocumentation.headerWithName
 import org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders
 import org.springframework.restdocs.headers.HeaderDocumentation.responseHeaders
@@ -20,16 +26,29 @@ import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
 import org.springframework.restdocs.payload.PayloadDocumentation.subsectionWithPath
 import org.springframework.restdocs.request.RequestDocumentation.parameterWithName
 import org.springframework.restdocs.request.RequestDocumentation.pathParameters
+import org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation
 import org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation.document
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 import java.io.File
 
-@ExtendWith(SpringExtension::class)
-@WebFluxTest
+@ExtendWith(SpringExtension::class, RestDocumentationExtension::class)
+@WebFluxTest(controllers = [ResourceSnippetIntegrationTest.TestApplication.TestController::class])
 class WebTestClientRestDocumentationWrapperIntegrationTest(
-    @Autowired val webTestClient: WebTestClient,
+    @Autowired val context: ApplicationContext,
 ) : ResourceSnippetIntegrationTest() {
+    private lateinit var webTestClient: WebTestClient
+
+    @BeforeEach
+    fun setUp(restDocumentation: RestDocumentationContextProvider) {
+        this.webTestClient =
+            WebTestClient
+                .bindToApplicationContext(context)
+                .configureClient()
+                .filter(WebTestClientRestDocumentation.documentationConfiguration(restDocumentation))
+                .build()
+    }
+
     @Test
     fun should_document_both_restdocs_and_resource() {
         givenEndpointInvoked()

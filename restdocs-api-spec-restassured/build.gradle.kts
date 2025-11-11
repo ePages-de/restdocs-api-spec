@@ -8,22 +8,24 @@ repositories {
 
 val springBootVersion: String by extra
 val springRestDocsVersion: String by extra
+val springRestDocsRestAssuredVersion: String by extra
 val junitVersion: String by extra
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
 
     api(project(":restdocs-api-spec"))
-    implementation("org.springframework.restdocs:spring-restdocs-restassured:$springRestDocsVersion")
+    implementation("org.springframework.restdocs:spring-restdocs-restassured:$springRestDocsRestAssuredVersion")
 
-    testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion") {
-        exclude("junit")
-    }
+    testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion")
+    testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test:$springBootVersion")
+    testImplementation("org.springframework.boot:spring-boot-restdocs:$springBootVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.junit-pioneer:junit-pioneer:2.3.0")
     testImplementation("org.springframework.boot:spring-boot-starter-validation:$springBootVersion")
     testImplementation("org.springframework.boot:spring-boot-starter-hateoas:$springBootVersion")
+    testImplementation(testFixtures(project(":restdocs-api-spec")))
 }
 
 publishing {

@@ -1,7 +1,5 @@
 package com.epages.restdocs.apispec
 
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.MediaType.APPLICATION_JSON
@@ -16,12 +14,15 @@ import org.springframework.restdocs.snippet.StandardWriterResolver
 import org.springframework.restdocs.templates.TemplateFormat
 import org.springframework.util.PropertyPlaceholderHelper
 import org.springframework.web.util.UriComponentsBuilder
+import tools.jackson.databind.SerializationFeature
+import tools.jackson.module.kotlin.jacksonMapperBuilder
 import java.util.Optional
 
 class ResourceSnippet(
     private val resourceSnippetParameters: ResourceSnippetParameters,
 ) : Snippet {
-    private val objectMapper = jacksonObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
+    private val objectMapper = jacksonMapperBuilder().configureForJackson2().enable(SerializationFeature.INDENT_OUTPUT).build()
+
     private val propertyPlaceholderHelper = PropertyPlaceholderHelper("{", "}")
 
     override fun document(operation: Operation) {
@@ -58,13 +59,11 @@ class ResourceSnippet(
         val securityRequirements = SecurityRequirementsHandler().extractSecurityRequirements(operation)
 
         val tags =
-            if (resourceSnippetParameters.tags.isEmpty()) {
+            resourceSnippetParameters.tags.ifEmpty {
                 Optional
                     .ofNullable(getUriComponents(operation).pathSegments.firstOrNull())
                     .map { setOf(it) }
                     .orElse(emptySet())
-            } else {
-                resourceSnippetParameters.tags
             }
 
         return ResourceModel(

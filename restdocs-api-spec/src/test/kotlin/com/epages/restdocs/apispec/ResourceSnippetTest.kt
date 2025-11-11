@@ -298,10 +298,10 @@ class ResourceSnippetTest {
         then(resourceSnippetJson.read<String>("request.requestFields[0].description")).isNotEmpty()
         with(resourceSnippetJson.read<String>("request.requestFields[0].type")) {
             then(this).isNotEmpty()
-            then(JsonFieldType.valueOf(this)).isEqualTo(JsonFieldType.STRING)
+            then(JsonFieldType.valueOf(this.uppercase())).isEqualTo(JsonFieldType.STRING)
         }
         then(resourceSnippetJson.read<String>("request.requestFields[0].type")).isNotEmpty()
-        then(JsonFieldType.valueOf(resourceSnippetJson.read("request.requestFields[0].type"))).isNotNull()
+        then(JsonFieldType.valueOf(resourceSnippetJson.read<String>("request.requestFields[0].type").uppercase())).isNotNull()
         then(resourceSnippetJson.read<Boolean>("request.requestFields[0].optional")).isFalse()
         then(resourceSnippetJson.read<Boolean>("request.requestFields[0].ignored")).isFalse()
     }
@@ -360,6 +360,8 @@ class ResourceSnippetTest {
     private fun givenOperationWithoutBody() {
         val operationBuilder =
             OperationBuilder("test", rootOutputDirectory)
+                .testClass(ResourceSnippetTest::class.java)
+                .testMethodName("createSomeById")
                 .attribute(ATTRIBUTE_NAME_URL_TEMPLATE, "http://localhost:8080/some/{id}")
         operationBuilder
             .request("http://localhost:8080/some/123")
@@ -373,6 +375,8 @@ class ResourceSnippetTest {
     private fun givenOperationWithoutUrlTemplate() {
         val operationBuilder = OperationBuilder("test", rootOutputDirectory)
         operationBuilder
+            .testClass(ResourceSnippetTest::class.java)
+            .testMethodName("createSomeById")
             .request("http://localhost:8080/some/123")
             .method("POST")
         operationBuilder
@@ -398,6 +402,8 @@ class ResourceSnippetTest {
         operation =
             OperationBuilder("test", rootOutputDirectory)
                 .attribute(ATTRIBUTE_NAME_URL_TEMPLATE, "http://localhost:8080/some/{id}")
+                .testClass(ResourceSnippetTest::class.java)
+                .testMethodName("getSomeById")
                 .request("http://localhost:8080/some/123")
                 .method("POST")
                 .header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
@@ -410,6 +416,8 @@ class ResourceSnippetTest {
 
         operationBuilder
             .attribute(ATTRIBUTE_NAME_URL_TEMPLATE, "http://localhost:8080/some/{id}")
+            .testClass(ResourceSnippetTest::class.java)
+            .testMethodName("getSomeById")
             .request("http://localhost:8080/some/123")
             .method("POST")
             .header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
@@ -428,6 +436,8 @@ class ResourceSnippetTest {
 
         operationBuilder
             .attribute(ATTRIBUTE_NAME_URL_TEMPLATE, "http://localhost:8080/some/{id}")
+            .testClass(ResourceSnippetTest::class.java)
+            .testMethodName("getSomeById")
             .request("http://localhost:8080/some/123")
             .queryParam("describedParameter", "will", "be", "documented")
             .queryParam("obviousParameter", "wont", "be", "documented")
@@ -444,6 +454,8 @@ class ResourceSnippetTest {
         val operationBuilder = OperationBuilder("test", rootOutputDirectory)
 
         operationBuilder
+            .testClass(ResourceSnippetTest::class.java)
+            .testMethodName("getSomeById")
             .attribute(ATTRIBUTE_NAME_URL_TEMPLATE, "http://localhost:8080/some/{id}")
             .request("http://localhost:8080/some/123")
             .method("GET")
@@ -462,6 +474,8 @@ class ResourceSnippetTest {
         val operationBuilder = OperationBuilder("test", rootOutputDirectory)
 
         operationBuilder
+            .testClass(ResourceSnippetTest::class.java)
+            .testMethodName("getSomeByNoAndType")
             .attribute(ATTRIBUTE_NAME_URL_TEMPLATE, "http://localhost:8080/some/{no}/{type}")
             .request("http://localhost:8080/some/123/T1")
             .queryParam("numberParameter", "21")
@@ -554,6 +568,8 @@ class ResourceSnippetTest {
             OperationBuilder("test", rootOutputDirectory)
                 .attribute(ATTRIBUTE_NAME_URL_TEMPLATE, "http://localhost:8080/some/{id}")
         operationBuilder
+            .testClass(ResourceSnippetTest::class.java)
+            .testMethodName("getSomeById")
             .request("http://localhost:8080/some/123")
             .queryParam("test-param", "1")
             .method("POST")

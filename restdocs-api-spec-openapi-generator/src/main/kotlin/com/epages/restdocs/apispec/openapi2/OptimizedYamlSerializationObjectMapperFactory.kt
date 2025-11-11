@@ -13,7 +13,7 @@ import io.swagger.util.DeserializationModule
 import io.swagger.util.ReferenceSerializationConfigurer
 
 internal object OptimizedYamlSerializationObjectMapperFactory {
-    fun createYaml(): ObjectMapper = createYaml(true, true)
+    fun createYaml(): ObjectMapper = createYaml(includePathDeserializer = true, includeResponseDeserializer = true)
 
     fun createYaml(
         includePathDeserializer: Boolean,
