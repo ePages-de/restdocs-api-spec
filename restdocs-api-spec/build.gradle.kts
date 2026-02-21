@@ -86,10 +86,6 @@ java {
     withSourcesJar()
 }
 
-kotlinter {
-    ignoreLintFailures = true
-}
-
 tasks.withType<BootJar> {
     enabled = false
 }
