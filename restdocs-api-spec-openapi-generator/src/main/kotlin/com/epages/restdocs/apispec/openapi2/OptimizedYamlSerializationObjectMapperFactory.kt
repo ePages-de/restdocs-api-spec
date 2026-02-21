@@ -13,12 +13,12 @@ import io.swagger.util.DeserializationModule
 import io.swagger.util.ReferenceSerializationConfigurer
 
 internal object OptimizedYamlSerializationObjectMapperFactory {
+    fun createYaml(): ObjectMapper = createYaml(includePathDeserializer = true, includeResponseDeserializer = true)
 
-    fun createYaml(): ObjectMapper {
-        return createYaml(true, true)
-    }
-
-    fun createYaml(includePathDeserializer: Boolean, includeResponseDeserializer: Boolean): ObjectMapper {
+    fun createYaml(
+        includePathDeserializer: Boolean,
+        includeResponseDeserializer: Boolean,
+    ): ObjectMapper {
         val factory = YAMLFactory()
         factory.disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
         factory.enable(YAMLGenerator.Feature.MINIMIZE_QUOTES)
@@ -30,7 +30,7 @@ internal object OptimizedYamlSerializationObjectMapperFactory {
     private fun create(
         jsonFactory: JsonFactory?,
         includePathDeserializer: Boolean,
-        includeResponseDeserializer: Boolean
+        includeResponseDeserializer: Boolean,
     ): ObjectMapper {
         val mapper = if (jsonFactory == null) ObjectMapper() else ObjectMapper(jsonFactory)
 

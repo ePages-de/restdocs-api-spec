@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 internal class EnumFieldsTest {
-
     @Test
     @Suppress("UNCHECKED_CAST")
     fun `should resolve possible enum values`() {
@@ -24,6 +23,6 @@ internal class EnumFieldsTest {
     private enum class SomeEnum {
         FIRST_VALUE,
         SECOND_VALUE,
-        THIRD_VALUE
+        THIRD_VALUE,
     }
 }

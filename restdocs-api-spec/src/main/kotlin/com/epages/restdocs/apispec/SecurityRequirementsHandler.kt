@@ -4,16 +4,16 @@ import org.springframework.http.HttpHeaders
 import org.springframework.restdocs.operation.Operation
 
 internal class SecurityRequirementsHandler {
+    private val handlers =
+        listOf(
+            BasicSecurityHandler(),
+            JwtSecurityHandler(),
+        )
 
-    private val handlers = listOf(
-        BasicSecurityHandler(),
-        JwtSecurityHandler()
-    )
-
-    fun extractSecurityRequirements(operation: Operation): SecurityRequirements? {
-        return handlers.map { it.extractSecurityRequirements(operation) }
+    fun extractSecurityRequirements(operation: Operation): SecurityRequirements? =
+        handlers
+            .map { it.extractSecurityRequirements(operation) }
             .firstOrNull { it != null }
-    }
 }
 
 internal interface SecurityRequirementsExtractor {
@@ -21,27 +21,26 @@ internal interface SecurityRequirementsExtractor {
 }
 
 internal class BasicSecurityHandler : SecurityRequirementsExtractor {
-    override fun extractSecurityRequirements(operation: Operation): SecurityRequirements? {
-        return if (isBasicSecurity(operation)) {
+    override fun extractSecurityRequirements(operation: Operation): SecurityRequirements? =
+        if (isBasicSecurity(operation)) {
             Basic
-        } else null
-    }
+        } else {
+            null
+        }
 
-    private fun isBasicSecurity(operation: Operation): Boolean {
-        return operation.request.headers
-            .filterKeys { it == HttpHeaders.AUTHORIZATION }
-            .flatMap { it.value }
-            .filter { it.startsWith("Basic ") }
-            .isNotEmpty()
-    }
+    private fun isBasicSecurity(operation: Operation): Boolean =
+        operation.request.headers
+            .getOrEmpty(HttpHeaders.AUTHORIZATION)
+            .any { it.startsWith("Basic ") }
 }
 
 internal interface SecurityRequirements {
     val type: SecurityType
 }
 
-internal data class Oauth2(val requiredScopes: List<String>) :
-    SecurityRequirements {
+internal data class Oauth2(
+    val requiredScopes: List<String>,
+) : SecurityRequirements {
     override val type = SecurityType.OAUTH2
 }
 
@@ -57,5 +56,5 @@ internal enum class SecurityType {
     OAUTH2,
     BASIC,
     API_KEY,
-    JWT_BEARER
+    JWT_BEARER,
 }

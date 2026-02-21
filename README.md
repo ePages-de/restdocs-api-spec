@@ -49,7 +49,6 @@ This is why we came up with this project.
     - [Documenting Bean Validation constraints](#documenting-bean-validation-constraints)
     - [Migrate existing Spring REST Docs tests](#migrate-existing-spring-rest-docs-tests)
         - [MockMvc based tests](#mockmvc-based-tests)
-        - [REST Assured based tests](#rest-assured-based-tests)
         - [WebTestClient based tests](#webtestclient-based-tests)
     - [Security Definitions in OpenAPI](#security-definitions-in-openapi)
     - [Running the gradle plugin](#running-the-gradle-plugin)
@@ -70,10 +69,11 @@ This is why we came up with this project.
 
 Spring Boot and Spring REST Docs 3.0.0 introduced [breaking chances to how request parameters are documented: `RequestParameterSnippet` was split into `QueryParameterSnippet` and `FormParameterSnippet`.](https://github.com/spring-projects/spring-restdocs/issues/832)
 
-|Spring Boot version | restdocs-api-spec version|
-|---|---|
-|3.x|0.17.1 or later|
-|2.x|0.16.4|
+| Spring Boot version | restdocs-api-spec version |
+|---------------------|---------------------------|
+| 4.x                 | 0.20.X or later           |
+| 3.x                 | 0.17.1 to 0.19.4          |
+| 2.x                 | 0.16.4                    |
 
 ### Project structure
 
@@ -83,7 +83,6 @@ The project consists of the following main components:
 This is most importantly the [ResourceDocumentation](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apispec/ResourceDocumentation.kt) which is the entry point to use the extension in your tests.
 The [ResourceSnippet](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apispec/ResourceSnippet.kt) is the snippet used to produce a json file `resource.json` containing all the details about the documented resource.
 - [restdocs-api-spec-mockmvc](restdocs-api-spec-mockmvc) - contains a wrapper for `MockMvcRestDocumentation` for easier migration to `restdocs-api-spec` from MockMvc tests that use plain `spring-rest-docs-mockmvc`.
-- [restdocs-api-spec-restassured](restdocs-api-spec-restassured) - contains a wrapper for `RestAssuredRestDocumentation` for easier migration to `restdocs-api-spec` from [Rest Assured](http://rest-assured.io) tests that use plain `spring-rest-docs-restassured`.
 - [restdocs-api-spec-gradle-plugin](restdocs-api-spec-gradle-plugin) - adds a gradle plugin that aggregates the `resource.json` files produced  by `ResourceSnippet` into an API specification file for the whole project.
 
 ### Build configuration
@@ -94,7 +93,7 @@ The [ResourceSnippet](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apis
     * Using the [plugins DSL](https://docs.gradle.org/current/userguide/plugins.html#sec:plugins_block):
         ```groovy
         plugins {
-            id 'com.epages.restdocs-api-spec' version '0.18.2'
+            id 'com.epages.restdocs-api-spec' version '0.XX.X'
         }
         ```
         Examples with Kotlin are also available [here](https://plugins.gradle.org/plugin/com.epages.restdocs-api-spec)
@@ -110,7 +109,7 @@ The [ResourceSnippet](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apis
             }
           }
           dependencies {
-            classpath "com.epages:restdocs-api-spec-gradle-plugin:0.18.2" //1.2
+            classpath "com.epages:restdocs-api-spec-gradle-plugin:0.XX.X" //1.2
           }
         }
 
@@ -119,7 +118,7 @@ The [ResourceSnippet](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apis
         ```
 2. Add required dependencies to your tests
     * *2.1* add the `mavenCentral` repository used to resolve the `com.epages:restdocs-api-spec` module of the project.
-    * *2.2* add the actual `restdocs-api-spec-mockmvc` dependency to the test scope. Use `restdocs-api-spec-restassured` if you use `RestAssured` instead of `MockMvc`.
+    * *2.2* add the actual `restdocs-api-spec-mockmvc` dependency to the test scope.
     * *2.3* add configuration options for `restdocs-api-spec-gradle-plugin`. See [Gradle plugin configuration](#gradle-plugin-configuration)
     ```groovy
 
@@ -129,7 +128,7 @@ The [ResourceSnippet](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apis
 
     dependencies {
         //..
-        testImplementation('com.epages:restdocs-api-spec-mockmvc:0.18.2') //2.2
+        testImplementation('com.epages:restdocs-api-spec-mockmvc:0.XX.X') //2.2
     }
 
     openapi { //2.3
@@ -297,30 +296,6 @@ resultActions
 
 This will do exactly what `MockMvcRestDocumentation.document` does.
 Additionally it will add a `ResourceSnippet` with the descriptors you provided in the `RequestFieldsSnippet`, `ResponseFieldsSnippet`, and `LinksSnippet`.
-
-#### REST Assured based tests
-
-Also for REST Assured we offer a convenience wrapper similar to `MockMvcRestDocumentationWrapper`.
-The usage for REST Assured is also similar to MockMVC, except that [com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apispec/RestAssuredRestDocumentationWrapper.kt) is used instead of [com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper](restdocs-api-spec/src/main/kotlin/com/epages/restdocs/apispec/MockMvcRestDocumentationWrapper.kt).
-
-To use the `RestAssuredRestDocumentationWrapper`, you have to add a dependency to [restdocs-api-spec-restassured](restdocs-api-spec-restassured) to your build.
-```java
-RestAssured.given(this.spec)
-        .filter(RestAssuredRestDocumentationWrapper.document("{method-name}",
-                "The API description",
-                requestParameters(
-                        parameterWithName("param").description("the param")
-                ),
-                responseFields(
-                        fieldWithPath("doc.timestamp").description("Creation timestamp")
-                )
-        ))
-        .when()
-        .queryParam("param", "foo")
-        .get("/restAssuredExample")
-        .then()
-        .statusCode(200);
-```
 
 #### WebTestClient based tests
 
@@ -586,7 +561,7 @@ Given that the `master` branch on the upstream repository is in the state from w
 
 [Create release via the GitHub UI](https://github.com/ePages-de/restdocs-api-spec/releases/new).
 
-Use the intended version number as "Tag version", e.g. "0.18.2".
+Use the intended version number as "Tag version", e.g. "0.XX.X".
 This will automatically trigger a GitHub Action build which publishes the JAR files for this release to Sonatype.
 
 **(2) Login to Sonatype**

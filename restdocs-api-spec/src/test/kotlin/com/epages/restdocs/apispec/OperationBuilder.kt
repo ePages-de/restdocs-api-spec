@@ -1,11 +1,11 @@
 package com.epages.restdocs.apispec
 
+import com.samskivert.mustache.Mustache
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.restdocs.ManualRestDocumentation
 import org.springframework.restdocs.RestDocumentationContext
-import org.springframework.restdocs.mustache.Mustache
 import org.springframework.restdocs.operation.Operation
 import org.springframework.restdocs.operation.OperationRequest
 import org.springframework.restdocs.operation.OperationRequestFactory
@@ -30,7 +30,6 @@ import java.net.URI
  * Helper class to support testing snippets by providing a builder for the central Operation class
  */
 class OperationBuilder {
-
     private val attributes = HashMap<String, Any>()
 
     private var responseBuilder: OperationResponseBuilder? = null
@@ -65,7 +64,10 @@ class OperationBuilder {
         return this.responseBuilder!!
     }
 
-    fun attribute(name: String, value: Any): OperationBuilder {
+    fun attribute(
+        name: String,
+        value: Any,
+    ): OperationBuilder {
         this.attributes[name] = value
         return this
     }
@@ -80,7 +82,10 @@ class OperationBuilder {
         return this
     }
 
-    private fun prepare(operationName: String, outputDirectory: File) {
+    private fun prepare(
+        operationName: String,
+        outputDirectory: File,
+    ) {
         this.name = operationName
         this.outputDirectory = outputDirectory
         this.requestBuilder = null
@@ -92,44 +97,54 @@ class OperationBuilder {
         if (this.attributes[TemplateEngine::class.java.name] == null) {
             val templateContext = HashMap<String, Any>()
             templateContext["tableCellContent"] = AsciidoctorTableCellContentLambda()
-            this.attributes[TemplateEngine::class.java.name] = MustacheTemplateEngine(
-                StandardTemplateResourceResolver(this.templateFormat),
-                Mustache.compiler().escapeHTML(false), templateContext
-            )
+            this.attributes[TemplateEngine::class.java.name] =
+                MustacheTemplateEngine(
+                    StandardTemplateResourceResolver(this.templateFormat),
+                    Mustache.compiler().escapeHTML(false),
+                    templateContext,
+                )
         }
         val context = createContext()
         this.attributes[RestDocumentationContext::class.java.name] = context
-        this.attributes[WriterResolver::class.java.name] = StandardWriterResolver(
-            RestDocumentationContextPlaceholderResolverFactory(), "UTF-8",
-            this.templateFormat
-        )
+        this.attributes[WriterResolver::class.java.name] =
+            StandardWriterResolver(
+                RestDocumentationContextPlaceholderResolverFactory(),
+                "UTF-8",
+                this.templateFormat,
+            )
         return StandardOperation(
             this.name,
-            if (this.requestBuilder == null)
+            if (this.requestBuilder == null) {
                 OperationRequestBuilder("http://localhost/").buildRequest()
-            else
-                this.requestBuilder!!.buildRequest(),
-            if (this.responseBuilder == null)
+            } else {
+                this.requestBuilder!!.buildRequest()
+            },
+            if (this.responseBuilder == null) {
                 OperationResponseBuilder().buildResponse()
-            else
-                this.responseBuilder!!.buildResponse(),
-            this.attributes
+            } else {
+                this.responseBuilder!!.buildResponse()
+            },
+            this.attributes,
         )
     }
 
     private fun createContext(): RestDocumentationContext {
-        val manualRestDocumentation = ManualRestDocumentation(
-            this.outputDirectory.absolutePath
-        )
-        manualRestDocumentation.beforeTest(this.testClass, this.testMethodName)
+        val manualRestDocumentation =
+            ManualRestDocumentation(
+                this.outputDirectory.absolutePath,
+            )
+        if (testClass != null && testMethodName != null) {
+            manualRestDocumentation.beforeTest(this.testClass!!, this.testMethodName!!)
+        }
         return manualRestDocumentation.beforeOperation()
     }
 
     /**
      * Basic builder API for creating an [OperationRequest].
      */
-    inner class OperationRequestBuilder constructor(uri: String) {
-
+    inner class OperationRequestBuilder(
+        uri: String,
+    ) {
         private var requestUri = URI.create("http://localhost/")
 
         private var method = HttpMethod.GET
@@ -150,14 +165,15 @@ class OperationBuilder {
                 parts.add(builder.buildPart())
             }
             return OperationRequestFactory().create(
-                this.requestUri, this.method,
-                this.content, this.headers, parts
+                this.requestUri,
+                this.method,
+                this.content,
+                this.headers,
+                parts,
             )
         }
 
-        fun build(): Operation {
-            return this@OperationBuilder.build()
-        }
+        fun build(): Operation = this@OperationBuilder.build()
 
         fun method(method: String): OperationRequestBuilder {
             this.method = HttpMethod.valueOf(method)
@@ -174,22 +190,38 @@ class OperationBuilder {
             return this
         }
 
-        fun queryParam(name: String, vararg values: String): OperationRequestBuilder {
+        fun queryParam(
+            name: String,
+            vararg values: String,
+        ): OperationRequestBuilder {
             if (values.isNotEmpty()) {
-                this.requestUri = UriComponentsBuilder.fromUri(requestUri).queryParam(name, values).build().toUri()
+                this.requestUri =
+                    UriComponentsBuilder
+                        .fromUri(requestUri)
+                        .queryParam(name, values)
+                        .build()
+                        .toUri()
             }
             return this
         }
 
-        fun header(name: String, value: String): OperationRequestBuilder {
+        fun header(
+            name: String,
+            value: String,
+        ): OperationRequestBuilder {
             this.headers.add(name, value)
             return this
         }
 
-        fun part(name: String, content: ByteArray): OperationRequestPartBuilder {
-            val partBuilder = OperationRequestPartBuilder(
-                name, content
-            )
+        fun part(
+            name: String,
+            content: ByteArray,
+        ): OperationRequestPartBuilder {
+            val partBuilder =
+                OperationRequestPartBuilder(
+                    name,
+                    content,
+                )
             this.partBuilders.add(partBuilder)
             return partBuilder
         }
@@ -197,38 +229,35 @@ class OperationBuilder {
         /**
          * Basic builder API for creating an [OperationRequestPart].
          */
-        inner class OperationRequestPartBuilder constructor(
+        inner class OperationRequestPartBuilder(
             private val name: String,
-            private val content: ByteArray
+            private val content: ByteArray,
         ) {
-
             private var submittedFileName: String? = null
 
             private val headers = HttpHeaders()
 
-            fun submittedFileName(
-                submittedFileName: String
-            ): OperationRequestPartBuilder {
+            fun submittedFileName(submittedFileName: String): OperationRequestPartBuilder {
                 this.submittedFileName = submittedFileName
                 return this
             }
 
-            fun and(): OperationRequestBuilder {
-                return this@OperationRequestBuilder
-            }
+            fun and(): OperationRequestBuilder = this@OperationRequestBuilder
 
-            fun build(): Operation {
-                return this@OperationBuilder.build()
-            }
+            fun build(): Operation = this@OperationBuilder.build()
 
-            fun buildPart(): OperationRequestPart {
-                return OperationRequestPartFactory().create(
+            fun buildPart(): OperationRequestPart =
+                OperationRequestPartFactory().create(
                     this.name,
-                    this.submittedFileName, this.content, this.headers
+                    this.submittedFileName,
+                    this.content,
+                    this.headers,
                 )
-            }
 
-            fun header(name: String, value: String): OperationRequestPartBuilder {
+            fun header(
+                name: String,
+                value: String,
+            ): OperationRequestPartBuilder {
                 this.headers.add(name, value)
                 return this
             }
@@ -239,26 +268,28 @@ class OperationBuilder {
      * Basic builder API for creating an [OperationResponse].
      */
     inner class OperationResponseBuilder {
-
         private var status = HttpStatus.OK
 
         private val headers = HttpHeaders()
 
         private var content = ByteArray(0)
 
-        fun buildResponse(): OperationResponse {
-            return OperationResponseFactory().create(
-                this.status, this.headers,
-                this.content
+        fun buildResponse(): OperationResponse =
+            OperationResponseFactory().create(
+                this.status,
+                this.headers,
+                this.content,
             )
-        }
 
         fun status(status: Int): OperationResponseBuilder {
             this.status = HttpStatus.valueOf(status)
             return this
         }
 
-        fun header(name: String, value: String): OperationResponseBuilder {
+        fun header(
+            name: String,
+            value: String,
+        ): OperationResponseBuilder {
             this.headers.add(name, value)
             return this
         }
@@ -273,8 +304,6 @@ class OperationBuilder {
             return this
         }
 
-        fun build(): Operation {
-            return this@OperationBuilder.build()
-        }
+        fun build(): Operation = this@OperationBuilder.build()
     }
 }

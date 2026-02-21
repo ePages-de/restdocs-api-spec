@@ -1,20 +1,25 @@
 package com.epages.restdocs.apispec
 
+import com.epages.apispec.restdocs.HalTestUtils
 import com.epages.restdocs.apispec.ResourceDocumentation.resource
 import org.assertj.core.api.Assertions.assertThatCode
 import org.assertj.core.api.BDDAssertions.then
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
 import org.springframework.hateoas.MediaTypes.HAL_JSON
 import org.springframework.http.MediaType.APPLICATION_JSON
+import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter
+import org.springframework.restdocs.RestDocumentationContextProvider
+import org.springframework.restdocs.RestDocumentationExtension
 import org.springframework.restdocs.headers.HeaderDocumentation.headerWithName
 import org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders
 import org.springframework.restdocs.headers.HeaderDocumentation.responseHeaders
 import org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel
 import org.springframework.restdocs.hypermedia.HypermediaDocumentation.links
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document
+import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post
 import org.springframework.restdocs.operation.preprocess.OperationRequestPreprocessor
 import org.springframework.restdocs.payload.PayloadDocumentation.beneathPath
@@ -24,15 +29,40 @@ import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
 import org.springframework.restdocs.payload.PayloadDocumentation.subsectionWithPath
 import org.springframework.restdocs.request.RequestDocumentation.parameterWithName
 import org.springframework.restdocs.request.RequestDocumentation.pathParameters
-import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.test.web.servlet.setup.MockMvcBuilders
+import org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder
+import org.springframework.web.context.WebApplicationContext
+import tools.jackson.databind.json.JsonMapper
 import java.io.File
 
-@ExtendWith(SpringExtension::class)
+@ExtendWith(value = [RestDocumentationExtension::class])
 @WebMvcTest
-class MockMvcRestDocumentationWrapperIntegrationTest(@Autowired private val mockMvc: MockMvc) : ResourceSnippetIntegrationTest() {
+class MockMvcRestDocumentationWrapperIntegrationTest : ResourceSnippetIntegrationTest() {
+    private lateinit var mockMvc: MockMvc
+
+    private lateinit var mapper: JsonMapper
+
+    @BeforeEach
+    fun setUpModule() {
+    }
+
+    @BeforeEach
+    fun setUp(
+        webApplicationContext: WebApplicationContext,
+        restDocumentation: RestDocumentationContextProvider,
+    ) {
+        this.mapper = HalTestUtils.halMapper()
+        this.mockMvc =
+            MockMvcBuilders
+                .standaloneSetup(webApplicationContext, TestApplication.TestController())
+                .apply<StandaloneMockMvcBuilder>(documentationConfiguration(restDocumentation))
+                .setMessageConverters(
+                    JacksonJsonHttpMessageConverter(this.mapper),
+                ).build()
+    }
 
     @Test
     fun should_document_both_restdocs_and_resource() {
@@ -137,20 +167,23 @@ class MockMvcRestDocumentationWrapperIntegrationTest(@Autowired private val mock
     }
 
     private fun givenEndpointInvoked(flagValue: String = "true") {
-        resultActions = mockMvc.perform(
-            post("/some/{someId}/other/{otherId}", "id", 1)
-                .contentType(APPLICATION_JSON)
-                .header("X-Custom-Header", "test")
-                .accept(HAL_JSON)
-                .content(
-                    """{
-                            "comment": "some",
-                            "flag": $flagValue,
-                            "count": 1
-                        }
-                    """.trimIndent()
-                )
-        ).andExpect(status().isOk)
+        resultActions =
+            mockMvc
+                .perform(
+                    post("/some/{someId}/other/{otherId}", "id", 1)
+                        .contentType(APPLICATION_JSON)
+                        .header("X-Custom-Header", "test")
+                        .accept(HAL_JSON)
+                        .content(
+                            """
+                            {
+                                "comment": "some",
+                                "flag": $flagValue,
+                                "count": 1
+                            }
+                            """.trimIndent(),
+                        ),
+                ).andExpect(status().isOk)
     }
 
     private fun thenSnippetFileExists() {
@@ -170,31 +203,32 @@ class MockMvcRestDocumentationWrapperIntegrationTest(@Autowired private val mock
             .andDo(
                 MockMvcRestDocumentationWrapper.document(
                     identifier = operationName,
-                    snippets = arrayOf(
-                        pathParameters(
-                            parameterWithName("someId").description("someId"),
-                            parameterWithName("otherId").description("otherId")
+                    snippets =
+                        arrayOf(
+                            pathParameters(
+                                parameterWithName("someId").description("someId"),
+                                parameterWithName("otherId").description("otherId"),
+                            ),
+                            requestFields(fieldDescriptors().fieldDescriptors),
+                            requestHeaders(
+                                headerWithName("X-Custom-Header").description("some custom header"),
+                            ),
+                            responseFields(
+                                fieldWithPath("comment").description("the comment"),
+                                fieldWithPath("flag").description("the flag"),
+                                fieldWithPath("count").description("the count"),
+                                fieldWithPath("id").description("id"),
+                                subsectionWithPath("_links").ignored(),
+                            ),
+                            responseHeaders(
+                                headerWithName("X-Custom-Header").description("some custom header"),
+                            ),
+                            links(
+                                linkWithRel("self").description("some"),
+                                linkWithRel("multiple").description("multiple"),
+                            ),
                         ),
-                        requestFields(fieldDescriptors().fieldDescriptors),
-                        requestHeaders(
-                            headerWithName("X-Custom-Header").description("some custom header")
-                        ),
-                        responseFields(
-                            fieldWithPath("comment").description("the comment"),
-                            fieldWithPath("flag").description("the flag"),
-                            fieldWithPath("count").description("the count"),
-                            fieldWithPath("id").description("id"),
-                            subsectionWithPath("_links").ignored()
-                        ),
-                        responseHeaders(
-                            headerWithName("X-Custom-Header").description("some custom header")
-                        ),
-                        links(
-                            linkWithRel("self").description("some"),
-                            linkWithRel("multiple").description("multiple")
-                        )
-                    )
-                )
+                ),
             )
     }
 
@@ -204,8 +238,8 @@ class MockMvcRestDocumentationWrapperIntegrationTest(@Autowired private val mock
             .andDo(
                 MockMvcRestDocumentationWrapper.document(
                     identifier = operationName,
-                    snippets = arrayOf(buildFullResourceSnippet())
-                )
+                    snippets = arrayOf(buildFullResourceSnippet()),
+                ),
             )
     }
 
@@ -215,21 +249,22 @@ class MockMvcRestDocumentationWrapperIntegrationTest(@Autowired private val mock
             .andDo(
                 MockMvcRestDocumentationWrapper.document(
                     identifier = operationName,
-                    snippets = arrayOf(
-                        requestFields(fieldDescriptors().fieldDescriptors),
-                        responseFields(
-                            fieldWithPath("comment").ignored(),
-                            fieldWithPath("flag").ignored(),
-                            fieldWithPath("count").ignored(),
-                            fieldWithPath("id").ignored(),
-                            subsectionWithPath("_links").ignored()
+                    snippets =
+                        arrayOf(
+                            requestFields(fieldDescriptors().fieldDescriptors),
+                            responseFields(
+                                fieldWithPath("comment").ignored(),
+                                fieldWithPath("flag").ignored(),
+                                fieldWithPath("count").ignored(),
+                                fieldWithPath("id").ignored(),
+                                subsectionWithPath("_links").ignored(),
+                            ),
+                            links(
+                                linkWithRel("self").optional().ignored(),
+                                linkWithRel("multiple").optional().ignored(),
+                            ),
                         ),
-                        links(
-                            linkWithRel("self").optional().ignored(),
-                            linkWithRel("multiple").optional().ignored()
-                        )
-                    )
-                )
+                ),
             )
     }
 
@@ -242,21 +277,22 @@ class MockMvcRestDocumentationWrapperIntegrationTest(@Autowired private val mock
                     identifier = operationName,
                     privateResource = true,
                     requestPreprocessor = operationRequestPreprocessor,
-                    snippets = arrayOf(
-                        requestFields(fieldDescriptors().fieldDescriptors),
-                        responseFields(
-                            fieldWithPath("comment").description("the comment"),
-                            fieldWithPath("flag").description("the flag"),
-                            fieldWithPath("count").description("the count"),
-                            fieldWithPath("id").description("id"),
-                            subsectionWithPath("_links").ignored()
+                    snippets =
+                        arrayOf(
+                            requestFields(fieldDescriptors().fieldDescriptors),
+                            responseFields(
+                                fieldWithPath("comment").description("the comment"),
+                                fieldWithPath("flag").description("the flag"),
+                                fieldWithPath("count").description("the count"),
+                                fieldWithPath("id").description("id"),
+                                subsectionWithPath("_links").ignored(),
+                            ),
+                            links(
+                                linkWithRel("self").description("some"),
+                                linkWithRel("multiple").description("multiple"),
+                            ),
                         ),
-                        links(
-                            linkWithRel("self").description("some"),
-                            linkWithRel("multiple").description("multiple")
-                        )
-                    )
-                )
+                ),
             )
     }
 
@@ -269,27 +305,28 @@ class MockMvcRestDocumentationWrapperIntegrationTest(@Autowired private val mock
                     identifier = operationName,
                     privateResource = true,
                     requestPreprocessor = operationRequestPreprocessor,
-                    snippets = arrayOf(
-                        requestFields(fieldDescriptors().fieldDescriptors),
-                        responseFields(
-                            fieldWithPath("comment").description("the comment"),
-                            fieldWithPath("flag").description("the flag"),
-                            fieldWithPath("count").description("the count"),
-                            fieldWithPath("id").description("id"),
-                            subsectionWithPath("_links").ignored()
+                    snippets =
+                        arrayOf(
+                            requestFields(fieldDescriptors().fieldDescriptors),
+                            responseFields(
+                                fieldWithPath("comment").description("the comment"),
+                                fieldWithPath("flag").description("the flag"),
+                                fieldWithPath("count").description("the count"),
+                                fieldWithPath("id").description("id"),
+                                subsectionWithPath("_links").ignored(),
+                            ),
+                            responseFields(
+                                beneathPath("_links").withSubsectionId("beneath-links"),
+                                fieldWithPath("self").description("self link"),
+                                fieldWithPath("self.href").description("self link href"),
+                                subsectionWithPath("multiple").ignored(),
+                            ),
+                            links(
+                                linkWithRel("self").description("some"),
+                                linkWithRel("multiple").description("multiple"),
+                            ),
                         ),
-                        responseFields(
-                            beneathPath("_links").withSubsectionId("beneath-links"),
-                            fieldWithPath("self").description("self link"),
-                            fieldWithPath("self.href").description("self link href"),
-                            subsectionWithPath("multiple").ignored(),
-                        ),
-                        links(
-                            linkWithRel("self").description("some"),
-                            linkWithRel("multiple").description("multiple")
-                        )
-                    )
-                )
+                ),
             )
     }
 
@@ -300,26 +337,29 @@ class MockMvcRestDocumentationWrapperIntegrationTest(@Autowired private val mock
             .andDo(
                 MockMvcRestDocumentationWrapper.document(
                     identifier = operationName,
-                    resourceDetails = MockMvcRestDocumentationWrapper.resourceDetails()
-                        .description("The Resource")
-                        .privateResource(true)
-                        .tag("some-tag"),
+                    resourceDetails =
+                        MockMvcRestDocumentationWrapper
+                            .resourceDetails()
+                            .description("The Resource")
+                            .privateResource(true)
+                            .tag("some-tag"),
                     requestPreprocessor = operationRequestPreprocessor,
-                    snippets = arrayOf(
-                        requestFields(fieldDescriptors().fieldDescriptors),
-                        responseFields(
-                            fieldWithPath("comment").description("the comment"),
-                            fieldWithPath("flag").description("the flag"),
-                            fieldWithPath("count").description("the count"),
-                            fieldWithPath("id").description("id"),
-                            subsectionWithPath("_links").ignored()
+                    snippets =
+                        arrayOf(
+                            requestFields(fieldDescriptors().fieldDescriptors),
+                            responseFields(
+                                fieldWithPath("comment").description("the comment"),
+                                fieldWithPath("flag").description("the flag"),
+                                fieldWithPath("count").description("the count"),
+                                fieldWithPath("id").description("id"),
+                                subsectionWithPath("_links").ignored(),
+                            ),
+                            links(
+                                linkWithRel("self").description("some"),
+                                linkWithRel("multiple").description("multiple"),
+                            ),
                         ),
-                        links(
-                            linkWithRel("self").description("some"),
-                            linkWithRel("multiple").description("multiple")
-                        )
-                    )
-                )
+                ),
             )
     }
 }

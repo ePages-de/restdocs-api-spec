@@ -31,7 +31,6 @@ import javax.validation.constraints.NotNull
 import javax.validation.constraints.Size
 
 class JsonSchemaFromFieldDescriptorsGeneratorTest {
-
     private val generator = JsonSchemaFromFieldDescriptorsGenerator()
 
     private var schema: Schema? = null
@@ -149,7 +148,8 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
 
         // language=JSON
         thenSchemaValidatesJson(
-            """{
+            """
+            {
                 "id": "1",
                 "lineItems": [
                     {
@@ -178,7 +178,7 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
                 "pageHalf": 100,
                 "page100_200": 200
             }
-            """.trimIndent()
+            """.trimIndent(),
         )
     }
 
@@ -208,7 +208,7 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
             ObjectSchema::class.java,
             BooleanSchema::class.java,
             StringSchema::class.java,
-            NumberSchema::class.java
+            NumberSchema::class.java,
         )
         thenSchemaIsValid()
         thenSchemaValidatesJson("""[{"id": "some"}]""")
@@ -230,7 +230,7 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
             ObjectSchema::class.java,
             BooleanSchema::class.java,
             StringSchema::class.java,
-            NumberSchema::class.java
+            NumberSchema::class.java,
         )
         thenSchemaIsValid()
         thenSchemaValidatesJson("""[[{"id": "some"}]]""")
@@ -454,24 +454,26 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
     }
 
     private fun thenSchemaIsValid() {
-
-        val report = JsonSchemaFactory.byDefault()
-            .syntaxValidator
-            .validateSchema(JsonLoader.fromString(schemaString!!))
+        val report =
+            JsonSchemaFactory
+                .byDefault()
+                .syntaxValidator
+                .validateSchema(JsonLoader.fromString(schemaString!!))
         then(report.isSuccess).describedAs("schema invalid - validation failures: %s", report).isTrue()
     }
 
     private fun whenSchemaGenerated() {
         schemaString = generator.generateSchema(fieldDescriptors!!)
         println(schemaString)
-        schema = SchemaLoader
-            .builder()
-            .nullableSupport(true)
-            .schemaJson(JSONObject(schemaString))
-            .schemaClient(DefaultSchemaClient())
-            .build()
-            .load()
-            .build()
+        schema =
+            SchemaLoader
+                .builder()
+                .nullableSupport(true)
+                .schemaJson(JSONObject(schemaString))
+                .schemaClient(DefaultSchemaClient())
+                .build()
+                .load()
+                .build()
     }
 
     private fun givenFieldDescriptorWithPrimitiveArray() {
@@ -480,18 +482,20 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
 
     private fun givenFieldDescriptorWithRequiredObject() {
         val notNullConstraint = Attributes(listOf(Constraint(NotNull::class.java.name, emptyMap())))
-        fieldDescriptors = listOf(
-            FieldDescriptor("obj", "some", "OBJECT", attributes = notNullConstraint),
-            FieldDescriptor("obj.field", "some", "STRING")
-        )
+        fieldDescriptors =
+            listOf(
+                FieldDescriptor("obj", "some", "OBJECT", attributes = notNullConstraint),
+                FieldDescriptor("obj.field", "some", "STRING"),
+            )
     }
 
     private fun givenFieldDescriptorWithRequiredArray() {
         val notNullConstraint = Attributes(listOf(Constraint(NotNull::class.java.name, emptyMap())))
-        fieldDescriptors = listOf(
-            FieldDescriptor("array", "someArray", "ARRAY", attributes = notNullConstraint),
-            FieldDescriptor("array[].field", "some", "STRING")
-        )
+        fieldDescriptors =
+            listOf(
+                FieldDescriptor("array", "someArray", "ARRAY", attributes = notNullConstraint),
+                FieldDescriptor("array[].field", "some", "STRING"),
+            )
     }
 
     private fun givenFieldDescriptorWithTopLevelArray() {
@@ -503,14 +507,15 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
     }
 
     private fun givenFieldDescriptorWithArrayOfSingleType() {
-        fieldDescriptors = listOf(
-            FieldDescriptor(
-                "[]",
-                "some",
-                "ARRAY",
-                attributes = Attributes(itemsType = "string")
+        fieldDescriptors =
+            listOf(
+                FieldDescriptor(
+                    "[]",
+                    "some",
+                    "ARRAY",
+                    attributes = Attributes(itemsType = "string"),
+                ),
             )
-        )
     }
 
     private fun givenFieldDescriptorWithTopLevelArrayOfArrayOfAny() {
@@ -518,40 +523,44 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
     }
 
     private fun givenFieldDescriptorWithTopLevelArrayOfArrayOfSingleType() {
-        fieldDescriptors = listOf(
-            FieldDescriptor(
-                "[][]",
-                "some",
-                "ARRAY",
-                attributes = Attributes(itemsType = "string")
+        fieldDescriptors =
+            listOf(
+                FieldDescriptor(
+                    "[][]",
+                    "some",
+                    "ARRAY",
+                    attributes = Attributes(itemsType = "string"),
+                ),
             )
-        )
     }
 
     private fun givenFieldDescriptorWithTopLevelObjectWithArrayFieldOfObjects() {
-        fieldDescriptors = listOf(
-            FieldDescriptor("thisIsAnArray", "I'm an array", "ARRAY"),
-            FieldDescriptor("thisIsAnArray[].numberItem", "I'm a number", "NUMBER"),
-            FieldDescriptor("thisIsAnArray[].objectItem", "I'm an object", "OBJECT")
-        )
+        fieldDescriptors =
+            listOf(
+                FieldDescriptor("thisIsAnArray", "I'm an array", "ARRAY"),
+                FieldDescriptor("thisIsAnArray[].numberItem", "I'm a number", "NUMBER"),
+                FieldDescriptor("thisIsAnArray[].objectItem", "I'm an object", "OBJECT"),
+            )
     }
 
     private fun givenFieldDescriptorWithTopLevelArrayOfObjectsWithArrayFieldOfObjects() {
-        fieldDescriptors = listOf(
-            FieldDescriptor("[]", "I'm an array", "ARRAY"),
-            FieldDescriptor("[].thisIsAnArray", "I'm another array", "ARRAY"),
-            FieldDescriptor("[].thisIsAnArray[].numberItem", "I'm a number", "NUMBER"),
-            FieldDescriptor("[].thisIsAnArray[].objectItem", "I'm an object", "OBJECT"),
-            FieldDescriptor("[].stringItem", "I'm a string", "STRING"),
-        )
+        fieldDescriptors =
+            listOf(
+                FieldDescriptor("[]", "I'm an array", "ARRAY"),
+                FieldDescriptor("[].thisIsAnArray", "I'm another array", "ARRAY"),
+                FieldDescriptor("[].thisIsAnArray[].numberItem", "I'm a number", "NUMBER"),
+                FieldDescriptor("[].thisIsAnArray[].objectItem", "I'm an object", "OBJECT"),
+                FieldDescriptor("[].stringItem", "I'm a string", "STRING"),
+            )
     }
 
     private fun givenFieldDescriptorWithTopLevelAndNestedArrayOfObjects() {
-        fieldDescriptors = listOf(
-            FieldDescriptor("[][]", "I'm an array", "ARRAY"),
-            FieldDescriptor("[][].numberItem", "I'm a number", "NUMBER"),
-            FieldDescriptor("[][].objectItem", "I'm an object", "OBJECT"),
-        )
+        fieldDescriptors =
+            listOf(
+                FieldDescriptor("[][]", "I'm an array", "ARRAY"),
+                FieldDescriptor("[][].numberItem", "I'm a number", "NUMBER"),
+                FieldDescriptor("[][].objectItem", "I'm an object", "OBJECT"),
+            )
     }
 
     private fun givenFieldDescriptorUnspecifiedArrayItems() {
@@ -559,47 +568,53 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
     }
 
     private fun givenFieldDescriptorWithTopLevelArrayWithSizeConstraint() {
-        fieldDescriptors = listOf(
-            FieldDescriptor(
-                "[]",
-                "some",
-                "ARRAY",
-                attributes = Attributes(
-                    listOf(
-                        Constraint(
-                            "javax.validation.constraints.Size",
-                            mapOf("min" to 1, "max" to 255)
-                        )
-                    )
-                )
+        fieldDescriptors =
+            listOf(
+                FieldDescriptor(
+                    "[]",
+                    "some",
+                    "ARRAY",
+                    attributes =
+                        Attributes(
+                            listOf(
+                                Constraint(
+                                    "javax.validation.constraints.Size",
+                                    mapOf("min" to 1, "max" to 255),
+                                ),
+                            ),
+                        ),
+                ),
             )
-        )
     }
 
     private fun givenFieldDescriptorWithTopLevelArrayOfArraysWithSizeConstraint() {
-        fieldDescriptors = listOf(
-            FieldDescriptor(
-                "[][]",
-                "some",
-                "ARRAY",
-                attributes = Attributes(
-                    listOf(Constraint("javax.validation.constraints.Size", mapOf("min" to 1, "max" to 255)))
-                )
+        fieldDescriptors =
+            listOf(
+                FieldDescriptor(
+                    "[][]",
+                    "some",
+                    "ARRAY",
+                    attributes =
+                        Attributes(
+                            listOf(Constraint("javax.validation.constraints.Size", mapOf("min" to 1, "max" to 255))),
+                        ),
+                ),
             )
-        )
     }
 
     private fun givenFieldDescriptorUnspecifiedArrayItemsWithSizeConstraint() {
-        fieldDescriptors = listOf(
-            FieldDescriptor(
-                "some[]",
-                "some",
-                "ARRAY",
-                attributes = Attributes(
-                    listOf(Constraint("javax.validation.constraints.Size", mapOf("min" to 1, "max" to 255)))
-                )
+        fieldDescriptors =
+            listOf(
+                FieldDescriptor(
+                    "some[]",
+                    "some",
+                    "ARRAY",
+                    attributes =
+                        Attributes(
+                            listOf(Constraint("javax.validation.constraints.Size", mapOf("min" to 1, "max" to 255))),
+                        ),
+                ),
             )
-        )
     }
 
     private fun givenFieldDescriptorWithInvalidType() {
@@ -607,18 +622,20 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
     }
 
     private fun givenEqualFieldDescriptorsWithSamePath() {
-        fieldDescriptors = listOf(
-            FieldDescriptor("id", "some", "STRING"),
-            FieldDescriptor("id", "some", "STRING")
-        )
+        fieldDescriptors =
+            listOf(
+                FieldDescriptor("id", "some", "STRING"),
+                FieldDescriptor("id", "some", "STRING"),
+            )
     }
 
     private fun givenDifferentFieldDescriptorsWithSamePathAndDifferentTypes() {
-        fieldDescriptors = listOf(
-            FieldDescriptor("id", "some", "STRING", true),
-            FieldDescriptor("id", "some", "NULL", true),
-            FieldDescriptor("id", "some", "BOOLEAN", true)
-        )
+        fieldDescriptors =
+            listOf(
+                FieldDescriptor("id", "some", "STRING", true),
+                FieldDescriptor("id", "some", "NULL", true),
+                FieldDescriptor("id", "some", "BOOLEAN", true),
+            )
     }
 
     private fun givenFieldDescriptorsWithConstraints() {
@@ -627,9 +644,9 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
                 listOf(
                     Constraint(
                         NotNull::class.java.name,
-                        emptyMap()
-                    )
-                )
+                        emptyMap(),
+                    ),
+                ),
             )
 
         val constraintAttributeWithLength =
@@ -639,10 +656,10 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
                         "org.hibernate.validator.constraints.Length",
                         mapOf(
                             "min" to 2,
-                            "max" to 255
-                        )
-                    )
-                )
+                            "max" to 255,
+                        ),
+                    ),
+                ),
             )
 
         val patternConstraint =
@@ -650,176 +667,186 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
                 listOf(
                     Constraint(
                         "javax.validation.constraints.Pattern",
-                        mapOf("regexp" to "[a-z]")
-                    )
-                )
+                        mapOf("regexp" to "[a-z]"),
+                    ),
+                ),
             )
-        fieldDescriptors = listOf(
-            FieldDescriptor(
-                "id",
-                "some",
-                "STRING",
-                attributes = constraintAttributeWithNotNull
-            ),
-            FieldDescriptor(
-                "lineItems[*].name",
-                "some",
-                "STRING",
-                attributes = constraintAttributeWithLength
-            ),
-            FieldDescriptor(
-                "lineItems[*]._id",
-                "some",
-                "STRING",
-                attributes = constraintAttributeWithNotNull
-            ),
-            FieldDescriptor(
-                "lineItems[*].quantity.value",
-                "some",
-                "NUMBER",
-                attributes = constraintAttributeWithNotNull
-            ),
-
-            FieldDescriptor("lineItems[*].quantity.unit", "some", "STRING"),
-            FieldDescriptor("shippingAddress", "some", "OBJECT", true),
-            FieldDescriptor("billingAddress", "some", "OBJECT"),
-            FieldDescriptor(
-                "billingAddress.firstName", "some", "STRING",
-                attributes = Attributes(
-                    listOf(
-                        Constraint(
-                            "javax.validation.constraints.NotEmpty",
-                            emptyMap()
-                        )
-                    )
-                )
-            ),
-            FieldDescriptor("billingAddress.valid", "some", "BOOLEAN"),
-            FieldDescriptor(
-                "paymentLineItem.lineItemTaxes",
-                "some",
-                "ARRAY",
-                attributes = Attributes(
-                    listOf(
-                        Constraint(
-                            "javax.validation.constraints.Size",
-                            mapOf(
-                                "min" to 1,
-                                "max" to 255
-                            )
+        fieldDescriptors =
+            listOf(
+                FieldDescriptor(
+                    "id",
+                    "some",
+                    "STRING",
+                    attributes = constraintAttributeWithNotNull,
+                ),
+                FieldDescriptor(
+                    "lineItems[*].name",
+                    "some",
+                    "STRING",
+                    attributes = constraintAttributeWithLength,
+                ),
+                FieldDescriptor(
+                    "lineItems[*]._id",
+                    "some",
+                    "STRING",
+                    attributes = constraintAttributeWithNotNull,
+                ),
+                FieldDescriptor(
+                    "lineItems[*].quantity.value",
+                    "some",
+                    "NUMBER",
+                    attributes = constraintAttributeWithNotNull,
+                ),
+                FieldDescriptor("lineItems[*].quantity.unit", "some", "STRING"),
+                FieldDescriptor("shippingAddress", "some", "OBJECT", true),
+                FieldDescriptor("billingAddress", "some", "OBJECT"),
+                FieldDescriptor(
+                    "billingAddress.firstName",
+                    "some",
+                    "STRING",
+                    attributes =
+                        Attributes(
+                            listOf(
+                                Constraint(
+                                    "javax.validation.constraints.NotEmpty",
+                                    emptyMap(),
+                                ),
+                            ),
                         ),
-                        Constraint(
-                            NotNull::class.java.name,
-                            emptyMap()
-                        )
-                    )
-                )
-            ),
-            FieldDescriptor(
-                "pattern",
-                "some",
-                "STRING",
-                attributes = patternConstraint
-            ),
-            FieldDescriptor(
-                "pageIndex",
-                "some",
-                "NUMBER",
-                attributes = Attributes(
-                    listOf(
-                        Constraint(
-                            Min::class.java.name,
-                            mapOf("value" to 1)
+                ),
+                FieldDescriptor("billingAddress.valid", "some", "BOOLEAN"),
+                FieldDescriptor(
+                    "paymentLineItem.lineItemTaxes",
+                    "some",
+                    "ARRAY",
+                    attributes =
+                        Attributes(
+                            listOf(
+                                Constraint(
+                                    "javax.validation.constraints.Size",
+                                    mapOf(
+                                        "min" to 1,
+                                        "max" to 255,
+                                    ),
+                                ),
+                                Constraint(
+                                    NotNull::class.java.name,
+                                    emptyMap(),
+                                ),
+                            ),
                         ),
-                        Constraint(
-                            Max::class.java.name,
-                            mapOf("value" to 100)
-                        )
-                    )
-                )
-            ),
-            FieldDescriptor(
-                "pageSize",
-                "some",
-                "NUMBER",
-                attributes = Attributes(
-                    listOf(
-                        Constraint(
-                            Size::class.java.name,
-                            mapOf(
-                                "min" to 1,
-                                "max" to 255
-                            )
-                        )
-                    )
-                )
-            ),
-            FieldDescriptor(
-                "pagePositive",
-                "some",
-                "NUMBER",
-                true,
-                attributes = Attributes(
-                    listOf(
-                        Constraint(
-                            Size::class.java.name,
-                            mapOf("min" to 1)
-                        )
-                    )
-                )
-            ),
-            FieldDescriptor(
-                "page100_200",
-                "some",
-                "NUMBER",
-                attributes = Attributes(
-                    listOf(
-                        Constraint(
-                            Size::class.java.name,
-                            mapOf(
-                                "min" to 1,
-                                "max" to 255
-                            )
+                ),
+                FieldDescriptor(
+                    "pattern",
+                    "some",
+                    "STRING",
+                    attributes = patternConstraint,
+                ),
+                FieldDescriptor(
+                    "pageIndex",
+                    "some",
+                    "NUMBER",
+                    attributes =
+                        Attributes(
+                            listOf(
+                                Constraint(
+                                    Min::class.java.name,
+                                    mapOf("value" to 1),
+                                ),
+                                Constraint(
+                                    Max::class.java.name,
+                                    mapOf("value" to 100),
+                                ),
+                            ),
                         ),
-                        Constraint(
-                            Min::class.java.name,
-                            mapOf("value" to 100)
+                ),
+                FieldDescriptor(
+                    "pageSize",
+                    "some",
+                    "NUMBER",
+                    attributes =
+                        Attributes(
+                            listOf(
+                                Constraint(
+                                    Size::class.java.name,
+                                    mapOf(
+                                        "min" to 1,
+                                        "max" to 255,
+                                    ),
+                                ),
+                            ),
                         ),
-                        Constraint(
-                            Max::class.java.name,
-                            mapOf("value" to 200)
-                        )
-                    )
-                )
+                ),
+                FieldDescriptor(
+                    "pagePositive",
+                    "some",
+                    "NUMBER",
+                    true,
+                    attributes =
+                        Attributes(
+                            listOf(
+                                Constraint(
+                                    Size::class.java.name,
+                                    mapOf("min" to 1),
+                                ),
+                            ),
+                        ),
+                ),
+                FieldDescriptor(
+                    "page100_200",
+                    "some",
+                    "NUMBER",
+                    attributes =
+                        Attributes(
+                            listOf(
+                                Constraint(
+                                    Size::class.java.name,
+                                    mapOf(
+                                        "min" to 1,
+                                        "max" to 255,
+                                    ),
+                                ),
+                                Constraint(
+                                    Min::class.java.name,
+                                    mapOf("value" to 100),
+                                ),
+                                Constraint(
+                                    Max::class.java.name,
+                                    mapOf("value" to 200),
+                                ),
+                            ),
+                        ),
+                ),
             )
-        )
     }
 
     private fun givenFieldDescriptorWithEnum() {
-        fieldDescriptors = listOf(
-            FieldDescriptor(
-                "some",
-                "some",
-                "enum", attributes = Attributes(enumValues = listOf("ENUM_VALUE_1", "ENUM_VALUE_2"))
+        fieldDescriptors =
+            listOf(
+                FieldDescriptor(
+                    "some",
+                    "some",
+                    "enum",
+                    attributes = Attributes(enumValues = listOf("ENUM_VALUE_1", "ENUM_VALUE_2")),
+                ),
             )
-        )
     }
 
     private fun givenFieldDescriptorsWithSchemaName() {
-
-        fieldDescriptors = listOf(
-            FieldDescriptor(
-                "post",
-                "some",
-                "OBJECT",
-            ),
-            FieldDescriptor("post.shippingAddress", "some", "OBJECT", attributes = Attributes(schemaName = "Address")),
-            FieldDescriptor("post.shippingAddress.firstName", "some", "STRING"),
-            FieldDescriptor("post.shippingAddress.valid", "some", "BOOLEAN"),
-            FieldDescriptor("post.billingAddress", "some", "OBJECT", attributes = Attributes(schemaName = "Address")),
-            FieldDescriptor("post.billingAddress.firstName", "some", "STRING"),
-            FieldDescriptor("post.billingAddress.valid", "some", "BOOLEAN"),
-        )
+        fieldDescriptors =
+            listOf(
+                FieldDescriptor(
+                    "post",
+                    "some",
+                    "OBJECT",
+                ),
+                FieldDescriptor("post.shippingAddress", "some", "OBJECT", attributes = Attributes(schemaName = "Address")),
+                FieldDescriptor("post.shippingAddress.firstName", "some", "STRING"),
+                FieldDescriptor("post.shippingAddress.valid", "some", "BOOLEAN"),
+                FieldDescriptor("post.billingAddress", "some", "OBJECT", attributes = Attributes(schemaName = "Address")),
+                FieldDescriptor("post.billingAddress.firstName", "some", "STRING"),
+                FieldDescriptor("post.billingAddress.valid", "some", "BOOLEAN"),
+            )
     }
 
     private fun thenSchemaValidatesJson(json: String) {

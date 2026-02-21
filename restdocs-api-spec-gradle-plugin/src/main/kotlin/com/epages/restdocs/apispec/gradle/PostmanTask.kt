@@ -2,13 +2,13 @@ package com.epages.restdocs.apispec.gradle
 
 import com.epages.restdocs.apispec.model.ResourceModel
 import com.epages.restdocs.apispec.postman.PostmanCollectionGenerator
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
+import tools.jackson.databind.SerializationFeature
+import tools.jackson.module.kotlin.jacksonMapperBuilder
+import tools.jackson.module.kotlin.jacksonObjectMapper
 
 open class PostmanTask : ApiSpecTask() {
-
     @Input
     @Optional
     lateinit var title: String
@@ -24,13 +24,13 @@ open class PostmanTask : ApiSpecTask() {
     override fun outputFileExtension() = "json"
 
     override fun generateSpecification(resourceModels: List<ResourceModel>): String =
-        jacksonObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).writeValueAsString(
+        jacksonMapperBuilder().enable(SerializationFeature.INDENT_OUTPUT).build().writeValueAsString(
             PostmanCollectionGenerator.generate(
                 resources = resourceModels,
                 title = title,
                 version = apiVersion,
-                baseUrl = baseUrl
-            )
+                baseUrl = baseUrl,
+            ),
         )
 
     fun applyExtension(extension: PostmanExtension) {

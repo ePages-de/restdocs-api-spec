@@ -15,85 +15,88 @@ import org.springframework.restdocs.snippet.IgnorableDescriptor
 import org.springframework.util.ReflectionUtils
 import java.util.Optional
 
-data class ResourceSnippetParameters @JvmOverloads constructor(
-    val summary: String? = null,
-    val description: String? = null,
-    val privateResource: Boolean = false,
-    val deprecated: Boolean = false,
-    val requestSchema: Schema? = null,
-    val responseSchema: Schema? = null,
-    val requestFields: List<FieldDescriptor> = emptyList(),
-    val responseFields: List<FieldDescriptor> = emptyList(),
-    val links: List<LinkDescriptor> = emptyList(),
-    val pathParameters: List<ParameterDescriptorWithType> = emptyList(),
-    val queryParameters: List<ParameterDescriptorWithType> = emptyList(),
-    val formParameters: List<ParameterDescriptorWithType> = emptyList(),
-    val requestHeaders: List<HeaderDescriptorWithType> = emptyList(),
-    val responseHeaders: List<HeaderDescriptorWithType> = emptyList(),
-    val tags: Set<String> = emptySet()
-) {
-    val responseFieldsWithLinks by lazy { responseFields + links.map(Companion::toFieldDescriptor) }
+data class ResourceSnippetParameters
+    @JvmOverloads
+    constructor(
+        val summary: String? = null,
+        val description: String? = null,
+        val privateResource: Boolean = false,
+        val deprecated: Boolean = false,
+        val requestSchema: Schema? = null,
+        val responseSchema: Schema? = null,
+        val requestFields: List<FieldDescriptor> = emptyList(),
+        val responseFields: List<FieldDescriptor> = emptyList(),
+        val links: List<LinkDescriptor> = emptyList(),
+        val pathParameters: List<ParameterDescriptorWithType> = emptyList(),
+        val queryParameters: List<ParameterDescriptorWithType> = emptyList(),
+        val formParameters: List<ParameterDescriptorWithType> = emptyList(),
+        val requestHeaders: List<HeaderDescriptorWithType> = emptyList(),
+        val responseHeaders: List<HeaderDescriptorWithType> = emptyList(),
+        val tags: Set<String> = emptySet(),
+    ) {
+        val responseFieldsWithLinks by lazy { responseFields + links.map(Companion::toFieldDescriptor) }
 
-    companion object {
-        @JvmStatic
-        fun builder() = ResourceSnippetParametersBuilder()
+        companion object {
+            @JvmStatic
+            fun builder() = ResourceSnippetParametersBuilder()
 
-        private fun toFieldDescriptor(linkDescriptor: LinkDescriptor): FieldDescriptor {
+            private fun toFieldDescriptor(linkDescriptor: LinkDescriptor): FieldDescriptor {
+                var descriptor =
+                    createLinkFieldDescriptor(linkDescriptor.rel)
+                        .description(linkDescriptor.description)
+                        .type(JsonFieldType.VARIES)
+                        .attributes(
+                            *linkDescriptor.attributes.entries
+                                .map { e -> Attributes.Attribute(e.key, e.value) }
+                                .toTypedArray(),
+                        )
 
-            var descriptor = createLinkFieldDescriptor(linkDescriptor.rel)
-                .description(linkDescriptor.description)
-                .type(JsonFieldType.VARIES)
-                .attributes(
-                    *linkDescriptor.attributes.entries
-                        .map { e -> Attributes.Attribute(e.key, e.value) }
-                        .toTypedArray()
-                )
+                if (linkDescriptor.isOptional) {
+                    descriptor = descriptor.optional()
+                }
+                if (linkDescriptor.isIgnored) {
+                    descriptor = descriptor.ignored()
+                }
 
-            if (linkDescriptor.isOptional) {
-                descriptor = descriptor.optional()
+                return descriptor
             }
-            if (linkDescriptor.isIgnored) {
-                descriptor = descriptor.ignored()
+
+            /**
+             * Behaviour changed from restdocs 1.1 to restdocs 1.2
+             * In 1.2 you need to document attributes inside the object when documenting the object with fieldWithPath - which was not the case with 1.1
+             * So we need to use subsectionWithPath if we are working with 1.2 and fieldWithPath otherwise
+             * @param rel
+             * @return
+             */
+            private fun createLinkFieldDescriptor(rel: String): FieldDescriptor {
+                val path = "_links.$rel"
+                return Optional
+                    .ofNullable(
+                        ReflectionUtils.findMethod(
+                            PayloadDocumentation::class.java,
+                            "subsectionWithPath",
+                            String::class.java,
+                        ),
+                    ).map { m -> ReflectionUtils.invokeMethod(m, null, path) }
+                    .orElseGet { fieldWithPath(path) } as FieldDescriptor
             }
-
-            return descriptor
-        }
-
-        /**
-         * Behaviour changed from restdocs 1.1 to restdocs 1.2
-         * In 1.2 you need to document attributes inside the object when documenting the object with fieldWithPath - which was not the case with 1.1
-         * So we need to use subsectionWithPath if we are working with 1.2 and fieldWithPath otherwise
-         * @param rel
-         * @return
-         */
-        private fun createLinkFieldDescriptor(rel: String): FieldDescriptor {
-            val path = "_links.$rel"
-            return Optional.ofNullable(
-                ReflectionUtils.findMethod(
-                    PayloadDocumentation::class.java,
-                    "subsectionWithPath",
-                    String::class.java
-                )
-            )
-                .map { m -> ReflectionUtils.invokeMethod(m, null, path) }
-                .orElseGet { fieldWithPath(path) } as FieldDescriptor
         }
     }
-}
 
 enum class SimpleType {
     STRING,
     INTEGER,
     NUMBER,
-    BOOLEAN
+    BOOLEAN,
 }
 
 /**
  * We are extending AbstractDescriptor instead of HeaderDescriptor because otherwise methods like description()
  * would return HeaderDescriptor instead of HeaderDescriptorWithType
  */
-class HeaderDescriptorWithType(val name: String) : AbstractDescriptor<HeaderDescriptorWithType>() {
-
+class HeaderDescriptorWithType(
+    val name: String,
+) : AbstractDescriptor<HeaderDescriptorWithType>() {
     var type: SimpleType = STRING
         private set
 
@@ -126,8 +129,9 @@ class HeaderDescriptorWithType(val name: String) : AbstractDescriptor<HeaderDesc
  * We are transitively extending AbstractDescriptor instead of ParameterDescriptor because otherwise methods like
  * description() and ignored() would return ParameterDescriptor instead of ParameterDescriptorWithType.
  */
-class ParameterDescriptorWithType(val name: String) : IgnorableDescriptor<ParameterDescriptorWithType>() {
-
+class ParameterDescriptorWithType(
+    val name: String,
+) : IgnorableDescriptor<ParameterDescriptorWithType>() {
     var type: SimpleType = STRING
         private set
 
@@ -158,8 +162,9 @@ class ParameterDescriptorWithType(val name: String) : IgnorableDescriptor<Parame
 /**
  * Represents a request/response object schema.
  */
-data class Schema(val name: String) {
-
+data class Schema(
+    val name: String,
+) {
     companion object {
         @JvmStatic
         fun schema(name: String): Schema = Schema(name)
@@ -183,12 +188,19 @@ abstract class ResourceSnippetDetails {
         protected set
 
     abstract fun summary(summary: String?): ResourceSnippetDetails
+
     abstract fun description(description: String?): ResourceSnippetDetails
+
     abstract fun requestSchema(requestSchema: Schema?): ResourceSnippetDetails
+
     abstract fun responseSchema(responseSchema: Schema?): ResourceSnippetDetails
+
     abstract fun privateResource(privateResource: Boolean): ResourceSnippetDetails
+
     abstract fun deprecated(deprecated: Boolean): ResourceSnippetDetails
+
     abstract fun tag(tag: String): ResourceSnippetDetails
+
     abstract fun tags(vararg tags: String): ResourceSnippetDetails
 }
 
@@ -211,80 +223,106 @@ class ResourceSnippetParametersBuilder : ResourceSnippetDetails() {
         private set
 
     override fun summary(summary: String?) = apply { this.summary = summary }
+
     override fun description(description: String?) = apply { this.description = description }
+
     override fun requestSchema(requestSchema: Schema?) = apply { this.requestSchema = requestSchema }
+
     override fun responseSchema(responseSchema: Schema?) = apply { this.responseSchema = responseSchema }
+
     override fun privateResource(privateResource: Boolean) = apply { this.privateResource = privateResource }
+
     override fun deprecated(deprecated: Boolean) = apply { this.deprecated = deprecated }
 
     fun requestFields(vararg requestFields: FieldDescriptor) = requestFields(requestFields.toList())
+
     fun requestFields(requestFields: List<FieldDescriptor>) = apply { this.requestFields = requestFields }
+
     fun requestFields(fieldDescriptors: FieldDescriptors) = requestFields(fieldDescriptors.fieldDescriptors)
 
     fun responseFields(vararg responseFields: FieldDescriptor) = responseFields(responseFields.toList())
+
     fun responseFields(responseFields: List<FieldDescriptor>) = apply { this.responseFields = responseFields }
+
     fun responseFields(fieldDescriptors: FieldDescriptors) = responseFields(fieldDescriptors.fieldDescriptors)
 
     fun links(vararg links: LinkDescriptor) = apply { links(links.toList()) }
+
     fun links(links: List<LinkDescriptor>) = apply { this.links = links }
 
     fun pathParameters(vararg pathParameters: ParameterDescriptorWithType) = pathParameters(pathParameters.toList())
+
     fun pathParameters(pathParameters: List<ParameterDescriptorWithType>) = apply { this.pathParameters = pathParameters }
-    fun pathParameters(vararg pathParameters: ParameterDescriptor) = pathParameters(
-        pathParameters.map {
-            ParameterDescriptorWithType.fromParameterDescriptor(it)
-        }
-    )
+
+    fun pathParameters(vararg pathParameters: ParameterDescriptor) =
+        pathParameters(
+            pathParameters.map {
+                ParameterDescriptorWithType.fromParameterDescriptor(it)
+            },
+        )
 
     fun queryParameters(vararg requestParameters: ParameterDescriptorWithType) = queryParameters(requestParameters.toList())
+
     fun queryParameters(requestParameters: List<ParameterDescriptorWithType>) = apply { this.queryParameters = requestParameters }
-    fun queryParameters(vararg requestParameters: ParameterDescriptor) = queryParameters(
-        requestParameters.map {
-            ParameterDescriptorWithType.fromParameterDescriptor(it)
-        }
-    )
+
+    fun queryParameters(vararg requestParameters: ParameterDescriptor) =
+        queryParameters(
+            requestParameters.map {
+                ParameterDescriptorWithType.fromParameterDescriptor(it)
+            },
+        )
 
     fun formParameters(vararg formParameters: ParameterDescriptorWithType) = formParameters(formParameters.toList())
+
     fun formParameters(formParameters: List<ParameterDescriptorWithType>) = apply { this.formParameters = formParameters }
-    fun formParameters(vararg formParameters: ParameterDescriptor) = formParameters(
-        formParameters.map {
-            ParameterDescriptorWithType.fromParameterDescriptor(it)
-        }
-    )
+
+    fun formParameters(vararg formParameters: ParameterDescriptor) =
+        formParameters(
+            formParameters.map {
+                ParameterDescriptorWithType.fromParameterDescriptor(it)
+            },
+        )
 
     fun requestHeaders(requestHeaders: List<HeaderDescriptorWithType>) = apply { this.requestHeaders = requestHeaders }
+
     fun requestHeaders(vararg requestHeaders: HeaderDescriptorWithType) = requestHeaders(requestHeaders.toList())
+
     fun requestHeaders(vararg requestHeaders: HeaderDescriptor) =
         requestHeaders(
             requestHeaders.map {
                 HeaderDescriptorWithType.fromHeaderDescriptor(it)
-            }
+            },
         )
 
     fun responseHeaders(responseHeaders: List<HeaderDescriptorWithType>) = apply { this.responseHeaders = responseHeaders }
+
     fun responseHeaders(vararg responseHeaders: HeaderDescriptorWithType) = responseHeaders(responseHeaders.toList())
-    fun responseHeaders(vararg responseHeaders: HeaderDescriptor) = responseHeaders(
-        responseHeaders.map { HeaderDescriptorWithType.fromHeaderDescriptor(it) }
-    )
+
+    fun responseHeaders(vararg responseHeaders: HeaderDescriptor) =
+        responseHeaders(
+            responseHeaders.map { HeaderDescriptorWithType.fromHeaderDescriptor(it) },
+        )
 
     override fun tag(tag: String) = tags(tag)
+
     override fun tags(vararg tags: String) = apply { this.tags += tags }
 
-    fun build() = ResourceSnippetParameters(
-        summary,
-        description,
-        privateResource,
-        deprecated,
-        requestSchema,
-        responseSchema,
-        requestFields,
-        responseFields,
-        links,
-        pathParameters,
-        queryParameters,
-        formParameters,
-        requestHeaders,
-        responseHeaders,
-        tags
-    )
+    fun build() =
+        ResourceSnippetParameters(
+            summary,
+            description,
+            privateResource,
+            deprecated,
+            requestSchema,
+            responseSchema,
+            requestFields,
+            responseFields,
+            links,
+            pathParameters,
+            queryParameters,
+            formParameters,
+            requestHeaders,
+            responseHeaders,
+            tags,
+        )
 }

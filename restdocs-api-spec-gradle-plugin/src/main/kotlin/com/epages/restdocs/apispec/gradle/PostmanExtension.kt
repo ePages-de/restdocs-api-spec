@@ -2,8 +2,9 @@ package com.epages.restdocs.apispec.gradle
 
 import org.gradle.api.Project
 
-open class PostmanExtension(project: Project) : ApiSpecExtension(project) {
-
+open class PostmanExtension(
+    project: Project,
+) : ApiSpecExtension(project) {
     override var outputDirectory = "build/api-spec"
     override var outputFileNamePrefix = "postman-collection"
 
@@ -12,6 +13,6 @@ open class PostmanExtension(project: Project) : ApiSpecExtension(project) {
     var baseUrl = "http://localhost"
 
     companion object {
-        const val name = "postman"
+        const val NAME = "postman"
     }
 }

@@ -2,12 +2,8 @@ package com.epages.restdocs.apispec.gradle
 
 import org.assertj.core.api.BDDAssertions.then
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.junitpioneer.jupiter.TempDirectory
 
-@ExtendWith(TempDirectory::class)
 class PostmanTaskTest : ApiSpecTaskTest() {
-
     override val taskName = "postman"
 
     override var outputFileNamePrefix = "postman-collection"
@@ -65,15 +61,16 @@ class PostmanTaskTest : ApiSpecTaskTest() {
 
     private fun givenBuildFileWithPostmanClosure() {
         buildFile.writeText(
-            baseBuildFile() + """
-            postman {
-                title = '$title'
-                version = '$version'
-                baseUrl = '$baseUrl'
-                separatePublicApi = $separatePublicApi
-                outputFileNamePrefix = '$outputFileNamePrefix'
-            }
-            """.trimIndent()
+            baseBuildFile() +
+                """
+                postman {
+                    title = '$title'
+                    version = '$version'
+                    baseUrl = '$baseUrl'
+                    separatePublicApi = $separatePublicApi
+                    outputFileNamePrefix = '$outputFileNamePrefix'
+                }
+                """.trimIndent(),
         )
     }
 }

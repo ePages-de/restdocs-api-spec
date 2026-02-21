@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 
 class FieldDescriptorsTest {
-
     lateinit var fieldDescriptors: FieldDescriptors
 
     @Test
@@ -24,7 +23,5 @@ class FieldDescriptorsTest {
             .contains("a", "b", "d.c")
     }
 
-    private fun givenFieldDescriptors(): FieldDescriptors {
-        return FieldDescriptors(fieldWithPath("a"), fieldWithPath("b"))
-    }
+    private fun givenFieldDescriptors(): FieldDescriptors = FieldDescriptors(fieldWithPath("a"), fieldWithPath("b"))
 }

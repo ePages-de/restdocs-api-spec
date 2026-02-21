@@ -1,3 +1,6 @@
+import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
+import kotlin.apply
+
 repositories {
     mavenCentral()
 }
@@ -6,7 +9,14 @@ plugins {
     kotlin("jvm")
     `java-gradle-plugin`
     `kotlin-dsl`
-    id("com.gradle.plugin-publish") version "0.12.0"
+    id("com.gradle.plugin-publish") version "0.21.0"
+}
+
+apply(plugin = "io.spring.dependency-management")
+the<DependencyManagementExtension>().apply {
+    imports {
+        mavenBom(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
+    }
 }
 
 gradlePlugin {
@@ -36,10 +46,6 @@ pluginBundle {
     }
 }
 
-
-val jacksonVersion: String by extra
-val junitVersion: String by extra
-
 val jacocoRuntime by configurations.creating
 
 dependencies {
@@ -51,14 +57,15 @@ dependencies {
     implementation(project(":restdocs-api-spec-openapi-generator"))
     implementation(project(":restdocs-api-spec-openapi3-generator"))
     implementation(project(":restdocs-api-spec-postman-generator"))
-    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
+    implementation("tools.jackson.core:jackson-databind")
+    implementation("tools.jackson.module:jackson-module-kotlin")
+    implementation("tools.jackson.dataformat:jackson-dataformat-yaml")
 
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
-    testImplementation("org.junit-pioneer:junit-pioneer:0.3.0")
-    testImplementation("org.assertj:assertj-core:3.10.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("org.assertj:assertj-core")
 
-    testImplementation("com.jayway.jsonpath:json-path:2.4.0")
+    testImplementation("com.jayway.jsonpath:json-path:2.10.0")
 
     testImplementation(gradleTestKit())
 
@@ -67,15 +74,21 @@ dependencies {
 
 // generate gradle properties file with jacoco agent configured
 // see https://discuss.gradle.org/t/testkit-jacoco-coverage/18792
-val createTestKitFiles by tasks.creating {
-    val outputDir = project.file("$buildDir/testkit")
+val createTestKitFiles by tasks.registering {
+    val outputDir = project.layout.buildDirectory.dir("testkit")
 
     inputs.files(jacocoRuntime)
     outputs.dir(outputDir)
 
     doLast {
-        outputDir.mkdirs()
-        file("$outputDir/testkit-gradle.properties").writeText("org.gradle.jvmargs=-javaagent:${jacocoRuntime.asPath}=destfile=$buildDir/jacoco/test.exec")
+        outputDir.get().asFile.mkdirs()
+        val destFile =
+            project.layout.buildDirectory
+                .file("jacoco/test.exec")
+                .get()
+                .asFile.path
+        val outFile = outputDir.get().file("testkit-gradle.properties").asFile
+        outFile.writeText("org.gradle.jvmargs=-javaagent:${jacocoRuntime.asPath}=destfile=$destFile")
     }
 }
 
@@ -84,7 +97,7 @@ tasks["test"].dependsOn(createTestKitFiles)
 // Set Gradle plugin publishing credentials from environment
 // see https://github.com/gradle/gradle/issues/1246
 //     https://github.com/cortinico/kotlin-gradle-plugin-template/blob/1194fbbb2bc61857a76da5b5b2df919a558653de/plugin-build/plugin/build.gradle.kts#L43-L55
-val configureGradlePluginCredentials by tasks.creating {
+val configureGradlePluginCredentials by tasks.registering {
     doLast {
         val key = System.getenv("GRADLE_PUBLISH_KEY")
         val secret = System.getenv("GRADLE_PUBLISH_SECRET")

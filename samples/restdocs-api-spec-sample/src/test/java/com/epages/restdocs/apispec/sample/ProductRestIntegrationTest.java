@@ -1,15 +1,14 @@
 package com.epages.restdocs.apispec.sample;
 
 import com.epages.restdocs.apispec.ConstrainedFields;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.boot.restdocs.test.autoconfigure.AutoConfigureRestDocs;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import tools.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -163,7 +162,7 @@ public class ProductRestIntegrationTest extends BaseIntegrationTest {
         ;
     }
 
-    private void givenPatchPayload() throws JsonProcessingException {
+    private void givenPatchPayload() {
         json = objectMapper.writeValueAsString(
                 ImmutableList.of(
                         ImmutableMap.of(

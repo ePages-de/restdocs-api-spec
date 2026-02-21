@@ -5,11 +5,13 @@ import io.swagger.models.Swagger
 import io.swagger.util.Json
 
 object ApiSpecificationWriter {
-
     private val yamlFormats = setOf("yaml", "yml")
     private val jsonFormats = setOf("json")
 
-    fun serialize(format: String, apiSpecification: Swagger): String {
+    fun serialize(
+        format: String,
+        apiSpecification: Swagger,
+    ): String {
         validateFormat(format)
         return if (yamlFormats.contains(format)) {
             optimizedYaml().writeValueAsString(apiSpecification)
@@ -18,12 +20,16 @@ object ApiSpecificationWriter {
         }
     }
 
-    private fun optimizedYaml() =
-        OptimizedYamlSerializationObjectMapperFactory.createYaml().writer(DefaultPrettyPrinter())
+    private fun optimizedYaml() = OptimizedYamlSerializationObjectMapperFactory.createYaml().writer(DefaultPrettyPrinter())
 
     fun supportedFormats() = yamlFormats + jsonFormats
 
     fun validateFormat(format: String) {
-        if (!supportedFormats().contains(format)) throw IllegalArgumentException("Format '$format' is invalid - supported formats are '${supportedFormats()}'")
+        if (!supportedFormats().contains(
+                format,
+            )
+        ) {
+            throw IllegalArgumentException("Format '$format' is invalid - supported formats are '${supportedFormats()}'")
+        }
     }
 }

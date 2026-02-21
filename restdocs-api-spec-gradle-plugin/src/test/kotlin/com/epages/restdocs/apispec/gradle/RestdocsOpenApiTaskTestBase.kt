@@ -3,7 +3,6 @@ package com.epages.restdocs.apispec.gradle
 import org.junit.jupiter.api.Test
 
 abstract class RestdocsOpenApiTaskTestBase : ApiSpecTaskTest() {
-
     var host: String = "localhost"
     var basePath: String = ""
     var schemes: Array<String> = arrayOf("http")
@@ -72,16 +71,17 @@ abstract class RestdocsOpenApiTaskTestBase : ApiSpecTaskTest() {
     private fun givenScopeTextFile() {
         testProjectDir.resolve("scopeDescriptions.yaml").toFile().writeText(
             """
-                    "prod:r": "Some text"
-            """.trimIndent()
+            "prod:r": "Some text"
+            """.trimIndent(),
         )
     }
+
     private fun givenTagsTextFile() {
         testProjectDir.resolve("tagDescriptions.yaml").toFile().writeText(
             """
-                    "tag1": "tag1 description"
-                    "tag2": "tag2 description"
-            """.trimIndent()
+            "tag1": "tag1 description"
+            "tag2": "tag2 description"
+            """.trimIndent(),
         )
     }
 

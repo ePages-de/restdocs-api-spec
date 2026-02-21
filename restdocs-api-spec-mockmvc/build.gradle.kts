@@ -1,3 +1,6 @@
+import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
+import kotlin.apply
+
 plugins {
     kotlin("jvm")
     signing
@@ -7,23 +10,27 @@ repositories {
     mavenCentral()
 }
 
-val springBootVersion: String by extra
-val springRestDocsVersion: String by extra
-val junitVersion: String by extra
+apply(plugin = "io.spring.dependency-management")
+the<DependencyManagementExtension>().apply {
+    imports {
+        mavenBom(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
+    }
+}
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
 
     api(project(":restdocs-api-spec"))
-    implementation("org.springframework.restdocs:spring-restdocs-mockmvc:$springRestDocsVersion")
+    implementation("org.springframework.restdocs:spring-restdocs-mockmvc")
 
-    testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion") {
-        exclude("junit")
-    }
-    testImplementation("org.springframework.boot:spring-boot-starter-validation:$springBootVersion")
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
-    testImplementation("org.junit-pioneer:junit-pioneer:0.3.0")
-    testImplementation("org.springframework.boot:spring-boot-starter-hateoas:$springBootVersion")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
+    testImplementation("org.springframework.boot:spring-boot-restdocs")
+    testImplementation("org.springframework.boot:spring-boot-starter-validation")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation(testFixtures(project(":restdocs-api-spec")))
+    testImplementation("org.springframework.boot:spring-boot-starter-hateoas")
 }
 
 publishing {
