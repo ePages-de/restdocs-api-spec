@@ -12,7 +12,7 @@ plugins {
     `maven-publish`
     id("io.github.gradle-nexus.publish-plugin") version "1.0.0"
     id("org.jmailen.kotlinter") version "5.2.0" apply false
-    id("org.sonarqube") version "7.0.1.6134"
+    id("org.sonarqube") version "7.2.2.6593"
     id("pl.allegro.tech.build.axion-release") version "1.21.0"
     jacoco
     java
