@@ -18,7 +18,6 @@ the<DependencyManagementExtension>().apply {
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8"))
     implementation("com.fasterxml.jackson.core:jackson-annotations")
 }
 

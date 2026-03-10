@@ -18,11 +18,10 @@ the<DependencyManagementExtension>().apply {
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8"))
     implementation(project(":restdocs-api-spec-model"))
     implementation("com.github.erosb:everit-json-schema:1.11.0")
-    implementation("tools.jackson.core:jackson-databind")
-    implementation("tools.jackson.module:jackson-module-kotlin")
+    implementation("tools.jackson.core:jackson-databind:3.0.2")
+    implementation("tools.jackson.module:jackson-module-kotlin:3.0.2")
 
     testImplementation("org.junit.jupiter:junit-jupiter-engine")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")

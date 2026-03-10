@@ -18,15 +18,14 @@ the<DependencyManagementExtension>().apply {
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8"))
 
     api(project(":restdocs-api-spec-model"))
     api(project(":restdocs-api-spec-jsonschema"))
 
     api("io.swagger.core.v3:swagger-core:2.2.37")
-    implementation("tools.jackson.core:jackson-databind")
-    implementation("tools.jackson.module:jackson-module-kotlin")
-    implementation("tools.jackson.dataformat:jackson-dataformat-yaml")
+    implementation("tools.jackson.core:jackson-databind:3.0.2")
+    implementation("tools.jackson.module:jackson-module-kotlin:3.0.2")
+    implementation("tools.jackson.dataformat:jackson-dataformat-yaml:3.0.2")
     implementation("org.springframework.boot:spring-boot-jackson2")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
