@@ -49,17 +49,13 @@ pluginBundle {
 val jacocoRuntime by configurations.creating
 
 dependencies {
-    compileOnly(gradleKotlinDsl())
-
-    implementation(kotlin("gradle-plugin"))
-    implementation(kotlin("stdlib-jdk8"))
 
     implementation(project(":restdocs-api-spec-openapi-generator"))
     implementation(project(":restdocs-api-spec-openapi3-generator"))
     implementation(project(":restdocs-api-spec-postman-generator"))
-    implementation("tools.jackson.core:jackson-databind")
-    implementation("tools.jackson.module:jackson-module-kotlin")
-    implementation("tools.jackson.dataformat:jackson-dataformat-yaml")
+    implementation("tools.jackson.core:jackson-databind:3.0.2")
+    implementation("tools.jackson.module:jackson-module-kotlin:3.0.2")
+    implementation("tools.jackson.dataformat:jackson-dataformat-yaml:3.0.2")
 
     testImplementation("org.junit.jupiter:junit-jupiter-engine")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")

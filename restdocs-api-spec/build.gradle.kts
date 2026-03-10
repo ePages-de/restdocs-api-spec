@@ -20,14 +20,13 @@ the<DependencyManagementExtension>().apply {
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8"))
     implementation(kotlin("reflect"))
 
     implementation("org.springframework.restdocs:spring-restdocs-core")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("tools.jackson.core:jackson-databind")
-    implementation("tools.jackson.module:jackson-module-kotlin")
+    implementation("tools.jackson.core:jackson-databind:3.0.2")
+    implementation("tools.jackson.module:jackson-module-kotlin:3.0.2")
     implementation("com.samskivert:jmustache:$jmustacheVersion")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")

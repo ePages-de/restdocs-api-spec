@@ -18,7 +18,6 @@ the<DependencyManagementExtension>().apply {
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8"))
 
     api(project(":restdocs-api-spec"))
     implementation("org.springframework.restdocs:spring-restdocs-mockmvc")

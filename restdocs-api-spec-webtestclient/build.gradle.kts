@@ -18,7 +18,6 @@ the<DependencyManagementExtension>().apply {
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8"))
 
     implementation(project(":restdocs-api-spec"))
     implementation("org.springframework.restdocs:spring-restdocs-webtestclient")
