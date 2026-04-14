@@ -62,7 +62,7 @@ allprojects {
         apply(plugin = "org.jmailen.kotlinter")
 
         java {
-            toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+            toolchain.languageVersion.set(JavaLanguageVersion.of(17))
         }
     }
 }
@@ -72,7 +72,7 @@ subprojects {
     val jmustacheVersion by extra { "1.16" }
 
     tasks.withType<KotlinCompile> {
-        compilerOptions.jvmTarget.set(JvmTarget.JVM_21)
+        compilerOptions.jvmTarget.set(JvmTarget.JVM_17)
     }
 
     tasks.withType<Test> {
@@ -93,8 +93,8 @@ subprojects {
         }
 
         tasks.withType<JavaCompile> {
-            targetCompatibility = "21"
-            sourceCompatibility = "21"
+            targetCompatibility = "17"
+            sourceCompatibility = "17"
         }
     }
 }
