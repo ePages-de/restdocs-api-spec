@@ -17,7 +17,7 @@ plugins {
     jacoco
     java
     kotlin("jvm") version "2.2.21" apply false
-    id("org.springframework.boot") version "4.0.1"
+    id("org.springframework.boot") version "4.0.5"
 }
 
 repositories {
