@@ -23,7 +23,7 @@ dependencies {
     implementation("tools.jackson.core:jackson-databind:3.0.2")
     implementation("tools.jackson.module:jackson-module-kotlin:3.0.2")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("org.springframework.boot:spring-boot-jackson2")
+    implementation("org.springframework.boot:spring-boot-jackson2:4.0.5")
 
     testImplementation("org.junit.jupiter:junit-jupiter-engine")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
