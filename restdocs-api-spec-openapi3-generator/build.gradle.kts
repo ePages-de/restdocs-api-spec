@@ -26,7 +26,7 @@ dependencies {
     implementation("tools.jackson.core:jackson-databind:3.0.2")
     implementation("tools.jackson.module:jackson-module-kotlin:3.0.2")
     implementation("tools.jackson.dataformat:jackson-dataformat-yaml:3.0.2")
-    implementation("org.springframework.boot:spring-boot-jackson2")
+    implementation("org.springframework.boot:spring-boot-jackson2:4.0.5")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
     testImplementation("io.swagger.parser.v3:swagger-parser:2.1.34")

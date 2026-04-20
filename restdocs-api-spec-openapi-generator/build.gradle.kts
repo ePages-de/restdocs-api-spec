@@ -22,7 +22,7 @@ dependencies {
     api(project(":restdocs-api-spec-model"))
     api(project(":restdocs-api-spec-jsonschema"))
     api("io.swagger:swagger-core:1.6.16")
-    implementation("org.springframework.boot:spring-boot-jackson2")
+    implementation("org.springframework.boot:spring-boot-jackson2:4.0.5")
     implementation("tools.jackson.core:jackson-databind:3.0.2")
     implementation("tools.jackson.module:jackson-module-kotlin:3.0.2")
     implementation("tools.jackson.dataformat:jackson-dataformat-yaml:3.0.2")
