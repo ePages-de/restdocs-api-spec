@@ -6,7 +6,6 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import tools.jackson.databind.DeserializationFeature
 import tools.jackson.module.kotlin.jacksonMapperBuilder
-import tools.jackson.module.kotlin.jacksonObjectMapper
 import tools.jackson.module.kotlin.readValue
 import java.io.File
 
@@ -29,8 +28,6 @@ abstract class ApiSpecTask : DefaultTask() {
     private val snippetsDirectoryFile
         get() = project.file(snippetsDirectory)
 
-    private val objectMapper = jacksonMapperBuilder().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build()
-
     open fun applyExtension(extension: ApiSpecExtension) {
         outputDirectory = extension.outputDirectory
         snippetsDirectory = extension.snippetsDirectory
@@ -40,6 +37,8 @@ abstract class ApiSpecTask : DefaultTask() {
 
     @TaskAction
     fun aggregateResourceModels() {
+        val objectMapper = jacksonMapperBuilder().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build()
+
         val resourceModels =
             snippetsDirectoryFile
                 .walkTopDown()
