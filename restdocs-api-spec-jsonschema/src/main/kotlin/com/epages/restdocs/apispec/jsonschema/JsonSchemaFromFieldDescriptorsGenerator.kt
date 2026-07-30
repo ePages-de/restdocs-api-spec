@@ -12,7 +12,6 @@ import com.epages.restdocs.apispec.model.Attributes
 import com.epages.restdocs.apispec.model.FieldDescriptor
 import org.everit.json.schema.ArraySchema
 import org.everit.json.schema.BooleanSchema
-import org.everit.json.schema.CombinedSchema
 import org.everit.json.schema.CombinedSchema.oneOf
 import org.everit.json.schema.EmptySchema
 import org.everit.json.schema.EnumSchema
