@@ -16,6 +16,7 @@ import org.everit.json.schema.CombinedSchema
 import org.everit.json.schema.CombinedSchema.oneOf
 import org.everit.json.schema.EmptySchema
 import org.everit.json.schema.EnumSchema
+import org.everit.json.schema.FormatValidator
 import org.everit.json.schema.NullSchema
 import org.everit.json.schema.NumberSchema
 import org.everit.json.schema.ObjectSchema
@@ -24,9 +25,11 @@ import org.everit.json.schema.StringSchema
 import org.everit.json.schema.internal.JSONPrinter
 import tools.jackson.databind.SerializationFeature
 import tools.jackson.module.kotlin.jacksonMapperBuilder
-import tools.jackson.module.kotlin.jacksonObjectMapper
 import java.io.StringWriter
+import java.time.LocalDate
+import java.time.format.DateTimeParseException
 import java.util.Collections.emptyList
+import java.util.Optional
 import java.util.function.Predicate
 
 class JsonSchemaFromFieldDescriptorsGenerator {
@@ -280,15 +283,27 @@ class JsonSchemaFromFieldDescriptorsGenerator {
                 "boolean" -> BooleanSchema.builder()
                 "number" -> NumberSchema.builder().applyConstraints(this)
                 "string" -> StringSchema.builder().applyConstraints(this)
+                "date" ->
+                    StringSchema
+                        .builder()
+                        .formatValidator(DATE_FORMAT_VALIDATOR)
+                        .applyConstraints(this)
                 "enum" ->
-                    CombinedSchema
-                        .oneOf(
-                            listOf(
-                                StringSchema.builder().build(),
-                                EnumSchema.builder().possibleValues(this.attributes.enumValues).build(),
-                            ),
-                        ).isSynthetic(true)
-                else -> throw IllegalArgumentException("unknown field type $type")
+                    oneOf(
+                        listOf(
+                            StringSchema.builder().build(),
+                            EnumSchema.builder().possibleValues(this.attributes.enumValues).build(),
+                        ),
+                    ).isSynthetic(true)
+                else -> throw IllegalArgumentException(
+                    """
+                    Unknown field type '$type'.
+                    Supported types for FieldDescriptor are (case-insensitive):
+                      STRING, NUMBER, BOOLEAN, OBJECT, ARRAY, DATE, ENUM, NULL, VARIES.
+                    Note: VARIES is treated as an empty schema (accepts any value).
+                    Note: DATE produces a string schema with format "date" (ISO-8601, e.g. "2024-01-15").
+                    """.trimIndent(),
+                )
             }
 
         private fun NullSchema.Builder.nullable(): NullSchema.Builder {
@@ -299,15 +314,14 @@ class JsonSchemaFromFieldDescriptorsGenerator {
         private fun arrayItemsSchema(): Schema =
             attributes.itemsType
                 ?.let { typeToSchema(it.lowercase()).build() }
-                ?: CombinedSchema
-                    .oneOf(
-                        listOf(
-                            ObjectSchema.builder().build(),
-                            BooleanSchema.builder().build(),
-                            StringSchema.builder().build(),
-                            NumberSchema.builder().build(),
-                        ),
-                    ).build()
+                ?: oneOf(
+                    listOf(
+                        ObjectSchema.builder().build(),
+                        BooleanSchema.builder().build(),
+                        StringSchema.builder().build(),
+                        NumberSchema.builder().build(),
+                    ),
+                ).build()
 
         fun equalsOnPathAndType(f: FieldDescriptorWithSchemaType): Boolean =
             (
@@ -325,6 +339,31 @@ class JsonSchemaFromFieldDescriptorsGenerator {
                     ignored = fieldDescriptor.ignored,
                     attributes = fieldDescriptor.attributes,
                 )
+
+            /**
+             * Format validator for the "date" type.
+             * Accepts ISO-8601 date strings (e.g. "2024-01-15").
+             * Returns a non-empty Optional with an error message when the value is not a valid date.
+             *
+             * Must be registered explicitly in [org.everit.json.schema.loader.SchemaLoader] via
+             * `addFormatValidator(DATE_FORMAT_VALIDATOR)` when reloading a schema from its JSON
+             * representation — otherwise the `"format": "date"` property is treated as a plain
+             * annotation and format validation is silently skipped.
+             */
+            val DATE_FORMAT_VALIDATOR: FormatValidator =
+                object : FormatValidator {
+                    override fun validate(subject: String): Optional<String> =
+                        try {
+                            LocalDate.parse(subject)
+                            Optional.empty()
+                        } catch (
+                            @Suppress("SwallowedException") exception: DateTimeParseException,
+                        ) {
+                            Optional.of("'$subject' is not a valid ISO-8601 date (expected format: yyyy-MM-dd)")
+                        }
+
+                    override fun formatName(): String = "date"
+                }
 
             private fun jsonSchemaPrimitiveTypeFromDescriptorType(fieldDescriptorType: String) =
                 fieldDescriptorType

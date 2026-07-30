@@ -272,10 +272,123 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
     }
 
     @Test
+    fun should_generate_schema_for_date_field() {
+        givenFieldDescriptorWithDateType()
+
+        whenSchemaGenerated()
+
+        then(schema).isInstanceOf(ObjectSchema::class.java)
+        val objectSchema = schema as ObjectSchema
+        then(objectSchema.definesProperty("createdAt")).isTrue()
+        val dateSchema = objectSchema.propertySchemas["createdAt"]
+        then(dateSchema).isInstanceOf(StringSchema::class.java)
+        then(JsonPath.read<String>(schemaString, "properties.createdAt.format")).isEqualTo("date")
+        thenSchemaIsValid()
+    }
+
+    @Test
+    fun should_generate_schema_for_date_field_with_format_annotation() {
+        givenFieldDescriptorWithDateType()
+
+        // SchemaLoader must be configured with DATE_FORMAT_VALIDATOR to enforce "format": "date".
+        // Without it the format key is a plain annotation and any string passes validation.
+        whenSchemaGeneratedWithDateFormatValidation()
+
+        then(JsonPath.read<String>(schemaString, "properties.createdAt.format")).isEqualTo("date")
+        thenSchemaIsValid()
+        thenSchemaValidatesJson("""{"createdAt": "2024-01-15"}""")
+        thenSchemaDoesNotValidateJson("""{"createdAt": "not-a-date"}""")
+        thenSchemaDoesNotValidateJson("""{"createdAt": "2024/01/15"}""")
+        thenSchemaDoesNotValidateJson("""{"createdAt": "15-01-2024"}""")
+    }
+
+    @Test
+    fun should_generate_schema_for_varies_field() {
+        givenFieldDescriptorWithVariesType()
+
+        whenSchemaGenerated()
+
+        then(schema).isInstanceOf(ObjectSchema::class.java)
+        thenSchemaIsValid()
+        // VARIES maps to "empty" which allows any value
+        thenSchemaValidatesJson("""{"data": "string value"}""")
+    }
+
+    @Test
+    fun should_generate_string_schema_with_not_blank_constraint_as_min_length_1() {
+        givenFieldDescriptorWithNotBlankConstraint()
+
+        whenSchemaGenerated()
+
+        then(schema).isInstanceOf(ObjectSchema::class.java)
+        val objectSchema = schema as ObjectSchema
+        val tenantSchema = objectSchema.propertySchemas["tenant"] as StringSchema
+        then(tenantSchema.minLength).isEqualTo(1)
+        @Suppress("USELESS_CAST")
+        then(tenantSchema.maxLength as Int?).isNull()
+        thenSchemaIsValid()
+    }
+
+    @Test
+    fun should_generate_string_schema_with_size_constraint_as_min_and_max_length() {
+        givenFieldDescriptorWithSizeConstraintOnStringField()
+
+        whenSchemaGenerated()
+
+        then(schema).isInstanceOf(ObjectSchema::class.java)
+        val objectSchema = schema as ObjectSchema
+        val codeSchema = objectSchema.propertySchemas["code"] as StringSchema
+        then(codeSchema.minLength).isEqualTo(3)
+        then(codeSchema.maxLength).isEqualTo(10)
+        thenSchemaIsValid()
+    }
+
+    @Test
+    fun should_generate_string_schema_with_pattern_and_length_constraints_combined() {
+        givenFieldDescriptorWithPatternAndLengthConstraints()
+
+        whenSchemaGenerated()
+
+        then(schema).isInstanceOf(ObjectSchema::class.java)
+        val objectSchema = schema as ObjectSchema
+        val localeSchema = objectSchema.propertySchemas["locale"] as StringSchema
+        then(localeSchema.pattern.pattern()).isEqualTo("[a-z]{2}-[A-Z]{2}")
+        then(localeSchema.minLength).isEqualTo(5)
+        then(localeSchema.maxLength).isEqualTo(5)
+        thenSchemaIsValid()
+    }
+
+    @Test
     fun should_fail_on_unknown_field_type() {
         givenFieldDescriptorWithInvalidType()
 
-        thenThrownBy { this.whenSchemaGenerated() }.isInstanceOf(IllegalArgumentException::class.java)
+        thenThrownBy { this.whenSchemaGenerated() }
+            .isInstanceOf(IllegalArgumentException::class.java)
+            .hasMessageContaining("invalid-type")
+            .hasMessageContaining("STRING")
+            .hasMessageContaining("DATE")
+            .hasMessageContaining("VARIES")
+            .hasMessageContaining("ISO-8601")
+    }
+
+    @Test
+    fun should_include_supported_types_in_error_message_for_unsupported_type() {
+        fieldDescriptors = listOf(FieldDescriptor("field", "some field", "DATETIME"))
+
+        thenThrownBy { this.whenSchemaGenerated() }
+            .isInstanceOf(IllegalArgumentException::class.java)
+            .hasMessageContaining("datetime")
+            .hasMessageContainingAll(
+                "STRING",
+                "NUMBER",
+                "BOOLEAN",
+                "OBJECT",
+                "ARRAY",
+                "DATE",
+                "ENUM",
+                "NULL",
+                "VARIES",
+            )
     }
 
     @Test
@@ -476,6 +589,21 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
                 .build()
     }
 
+    private fun whenSchemaGeneratedWithDateFormatValidation() {
+        schemaString = generator.generateSchema(fieldDescriptors!!)
+        println(schemaString)
+        schema =
+            SchemaLoader
+                .builder()
+                .nullableSupport(true)
+                .schemaJson(JSONObject(schemaString))
+                .schemaClient(DefaultSchemaClient())
+                .addFormatValidator(JsonSchemaFromFieldDescriptorsGenerator.FieldDescriptorWithSchemaType.DATE_FORMAT_VALIDATOR)
+                .build()
+                .load()
+                .build()
+    }
+
     private fun givenFieldDescriptorWithPrimitiveArray() {
         fieldDescriptors = listOf(FieldDescriptor("a[]", "some", "ARRAY"))
     }
@@ -612,6 +740,84 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
                     attributes =
                         Attributes(
                             listOf(Constraint("javax.validation.constraints.Size", mapOf("min" to 1, "max" to 255))),
+                        ),
+                ),
+            )
+    }
+
+    private fun givenFieldDescriptorWithDateType() {
+        fieldDescriptors =
+            listOf(
+                FieldDescriptor("createdAt", "Creation date", "DATE"),
+            )
+    }
+
+    private fun givenFieldDescriptorWithVariesType() {
+        fieldDescriptors =
+            listOf(
+                FieldDescriptor("data", "Any value", "VARIES"),
+            )
+    }
+
+    private fun givenFieldDescriptorWithNotBlankConstraint() {
+        fieldDescriptors =
+            listOf(
+                FieldDescriptor(
+                    "tenant",
+                    "Tenant identifier",
+                    "STRING",
+                    attributes =
+                        Attributes(
+                            listOf(
+                                Constraint(
+                                    "javax.validation.constraints.NotBlank",
+                                    emptyMap(),
+                                ),
+                            ),
+                        ),
+                ),
+            )
+    }
+
+    private fun givenFieldDescriptorWithSizeConstraintOnStringField() {
+        fieldDescriptors =
+            listOf(
+                FieldDescriptor(
+                    "code",
+                    "Country code",
+                    "STRING",
+                    attributes =
+                        Attributes(
+                            listOf(
+                                Constraint(
+                                    "org.hibernate.validator.constraints.Length",
+                                    mapOf("min" to 3, "max" to 10),
+                                ),
+                            ),
+                        ),
+                ),
+            )
+    }
+
+    private fun givenFieldDescriptorWithPatternAndLengthConstraints() {
+        fieldDescriptors =
+            listOf(
+                FieldDescriptor(
+                    "locale",
+                    "Locale code, e.g. en-US",
+                    "STRING",
+                    attributes =
+                        Attributes(
+                            listOf(
+                                Constraint(
+                                    "javax.validation.constraints.Pattern",
+                                    mapOf("regexp" to "[a-z]{2}-[A-Z]{2}"),
+                                ),
+                                Constraint(
+                                    "org.hibernate.validator.constraints.Length",
+                                    mapOf("min" to 5, "max" to 5),
+                                ),
+                            ),
                         ),
                 ),
             )
