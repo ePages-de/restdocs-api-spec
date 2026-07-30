@@ -2,6 +2,7 @@ package com.epages.restdocs.apispec.openapi3
 
 import com.epages.restdocs.apispec.jsonschema.JsonSchemaFromFieldDescriptorsGenerator
 import com.epages.restdocs.apispec.model.AbstractParameterDescriptor
+import com.epages.restdocs.apispec.model.Attributes
 import com.epages.restdocs.apispec.model.FieldDescriptor
 import com.epages.restdocs.apispec.model.HTTPMethod
 import com.epages.restdocs.apispec.model.HeaderDescriptor
@@ -534,7 +535,7 @@ object OpenApi3Generator {
             example = headerDescriptor.example
         }
 
-    private fun simpleTypeToSchema(parameterDescriptor: AbstractParameterDescriptor): Schema<*>? =
+    private fun simpleTypeToSchema(parameterDescriptor: AbstractParameterDescriptor): Schema<*> =
         when (parameterDescriptor.type.lowercase()) {
             SimpleType.BOOLEAN.name.lowercase() ->
                 BooleanSchema().apply {
@@ -550,6 +551,18 @@ object OpenApi3Generator {
                     parameterDescriptor.attributes.enumValues
                         .map { it as String }
                         .forEach { this.addEnumItem(it) }
+
+                    ParameterConstraintResolver
+                        .minLengthString(parameterDescriptor.attributes)
+                        ?.let { minLength(it) }
+
+                    ParameterConstraintResolver
+                        .maxLengthString(parameterDescriptor.attributes)
+                        ?.let { maxLength(it) }
+
+                    ParameterConstraintResolver
+                        .pattern(parameterDescriptor.attributes)
+                        ?.let { pattern(it) }
                 }
 
             SimpleType.NUMBER.name.lowercase() ->
@@ -558,6 +571,14 @@ object OpenApi3Generator {
                     parameterDescriptor.attributes.enumValues
                         .map { it.asBigDecimal() }
                         .forEach { this.addEnumItem(it) }
+
+                    ParameterConstraintResolver
+                        .minimum(parameterDescriptor.attributes)
+                        ?.let { minimum(it) }
+
+                    ParameterConstraintResolver
+                        .maximum(parameterDescriptor.attributes)
+                        ?.let { maximum(it) }
                 }
 
             SimpleType.INTEGER.name.lowercase() ->
@@ -566,6 +587,14 @@ object OpenApi3Generator {
                     parameterDescriptor.attributes.enumValues
                         .map { it.asInt() }
                         .forEach { this.addEnumItem(it) }
+
+                    ParameterConstraintResolver
+                        .minimum(parameterDescriptor.attributes)
+                        ?.let { minimum(it) }
+
+                    ParameterConstraintResolver
+                        .maximum(parameterDescriptor.attributes)
+                        ?.let { maximum(it) }
                 }
 
             else -> throw IllegalArgumentException("Unknown type '${parameterDescriptor.type}'")
@@ -600,4 +629,128 @@ object OpenApi3Generator {
         val operationId: String,
         val response: ResponseModel,
     )
+}
+
+/**
+ * Resolves Bean Validation constraints stored in [Attributes.validationConstraints]
+ * for use in OpenAPI parameter schemas.
+ *
+ * Handles: @Size, @Length, @NotEmpty, @NotBlank and @Pattern for strings,
+ * and @Min and @Max for numbers.
+ */
+private object ParameterConstraintResolver {
+    private val NOT_EMPTY_CONSTRAINTS =
+        setOf(
+            "org.hibernate.validator.constraints.NotEmpty",
+            "javax.validation.constraints.NotEmpty",
+            "jakarta.validation.constraints.NotEmpty",
+        )
+
+    private val NOT_BLANK_CONSTRAINTS =
+        setOf(
+            "javax.validation.constraints.NotBlank",
+            "org.hibernate.validator.constraints.NotBlank",
+            "jakarta.validation.constraints.NotBlank",
+        )
+
+    private const val LENGTH_CONSTRAINT =
+        "org.hibernate.validator.constraints.Length"
+
+    private val SIZE_CONSTRAINTS =
+        setOf(
+            "javax.validation.constraints.Size",
+            "jakarta.validation.constraints.Size",
+        )
+
+    private val PATTERN_CONSTRAINTS =
+        setOf(
+            "javax.validation.constraints.Pattern",
+            "jakarta.validation.constraints.Pattern",
+        )
+
+    private val MIN_CONSTRAINTS =
+        setOf(
+            "javax.validation.constraints.Min",
+            "jakarta.validation.constraints.Min",
+        )
+
+    private val MAX_CONSTRAINTS =
+        setOf(
+            "javax.validation.constraints.Max",
+            "jakarta.validation.constraints.Max",
+        )
+
+    /**
+     * Returns the minimum length for a string parameter,
+     * derived from @NotEmpty, @NotBlank, @Length or @Size.
+     */
+    fun minLengthString(attributes: Attributes): Int? =
+        attributes.validationConstraints
+            .mapNotNull { constraint ->
+                when {
+                    constraint.name in NOT_EMPTY_CONSTRAINTS ||
+                        constraint.name in NOT_BLANK_CONSTRAINTS -> 1
+
+                    constraint.name == LENGTH_CONSTRAINT ||
+                        constraint.name in SIZE_CONSTRAINTS ->
+                        constraint.configuration.intValue("min")
+
+                    else -> null
+                }
+            }.maxOrNull()
+
+    /**
+     * Returns the maximum length for a string parameter,
+     * derived from @Length or @Size.
+     */
+    fun maxLengthString(attributes: Attributes): Int? =
+        attributes.validationConstraints
+            .filter {
+                it.name == LENGTH_CONSTRAINT ||
+                    it.name in SIZE_CONSTRAINTS
+            }.mapNotNull {
+                it.configuration.intValue("max")
+            }.minOrNull()
+
+    /**
+     * Returns the pattern for a string parameter,
+     * derived from @Pattern.
+     */
+    fun pattern(attributes: Attributes): String? =
+        attributes.validationConstraints
+            .firstOrNull { it.name in PATTERN_CONSTRAINTS }
+            ?.configuration
+            ?.get("regexp") as? String
+
+    /**
+     * Returns the minimum numeric value for a number/integer parameter,
+     * derived from @Min.
+     */
+    fun minimum(attributes: Attributes): BigDecimal? =
+        attributes.validationConstraints
+            .filter { it.name in MIN_CONSTRAINTS }
+            .mapNotNull {
+                it.configuration.bigDecimalValue("value")
+            }.maxOrNull()
+
+    /**
+     * Returns the maximum numeric value for a number/integer parameter,
+     * derived from @Max.
+     */
+    fun maximum(attributes: Attributes): BigDecimal? =
+        attributes.validationConstraints
+            .filter { it.name in MAX_CONSTRAINTS }
+            .mapNotNull {
+                it.configuration.bigDecimalValue("value")
+            }.minOrNull()
+
+    private fun Map<String, Any>.intValue(name: String): Int? = (this[name] as? Number)?.toInt()
+
+    private fun Map<String, Any>.bigDecimalValue(name: String): BigDecimal? =
+        when (val value = this[name]) {
+            is BigDecimal -> value
+            is Number -> value.toString().toBigDecimalOrNull()
+            is String -> value.toBigDecimalOrNull()
+            else -> null
+        }
 }

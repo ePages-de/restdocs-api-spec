@@ -1,6 +1,7 @@
 package com.epages.restdocs.apispec.openapi3
 
 import com.epages.restdocs.apispec.model.Attributes
+import com.epages.restdocs.apispec.model.Constraint
 import com.epages.restdocs.apispec.model.FieldDescriptor
 import com.epages.restdocs.apispec.model.HTTPMethod
 import com.epages.restdocs.apispec.model.HeaderDescriptor
@@ -405,6 +406,112 @@ class OpenApi3GeneratorTest {
                 (it["schema"] as LinkedHashMap<*, *>)["default"] == 2
         }
         then(params).hasSize(19)
+
+        thenOpenApiSpecIsValid()
+    }
+
+    @Test
+    fun `should reflect Size constraint as minLength and maxLength on string path parameter`() {
+        givenResourcesWithValidationConstraintsOnParameters()
+
+        whenOpenApiObjectGenerated()
+
+        val params = openApiJsonPathContext.read<List<Map<*, *>>>("paths./users/{id}.get.parameters.*")
+        then(params).anyMatch {
+            it["name"] == "id" &&
+                it["in"] == "path" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "string" &&
+                (it["schema"] as LinkedHashMap<*, *>)["minLength"] == 1 &&
+                (it["schema"] as LinkedHashMap<*, *>)["maxLength"] == 36
+        }
+
+        thenOpenApiSpecIsValid()
+    }
+
+    @Test
+    fun `should reflect Length constraint as minLength and maxLength on string query parameter`() {
+        givenResourcesWithValidationConstraintsOnParameters()
+
+        whenOpenApiObjectGenerated()
+
+        val params = openApiJsonPathContext.read<List<Map<*, *>>>("paths./users/{id}.get.parameters.*")
+        then(params).anyMatch {
+            it["name"] == "filter" &&
+                it["in"] == "query" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "string" &&
+                (it["schema"] as LinkedHashMap<*, *>)["minLength"] == 2 &&
+                (it["schema"] as LinkedHashMap<*, *>)["maxLength"] == 50
+        }
+
+        thenOpenApiSpecIsValid()
+    }
+
+    @Test
+    fun `should reflect Pattern constraint on string query parameter`() {
+        givenResourcesWithValidationConstraintsOnParameters()
+
+        whenOpenApiObjectGenerated()
+
+        val params = openApiJsonPathContext.read<List<Map<*, *>>>("paths./users/{id}.get.parameters.*")
+        then(params).anyMatch {
+            it["name"] == "code" &&
+                it["in"] == "query" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "string" &&
+                (it["schema"] as LinkedHashMap<*, *>)["pattern"] == "[A-Z]{3}"
+        }
+
+        thenOpenApiSpecIsValid()
+    }
+
+    @Test
+    fun `should reflect NotBlank constraint as minLength 1 on string header parameter`() {
+        givenResourcesWithValidationConstraintsOnParameters()
+
+        whenOpenApiObjectGenerated()
+
+        val params = openApiJsonPathContext.read<List<Map<*, *>>>("paths./users/{id}.get.parameters.*")
+        then(params).anyMatch {
+            it["name"] == "X-TENANT" &&
+                it["in"] == "header" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "string" &&
+                (it["schema"] as LinkedHashMap<*, *>)["minLength"] == 1
+        }
+
+        thenOpenApiSpecIsValid()
+    }
+
+    @Test
+    fun `should combine NotBlank and Size constraints on string query parameter`() {
+        givenResourcesWithValidationConstraintsOnParameters()
+
+        whenOpenApiObjectGenerated()
+
+        val params = openApiJsonPathContext.read<List<Map<*, *>>>("paths./users/{id}.get.parameters.*")
+        then(params).anyMatch {
+            it["name"] == "search" &&
+                it["in"] == "query" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "string" &&
+                (it["schema"] as LinkedHashMap<*, *>)["minLength"] == 1 &&
+                (it["schema"] as LinkedHashMap<*, *>)["maxLength"] == 50
+        }
+
+        thenOpenApiSpecIsValid()
+    }
+
+    @Test
+    fun `should reflect Min and Max constraints on integer query parameter`() {
+        givenResourcesWithValidationConstraintsOnParameters()
+
+        whenOpenApiObjectGenerated()
+
+        val params = openApiJsonPathContext.read<List<Map<*, *>>>("paths./users/{id}.get.parameters.*")
+        then(params).anyMatch {
+            it["name"] == "page" &&
+                it["in"] == "query" &&
+                (it["schema"] as LinkedHashMap<*, *>)["type"] == "integer" &&
+                (it["schema"] as LinkedHashMap<*, *>)["minimum"] == 0 &&
+                (it["schema"] as LinkedHashMap<*, *>)["maximum"] == 100
+        }
 
         thenOpenApiSpecIsValid()
     }
@@ -968,6 +1075,154 @@ class OpenApi3GeneratorTest {
                     tags = setOf("tag1", "tag2"),
                     request = getProductRequestWithHeaderParameterWithWrongEnumValues(),
                     response = getProductResponse(),
+                ),
+            )
+    }
+
+    private fun givenResourcesWithValidationConstraintsOnParameters() {
+        resources =
+            listOf(
+                ResourceModel(
+                    operationId = "getUser",
+                    summary = "Get a user",
+                    description = "Returns a user by id",
+                    privateResource = false,
+                    deprecated = false,
+                    tags = setOf("users"),
+                    request =
+                        RequestModel(
+                            path = "/users/{id}",
+                            method = HTTPMethod.GET,
+                            headers =
+                                listOf(
+                                    HeaderDescriptor(
+                                        name = "X-TENANT",
+                                        description = "Tenant identifier",
+                                        type = "STRING",
+                                        optional = false,
+                                        attributes =
+                                            Attributes(
+                                                validationConstraints =
+                                                    listOf(
+                                                        Constraint(
+                                                            "javax.validation.constraints.NotBlank",
+                                                            emptyMap(),
+                                                        ),
+                                                    ),
+                                            ),
+                                    ),
+                                ),
+                            pathParameters =
+                                listOf(
+                                    ParameterDescriptor(
+                                        name = "id",
+                                        description = "User ID",
+                                        type = "STRING",
+                                        optional = false,
+                                        ignored = false,
+                                        attributes =
+                                            Attributes(
+                                                validationConstraints =
+                                                    listOf(
+                                                        Constraint(
+                                                            "javax.validation.constraints.Size",
+                                                            mapOf("min" to 1, "max" to 36),
+                                                        ),
+                                                    ),
+                                            ),
+                                    ),
+                                ),
+                            queryParameters =
+                                listOf(
+                                    ParameterDescriptor(
+                                        name = "filter",
+                                        description = "Filter expression",
+                                        type = "STRING",
+                                        optional = true,
+                                        ignored = false,
+                                        attributes =
+                                            Attributes(
+                                                validationConstraints =
+                                                    listOf(
+                                                        Constraint(
+                                                            "org.hibernate.validator.constraints.Length",
+                                                            mapOf("min" to 2, "max" to 50),
+                                                        ),
+                                                    ),
+                                            ),
+                                    ),
+                                    ParameterDescriptor(
+                                        name = "code",
+                                        description = "Country code",
+                                        type = "STRING",
+                                        optional = true,
+                                        ignored = false,
+                                        attributes =
+                                            Attributes(
+                                                validationConstraints =
+                                                    listOf(
+                                                        Constraint(
+                                                            "javax.validation.constraints.Pattern",
+                                                            mapOf("regexp" to "[A-Z]{3}"),
+                                                        ),
+                                                    ),
+                                            ),
+                                    ),
+                                    ParameterDescriptor(
+                                        name = "search",
+                                        description = "Search term",
+                                        type = "STRING",
+                                        optional = true,
+                                        ignored = false,
+                                        attributes =
+                                            Attributes(
+                                                validationConstraints =
+                                                    listOf(
+                                                        Constraint(
+                                                            "jakarta.validation.constraints.NotBlank",
+                                                            emptyMap(),
+                                                        ),
+                                                        Constraint(
+                                                            "jakarta.validation.constraints.Size",
+                                                            mapOf("min" to 0, "max" to 50),
+                                                        ),
+                                                    ),
+                                            ),
+                                    ),
+                                    ParameterDescriptor(
+                                        name = "page",
+                                        description = "Page number",
+                                        type = "INTEGER",
+                                        optional = true,
+                                        ignored = false,
+                                        attributes =
+                                            Attributes(
+                                                validationConstraints =
+                                                    listOf(
+                                                        Constraint(
+                                                            "javax.validation.constraints.Min",
+                                                            mapOf("value" to 0),
+                                                        ),
+                                                        Constraint(
+                                                            "javax.validation.constraints.Max",
+                                                            mapOf("value" to 100),
+                                                        ),
+                                                    ),
+                                            ),
+                                    ),
+                                ),
+                            formParameters = listOf(),
+                            requestFields = listOf(),
+                            securityRequirements = null,
+                        ),
+                    response =
+                        ResponseModel(
+                            status = 200,
+                            contentType = "application/json",
+                            headers = emptyList(),
+                            responseFields = listOf(),
+                            example = """{"id": "abc"}""",
+                        ),
                 ),
             )
     }
