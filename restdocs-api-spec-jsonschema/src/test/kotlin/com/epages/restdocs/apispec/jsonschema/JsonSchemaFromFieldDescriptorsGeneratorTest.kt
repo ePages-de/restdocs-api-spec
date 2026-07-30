@@ -591,7 +591,6 @@ class JsonSchemaFromFieldDescriptorsGeneratorTest {
 
     private fun whenSchemaGeneratedWithDateFormatValidation() {
         schemaString = generator.generateSchema(fieldDescriptors!!)
-        println(schemaString)
         schema =
             SchemaLoader
                 .builder()
