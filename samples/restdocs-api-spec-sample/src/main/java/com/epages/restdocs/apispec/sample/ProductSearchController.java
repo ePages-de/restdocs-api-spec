@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/product-search")
-@Validated
 public class ProductSearchController {
 
     private final ProductRepository productRepository;
