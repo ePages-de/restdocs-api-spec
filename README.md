@@ -391,7 +391,8 @@ If no `2xx` snippet exists, non-`2xx` snippets are used with the same ordering.
 
 Identity fields are then derived consistently across generators:
 - OpenAPI 2.0 and OpenAPI 3.0.1: merged `operationId` is the common prefix of primary
-  candidate `operationId`s, or sorted concatenation if no common prefix exists.
+  candidate `operationId`s, or the top-priority primary candidate's own `operationId`
+  if no common prefix exists.
 - OpenAPI 2.0 and OpenAPI 3.0.1: `summary` and `description` are taken from the ordered
   primary candidates.
 - Postman: top-level item `id` uses the same merged operationId rule, and item

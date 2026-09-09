@@ -501,7 +501,7 @@ object OpenApi20Generator {
                 .sortedBy { it.key.length }
                 .map { it.value }
                 .firstOrNull()
-        return if (!fieldDescriptors.isEmpty()) {
+        return if (fieldDescriptors.isNotEmpty()) {
             val parsedSchema: Model =
                 Json.mapper().readValue(
                     JsonSchemaFromFieldDescriptorsGenerator().generateSchema(fieldDescriptors = fieldDescriptors),
@@ -535,7 +535,7 @@ object OpenApi20Generator {
                     }.nullIfEmpty()
             examples = mapOf(responseModel.contentType to responseModel.example).nullIfEmpty()
             responseSchema =
-                if (!responseModel.responseFields.isEmpty()) {
+                if (responseModel.responseFields.isNotEmpty()) {
                     val parsedSchema: Model =
                         Json.mapper().readValue(
                             JsonSchemaFromFieldDescriptorsGenerator().generateSchema(fieldDescriptors = responseModel.responseFields),

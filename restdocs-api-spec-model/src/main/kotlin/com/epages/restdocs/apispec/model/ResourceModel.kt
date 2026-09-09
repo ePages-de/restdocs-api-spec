@@ -40,23 +40,18 @@ fun List<ResourceModel>.primaryCandidatesForMergedIdentity(): List<ResourceModel
     )
 }
 
-fun List<ResourceModel>.mergedOperationId(): String =
+fun List<ResourceModel>.mergedOperationId() =
     this
         .map { it.operationId }
-        .mergeOperationIds()
+        .commonOperationIdPrefix()
+        .ifEmpty { this.first().operationId }
 
-private fun List<String>.mergeOperationIds(): String {
+private fun List<String>.commonOperationIdPrefix(): String {
     var prefix = this.first()
     for (operationId in this) {
         prefix = prefix.commonPrefixWith(operationId)
     }
-    prefix = prefix.trimEnd('-')
-
-    if (prefix.isEmpty()) {
-        prefix = this.sorted().joinToString(separator = "")
-    }
-
-    return prefix
+    return prefix.trimEnd('-')
 }
 
 private fun responseStatusPriority(status: Int): Int =

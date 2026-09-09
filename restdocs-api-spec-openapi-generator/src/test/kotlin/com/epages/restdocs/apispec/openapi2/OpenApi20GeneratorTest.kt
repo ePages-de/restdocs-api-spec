@@ -113,13 +113,13 @@ class OpenApi20GeneratorTest {
     }
 
     @Test
-    fun `should concatenate sorted operationIds when no common prefix exists`() {
+    fun `should use primary candidate operationId when no common prefix exists`() {
         val api = givenSuccessfulResourceModelsWithoutCommonOperationIdPrefix()
 
         val openapi = whenOpenApiObjectGenerated(api)
 
         val operation = openapi.getPath("/products/{id}").get
-        then(operation.operationId).isEqualTo("firstsecond")
+        then(operation.operationId).isEqualTo("first")
         thenValidateOpenApi(openapi)
     }
 

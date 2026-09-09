@@ -15,8 +15,13 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
   `200`, `201`, `202`, `204`, other `2xx`, then non-blank `summary`, non-blank
   `description`, and lexical `operationId` tie-break.
 - OpenAPI 2.0 and OpenAPI 3.0.1 use the same merged `operationId` derivation
-  (common prefix, fallback to sorted concatenation), and Postman top-level item `id`
-  uses the same merged ID rule.
+  (common prefix across primary candidates, falling back to the top-priority
+  candidate's own `operationId` when no common prefix exists), and Postman
+  top-level item `id` uses the same merged ID rule.
+- Replaced the previous sorted-concatenation fallback (e.g. `firstsecond`) with
+  the top-priority candidate's own `operationId`, since concatenating unrelated
+  identifiers produced unreadable, codegen-hostile names for the common case of
+  multiple snippets legitimately documenting the same path and method.
 - Added test coverage for success-vs-error selection, `200` over `201` priority,
   and no-common-prefix fallback behavior, plus README documentation.
 
@@ -24,7 +29,9 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 - This feature can change generated identifiers for merged endpoints (`operationId`
   in OpenAPI 2.0/3.0.1 and item `id` in Postman), which may require updates in
-  generated clients and snapshot-based artifact comparisons.
+  generated clients and snapshot-based artifact comparisons. This includes
+  endpoints that previously fell back to sorted concatenation, which now use the
+  top-priority candidate's own `operationId` instead.
 
 ## [0.20.1](https://github.com/ePages-de/restdocs-api-spec/tree/0.20.1) - 2026-04-20
 

@@ -262,12 +262,12 @@ class OpenApi3GeneratorTest {
     }
 
     @Test
-    fun `should determine operationId as concatenated operationIds if no common prefix exists`() {
+    fun `should determine operationId as primary candidate's own id if no common prefix exists`() {
         givenResourcesWithSamePathAndContentTypeButOperationIdsWithoutCommonPrefix()
 
         whenOpenApiObjectGenerated()
 
-        then(openApiJsonPathContext.read<String>("paths./products/{id}.get.operationId")).isEqualTo("firstsecond")
+        then(openApiJsonPathContext.read<String>("paths./products/{id}.get.operationId")).isEqualTo("first")
     }
 
     @Test

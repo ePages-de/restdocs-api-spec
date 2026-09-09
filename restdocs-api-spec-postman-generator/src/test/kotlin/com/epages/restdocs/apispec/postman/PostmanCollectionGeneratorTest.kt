@@ -190,12 +190,12 @@ internal class PostmanCollectionGeneratorTest {
     }
 
     @Test
-    fun `should concatenate sorted item ids when no common prefix exists`() {
+    fun `should use primary candidate item id when no common prefix exists`() {
         givenSuccessfulResourcesWithoutCommonOperationIdPrefix()
 
         whenPostmanCollectionGenerated()
 
-        then(postmanCollectionJsonPathContext.read<String>("item[0].id")).isEqualTo("firstsecond")
+        then(postmanCollectionJsonPathContext.read<String>("item[0].id")).isEqualTo("first")
         thenPostmanSpecIsValid()
     }
 
