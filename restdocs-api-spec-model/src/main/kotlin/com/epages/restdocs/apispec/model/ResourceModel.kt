@@ -27,6 +27,50 @@ fun List<ResourceModel>.groupByPath(): Map<String, List<ResourceModel>> =
                 .thenComparing(Comparator.comparing { it.request.path }),
         ).groupBy { it.request.path }
 
+fun List<ResourceModel>.primaryCandidatesForMergedIdentity(): List<ResourceModel> {
+    val successfulModels = this.filter { it.response.status in 200..299 }
+    val candidateModels = successfulModels.ifEmpty { this }
+
+    return candidateModels.sortedWith(
+        compareBy<ResourceModel> { responseStatusPriority(it.response.status) }
+            .thenByDescending { hasText(it.summary) }
+            .thenByDescending { hasText(it.description) }
+            .thenBy { it.response.status }
+            .thenBy { it.operationId },
+    )
+}
+
+fun List<ResourceModel>.mergedOperationId(): String =
+    this
+        .map { it.operationId }
+        .mergeOperationIds()
+
+private fun List<String>.mergeOperationIds(): String {
+    var prefix = this.first()
+    for (operationId in this) {
+        prefix = prefix.commonPrefixWith(operationId)
+    }
+    prefix = prefix.trimEnd('-')
+
+    if (prefix.isEmpty()) {
+        prefix = this.sorted().joinToString(separator = "")
+    }
+
+    return prefix
+}
+
+private fun responseStatusPriority(status: Int): Int =
+    when (status) {
+        200 -> 0
+        201 -> 1
+        202 -> 2
+        204 -> 3
+        in 200..299 -> 4
+        else -> 5
+    }
+
+private fun hasText(value: String?): Boolean = !value.isNullOrBlank()
+
 data class Schema(
     val name: String,
 )

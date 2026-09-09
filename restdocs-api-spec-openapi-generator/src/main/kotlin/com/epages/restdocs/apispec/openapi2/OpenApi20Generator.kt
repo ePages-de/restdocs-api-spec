@@ -8,6 +8,8 @@ import com.epages.restdocs.apispec.model.Oauth2Configuration
 import com.epages.restdocs.apispec.model.ParameterDescriptor
 import com.epages.restdocs.apispec.model.ResourceModel
 import com.epages.restdocs.apispec.model.ResponseModel
+import com.epages.restdocs.apispec.model.mergedOperationId
+import com.epages.restdocs.apispec.model.primaryCandidatesForMergedIdentity
 import com.epages.restdocs.apispec.model.Schema
 import com.epages.restdocs.apispec.model.SecurityRequirements
 import com.epages.restdocs.apispec.model.SecurityType
@@ -285,12 +287,13 @@ object OpenApi20Generator {
         modelsWithSamePathAndMethod: List<ResourceModel>,
         @Suppress("unused") oauth2SecuritySchemeDefinition: Oauth2Configuration?,
     ): Operation {
-        val firstModelForPathAndMethod = modelsWithSamePathAndMethod.first()
+        val primaryModels = modelsWithSamePathAndMethod.primaryCandidatesForMergedIdentity()
+        val firstModelForPathAndMethod = primaryModels.first()
         return Operation()
             .apply {
                 summary = firstModelForPathAndMethod.summary
                 description = firstModelForPathAndMethod.description
-                operationId = firstModelForPathAndMethod.operationId
+                operationId = primaryModels.mergedOperationId()
                 tags = modelsWithSamePathAndMethod.flatMap { it.tags }.distinct().nullIfEmpty()
                 consumes =
                     modelsWithSamePathAndMethod

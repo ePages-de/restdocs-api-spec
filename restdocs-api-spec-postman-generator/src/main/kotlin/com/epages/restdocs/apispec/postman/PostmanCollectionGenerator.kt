@@ -3,6 +3,8 @@ package com.epages.restdocs.apispec.postman
 import com.epages.restdocs.apispec.model.HeaderDescriptor
 import com.epages.restdocs.apispec.model.ResourceModel
 import com.epages.restdocs.apispec.model.groupByPath
+import com.epages.restdocs.apispec.model.mergedOperationId
+import com.epages.restdocs.apispec.model.primaryCandidatesForMergedIdentity
 import com.epages.restdocs.apispec.postman.model.Body
 import com.epages.restdocs.apispec.postman.model.Collection
 import com.epages.restdocs.apispec.postman.model.Header
@@ -42,11 +44,11 @@ object PostmanCollectionGenerator {
             .values
             .flatMap { it.groupBy { models -> models.request.method }.values }
             .map { modelsWithSamePathAndMethod ->
-                val firstModel = modelsWithSamePathAndMethod.first()
+                val primaryModel = modelsWithSamePathAndMethod.primaryModel()
                 Item().apply {
-                    id = firstModel.operationId
-                    name = firstModel.request.path
-                    description = firstModel.description
+                    id = modelsWithSamePathAndMethod.primaryModels().mergedOperationId()
+                    name = primaryModel.request.path
+                    description = primaryModel.description
                     request = toRequest(modelsWithSamePathAndMethod, url)
                     response =
                         modelsWithSamePathAndMethod.map {
@@ -69,12 +71,12 @@ object PostmanCollectionGenerator {
         modelsWithSamePathAndMethod: List<ResourceModel>,
         url: String,
     ): Request {
-        val firstModel = modelsWithSamePathAndMethod.first()
+        val primaryModel = modelsWithSamePathAndMethod.primaryModel()
         return Request().apply {
-            method = firstModel.request.method
+            method = primaryModel.request.method
             this.url = toUrl(modelsWithSamePathAndMethod, url)
             body =
-                firstModel.request.example?.let {
+                primaryModel.request.example?.let {
                     Body().apply {
                         raw = it
                         mode = Body.Mode.RAW
@@ -84,7 +86,7 @@ object PostmanCollectionGenerator {
                 modelsWithSamePathAndMethod
                     .flatMap { it.request.headers }
                     .distinctBy { it.name }
-                    .toItemHeader(modelsWithSamePathAndMethod.map { it.request.contentType }.firstOrNull())
+                    .toItemHeader(primaryModel.request.contentType)
                     .ifEmpty { null }
         }
     }
@@ -113,7 +115,7 @@ object PostmanCollectionGenerator {
                     else -> baseUrl.port.toString()
                 }
             path = baseUrl.path +
-                modelsWithSamePathAndMethod.first().request.path.replace(Regex("(?<!\\{)\\{([^}]+)}(?!})")) {
+                modelsWithSamePathAndMethod.primaryModel().request.path.replace(Regex("(?<!\\{)\\{([^}]+)}(?!})")) {
                     it.value.replace('{', ':').removeSuffix("}")
                 }
             variable =
@@ -158,5 +160,11 @@ object PostmanCollectionGenerator {
                     it
                 }
             }
+
+    private fun List<ResourceModel>.primaryModels(): List<ResourceModel> =
+        this.primaryCandidatesForMergedIdentity()
+
+    private fun List<ResourceModel>.primaryModel(): ResourceModel =
+        this.primaryModels().first()
 }
 typealias Url = Src

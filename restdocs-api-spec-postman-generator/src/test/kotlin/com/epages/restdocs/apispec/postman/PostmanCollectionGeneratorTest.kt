@@ -167,6 +167,48 @@ internal class PostmanCollectionGeneratorTest {
         thenPostmanSpecIsValid()
     }
 
+    @Test
+    fun `should use successful variant item identity when merging with error-only variant`() {
+        givenSuccessAndErrorOnlyResourcesForSameRequest()
+
+        whenPostmanCollectionGenerated()
+
+        then(postmanCollectionJsonPathContext.read<String>("item[0].id")).isEqualTo("get-product")
+        then(postmanCollectionJsonPathContext.read<String>("item[0].description")).isEqualTo("Show product")
+        thenPostmanSpecIsValid()
+    }
+
+    @Test
+    fun `should prefer 200 item identity over 201 when multiple successful variants exist`() {
+        givenMultipleSuccessfulResourcesForSameRequest()
+
+        whenPostmanCollectionGenerated()
+
+        then(postmanCollectionJsonPathContext.read<String>("item[0].id")).isEqualTo("get-product")
+        then(postmanCollectionJsonPathContext.read<String>("item[0].description")).isEqualTo("Show product")
+        thenPostmanSpecIsValid()
+    }
+
+    @Test
+    fun `should concatenate sorted item ids when no common prefix exists`() {
+        givenSuccessfulResourcesWithoutCommonOperationIdPrefix()
+
+        whenPostmanCollectionGenerated()
+
+        then(postmanCollectionJsonPathContext.read<String>("item[0].id")).isEqualTo("firstsecond")
+        thenPostmanSpecIsValid()
+    }
+
+    @Test
+    fun `should trim trailing dash from merged item id common prefix`() {
+        givenSuccessfulResourcesWithCommonPrefixEndingWithDash()
+
+        whenPostmanCollectionGenerated()
+
+        then(postmanCollectionJsonPathContext.read<String>("item[0].id")).isEqualTo("oauth2-token")
+        thenPostmanSpecIsValid()
+    }
+
     private fun whenPostmanCollectionGenerated() {
         postmanCollectionJsonString =
             objectMapper.writeValueAsString(
@@ -210,6 +252,110 @@ internal class PostmanCollectionGeneratorTest {
                     tags = setOf("tag1", "tag2"),
                     request = getProductPatchJsonPatchRequest(),
                     response = getProductHalResponse(),
+                ),
+            )
+    }
+
+    private fun givenSuccessAndErrorOnlyResourcesForSameRequest() {
+        resources =
+            listOf(
+                ResourceModel(
+                    operationId = "get-product-not-found-error",
+                    summary = "Product not found",
+                    description = "Product not found",
+                    privateResource = false,
+                    deprecated = false,
+                    tags = setOf("tag1", "tag2"),
+                    request = getProductRequest(),
+                    response = getProductResponse().copy(status = 401),
+                ),
+                ResourceModel(
+                    operationId = "get-product",
+                    summary = "Show product",
+                    description = "Show product",
+                    privateResource = false,
+                    deprecated = false,
+                    tags = setOf("tag1", "tag2"),
+                    request = getProductRequest(),
+                    response = getProductResponse(),
+                ),
+            )
+    }
+
+    private fun givenMultipleSuccessfulResourcesForSameRequest() {
+        resources =
+            listOf(
+                ResourceModel(
+                    operationId = "get-product-created",
+                    summary = "Created product",
+                    description = "Created product",
+                    privateResource = false,
+                    deprecated = false,
+                    tags = setOf("tag1", "tag2"),
+                    request = getProductRequest(),
+                    response = getProductResponse().copy(status = 201),
+                ),
+                ResourceModel(
+                    operationId = "get-product",
+                    summary = "Show product",
+                    description = "Show product",
+                    privateResource = false,
+                    deprecated = false,
+                    tags = setOf("tag1", "tag2"),
+                    request = getProductRequest(),
+                    response = getProductResponse(),
+                ),
+            )
+    }
+
+    private fun givenSuccessfulResourcesWithoutCommonOperationIdPrefix() {
+        resources =
+            listOf(
+                ResourceModel(
+                    operationId = "second",
+                    summary = "Second",
+                    description = "Second variant",
+                    privateResource = false,
+                    deprecated = false,
+                    tags = setOf("tag1", "tag2"),
+                    request = getProductRequest(),
+                    response = getProductResponse(),
+                ),
+                ResourceModel(
+                    operationId = "first",
+                    summary = "First",
+                    description = "First variant",
+                    privateResource = false,
+                    deprecated = false,
+                    tags = setOf("tag1", "tag2"),
+                    request = getProductRequest(),
+                    response = getProductResponse(),
+                ),
+            )
+    }
+
+    private fun givenSuccessfulResourcesWithCommonPrefixEndingWithDash() {
+        resources =
+            listOf(
+                ResourceModel(
+                    operationId = "oauth2-token-refresh",
+                    summary = "Refresh token",
+                    description = "Refresh token flow",
+                    privateResource = false,
+                    deprecated = false,
+                    tags = setOf("tag1", "tag2"),
+                    request = getProductRequest(),
+                    response = getProductResponse(),
+                ),
+                ResourceModel(
+                    operationId = "oauth2-token-client-credentials",
+                    summary = "Client credentials token",
+                    description = "Client credentials flow",
+                    privateResource = false,
+                    deprecated = false,
+                    tags = setOf("tag1", "tag2"),
+                    request = getProductRequest(),
+                    response = getProductResponse(),
                 ),
             )
     }

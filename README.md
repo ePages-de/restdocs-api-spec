@@ -55,6 +55,7 @@ This is why we came up with this project.
         - [OpenAPI 2.0](#openapi-20)
         - [OpenAPI 3.0.1](#openapi-301)
         - [Postman](#postman)
+    - [Merged snippet identity selection](#merged-snippet-identity-selection)
     - [Gradle plugin configuration](#gradle-plugin-configuration)
         - [Common configuration for all formats](#common-configuration-for-all-formats)
         - [Common OpenAPI configuration](#common-openapi-configuration)
@@ -374,6 +375,27 @@ In order to generate a [Postman collection](https://www.getpostman.com/collectio
 ```
 
 For our [sample project](samples/restdocs-api-spec-sample) this creates a `postman-collection.json` file in the output directory (`build/api-spec`).
+
+### Merged snippet identity selection
+
+If multiple snippets describe the same `path + HTTP method`, they are merged into one operation/item.
+`restdocs-api-spec` first selects deterministic primary candidates for identity fields:
+
+1. Prefer `2xx` responses over non-`2xx`.
+2. Status priority within `2xx`: `200`, `201`, `202`, `204`, then other `2xx`.
+3. Prefer non-blank `summary`.
+4. Prefer non-blank `description`.
+5. Use lexical `operationId` as final tie-breaker.
+
+If no `2xx` snippet exists, non-`2xx` snippets are used with the same ordering.
+
+Identity fields are then derived consistently across generators:
+- OpenAPI 2.0 and OpenAPI 3.0.1: merged `operationId` is the common prefix of primary
+  candidate `operationId`s, or sorted concatenation if no common prefix exists.
+- OpenAPI 2.0 and OpenAPI 3.0.1: `summary` and `description` are taken from the ordered
+  primary candidates.
+- Postman: top-level item `id` uses the same merged operationId rule, and item
+  `description`/request defaults come from the ordered primary candidates.
 
 ### Gradle plugin configuration
 
