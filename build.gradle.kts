@@ -125,12 +125,30 @@ tasks {
             ),
         )
         executionData(files(nonSampleProjects.map { it.layout.buildDirectory.file("jacoco/test.exec") }))
+        // executionData points at plain build-dir file paths, so Gradle can't infer the
+        // dependency on the subprojects' test tasks automatically; declare it explicitly to
+        // guarantee the exec data exists before the aggregate report is generated.
+        dependsOn(nonSampleProjects.map { it.tasks.named("test") })
         reports {
             html.required.set(false)
-            xml.required.set(false)
+            xml.required.set(true)
         }
     }
     getByName("sonar").dependsOn(jacocoRootReport)
+    getByName("check").dependsOn(jacocoRootReport)
+}
+
+// The aggregated report covers all sub-projects, but Sonar analyses each sub-project as its own
+// module, so the (absolute) report path has to be declared on every project.
+val jacocoOverallXmlPath = tasks.named<JacocoReport>("jacocoRootReport")
+    .get().reports.xml.outputLocation.get().asFile.absolutePath
+
+allprojects {
+    sonar {
+        properties {
+            property("sonar.coverage.jacoco.xmlReportPaths", jacocoOverallXmlPath)
+        }
+    }
 }
 
 nexusPublishing {
