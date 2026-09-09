@@ -8,11 +8,11 @@ import com.epages.restdocs.apispec.model.Oauth2Configuration
 import com.epages.restdocs.apispec.model.ParameterDescriptor
 import com.epages.restdocs.apispec.model.ResourceModel
 import com.epages.restdocs.apispec.model.ResponseModel
-import com.epages.restdocs.apispec.model.mergedOperationId
-import com.epages.restdocs.apispec.model.primaryCandidatesForMergedIdentity
 import com.epages.restdocs.apispec.model.Schema
 import com.epages.restdocs.apispec.model.SecurityRequirements
 import com.epages.restdocs.apispec.model.SecurityType
+import com.epages.restdocs.apispec.model.mergedOperationId
+import com.epages.restdocs.apispec.model.primaryCandidatesForMergedIdentity
 import io.swagger.models.Info
 import io.swagger.models.Model
 import io.swagger.models.ModelImpl

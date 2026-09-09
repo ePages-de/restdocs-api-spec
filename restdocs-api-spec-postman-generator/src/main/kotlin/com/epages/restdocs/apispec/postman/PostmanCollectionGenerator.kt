@@ -161,10 +161,8 @@ object PostmanCollectionGenerator {
                 }
             }
 
-    private fun List<ResourceModel>.primaryModels(): List<ResourceModel> =
-        this.primaryCandidatesForMergedIdentity()
+    private fun List<ResourceModel>.primaryModels(): List<ResourceModel> = this.primaryCandidatesForMergedIdentity()
 
-    private fun List<ResourceModel>.primaryModel(): ResourceModel =
-        this.primaryModels().first()
+    private fun List<ResourceModel>.primaryModel(): ResourceModel = this.primaryModels().first()
 }
 typealias Url = Src
