@@ -89,6 +89,52 @@ class OpenApi20GeneratorTest {
     }
 
     @Test
+    fun `should use successful variant identity when merging with error-only variant`() {
+        val api = givenSuccessAndErrorOnlyResourceModelsForSameRequest()
+
+        val openapi = whenOpenApiObjectGenerated(api)
+
+        val operation = openapi.getPath("/products/{id}").get
+        then(operation.operationId).isEqualTo("get-product")
+        then(operation.summary).isEqualTo("Show product")
+        thenValidateOpenApi(openapi)
+    }
+
+    @Test
+    fun `should prefer 200 identity over 201 when multiple successful variants exist`() {
+        val api = givenMultipleSuccessfulResourceModelsForSameRequest()
+
+        val openapi = whenOpenApiObjectGenerated(api)
+
+        val operation = openapi.getPath("/products/{id}").get
+        then(operation.operationId).isEqualTo("get-product")
+        then(operation.summary).isEqualTo("Show product")
+        thenValidateOpenApi(openapi)
+    }
+
+    @Test
+    fun `should use primary candidate operationId when no common prefix exists`() {
+        val api = givenSuccessfulResourceModelsWithoutCommonOperationIdPrefix()
+
+        val openapi = whenOpenApiObjectGenerated(api)
+
+        val operation = openapi.getPath("/products/{id}").get
+        then(operation.operationId).isEqualTo("first")
+        thenValidateOpenApi(openapi)
+    }
+
+    @Test
+    fun `should trim trailing dash from merged operationId common prefix`() {
+        val api = givenSuccessfulResourceModelsWithCommonPrefixEndingWithDash()
+
+        val openapi = whenOpenApiObjectGenerated(api)
+
+        val operation = openapi.getPath("/products/{id}").get
+        then(operation.operationId).isEqualTo("oauth2-token")
+        thenValidateOpenApi(openapi)
+    }
+
+    @Test
     fun `should convert resource without schema`() {
         val api = givenPostProductResourceModelWithoutFieldDescriptors()
 
@@ -790,6 +836,94 @@ class OpenApi20GeneratorTest {
                 deprecated = false,
                 request = deleteProductRequest(),
                 response = deleteProduct204Response(),
+            ),
+        )
+
+    private fun givenSuccessAndErrorOnlyResourceModelsForSameRequest(): List<ResourceModel> =
+        listOf(
+            ResourceModel(
+                operationId = "get-product-not-found-error",
+                summary = "Product not found",
+                description = "If the product does not exist, a `400 Bad Request` error will be returned.",
+                privateResource = false,
+                deprecated = false,
+                request = getProductRequest(),
+                response = getProduct400Response(),
+            ),
+            ResourceModel(
+                operationId = "get-product",
+                summary = "Show product",
+                description = "Returns the product.",
+                privateResource = false,
+                deprecated = false,
+                request = getProductRequest(),
+                response = getProduct200Response(getProductPayloadExample()),
+            ),
+        )
+
+    private fun givenMultipleSuccessfulResourceModelsForSameRequest(): List<ResourceModel> =
+        listOf(
+            ResourceModel(
+                operationId = "get-product-created",
+                summary = "Created product",
+                description = "Returns the created product.",
+                privateResource = false,
+                deprecated = false,
+                request = getProductRequest(),
+                response = getProduct200Response(getProductPayloadExample()).copy(status = 201),
+            ),
+            ResourceModel(
+                operationId = "get-product",
+                summary = "Show product",
+                description = "Returns the product.",
+                privateResource = false,
+                deprecated = false,
+                request = getProductRequest(),
+                response = getProduct200Response(getProductPayloadExample()),
+            ),
+        )
+
+    private fun givenSuccessfulResourceModelsWithoutCommonOperationIdPrefix(): List<ResourceModel> =
+        listOf(
+            ResourceModel(
+                operationId = "second",
+                summary = "Second",
+                description = "Second variant.",
+                privateResource = false,
+                deprecated = false,
+                request = getProductRequest(),
+                response = getProduct200Response(getProductPayloadExample()),
+            ),
+            ResourceModel(
+                operationId = "first",
+                summary = "First",
+                description = "First variant.",
+                privateResource = false,
+                deprecated = false,
+                request = getProductRequest(),
+                response = getProduct200Response(getProductPayloadExample()),
+            ),
+        )
+
+    private fun givenSuccessfulResourceModelsWithCommonPrefixEndingWithDash(): List<ResourceModel> =
+        listOf(
+            ResourceModel(
+                operationId = "oauth2-token-refresh",
+                summary = "Refresh token",
+                description = "Refresh token flow.",
+                privateResource = false,
+                deprecated = false,
+                request = getProductRequest(),
+                response = getProduct200Response(getProductPayloadExample()),
+            ),
+            ResourceModel(
+                operationId = "oauth2-token-client-credentials",
+                summary = "Client credentials token",
+                description = "Client credentials flow.",
+                privateResource = false,
+                deprecated = false,
+                request = getProductRequest(),
+                response = getProduct200Response(getProductPayloadExample()),
             ),
         )
 

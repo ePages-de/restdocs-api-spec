@@ -13,6 +13,8 @@ import com.epages.restdocs.apispec.model.ResourceModel
 import com.epages.restdocs.apispec.model.ResponseModel
 import com.epages.restdocs.apispec.model.SimpleType
 import com.epages.restdocs.apispec.model.groupByPath
+import com.epages.restdocs.apispec.model.mergedOperationId
+import com.epages.restdocs.apispec.model.primaryCandidatesForMergedIdentity
 import com.epages.restdocs.apispec.openapi3.SecuritySchemeGenerator.addSecurityDefinitions
 import com.epages.restdocs.apispec.openapi3.SecuritySchemeGenerator.addSecurityItemFromSecurityRequirements
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -243,6 +245,9 @@ object OpenApi3Generator {
             it.request.method
         }
 
+    private fun primaryModels(modelsWithSamePathAndMethod: List<ResourceModel>): List<ResourceModel> =
+        modelsWithSamePathAndMethod.primaryCandidatesForMergedIdentity()
+
     private fun resourceModels2PathItem(
         modelsWithSamePath: List<ResourceModel>,
         oauth2SecuritySchemeDefinition: Oauth2Configuration?,
@@ -284,12 +289,12 @@ object OpenApi3Generator {
         @Suppress("unused") oauth2SecuritySchemeDefinition: Oauth2Configuration?,
     ): Operation {
         val firstModelForPathAndMethod = modelsWithSamePathAndMethod.first()
-        val operationIds = modelsWithSamePathAndMethod.map { model -> model.operationId }
+        val primaryModels = primaryModels(modelsWithSamePathAndMethod)
         return Operation()
             .apply {
-                operationId = operationId(operationIds)
-                summary = modelsWithSamePathAndMethod.map { it.summary }.find { !it.isNullOrBlank() }
-                description = modelsWithSamePathAndMethod.map { it.description }.find { !it.isNullOrBlank() }
+                operationId = primaryModels.mergedOperationId()
+                summary = primaryModels.map { it.summary }.find { !it.isNullOrBlank() }
+                description = primaryModels.map { it.description }.find { !it.isNullOrBlank() }
                 tags = modelsWithSamePathAndMethod.flatMap { it.tags }.distinct().nullIfEmpty()
                 deprecated = if (modelsWithSamePathAndMethod.all { it.deprecated }) true else null
                 parameters =
@@ -325,19 +330,6 @@ object OpenApi3Generator {
                         },
                     )
             }.apply { addSecurityItemFromSecurityRequirements(firstModelForPathAndMethod.request.securityRequirements) }
-    }
-
-    private fun operationId(operationIds: List<String>): String {
-        var prefix = operationIds.first()
-        for (operationId in operationIds) {
-            prefix = prefix.commonPrefixWith(operationId)
-        }
-
-        if (prefix.isEmpty()) {
-            prefix = operationIds.sorted().joinToString(separator = "")
-        }
-
-        return prefix
     }
 
     private fun resourceModelsToRequestBody(requestModelsWithOperationId: List<RequestModelWithOperationId>): RequestBody? {

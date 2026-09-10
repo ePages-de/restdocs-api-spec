@@ -262,12 +262,41 @@ class OpenApi3GeneratorTest {
     }
 
     @Test
-    fun `should determine operationId as concatenated operationIds if no common prefix exists`() {
+    fun `should determine operationId as primary candidate's own id if no common prefix exists`() {
         givenResourcesWithSamePathAndContentTypeButOperationIdsWithoutCommonPrefix()
 
         whenOpenApiObjectGenerated()
 
-        then(openApiJsonPathContext.read<String>("paths./products/{id}.get.operationId")).isEqualTo("firstsecond")
+        then(openApiJsonPathContext.read<String>("paths./products/{id}.get.operationId")).isEqualTo("first")
+    }
+
+    @Test
+    fun `should trim trailing dash from merged operationId common prefix`() {
+        givenResourcesWithCommonPrefixEndingWithDash()
+
+        whenOpenApiObjectGenerated()
+
+        then(openApiJsonPathContext.read<String>("paths./products/{id}.get.operationId")).isEqualTo("oauth2-token")
+    }
+
+    @Test
+    fun `should use successful variant identity when merging with error-only variant`() {
+        givenSuccessAndErrorOnlyResourcesForSameRequest()
+
+        whenOpenApiObjectGenerated()
+
+        then(openApiJsonPathContext.read<String>("paths./products/{id}.get.operationId")).isEqualTo("get-product")
+        then(openApiJsonPathContext.read<String>("paths./products/{id}.get.summary")).isEqualTo("Show product")
+    }
+
+    @Test
+    fun `should prefer 200 identity over 201 when multiple successful variants exist`() {
+        givenMultipleSuccessfulResourcesForSameRequest()
+
+        whenOpenApiObjectGenerated()
+
+        then(openApiJsonPathContext.read<String>("paths./products/{id}.get.operationId")).isEqualTo("get-product")
+        then(openApiJsonPathContext.read<String>("paths./products/{id}.get.summary")).isEqualTo("Show product")
     }
 
     @Test
@@ -837,6 +866,80 @@ class OpenApi3GeneratorTest {
                     privateResource = false,
                     deprecated = false,
                     tags = setOf("tag1", "tag2"),
+                    request = getProductRequest(),
+                    response = getProductResponse(),
+                ),
+            )
+    }
+
+    private fun givenResourcesWithCommonPrefixEndingWithDash() {
+        resources =
+            listOf(
+                ResourceModel(
+                    operationId = "oauth2-token-refresh",
+                    summary = "summary",
+                    description = "description",
+                    privateResource = false,
+                    deprecated = false,
+                    tags = setOf("tag1", "tag2"),
+                    request = getProductRequest(),
+                    response = getProductResponse(),
+                ),
+                ResourceModel(
+                    operationId = "oauth2-token-client-credentials",
+                    summary = "summary 1",
+                    description = "description 1",
+                    privateResource = false,
+                    deprecated = false,
+                    tags = setOf("tag1", "tag2"),
+                    request = getProductRequest(),
+                    response = getProductResponse(),
+                ),
+            )
+    }
+
+    private fun givenSuccessAndErrorOnlyResourcesForSameRequest() {
+        resources =
+            listOf(
+                ResourceModel(
+                    operationId = "get-product-not-found-error",
+                    summary = "Product not found",
+                    description = "If the product does not exist, a `400 Bad Request` error will be returned.",
+                    privateResource = false,
+                    deprecated = false,
+                    request = getProductRequest(),
+                    response = getProductErrorResponse(),
+                ),
+                ResourceModel(
+                    operationId = "get-product",
+                    summary = "Show product",
+                    description = "Returns the product.",
+                    privateResource = false,
+                    deprecated = false,
+                    request = getProductRequest(),
+                    response = getProductResponse(),
+                ),
+            )
+    }
+
+    private fun givenMultipleSuccessfulResourcesForSameRequest() {
+        resources =
+            listOf(
+                ResourceModel(
+                    operationId = "get-product-created",
+                    summary = "Created product",
+                    description = "Returns the created product.",
+                    privateResource = false,
+                    deprecated = false,
+                    request = getProductRequest(),
+                    response = getProductResponse().copy(status = 201),
+                ),
+                ResourceModel(
+                    operationId = "get-product",
+                    summary = "Show product",
+                    description = "Returns the product.",
+                    privateResource = false,
+                    deprecated = false,
                     request = getProductRequest(),
                     response = getProductResponse(),
                 ),
