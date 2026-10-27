@@ -14,6 +14,7 @@ import io.swagger.v3.oas.models.security.SecurityScheme
 internal object SecuritySchemeGenerator {
     private const val API_KEY_SECURITY_NAME = "api_key"
     private const val BASIC_SECURITY_NAME = "basic"
+    private const val COOKIE_SECURITY_NAME = "cookieAuth"
     private const val JWT_BEARER_SECURITY_NAME = "bearerAuthJWT"
     private const val OAUTH2_SECURITY_NAME = "oauth2"
 
@@ -82,6 +83,17 @@ internal object SecuritySchemeGenerator {
             )
         }
 
+        if (hasAnyOperationWithSecurityName(this, COOKIE_SECURITY_NAME)) {
+            components.addSecuritySchemes(
+                COOKIE_SECURITY_NAME,
+                SecurityScheme().apply {
+                    type = SecurityScheme.Type.APIKEY
+                    `in` = SecurityScheme.In.COOKIE
+                    name = "JSESSIONID"
+                },
+            )
+        }
+
         if (hasAnyOperationWithSecurityName(this, JWT_BEARER_SECURITY_NAME)) {
             components.addSecuritySchemes(
                 JWT_BEARER_SECURITY_NAME,
@@ -104,6 +116,7 @@ internal object SecuritySchemeGenerator {
                 SecurityType.BASIC -> addSecurityItem(SecurityRequirement().addList(BASIC_SECURITY_NAME))
                 SecurityType.API_KEY -> addSecurityItem(SecurityRequirement().addList(API_KEY_SECURITY_NAME))
                 SecurityType.JWT_BEARER -> addSecurityItem(SecurityRequirement().addList(JWT_BEARER_SECURITY_NAME))
+                SecurityType.COOKIE -> addSecurityItem(SecurityRequirement().addList(COOKIE_SECURITY_NAME))
             }
         }
     }

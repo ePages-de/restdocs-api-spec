@@ -8,6 +8,7 @@ internal class SecurityRequirementsHandler {
         listOf(
             BasicSecurityHandler(),
             JwtSecurityHandler(),
+            CookieSecurityHandler(),
         )
 
     fun extractSecurityRequirements(operation: Operation): SecurityRequirements? =
@@ -52,9 +53,35 @@ internal object JWTBearer : SecurityRequirements {
     override val type = SecurityType.JWT_BEARER
 }
 
+internal class CookieSecurityHandler : SecurityRequirementsExtractor {
+    override fun extractSecurityRequirements(operation: Operation): SecurityRequirements? =
+        if (hasSessionCookie(operation)) {
+            SessionCookie
+        } else {
+            null
+        }
+
+    private fun hasSessionCookie(operation: Operation): Boolean =
+        operation.request.headers
+            .getOrEmpty(HttpHeaders.COOKIE)
+            .asSequence()
+            .flatMap { it.split(';').asSequence() }
+            .map { it.trim() }
+            .any { it.substringBefore('=') == SESSION_COOKIE_NAME && it.contains('=') }
+
+    private companion object {
+        const val SESSION_COOKIE_NAME = "JSESSIONID"
+    }
+}
+
+internal object SessionCookie : SecurityRequirements {
+    override val type = SecurityType.COOKIE
+}
+
 internal enum class SecurityType {
     OAUTH2,
     BASIC,
     API_KEY,
     JWT_BEARER,
+    COOKIE,
 }

@@ -160,6 +160,7 @@ enum class SecurityType {
     BASIC,
     API_KEY,
     JWT_BEARER,
+    COOKIE,
 }
 
 enum class HTTPMethod {

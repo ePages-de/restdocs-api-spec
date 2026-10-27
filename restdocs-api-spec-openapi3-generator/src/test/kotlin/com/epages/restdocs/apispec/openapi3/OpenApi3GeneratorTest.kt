@@ -65,6 +65,15 @@ class OpenApi3GeneratorTest {
     }
 
     @Test
+    fun `should convert resource model with cookie SecurityRequirements to openapi`() {
+        givenGetProductResourceModelWithCookieSecurityRequirement()
+
+        whenOpenApiObjectGeneratedWithoutOAuth2()
+
+        thenCookieSecuritySchemePresent()
+    }
+
+    @Test
     fun `should convert single delete resource model to openapi`() {
         givenDeleteProductResourceModel()
 
@@ -731,6 +740,13 @@ class OpenApi3GeneratorTest {
         then(openApiJsonPathContext.read<String>("components.securitySchemes.bearerAuthJWT.type")).isEqualTo("http")
         then(openApiJsonPathContext.read<String>("components.securitySchemes.bearerAuthJWT.scheme")).isEqualTo("bearer")
         then(openApiJsonPathContext.read<String>("components.securitySchemes.bearerAuthJWT.bearerFormat")).isEqualTo("JWT")
+    }
+
+    private fun thenCookieSecuritySchemePresent() {
+        then(openApiJsonPathContext.read<String>("components.securitySchemes.cookieAuth.type")).isEqualTo("apiKey")
+        then(openApiJsonPathContext.read<String>("components.securitySchemes.cookieAuth.in")).isEqualTo("cookie")
+        then(openApiJsonPathContext.read<String>("components.securitySchemes.cookieAuth.name")).isEqualTo("JSESSIONID")
+        then(openApiJsonPathContext.read<List<List<String>>>("paths./products/{id}.get.security[*].cookieAuth").flatten()).isEmpty()
     }
 
     private fun thenCustomSchemaNameOfSingleOperationAreSet() {
@@ -1409,6 +1425,22 @@ class OpenApi3GeneratorTest {
             )
     }
 
+    private fun givenGetProductResourceModelWithCookieSecurityRequirement() {
+        resources =
+            listOf(
+                ResourceModel(
+                    operationId = "test",
+                    summary = "summary",
+                    description = "description",
+                    privateResource = false,
+                    deprecated = false,
+                    tags = setOf("tag1", "tag2"),
+                    request = getProductRequest(::getCookieSecurityRequirement),
+                    response = getProductResponse(),
+                ),
+            )
+    }
+
     private fun givenPatchProductResourceModelWithCustomSchemaNames() {
         resources =
             listOf(
@@ -1804,6 +1836,11 @@ class OpenApi3GeneratorTest {
     private fun getJWTSecurityRequirement() =
         SecurityRequirements(
             type = SecurityType.JWT_BEARER,
+        )
+
+    private fun getCookieSecurityRequirement() =
+        SecurityRequirements(
+            type = SecurityType.COOKIE,
         )
 
     private fun getProductRequestWithDifferentParameter(

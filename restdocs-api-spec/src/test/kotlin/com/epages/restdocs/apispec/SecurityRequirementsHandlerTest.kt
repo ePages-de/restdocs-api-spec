@@ -30,6 +30,24 @@ class SecurityRequirementsHandlerTest {
     }
 
     @Test
+    fun `should return cookie security requirements for a JSESSIONID cookie`() {
+        givenRequestWithCookieHeader("theme=dark; JSESSIONID=session-id")
+
+        whenSecurityRequirementsExtracted()
+
+        then(securityRequirements).isEqualTo(SessionCookie)
+    }
+
+    @Test
+    fun `should ignore cookies that are not used for session authentication`() {
+        givenRequestWithCookieHeader("theme=dark; locale=en")
+
+        whenSecurityRequirementsExtracted()
+
+        then(securityRequirements).isNull()
+    }
+
+    @Test
     fun `should return null when no requirements recognized`() {
         givenRequestWithoutAuthorizationHeader()
 
@@ -70,6 +88,16 @@ class SecurityRequirementsHandlerTest {
                 .testClass(SecurityRequirementsHandlerTest::class.java)
                 .testMethodName("shouldReturnNullWhenNoRequirementsRecognized")
                 .request("/some")
+                .build()
+    }
+
+    private fun givenRequestWithCookieHeader(cookieHeader: String) {
+        operation =
+            OperationBuilder()
+                .testClass(SecurityRequirementsHandlerTest::class.java)
+                .testMethodName("shouldReturnCookieSecurityRequirements")
+                .request("/some")
+                .header(HttpHeaders.COOKIE, cookieHeader)
                 .build()
     }
 }

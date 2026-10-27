@@ -349,6 +349,7 @@ object OpenApi20Generator {
                         SecurityType.BASIC -> addSecurity(BASIC_SECURITY_NAME, null)
                         SecurityType.API_KEY -> addSecurity(API_KEY_SECURITY_NAME, null)
                         SecurityType.JWT_BEARER -> { /* not specified for OpenApi 2.0 */ }
+                        SecurityType.COOKIE -> { /* not specified for OpenApi 2.0 */ }
                     }
                 }
             }

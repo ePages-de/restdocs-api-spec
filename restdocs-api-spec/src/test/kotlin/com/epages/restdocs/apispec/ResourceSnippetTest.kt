@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.http.HttpHeaders.CONTENT_TYPE
+import org.springframework.http.HttpHeaders.COOKIE
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.OK
 import org.springframework.http.MediaType
@@ -61,6 +62,16 @@ class ResourceSnippetTest {
         then(resourceSnippetJson.read<Int>("response.status")).isEqualTo(OK.value())
         then(resourceSnippetJson.read<String>("response.example")).isNull()
         then(resourceSnippetJson.read<List<String>>("tags")).isEqualTo(listOf("some"))
+    }
+
+    @Test
+    fun should_generate_cookie_security_requirement() {
+        givenOperationWithSessionCookie()
+
+        whenResourceSnippetInvoked()
+
+        thenSnippetFileExists()
+        then(resourceSnippetJson.read<String>("request.securityRequirements.type")).isEqualTo("COOKIE")
     }
 
     @Test
@@ -408,6 +419,18 @@ class ResourceSnippetTest {
                 .method("POST")
                 .header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
                 .content("{\"comment\": \"some\"}")
+                .build()
+    }
+
+    private fun givenOperationWithSessionCookie() {
+        operation =
+            OperationBuilder("test", rootOutputDirectory)
+                .attribute(ATTRIBUTE_NAME_URL_TEMPLATE, "http://localhost:8080/some/{id}")
+                .testClass(ResourceSnippetTest::class.java)
+                .testMethodName("getSomeById")
+                .request("http://localhost:8080/some/123")
+                .method("GET")
+                .header(COOKIE, "JSESSIONID=session-id")
                 .build()
     }
 

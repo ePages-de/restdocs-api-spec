@@ -336,10 +336,11 @@ webTestClient.get().uri("/sample/{id}?queryParam=something", "1024").exchange()
 ### Security Definitions in OpenAPI
 
 The project has limited support for describing security requirements of an API.
-Currently we only support Oauth2 with [JWT](https://jwt.io/) tokens and HTTP Basic Auth.
+Currently we support Oauth2 with [JWT](https://jwt.io/) tokens, HTTP Basic Auth, and cookie authentication with `JSESSIONID`.
 
 `restdocs-api-spec` inspects the `AUTHORIZATION` header of a request for a `JWT` token.
 Also the a HTTP basic authorization header is discovered and documented.
+Requests containing a `JSESSIONID` cookie are documented as an OpenAPI 3 `apiKey` security scheme named `cookieAuth` with `in: cookie`.
 If such a token is found the scopes are extracted and added to the `resource.json` snippet.
 
 The `restdocs-api-spec-gradle-plugin` will consider this information if the `oauth2SecuritySchemeDefinition` configuration option is set (see [Gradle plugin configuration](#gradle-plugin-configuration)).
