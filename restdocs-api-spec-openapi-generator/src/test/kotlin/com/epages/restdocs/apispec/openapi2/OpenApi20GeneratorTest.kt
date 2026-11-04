@@ -3,6 +3,7 @@ package com.epages.restdocs.apispec.openapi2
 import com.epages.restdocs.apispec.jsonschema.JsonSchemaFromFieldDescriptorsGenerator
 import com.epages.restdocs.apispec.model.AbstractParameterDescriptor
 import com.epages.restdocs.apispec.model.Attributes
+import com.epages.restdocs.apispec.model.Constraint
 import com.epages.restdocs.apispec.model.FieldDescriptor
 import com.epages.restdocs.apispec.model.HTTPMethod
 import com.epages.restdocs.apispec.model.HeaderDescriptor
@@ -36,6 +37,69 @@ import tools.jackson.module.kotlin.readValue
 private const val SCHEMA_JSONPATH_PREFIX = "#/definitions/"
 
 class OpenApi20GeneratorTest {
+    @Test
+    fun `should preserve request and response schema order in every output format`() {
+        val required = Attributes(validationConstraints = listOf(Constraint("javax.validation.constraints.NotNull", emptyMap())))
+        val fields =
+            listOf(
+                FieldDescriptor("poll.body", "Optional body", "OBJECT", optional = true),
+                FieldDescriptor("poll.timeout_ms", "Timeout", "NUMBER"),
+                FieldDescriptor("actions[].http_status", "HTTP status", "NUMBER"),
+                FieldDescriptor("actions[].status_pointer", "Pointer", "STRING"),
+                FieldDescriptor("actions[].value", "Optional value", "VARIES", optional = true),
+                FieldDescriptor("actions[].exists", "Optional condition", "BOOLEAN", optional = true),
+                FieldDescriptor("zebra", "Zebra", "STRING", attributes = required),
+                FieldDescriptor("alpha", "Alpha", "STRING", attributes = required),
+            )
+        val resource =
+            givenPostProductResourceModel().first().let {
+                it.copy(
+                    request = it.request.copy(requestFields = fields, schema = Schema("OrderedRequest"), example = "{}"),
+                    response = it.response.copy(responseFields = fields, schema = Schema("OrderedResponse"), example = "{}"),
+                )
+            }
+
+        ApiSpecificationWriter.supportedFormats().forEach { format ->
+            val output = OpenApi20Generator.generateAndSerialize(listOf(resource), format = format)
+            val mapper =
+                if (format == "json") {
+                    Json.mapper()
+                } else {
+                    io.swagger.util.Yaml
+                        .mapper()
+                }
+            val document = mapper.readTree(output)
+            listOf("OrderedRequest", "OrderedResponse").forEach { name ->
+                val schema = document.at("/definitions/$name")
+                then(
+                    schema
+                        .path("properties")
+                        .fieldNames()
+                        .asSequence()
+                        .toList(),
+                ).describedAs("$format $name")
+                    .containsExactly("poll", "actions", "zebra", "alpha")
+                then(
+                    schema
+                        .at("/properties/poll/properties")
+                        .fieldNames()
+                        .asSequence()
+                        .toList(),
+                ).containsExactly("body", "timeout_ms")
+                then(
+                    schema
+                        .at("/properties/actions/items/properties")
+                        .fieldNames()
+                        .asSequence()
+                        .toList(),
+                ).containsExactly("http_status", "status_pointer", "value", "exists")
+                then(schema.path("required").map { it.asText() }).containsExactly("zebra", "alpha")
+                then(schema.at("/properties/actions/items/required").map { it.asText() })
+                    .containsExactly("http_status", "status_pointer")
+            }
+        }
+    }
+
     @Test
     fun `should have parent tags generated for openapi`() {
         val api = givenGetProductResourceModel()

@@ -22,7 +22,10 @@ import org.everit.json.schema.ObjectSchema
 import org.everit.json.schema.Schema
 import org.everit.json.schema.StringSchema
 import org.everit.json.schema.internal.JSONPrinter
+import tools.jackson.databind.JsonNode
 import tools.jackson.databind.SerializationFeature
+import tools.jackson.databind.node.ArrayNode
+import tools.jackson.databind.node.ObjectNode
 import tools.jackson.module.kotlin.jacksonMapperBuilder
 import java.io.StringWriter
 import java.time.LocalDate
@@ -42,7 +45,35 @@ class JsonSchemaFromFieldDescriptorsGenerator {
 
         val schema = traverse(emptyList(), jsonFieldPaths, ObjectSchema.builder().title(title) as ObjectSchema.Builder)
 
-        return toFormattedString(unWrapRootArray(jsonFieldPaths, schema))
+        val propertyOrder = buildPropertyOrder(fieldDescriptors, jsonFieldPaths)
+
+        return toFormattedString(unWrapRootArray(jsonFieldPaths, schema), propertyOrder)
+    }
+
+    private fun buildPropertyOrder(
+        fieldDescriptors: List<FieldDescriptor>,
+        jsonFieldPaths: List<JsonFieldPath>,
+    ): Map<String, List<String>> {
+        val pathsByDescriptor = jsonFieldPaths.associateBy { it.fieldDescriptor.path }
+        val propertyNamesByParentPath = linkedMapOf<String, MutableSet<String>>()
+        fieldDescriptors.forEach { descriptor ->
+            var parentPath = ""
+            pathsByDescriptor.getValue(descriptor.path).remainingSegments(emptyList()).forEach { segment ->
+                val name = if (JsonFieldPath.isArraySegment(segment)) "[]" else segment
+                propertyNamesByParentPath.getOrPut(parentPath) { linkedSetOf() }.add(name)
+                parentPath = childPath(parentPath, name)
+            }
+        }
+        return propertyNamesByParentPath.mapValues { it.value.toList() }
+    }
+
+    private fun childPath(
+        parentPath: String,
+        name: String,
+    ): String {
+        // JSON Pointer escaping keeps slashes and tildes in field names distinct from parent paths.
+        val escapedName = name.replace("~", "~0").replace("/", "~1")
+        return "$parentPath/$escapedName"
     }
 
     /**
@@ -91,11 +122,48 @@ class JsonSchemaFromFieldDescriptorsGenerator {
         return schema
     }
 
-    private fun toFormattedString(schema: Schema): String {
+    private fun toFormattedString(
+        schema: Schema,
+        propertyOrder: Map<String, List<String>>,
+    ): String {
         val objectMapper = jacksonMapperBuilder().enable(SerializationFeature.INDENT_OUTPUT).build()
         return StringWriter().use {
             schema.describeTo(JSONPrinter(it))
-            objectMapper.writeValueAsString(objectMapper.readTree(it.toString()))
+            val schemaNode = objectMapper.readTree(it.toString())
+            // Everit does not retain insertion order in property maps. Restore descriptor
+            // order here so every generator receives the same ordered JSON Schema.
+            reorderProperties(schemaNode, propertyOrder)
+            objectMapper.writeValueAsString(schemaNode)
+        }
+    }
+
+    private fun reorderProperties(
+        schema: JsonNode,
+        propertyOrder: Map<String, List<String>>,
+        parentPath: String = "",
+    ) {
+        (schema.path("properties") as? ObjectNode)?.let { properties ->
+            val propertyNames =
+                (propertyOrder[parentPath].orEmpty() + properties.properties().map { it.key })
+                    .distinct()
+                    .filter { properties.has(it) }
+            val orderedProperties = propertyNames.associateWith { properties.path(it) }
+            properties.removeAll()
+            orderedProperties.forEach { (name, property) ->
+                properties.set(name, property)
+                reorderProperties(property, propertyOrder, childPath(parentPath, name))
+            }
+            (schema.path("required") as? ArrayNode)?.let { required ->
+                val requiredNames = required.map { it.asString() }.toSet()
+                required.removeAll()
+                (propertyNames + requiredNames).filter { it in requiredNames }.distinct().forEach { required.add(it) }
+            }
+        }
+        schema.path("items").takeIf { it.isObject }?.let {
+            reorderProperties(it, propertyOrder, childPath(parentPath, "[]"))
+        }
+        listOf("allOf", "anyOf", "oneOf").forEach { keyword ->
+            schema.path(keyword).forEach { reorderProperties(it, propertyOrder, parentPath) }
         }
     }
 

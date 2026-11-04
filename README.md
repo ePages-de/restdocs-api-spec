@@ -398,6 +398,20 @@ Identity fields are then derived consistently across generators:
 - Postman: top-level item `id` uses the same merged operationId rule, and item
   `description`/request defaults come from the ordered primary candidates.
 
+### Schema property order
+
+JSON Schema and OpenAPI 2.0/3.0.1 request and response schemas preserve the field descriptor
+declaration order at each object level, including nested objects and array items.
+The `required` list follows the same order. OpenAPI output preserves this order in
+`json`, `yaml`, and `yml` formats, including extracted component schemas.
+
+The first occurrence of a field path determines its position when descriptors are merged.
+Optional fields keep their declared position even when they are absent from examples.
+Schema ordering does not depend on example contents and needs no Gradle post-processing.
+
+Postman collections contain example bodies rather than generated body schemas.
+Their request and response example bodies are copied unchanged from the snippets.
+
 ### Gradle plugin configuration
 
 #### Common configuration for all formats

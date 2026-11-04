@@ -34,6 +34,32 @@ internal class PostmanCollectionGeneratorTest {
             .getJsonSchema(objectMapper.readTree(this.javaClass.classLoader.getResourceAsStream("collection-schema.json")))
 
     @Test
+    fun `should preserve example bodies independently of descriptor order`() {
+        val fields =
+            listOf(
+                FieldDescriptor("zebra", "Zebra", "STRING"),
+                FieldDescriptor("alpha", "Alpha", "STRING"),
+            )
+        val requestExample = """{"alpha":"first","zebra":"second"}"""
+        val responseExample = """{"zebra":"first","alpha":"second"}"""
+        givenGetProductResourceModel()
+        resources =
+            resources.map {
+                it.copy(
+                    request = it.request.copy(requestFields = fields, example = requestExample),
+                    response = it.response.copy(responseFields = fields, example = responseExample),
+                )
+            }
+
+        whenPostmanCollectionGenerated()
+
+        then(postmanCollectionJsonPathContext.read<String>("item[0].request.body.raw")).isEqualTo(requestExample)
+        then(postmanCollectionJsonPathContext.read<String>("item[0].response[0].originalRequest.body.raw")).isEqualTo(requestExample)
+        then(postmanCollectionJsonPathContext.read<String>("item[0].response[0].body")).isEqualTo(responseExample)
+        thenPostmanSpecIsValid()
+    }
+
+    @Test
     fun `should convert single resource model to postman`() {
         givenGetProductResourceModel()
 
