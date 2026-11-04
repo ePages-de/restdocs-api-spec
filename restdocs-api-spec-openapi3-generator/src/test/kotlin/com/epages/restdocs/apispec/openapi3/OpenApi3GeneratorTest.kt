@@ -31,6 +31,80 @@ class OpenApi3GeneratorTest {
     lateinit var openApiJsonPathContext: DocumentContext
 
     @Test
+    fun `should preserve request and response schema order in every output format`() {
+        val required = Attributes(validationConstraints = listOf(Constraint("javax.validation.constraints.NotNull", emptyMap())))
+        val fields =
+            listOf(
+                FieldDescriptor("poll.body", "Optional body", "OBJECT", optional = true),
+                FieldDescriptor("poll.timeout_ms", "Timeout", "NUMBER"),
+                FieldDescriptor("actions[].http_status", "HTTP status", "NUMBER"),
+                FieldDescriptor("actions[].status_pointer", "Pointer", "STRING"),
+                FieldDescriptor("actions[].value", "Optional value", "VARIES", optional = true),
+                FieldDescriptor("actions[].exists", "Optional condition", "BOOLEAN", optional = true),
+                FieldDescriptor("zebra", "Zebra", "STRING", attributes = required),
+                FieldDescriptor("alpha", "Alpha", "STRING", attributes = required),
+                FieldDescriptor("poll", "Poll", "OBJECT", attributes = Attributes(schemaName = "OrderedPoll")),
+            )
+        givenGetProductResourceModel()
+        val resource =
+            resources.first().let {
+                it.copy(
+                    request =
+                        it.request.copy(
+                            method = HTTPMethod.POST,
+                            contentType = "application/json",
+                            requestFields = fields,
+                            schema = Schema("OrderedRequest"),
+                            example = "{}",
+                        ),
+                    response = it.response.copy(responseFields = fields, schema = Schema("OrderedResponse"), example = "{}"),
+                )
+            }
+
+        ApiSpecificationWriter.supportedFormats().forEach { format ->
+            val output = OpenApi3Generator.generateAndSerialize(listOf(resource), servers = emptyList(), format = format)
+            val mapper =
+                if (format == "json") {
+                    io.swagger.v3.core.util.Json
+                        .mapper()
+                } else {
+                    io.swagger.v3.core.util.Yaml
+                        .mapper()
+                }
+            val document = mapper.readTree(output)
+            listOf("OrderedRequest", "OrderedResponse").forEach { name ->
+                val schema = document.at("/components/schemas/$name")
+                then(
+                    schema
+                        .path("properties")
+                        .fieldNames()
+                        .asSequence()
+                        .toList(),
+                ).describedAs("$format $name")
+                    .containsExactly("poll", "actions", "zebra", "alpha")
+                then(schema.at("/properties/poll/\$ref").asText()).isEqualTo("#/components/schemas/OrderedPoll")
+                then(
+                    schema
+                        .at("/properties/actions/items/properties")
+                        .fieldNames()
+                        .asSequence()
+                        .toList(),
+                ).containsExactly("http_status", "status_pointer", "value", "exists")
+                then(schema.path("required").map { it.asText() }).containsExactly("poll", "zebra", "alpha")
+                then(schema.at("/properties/actions/items/required").map { it.asText() })
+                    .containsExactly("http_status", "status_pointer")
+            }
+            then(
+                document
+                    .at("/components/schemas/OrderedPoll/properties")
+                    .fieldNames()
+                    .asSequence()
+                    .toList(),
+            ).containsExactly("body", "timeout_ms")
+        }
+    }
+
+    @Test
     fun `should convert multi level schema model to openapi`() {
         givenPutProductResourceModel()
 
